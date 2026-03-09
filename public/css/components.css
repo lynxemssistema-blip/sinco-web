@@ -1,0 +1,162 @@
+/* Components - Reference App Style */
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 0.75rem 1.75rem;
+    /* Wider padding like reference */
+    border-radius: var(--radius-lg);
+    /* 12px radius */
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    position: relative;
+    user-select: none;
+    letter-spacing: 0.01em;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--color-brand-dark);
+    color: var(--text-inverse);
+    /* Reference dark buttons don't have heavy shadows usually, just flat clean look */
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background-color: #26332F;
+    /* Slightly darker */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-secondary {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    color: var(--color-brand-dark);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+    background-color: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.btn-accent {
+    background-color: var(--color-brand-accent);
+    color: var(--color-brand-dark);
+    font-weight: 700;
+    box-shadow: 0 4px 14px 0 rgba(224, 232, 0, 0.39);
+    /* Glowy accent */
+}
+
+.btn-accent:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(224, 232, 0, 0.23);
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    /* 16px/24px from reference */
+    padding: var(--space-2xl);
+    /* Generous padding */
+    box-shadow: var(--shadow-card);
+    border: none;
+    /* Reference removes internal borders for float effect */
+}
+
+.card:hover {
+    /* No heavy lift on hover for main structure, maybe for interactive cards only */
+}
+
+.card-header {
+    margin-bottom: var(--space-lg);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 6px;
+    /* Precise spacing */
+    font-weight: 500;
+    color: var(--text-heading);
+    /* Darker heading color for labels */
+    font-size: 0.9rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-lg);
+    /* 12px matching reference */
+    border: 1px solid var(--color-border);
+    background-color: var(--color-input-bg);
+    /* #F8FAFC */
+    transition: all var(--transition-fast);
+    outline: none;
+    font-size: 1rem;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    /* Subtle inner depth */
+}
+
+.form-input:hover {
+    border-color: #CBD5E1;
+    /* Slate 300 */
+}
+
+.form-input:focus {
+    border-color: var(--color-brand-dark);
+    /* Focus color is brand dark or accent? Usually primary brand */
+    background-color: #FFFFFF;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.025em;
+}
+
+.badge-success {
+    background-color: #ECFCCB;
+    /* Lime 100 */
+    color: #365314;
+    /* Lime 900 */
+    border: 1px solid #D9F99D;
+}
+
+.badge-neutral {
+    background-color: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+}

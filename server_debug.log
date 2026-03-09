@@ -1,0 +1,29 @@
+[dotenv@17.2.3] injecting env (12) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[DB] Pool already exists for lynxlocal. Re-using.
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] 🔵 GET /lynx-logo.png
+[API] 🟢 304 (32ms)
+
+[API] 🔵 GET /api/dashboard/stats
+[TenantMiddleware] Request to /dashboard/stats - Header x-tenant-db: 'lynxlocal'
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (60ms) - Rows/Affected: 1
+[API] 🟢 200 (72ms)
+
+[API] 🔵 GET /api/config/menu
+[TenantMiddleware] Request to /config/menu - Header x-tenant-db: 'lynxlocal'
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 🟢 200 (52ms)
+
+[API] 🔵 GET /sw.js
+[API] 🟢 304 (3ms)
+
+[API] 🔵 GET /workbox-8c29f6e4.js
+[API] 🟢 304 (2ms)
