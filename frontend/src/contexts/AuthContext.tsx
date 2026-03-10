@@ -14,8 +14,9 @@ export interface User {
 
 interface AuthContextType {
     user: User | null;
+    token: string | null;
     isAuthenticated: boolean;
-    login: (userData: User) => void;
+    login: (userData: User, token: string) => void;
     logout: () => void;
 }
 
@@ -23,33 +24,40 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('sinco_user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('sinco_token');
+        if (storedUser && storedToken) {
             try {
                 setUser(JSON.parse(storedUser));
+                setToken(storedToken);
             } catch (e) {
                 console.error("Failed to parse user from local storage");
                 localStorage.removeItem('sinco_user');
+                localStorage.removeItem('sinco_token');
             }
         }
     }, []);
 
-    const login = (userData: User) => {
+    const login = (userData: User, jwtToken: string) => {
         setUser(userData);
+        setToken(jwtToken);
         localStorage.setItem('sinco_user', JSON.stringify(userData));
+        localStorage.setItem('sinco_token', jwtToken);
     };
 
     const logout = () => {
         setUser(null);
+        setToken(null);
         localStorage.removeItem('sinco_user');
-        // Clear any other specific storage if needed
+        localStorage.removeItem('sinco_token');
         localStorage.removeItem('superadmin_token');
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+        <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

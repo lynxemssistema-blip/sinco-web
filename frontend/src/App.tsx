@@ -25,6 +25,7 @@ import SuperadminPage from './pages/Superadmin';
 import RomaneioPage from './pages/Romaneio';
 import PendenciaRomaneioPage from './pages/PendenciaRomaneio';
 import RomaneioRetornoPage from './pages/RomaneioRetorno';
+import VisaoGeralProducaoPage from './pages/VisaoGeralProducao';
 
 
 function AppContent() {
@@ -58,6 +59,20 @@ function AppContent() {
               savedMenu = [romaneioItem, ...savedMenu];
             }
           }
+
+          // Force add 'visao-geral-producao' if missing
+          if (!savedMenu.find(item => item.id === 'visao-geral-producao')) {
+            const vgItem = defaultMenuItems.find(item => item.id === 'visao-geral-producao');
+            if (vgItem) {
+              const apontIdx = savedMenu.findIndex(item => item.id === 'apontamento');
+              if (apontIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, apontIdx + 1), vgItem, ...savedMenu.slice(apontIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, vgItem];
+              }
+            }
+          }
+
 
 
           // if (!user.isSuperadmin) {
@@ -170,6 +185,8 @@ function AppContent() {
         return <OrdemServicoPage />;
       case 'apontamento':
         return <ApontamentoProducaoPage />;
+      case 'visao-geral-producao':
+        return <VisaoGeralProducaoPage />;
       case 'relatorios':
         return <div className="p-8 text-center text-gray-500">Módulo de Relatórios em Desenvolvimento</div>;
       case 'sst':

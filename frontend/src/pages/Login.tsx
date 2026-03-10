@@ -30,7 +30,7 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (data.success) {
-                login(data.user);
+                login(data.user, data.token);
                 addToast({ type: 'success', title: 'Bem-vindo', message: `Olá, ${data.user.nome}!` });
                 // Use full page navigation to trigger AppContent
                 window.location.href = '/dashboard';

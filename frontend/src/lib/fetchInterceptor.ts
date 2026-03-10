@@ -5,22 +5,10 @@ const originalFetch = window.fetch;
 window.fetch = async (...args) => {
     let [resource, config] = args;
 
-    // Load user from localStorage
-    const storedUser = localStorage.getItem('sinco_user');
-    let dbName = null;
+    // Load token from localStorage
+    const token = localStorage.getItem('sinco_token');
 
-    if (storedUser) {
-        try {
-            const user = JSON.parse(storedUser);
-            if (user && user.dbName) {
-                dbName = user.dbName;
-            }
-        } catch (e) {
-            // Ignore parse error
-        }
-    }
-
-    if (dbName) {
+    if (token) {
         if (!config) {
             config = {};
         }
@@ -28,18 +16,18 @@ window.fetch = async (...args) => {
             config.headers = {};
         }
 
-        // Add header if not already present
-        // Handle headers being Headers object or plain object
+        const authValue = `Bearer ${token}`;
+
+        // Add Authorization header
         if (config.headers instanceof Headers) {
-            if (!config.headers.has('x-tenant-db')) {
-                config.headers.append('x-tenant-db', dbName);
+            if (!config.headers.has('Authorization')) {
+                config.headers.append('Authorization', authValue);
             }
         } else {
-            // Plain object
             // @ts-ignore
-            if (!config.headers['x-tenant-db']) {
+            if (!config.headers['Authorization']) {
                 // @ts-ignore
-                config.headers['x-tenant-db'] = dbName;
+                config.headers['Authorization'] = authValue;
             }
         }
     }

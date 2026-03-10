@@ -146,8 +146,20 @@ const testConnection = async (config) => {
   }
 };
 
+// Execute always on the default/central pool (ignores tenant context)
+const executeOnDefault = async (sql, params) => {
+  if (!defaultPool) throw new Error('Default database pool not initialized.');
+  const cleanSql = sql.replace(/\s+/g, ' ').trim();
+  console.log(`\n[DB] 🔵 EXEC (DEFAULT): ${cleanSql}`);
+  const result = await defaultPool.execute(sql, params);
+  const rowCount = Array.isArray(result[0]) ? result[0].length : (result[0]?.affectedRows || 0);
+  console.log(`[DB] [DEFAULT] 🟢 OK - Rows: ${rowCount}`);
+  return result;
+};
+
 module.exports = {
   execute,
+  executeOnDefault,
   query,
   getConnection,
   escape,

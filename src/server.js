@@ -10,8 +10,10 @@ const multer = require('multer');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 const { exec } = require('child_process');
+const jwt = require('jsonwebtoken');
 
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'SincoWebSecret2026!KeySecure';
 
 // Middleware
 app.use(express.json({ limit: '50mb' }));
@@ -1444,8 +1446,19 @@ app.post('/api/login', async (req, res) => {
                     if (userRows.length > 0) {
                         const user = userRows[0];
                         const role = (user.TipoUsuario === 'A' || user.TipoUsuario === 'Admin') ? 'admin' : 'user';
+
+                        // Generate JWT
+                        const token = jwt.sign({
+                            id: user.idUsuario,
+                            login: login,
+                            role: role,
+                            dbName: centralAuth.tenantConfig.database,
+                            isSuperadmin: centralAuth.isSuperadmin
+                        }, JWT_SECRET, { expiresIn: '12h' });
+
                         return res.json({
                             success: true,
+                            token,
                             user: {
                                 id: user.idUsuario,
                                 nome: user.NomeCompleto,
@@ -1458,8 +1471,18 @@ app.post('/api/login', async (req, res) => {
                             }
                         });
                     } else {
+                        // User synced but not found locally, still Issue token if needed
+                        const token = jwt.sign({
+                            id: centralAuth.originalUserId,
+                            login: login,
+                            role: 'user',
+                            dbName: centralAuth.tenantConfig.database,
+                            isSuperadmin: centralAuth.isSuperadmin
+                        }, JWT_SECRET, { expiresIn: '12h' });
+
                         return res.json({
                             success: true,
+                            token,
                             user: {
                                 id: centralAuth.originalUserId,
                                 nome: login,
@@ -1475,8 +1498,18 @@ app.post('/api/login', async (req, res) => {
                 } else if (centralAuth.isSuperadmin) {
                     // Global Superadmin Login (No Tenant)
                     console.log(`[AUTH] Global Superadmin login (no tenant).`);
+
+                    const token = jwt.sign({
+                        id: centralAuth.originalUserId || 999999,
+                        login: login,
+                        role: 'admin',
+                        dbName: 'lynxlocal', // Default central
+                        isSuperadmin: true
+                    }, JWT_SECRET, { expiresIn: '12h' });
+
                     return res.json({
                         success: true,
+                        token,
                         user: {
                             id: centralAuth.originalUserId || 999999,
                             nome: login,
@@ -1504,8 +1537,17 @@ app.post('/api/login', async (req, res) => {
             // Check if Superadmin in central even if logging in locally
             const isSuper = await isUserSuperadmin(login);
 
+            const token = jwt.sign({
+                id: user.idUsuario,
+                login: login,
+                role: role,
+                dbName: 'lynxlocal', // Local fallback assumed central or current
+                isSuperadmin: isSuper
+            }, JWT_SECRET, { expiresIn: '12h' });
+
             return res.json({
                 success: true,
+                token,
                 user: {
                     id: user.idUsuario,
                     nome: user.NomeCompleto,
@@ -3123,9 +3165,322 @@ app.delete('/api/projeto/:id', async (req, res) => {
 });
 
 
-// AÇÕES DO PROJETO
+// ─────────────────────────────────────────────────────────────────────────────
+// VISÃO GERAL PRODUÇÃO
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET projetos for production overview
+app.get('/api/visao-geral/projetos', async (req, res) => {
+    try {
+        const mostrarFinalizados = req.query.finalizados === '1';
+        const mostrarLiberados = req.query.liberados === '1';
+
+        // Condições de exclusão: por padrão retira finalizados E liberados
+        const condicoes = [`COALESCE(p.D_E_L_E_T_E,'') = ''`];
+        if (!mostrarFinalizados) condicoes.push(`COALESCE(p.Finalizado,'') = ''`);
+        if (!mostrarLiberados) condicoes.push(`COALESCE(p.liberado,'') = ''`);
+        const where = condicoes.join(' AND ');
+
+        // Get projects with aggregated sector totals from their tags + RNC count
+        const [rows] = await pool.executeOnDefault(`
+            SELECT
+                p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao,
+                p.Finalizado, p.liberado, p.StatusProj, p.DescStatus,
+
+                /* ── Tags ── */
+                COUNT(DISTINCT t.IdTag) AS QtdeTags,
+                COUNT(DISTINCT CASE WHEN t.Finalizado IS NOT NULL AND t.Finalizado <> '' THEN t.IdTag END) AS QtdeTagsExecutadas,
+
+                /* ── Peças ── */
+                COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS QtdePecasTags,
+                COALESCE(SUM(CAST(NULLIF(t.QtdePecasExecutadas,'') AS DECIMAL(10,2))), 0) AS QtdePecasExecutadas,
+
+                /* ── RNC ── */
+                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+                           WHERE r.IdProjeto = p.IdProjeto
+                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
+                             AND r.Estatus = 'PENDENCIA'), 0) AS TotalRnc,
+
+                /* ── Setor Corte ── */
+                COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalCorte,
+                COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecCorte,
+
+                /* ── Setor Dobra ── */
+                COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalDobra,
+                COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecDobra,
+
+                /* ── Setor Solda ── */
+                COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalSolda,
+                COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecSolda,
+
+                /* ── Setor Pintura ── */
+                COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0)  AS TotalPintura,
+                COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecPintura,
+
+                /* ── Setor Montagem ── */
+                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0)  AS TotalMontagem,
+                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecMontagem
+
+            FROM projetos p
+            LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto
+                AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+            WHERE ${where}
+            GROUP BY p.IdProjeto
+            ORDER BY p.IdProjeto DESC
+            LIMIT 300
+        `);
+
+        /* Compute percentages in JS to avoid division-by-zero in SQL */
+        const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+        const enriched = rows.map(r => ({
+            ...r,
+            PercentualTags: pct(Number(r.QtdeTagsExecutadas), Number(r.QtdeTags)),
+            PercentualPecas: pct(Number(r.QtdePecasExecutadas), Number(r.QtdePecasTags)),
+            PctCorte: pct(Number(r.ExecCorte), Number(r.TotalCorte)),
+            PctDobra: pct(Number(r.ExecDobra), Number(r.TotalDobra)),
+            PctSolda: pct(Number(r.ExecSolda), Number(r.TotalSolda)),
+            PctPintura: pct(Number(r.ExecPintura), Number(r.TotalPintura)),
+            PctMontagem: pct(Number(r.ExecMontagem), Number(r.TotalMontagem)),
+        }));
+
+
+
+        res.json({ success: true, data: enriched });
+
+    } catch (error) {
+        console.error('Error fetching visao-geral projetos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar projetos: ' + error.message });
+    }
+});
+
+// GET tags for a project in production overview
+app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(`
+            SELECT
+                IdTag, Tag, DescTag, DataPrevisao, QtdeTag, QtdeOS,
+                qtdetotal, Finalizado, qtdernc,
+                PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
+                CorteTotalExecutado, CorteTotalExecutar, CortePercentual,
+                PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra,
+                DobraTotalExecutado, DobraTotalExecutar, DobraPercentual,
+                PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda,
+                SoldaTotalExecutado, SoldaTotalExecutar, SoldaPercentual,
+                PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura,
+                PinturaTotalExecutado, PinturaTotalExecutar, PinturaPercentual,
+                PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem,
+                MontagemTotalExecutado, MontagemTotalExecutar, MontagemPercentual
+            FROM tags
+            WHERE IdProjeto = ?
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            ORDER BY IdTag ASC
+        `, [req.params.projetoId]);
+
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching visao-geral tags:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar tags: ' + error.message });
+    }
+});
+
+// GET RNCs for a project in production overview
+app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(`
+            SELECT
+                IdOrdemServicoItemPendencia AS IdRnc,
+                Estatus,
+                CodMatFabricante,
+                IdOrdemServico,
+                Projeto,
+                Tag,
+                DescResumo,
+                DescDetal,
+                DescricaoPendencia,
+                SetorResponsavel,
+                UsuarioResponsavel,
+                DataCriacao,
+                DataExecucao,
+                DataFinalizacao,
+                DescricaoFinalizacao,
+                SetorResponsavelFinalizacao,
+                TipoRegistro
+            FROM ordemservicoitempendencia
+            WHERE IdProjeto = ?
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
+              AND Estatus = 'PENDENCIA'
+            ORDER BY IdOrdemServicoItemPendencia DESC
+        `, [req.params.projetoId]);
+
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching visao-geral rncs:', error);
+        res.status(500).json({ success: false, message: 'Erro: ' + error.message });
+    }
+});
+
+
+
+// PUT: Atualizar DataPrevisao do projeto (e opcionalmente das tags)
+app.put('/api/visao-geral/projeto/:id/data-previsao', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { dataPrevisao, atualizarTags } = req.body;
+
+        if (!dataPrevisao) {
+            return res.status(400).json({ success: false, message: 'Data de previsão é obrigatória.' });
+        }
+
+        await pool.executeOnDefault(
+            `UPDATE projetos SET DataPrevisao = ? WHERE IdProjeto = ?`,
+            [dataPrevisao, id]
+        );
+
+        if (atualizarTags) {
+            await pool.executeOnDefault(
+                `UPDATE tags SET DataPrevisao = ? WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [dataPrevisao, id]
+            );
+        }
+
+        res.json({ success: true, message: 'Data de previsão atualizada com sucesso.' });
+    } catch (error) {
+        console.error('Error updating DataPrevisao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar data: ' + error.message });
+    }
+});
+
+// PUT: Atualizar DataPrevisao de uma Tag específica
+app.put('/api/visao-geral/tag/:idTag/data-previsao', async (req, res) => {
+    try {
+        const { idTag } = req.params;
+        const { dataPrevisao } = req.body;
+
+        if (!dataPrevisao) {
+            return res.status(400).json({ success: false, message: 'Data de previsão é obrigatória.' });
+        }
+
+        await pool.executeOnDefault(
+            `UPDATE tags SET DataPrevisao = ? WHERE IdTag = ?`,
+            [dataPrevisao, idTag]
+        );
+
+        res.json({ success: true, message: 'Data de previsão da tag atualizada com sucesso.' });
+    } catch (error) {
+        console.error('Error updating Tag DataPrevisao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar data da tag: ' + error.message });
+    }
+});
+
+// POST: Finalizar Projeto em cascata (projetos → tags → OS → OS itens)
+app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
+    const { id } = req.params;
+    const { usuario } = req.body;
+    const userFinal = usuario || 'Sistema';
+
+    try {
+        // 1. Verificar se já está finalizado
+        const [check] = await pool.executeOnDefault(
+            `SELECT Finalizado FROM projetos WHERE IdProjeto = ?`,
+            [id]
+        );
+        if (!check.length) {
+            return res.status(404).json({ success: false, message: 'Projeto não encontrado.' });
+        }
+        if (check[0].Finalizado && check[0].Finalizado.trim() !== '') {
+            return res.status(400).json({
+                success: false,
+                message: `Este projeto já está finalizado (status: "${check[0].Finalizado}"). Nenhuma alteração foi realizada.`
+            });
+        }
+
+        const now = getCurrentDateTimeBR();
+
+        // 2. Finalizar em transação
+        const conn = await pool.executeOnDefault.__proto__ ? null : null; // use executeOnDefault directly
+        // projetos: DataFinalizado
+        await pool.executeOnDefault(
+            `UPDATE projetos SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=?`,
+            [userFinal, now, id]
+        );
+        // tags: DataFinalizado
+        await pool.executeOnDefault(
+            `UPDATE tags SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
+            [userFinal, now, id]
+        );
+        // ordemservico: DataFinalizacao (diferente!)
+        await pool.executeOnDefault(
+            `UPDATE ordemservico SET OrdemServicoFinalizado='C', UsuarioFinalizado=?, DataFinalizacao=? WHERE IdProjeto=?`,
+            [userFinal, now, id]
+        );
+        // ordemservicoitem: DataFinalizado
+        await pool.executeOnDefault(
+            `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='C', UsuarioFinalizado=?, DataFinalizado=?
+             WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
+            [userFinal, now, id]
+        );
+
+        res.json({ success: true, message: `Projeto finalizado com sucesso por ${userFinal} em ${now}.` });
+    } catch (error) {
+        console.error('Error finalizing project:', error);
+        res.status(500).json({ success: false, message: 'Erro ao finalizar projeto: ' + error.message });
+    }
+});
+
+// POST: Cancelar Finalização do Projeto (desfaz cascata em projetos/tags/OS/OSitens)
+app.post('/api/visao-geral/projeto/:id/cancelar-finalizacao', async (req, res) => {
+    const { id } = req.params;
+    const { usuario } = req.body;
+    const userCancel = usuario || 'Sistema';
+
+    try {
+        // 1. Verificar se está finalizado (condição para cancelar)
+        const [check] = await pool.executeOnDefault(
+            `SELECT Finalizado, Projeto FROM projetos WHERE IdProjeto = ?`,
+            [id]
+        );
+        if (!check.length) {
+            return res.status(404).json({ success: false, message: 'Projeto não encontrado.' });
+        }
+        if (!check[0].Finalizado || check[0].Finalizado.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: `O projeto "${check[0].Projeto}" não está finalizado. Nenhuma alteração foi realizada.`
+            });
+        }
+
+        // 2. Desfazer finalização em cascata (limpar campos)
+        // projetos
+        await pool.executeOnDefault(
+            `UPDATE projetos SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=?`,
+            [id]
+        );
+        // tags
+        await pool.executeOnDefault(
+            `UPDATE tags SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
+            [id]
+        );
+        // ordemservico
+        await pool.executeOnDefault(
+            `UPDATE ordemservico SET OrdemServicoFinalizado='', UsuarioFinalizado='', DataFinalizacao='' WHERE IdProjeto=?`,
+            [id]
+        );
+        // ordemservicoitem
+        await pool.executeOnDefault(
+            `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='', UsuarioFinalizado='', DataFinalizado=''
+             WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
+            [id]
+        );
+
+        res.json({ success: true, message: `Finalização cancelada com sucesso por ${userCancel}.` });
+    } catch (error) {
+        console.error('Error cancelling finalization:', error);
+        res.status(500).json({ success: false, message: 'Erro ao cancelar finalização: ' + error.message });
+    }
+});
 
 // ABRIR PASTA DO PROJETO NO SERVIDOR
+
 app.post('/api/projeto/:id/open-folder', async (req, res) => {
     try {
         const [rows] = await pool.execute(

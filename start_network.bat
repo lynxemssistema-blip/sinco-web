@@ -1,34 +1,53 @@
 @echo off
 echo ===================================================
-echo      INICIANDO SINCO-WEB PARA REDE LOCAL
+echo      SINCO-WEB  -  Iniciando Servicos
 echo ===================================================
 echo.
-echo 1. Iniciando Backend (Node.js)...
-start "Sinco Backend" cmd /k "node src/server.js"
 
-echo 2. Iniciando Frontend (Vite)...
-cd frontend
-start "Sinco Frontend" cmd /k "npm run dev"
-cd ..
+:: ─── Encerrar processos anteriores (porta 3000 e 5173) ─────────────────────
+echo [1/4] Encerrando processos antigos...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3000 " ^| findstr "LISTENING"') do (
+    echo    Encerrando PID %%a na porta 3000...
+    taskkill /PID %%a /F >nul 2>&1
+)
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5173 " ^| findstr "LISTENING"') do (
+    echo    Encerrando PID %%a na porta 5173...
+    taskkill /PID %%a /F >nul 2>&1
+)
 
+:: ─── Aguardar liberacao das portas ─────────────────────────────────────────
+timeout /t 2 /nobreak >nul
+
+:: ─── Iniciar Backend ────────────────────────────────────────────────────────
+echo [2/4] Iniciando Backend (Node.js - porta 3000)...
+start "Sinco Backend" cmd /k "cd /d c:\SincoWeb\SINCO-WEB\SINCO-WEB && node src/server.js"
+
+:: ─── Aguardar backend subir ─────────────────────────────────────────────────
+timeout /t 3 /nobreak >nul
+
+:: ─── Iniciar Frontend ───────────────────────────────────────────────────────
+echo [3/4] Iniciando Frontend (Vite - porta 5173)...
+start "Sinco Frontend" cmd /k "cd /d c:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend && npm run dev"
+
+:: ─── Aguardar frontend compilar ─────────────────────────────────────────────
+timeout /t 4 /nobreak >nul
+
+:: ─── Info ────────────────────────────────────────────────────────────────────
+echo [4/4] Servicos iniciados!
 echo.
 echo ===================================================
-echo                 STATUS DO SISTEMA
+echo                  URLs DE ACESSO
 echo ===================================================
 echo.
-echo O sistema esta sendo iniciado em janelas separadas.
+echo   Local (este PC):    http://localhost:5173
+echo   Rede local:         http://192.168.1.11:5173
 echo.
-echo IMPORTANTE:
-echo Se voce ver uma janela do Firewall do Windows, clique em
-echo "PERMITIR ACESSO" para redes Privadas e Publicas.
+echo ===================================================
+echo  IMPORTANTE: Se aparecer janela do Firewall do
+echo  Windows, clique em "Permitir Acesso".
+echo ===================================================
 echo.
-echo ACESSO LOCAL (Neste computador):
-echo   http://localhost:5173
-echo.
-echo ACESSO NA REDE (Outros computadores/celulares):
-echo   http://192.168.1.11:5173
-echo.
-echo * Se nao funcionar, desative temporariamente o Firewall
-echo   para testar.
+echo Pressione qualquer tecla para fechar esta janela.
+echo (Os servidores continuarao rodando nas janelas abertas)
 echo.
 pause >nul
