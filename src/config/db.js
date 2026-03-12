@@ -10,8 +10,11 @@ const dbConfig = {
   database: process.env.CENTRAL_DB_NAME || 'lynxlocal',
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  connectionLimit: 50, // Increased for scalability
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  connectTimeout: 20000
 };
 
 const { AsyncLocalStorage } = require('async_hooks');
@@ -84,11 +87,14 @@ const execute = async (sql, params) => {
     throw new Error('Database pool not initialized.');
   }
 
-  // Debug logging
+  // Debug logging & Performance tracking
   const cleanSql = sql.replace(/\s+/g, ' ').trim();
-  console.log(`\n[DB] 🟡 EXEC: ${cleanSql}`);
-  if (params && params.length > 0) {
-    console.log(`[DB]    PARAMS: ${JSON.stringify(params)}`);
+  // Only log in development or if it takes too long
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n[DB] 🟡 EXEC: ${cleanSql}`);
+    if (params && params.length > 0) {
+      console.log(`[DB]    PARAMS: ${JSON.stringify(params)}`);
+    }
   }
 
   try {

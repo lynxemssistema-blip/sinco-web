@@ -1,9 +1,9 @@
+import './lib/fetchInterceptor' // Import to patch fetch FIRST!
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
-import './lib/fetchInterceptor' // Import to patch fetch
 
 
 createRoot(document.getElementById('root')!).render(

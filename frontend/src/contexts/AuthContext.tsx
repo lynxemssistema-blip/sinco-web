@@ -28,8 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const storedUser = localStorage.getItem('sinco_user');
-        const storedToken = localStorage.getItem('sinco_token');
-        if (storedUser && storedToken) {
+        const storedToken = localStorage.getItem('sinco_token') || localStorage.getItem('superadmin_token');
+        if (storedUser && storedToken && storedToken !== 'undefined' && storedToken !== 'null') {
             try {
                 setUser(JSON.parse(storedUser));
                 setToken(storedToken);
@@ -38,6 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 localStorage.removeItem('sinco_user');
                 localStorage.removeItem('sinco_token');
             }
+        } else {
+            localStorage.removeItem('sinco_user');
+            localStorage.removeItem('sinco_token');
         }
     }, []);
 

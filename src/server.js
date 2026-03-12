@@ -57,7 +57,7 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
@@ -1600,7 +1600,15 @@ app.post('/api/admin/login', async (req, res) => {
             const user = rows[0];
             if (user.senha === password) {
                 console.log(`[ADMIN AUTH] Database Success: ${username}`);
-                return res.json({ success: true, token: `superadmin-token-${user.id}`, userId: user.id });
+                const token = jwt.sign({
+                    id: user.id,
+                    login: user.login,
+                    role: 'admin',
+                    dbName: 'lynxlocal', // Superadmin can access local db by default
+                    isSuperadmin: true
+                }, JWT_SECRET, { expiresIn: '12h' });
+
+                return res.json({ success: true, token: token, userId: user.id });
             }
         }
 
@@ -1611,6 +1619,40 @@ app.post('/api/admin/login', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro no servidor' });
     } finally {
         if (connection) await connection.end();
+    }
+});
+
+// Admin Impersonate (Get token for specific DB)
+app.post('/api/admin/impersonate', authenticateAdmin, async (req, res) => {
+    const { dbName } = req.body;
+    if (!dbName) {
+        return res.status(400).json({ success: false, message: 'dbName é obrigatório' });
+    }
+
+    const authHeader = req.headers['authorization'];
+    const superToken = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(superToken, JWT_SECRET);
+        if (!decoded.isSuperadmin) {
+            return res.status(403).json({ success: false, message: 'Apenas superadmins podem usar esta rota' });
+        }
+
+        const token = jwt.sign({
+            id: decoded.id,
+            nome: decoded.nome || 'Superadmin',
+            login: decoded.login,
+            role: 'admin',
+            superadmin: 'S',
+            dbName: dbName,
+            clientName: req.body.cliente || dbName,
+            isSuperadmin: true
+        }, JWT_SECRET, { expiresIn: '12h' });
+
+        return res.json({ success: true, token });
+    } catch (err) {
+        console.error('[ADMIN IMPERSONATE] Token error:', err);
+        return res.status(401).json({ success: false, message: 'Token de superadmin inválido' });
     }
 });
 
@@ -3182,24 +3224,39 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
         const where = condicoes.join(' AND ');
 
         // Get projects with aggregated sector totals from their tags + RNC count
-        const [rows] = await pool.executeOnDefault(`
+        const [rows] = await pool.execute(`
             SELECT
-                p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao,
+                p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao,
                 p.Finalizado, p.liberado, p.StatusProj, p.DescStatus,
 
-                /* ── Tags ── */
-                COUNT(DISTINCT t.IdTag) AS QtdeTags,
-                COUNT(DISTINCT CASE WHEN t.Finalizado IS NOT NULL AND t.Finalizado <> '' THEN t.IdTag END) AS QtdeTagsExecutadas,
-
-                /* ── Peças ── */
-                COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS QtdePecasTags,
-                COALESCE(SUM(CAST(NULLIF(t.QtdePecasExecutadas,'') AS DECIMAL(10,2))), 0) AS QtdePecasExecutadas,
+                /* ── Tags / Peças nativos da tabela Projetos ── */
+                COALESCE(p.QtdeTags, 0) AS QtdeTags,
+                COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas,
+                COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags,
+                COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
 
                 /* ── RNC ── */
                 COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
                            WHERE r.IdProjeto = p.IdProjeto
                              AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
                              AND r.Estatus = 'PENDENCIA'), 0) AS TotalRnc,
+
+                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+                           WHERE r.IdProjeto = p.IdProjeto
+                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')), 0) AS qtdernc,
+
+                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+                           WHERE r.IdProjeto = p.IdProjeto
+                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
+                             AND (r.Estatus = 'PENDENCIA' OR r.Estatus IS NULL OR r.Estatus = '')), 0) AS qtderncPendente,
+
+                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+                           WHERE r.IdProjeto = p.IdProjeto
+                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
+                             AND (r.Estatus LIKE '%FIN%' OR r.Estatus = 'FINALIZADA')), 0) AS qtderncFinalizada,
+                             
+                /* ── Novas req ── */
+                COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas,
 
                 /* ── Setor Corte ── */
                 COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalCorte,
@@ -3230,6 +3287,8 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
             LIMIT 300
         `);
 
+        console.log(`[Visão Geral Produção] Query executada para tenant: ${req.tenantDb}. Rows found: ${rows.length}`);
+
         /* Compute percentages in JS to avoid division-by-zero in SQL */
         const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
         const enriched = rows.map(r => ({
@@ -3258,7 +3317,8 @@ app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
     try {
         const [rows] = await pool.execute(`
             SELECT
-                IdTag, Tag, DescTag, DataPrevisao, QtdeTag, QtdeOS,
+                IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
+                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc,
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
                 CorteTotalExecutado, CorteTotalExecutar, CortePercentual,
@@ -3319,7 +3379,135 @@ app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
     }
 });
 
+// GET Pendencias (Origem: VISAOGERALPROJ) for a project
+app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(`
+            SELECT
+                IdOrdemServicoItemPendencia AS IdRnc,
+                IdProjeto, Projeto, DescricaoPendencia,
+                SetorResponsavel, UsuarioResponsavel, TipoTarefa, DataCriacao, Estatus,
+                DataExecucao, DataAcertoProjeto AS DataFinalizacao, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor AS UsuarioResponsavelFinalizacao, DescricaoFinalizacao
+            FROM ordemservicoitempendencia
+            WHERE IdProjeto = ?
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
+              AND Estatus IN ('PENDENCIA', 'FINALIZADO')
+              AND TipoCadastro = 'RNC'
+              AND OrigemPendencia = 'VISAOGERALPROJ'
+            ORDER BY IdOrdemServicoItemPendencia DESC
+        `, [req.params.projetoId]);
 
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching visao-geral pendencias:', error);
+        res.status(500).json({ success: false, message: 'Erro: ' + error.message });
+    }
+});
+
+// POST: Salvar ou Atualizar Pendencia da Visao Geral
+app.post('/api/visao-geral/pendencias', async (req, res) => {
+    try {
+        const data = req.body;
+        const now = getCurrentDateTimeBR();
+
+        let idRnc = data.idRnc;
+
+        if (idRnc) {
+            // UPDATE EXISITNG
+            await pool.execute(`
+                UPDATE ordemservicoitempendencia SET
+                    DescricaoPendencia = ?,
+                    SetorResponsavel = ?,
+                    TipoTarefa = ?,
+                    UsuarioResponsavel = ?,
+                    DataCriacao = ?,
+                    DataAcertoProjeto = ?,
+                    SetorResponsavelFinalizacao = ?,
+                    FinalizadoPorUsuarioSetor = ?,
+                    DescricaoFinalizacao = ?
+                WHERE IdOrdemServicoItemPendencia = ?
+            `, [
+                data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
+                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || '',
+                idRnc
+            ]);
+        } else {
+            // INSERT NEW
+            const [result] = await pool.execute(`
+                INSERT INTO ordemservicoitempendencia (
+                    IdProjeto, Projeto, TipoCadastro, OrigemPendencia, Estatus, DataCriacao,
+                    DescricaoPendencia, SetorResponsavel, TipoTarefa, UsuarioResponsavel, DataExecucao,
+                    DataAcertoProjeto, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor, DescricaoFinalizacao
+                ) VALUES (?, ?, 'RNC', 'VISAOGERALPROJ', 'PENDENCIA', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                data.idProjeto, data.projeto, now,
+                data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
+                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || ''
+            ]);
+
+            idRnc = result.insertId;
+
+            // Increment totals (qtdernc, qtderncPendente) on projetos, tags, ordemservico
+            if (data.idProjeto) {
+                await pool.execute(`UPDATE projetos SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ?`, [data.idProjeto]);
+                await pool.execute(`UPDATE tags SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`, [data.idProjeto]);
+                await pool.execute(`UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`, [data.idProjeto]);
+            }
+        }
+
+        res.json({ success: true, message: idRnc ? 'Pendência salva com sucesso!' : 'Pendência criada com sucesso!' });
+    } catch (error) {
+        console.error('Error saving visao-geral pendencia:', error);
+        res.status(500).json({ success: false, message: 'Erro ao salvar: ' + error.message });
+    }
+});
+
+// PUT /api/visao-geral/pendencias/:id/finalizar
+app.put('/api/visao-geral/pendencias/:id/finalizar', async (req, res) => {
+    const id = req.params.id;
+    const { usuarioFin, dataFin, setorFin, descFin, idProjeto } = req.body;
+    if (!usuarioFin || !dataFin || !setorFin || !idProjeto) return res.status(400).json({ success: false, message: 'Faltam dados de finalização' });
+
+    let dtFinFormatada = '';
+    if (dataFin) {
+        const parts = dataFin.split('-');
+        if (parts.length === 3) {
+            dtFinFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+            dtFinFormatada = dataFin;
+        }
+    }
+
+    try {
+        await pool.execute(`
+            UPDATE ordemservicoitempendencia
+            SET Estatus = 'FINALIZADO',
+                FinalizadoPorUsuarioSetor = ?,
+                DataAcertoProjeto = ?,
+                SetorResponsavelFinalizacao = ?,
+                DescricaoFinalizacao = ?
+            WHERE IdOrdemServicoItemPendencia = ?
+        `, [usuarioFin, dtFinFormatada, setorFin, descFin || '', id]);
+
+        // Adjust project/tag/os counts
+        if (idProjeto) {
+            await pool.execute(`UPDATE projetos SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdProjeto = ?`, [idProjeto]);
+            
+            // Get specific Tag and OS for this pendency to update them correctly
+            const [pendency] = await pool.execute(`SELECT IdTag, IdOrdemServico FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?`, [id]);
+            if (pendency.length > 0) {
+                const { IdTag, IdOrdemServico } = pendency[0];
+                if (IdTag) await pool.execute(`UPDATE tags SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdTag = ?`, [IdTag]);
+                if (IdOrdemServico) await pool.execute(`UPDATE ordemservico SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdOrdemServico = ?`, [IdOrdemServico]);
+            }
+        }
+
+        res.json({ success: true, message: 'Pendência finalizada' });
+    } catch (e) {
+        console.error('Finalizar erro:', e);
+        res.status(500).json({ success: false, message: 'Erro no servidor' });
+    }
+});
 
 // PUT: Atualizar DataPrevisao do projeto (e opcionalmente das tags)
 app.put('/api/visao-geral/projeto/:id/data-previsao', async (req, res) => {
@@ -3369,6 +3557,36 @@ app.put('/api/visao-geral/tag/:idTag/data-previsao', async (req, res) => {
     } catch (error) {
         console.error('Error updating Tag DataPrevisao:', error);
         res.status(500).json({ success: false, message: 'Erro ao atualizar data da tag: ' + error.message });
+    }
+});
+
+// PUT: Atualizar data planejada de um setor de uma Tag específica
+app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
+    try {
+        const { idTag } = req.params;
+        const { field, value } = req.body;
+
+        const allowedFields = [
+            'PlanejadoInicioCorte', 'PlanejadoFinalCorte',
+            'PlanejadoInicioDobra', 'PlanejadoFinalDobra',
+            'PlanejadoInicioSolda', 'PlanejadoFinalSolda',
+            'PlanejadoInicioPintura', 'PlanejadoFinalPintura',
+            'PlanejadoInicioMontagem', 'PlanejadoFinalMontagem'
+        ];
+
+        if (!allowedFields.includes(field)) {
+            return res.status(400).json({ success: false, message: 'Campo inválido.' });
+        }
+
+        await pool.executeOnDefault(
+            `UPDATE tags SET ${field} = ? WHERE IdTag = ?`,
+            [value, idTag]
+        );
+
+        res.json({ success: true, message: 'Data do setor atualizada com sucesso.' });
+    } catch (error) {
+        console.error('Error updating Tag sector date:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar data do setor: ' + error.message });
     }
 });
 
@@ -4921,6 +5139,17 @@ app.get('/api/config/usuarios', async (req, res) => {
     }
 });
 
+// GET /api/config/tipostarefa - Retornar Tipos de Tarefa
+app.get('/api/config/tipostarefa', async (req, res) => {
+    try {
+        const [rows] = await pool.execute("SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa");
+        res.json({ success: true, tipostarefa: rows });
+    } catch (error) {
+        console.error('Error fetching tipos tarefa:', error);
+        res.status(500).json({ success: false });
+    }
+});
+
 // POST /api/producao/pendencia - Gerar Pend�ncia (A��o 2)
 app.post('/api/producao/pendencia', async (req, res) => {
     const data = req.body;
@@ -5716,7 +5945,7 @@ app.post('/api/rnc', async (req, res) => {
             // 1. Update OrdemServico (verified columns exist)
             if (data.idOrdemServico) {
                 await connection.execute(
-                    "UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncpendente = COALESCE(qtderncpendente, 0) + 1 WHERE IdOrdemServico = ?",
+                    "UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdOrdemServico = ?",
                     [data.idOrdemServico]
                 );
             }
@@ -5724,7 +5953,7 @@ app.post('/api/rnc', async (req, res) => {
             // 2. Update Tags (verified columns exist)
             if (data.idTag) {
                 await connection.execute(
-                    "UPDATE tags SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncpendente = COALESCE(qtderncpendente, 0) + 1 WHERE IdTag = ?",
+                    "UPDATE tags SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdTag = ?",
                     [data.idTag]
                 );
             }
@@ -5760,7 +5989,7 @@ DescricaoPendencia = ?, SetorResponsavel = ?, TipoCadastro = ?, TipoTarefa = ?,
 
 
         await connection.commit();
-        res.json({ success: true, message: 'Processo conclu�do!' });
+        res.json({ success: true, message: 'Processo concludo!' });
 
     } catch (error) {
         if (connection) await connection.rollback();
@@ -5771,13 +6000,13 @@ DescricaoPendencia = ?, SetorResponsavel = ?, TipoCadastro = ?, TipoTarefa = ?,
     }
 });
 
-// POST /api/rnc/finalizar - Finaliza Pend�ncia e Decrementa Contadores
+// POST /api/rnc/finalizar - Finaliza Pendncia e Decrementa Contadores
 app.post('/api/rnc/finalizar', async (req, res) => {
     const { idOrdemServicoItemPendencia, usuario, setor } = req.body;
     const connection = await pool.getConnection();
 
     if (!idOrdemServicoItemPendencia) {
-        return res.status(400).json({ success: false, message: 'ID da pend�ncia � obrigat�rio' });
+        return res.status(400).json({ success: false, message: 'ID da pendncia  obrigatrio' });
     }
 
     try {
@@ -5791,19 +6020,19 @@ app.post('/api/rnc/finalizar', async (req, res) => {
 
         if (pendencyRows.length === 0) {
             await connection.rollback();
-            return res.status(404).json({ success: false, message: 'Pend�ncia n�o encontrada' });
+            return res.status(404).json({ success: false, message: 'Pendncia no encontrada' });
         }
 
         const pendency = pendencyRows[0];
 
         if (pendency.Estatus === 'FINALIZADA') {
             await connection.rollback();
-            return res.status(400).json({ success: false, message: 'Pend�ncia j� est� finalizada' });
+            return res.status(400).json({ success: false, message: 'Pendncia j est finalizada' });
         }
 
         const nowFormatted = getCurrentDateTimeBR();
 
-        const descricaoFinalizacao = req.body.descricao || 'FINALIZA��O FEITA PELO SISTEMA';
+        const descricaoFinalizacao = req.body.descricao || 'FINALIZAO FEITA PELO SISTEMA';
 
         // 3. Update Pendency Status
         await connection.execute(`
@@ -5817,11 +6046,11 @@ Estatus = 'FINALIZADA',
                 WHERE IdOrdemServicoItemPendencia = ?
                     `, [usuario || 'Sistema', setor || '', nowFormatted, descricaoFinalizacao, idOrdemServicoItemPendencia]);
 
-        // 4. Decrement Counters (qtderncpendente) in related tables
+        // 4. Decrement Counters (qtderncPendente) in related tables
         // OrdemServico
         if (pendency.IdOrdemServico) {
             await connection.execute(
-                "UPDATE ordemservico SET qtderncpendente = IF(qtderncpendente > 0, qtderncpendente - 1, 0) WHERE IdOrdemServico = ?",
+                "UPDATE ordemservico SET qtderncPendente = IF(qtderncPendente > 0, qtderncPendente - 1, 0) WHERE IdOrdemServico = ?",
                 [pendency.IdOrdemServico]
             );
         }
@@ -5829,7 +6058,7 @@ Estatus = 'FINALIZADA',
         // Tags
         if (pendency.IdTag) {
             await connection.execute(
-                "UPDATE tags SET qtderncpendente = IF(qtderncpendente > 0, qtderncpendente - 1, 0) WHERE IdTag = ?",
+                "UPDATE tags SET qtderncPendente = IF(qtderncPendente > 0, qtderncPendente - 1, 0) WHERE IdTag = ?",
                 [pendency.IdTag]
             );
         }
@@ -5843,7 +6072,7 @@ Estatus = 'FINALIZADA',
         }
 
         await connection.commit();
-        res.json({ success: true, message: 'Pend�ncia finalizada com sucesso!' });
+        res.json({ success: true, message: 'Pendncia finalizada com sucesso!' });
 
     } catch (error) {
         if (connection) await connection.rollback();

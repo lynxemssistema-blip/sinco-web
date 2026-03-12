@@ -5,14 +5,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'SincoWebSecret2026!KeySecure';
 const tenantMiddleware = async (req, res, next) => {
     // 1. Get Token from Authorization header
     const authHeader = req.headers['authorization'];
+    console.log(`[DEBUG TENANT] URL: ${req.url} | Auth Header Exists? ${!!authHeader}`);
     let token = null;
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
+        console.log(`[DEBUG JWT] Raw token: ${token.substring(0, 20)}... length: ${token.length}`);
     }
 
     // Public routes that don't need tenant context (e.g., login)
-    if (req.url === '/api/login' || req.url.startsWith('/api/public')) {
+    if (req.originalUrl === '/api/login' || req.originalUrl === '/api/admin/login' || req.originalUrl.startsWith('/api/public')) {
         return next();
     }
 
@@ -61,7 +63,11 @@ const tenantMiddleware = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('[Tenant] Middleware JWT Error:', error.message);
+        console.error('[Tenant] Middleware JWT Error Details:', {
+            name: error.name,
+            message: error.message,
+            tokenHeader: token ? token.substring(0, 20) + '...' : 'NONE'
+        });
         return res.status(401).json({ success: false, message: 'Sessão inválida ou expirada' });
     }
 };

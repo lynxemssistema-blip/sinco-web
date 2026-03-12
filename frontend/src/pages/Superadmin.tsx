@@ -204,38 +204,64 @@ export default function SuperadminPage({ defaultTab = 'matrizes' }: SuperadminPa
     };
 
     // Access Tenant Handler
-    const handleAccessTenant = (tenant: any) => {
+    const handleAccessTenant = async (tenant: any) => {
         if (!confirm(`Deseja acessar o sistema no ambiente: ${tenant.nome_cliente}?`)) return;
 
-        const userData = {
-            id: 1, // Defaulting to 1 for superadmin impersonation
-            nome: 'Superadmin',
-            login: 'superadmin',
-            role: 'admin',
-            isSuperadmin: true,
-            clientName: tenant.nome_cliente,
-            dbName: tenant.db_name,
-            dbHost: tenant.db_host,
-            dbUser: tenant.db_user,
-            dbPass: tenant.db_pass,
-            dbPort: tenant.db_port,
-            originalLogin: username || 'superadmin'
-        };
+        const superToken = localStorage.getItem('superadmin_token');
+        if (!superToken) return;
 
-        localStorage.setItem('sinco_user', JSON.stringify(userData));
-        // Explicitly saving superadmin status as requested
-        localStorage.setItem('original_superadmin', JSON.stringify({
-            active: true,
-            originalLogin: username || 'superadmin',
-            token: localStorage.getItem('superadmin_token')
-        }));
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/impersonate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${superToken}`
+                },
+                body: JSON.stringify({ dbName: tenant.db_name })
+            });
 
-        // Toast and reload
-        addToast({ type: 'success', message: `Conectando ao ambiente ${tenant.nome_cliente}...` });
+            const data = await res.json();
+            if (data.success) {
+                const userData = {
+                    id: 1, // Defaulting to 1 for superadmin impersonation
+                    nome: 'Superadmin',
+                    login: 'superadmin',
+                    role: 'admin',
+                    isSuperadmin: true,
+                    clientName: tenant.nome_cliente,
+                    dbName: tenant.db_name,
+                    dbHost: tenant.db_host,
+                    dbUser: tenant.db_user,
+                    dbPass: tenant.db_pass,
+                    dbPort: tenant.db_port,
+                    originalLogin: username || 'superadmin'
+                };
 
-        setTimeout(() => {
-            window.location.href = '/dashboard';
-        }, 1000);
+                localStorage.setItem('sinco_token', data.token);
+                localStorage.setItem('sinco_user', JSON.stringify(userData));
+                // Explicitly saving superadmin status as requested
+                localStorage.setItem('original_superadmin', JSON.stringify({
+                    active: true,
+                    originalLogin: username || 'superadmin',
+                    token: superToken
+                }));
+
+                // Toast and reload
+                addToast({ type: 'success', message: `Conectando ao ambiente ${tenant.nome_cliente}...` });
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            } else {
+                addToast({ type: 'error', message: data.message || 'Erro ao gerar token de ambiente' });
+            }
+        } catch (error) {
+            console.error('Error in impersonation:', error);
+            addToast({ type: 'error', message: 'Erro ao conectar ao ambiente' });
+        } finally {
+            setLoading(false);
+        }
     };
 
     // --- SCHEMA COMPARE HANDLERS ---

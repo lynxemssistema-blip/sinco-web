@@ -4,11 +4,13 @@ const originalFetch = window.fetch;
 
 window.fetch = async (...args) => {
     let [resource, config] = args;
+    console.log('[FETCH INTERCEPTOR] Intercepting fetch to:', resource);
 
     // Load token from localStorage
-    const token = localStorage.getItem('sinco_token');
+    const token = localStorage.getItem('sinco_token') || localStorage.getItem('superadmin_token');
 
-    if (token) {
+    // Prevent sending literal "undefined" or "null" strings
+    if (token && token !== 'undefined' && token !== 'null') {
         if (!config) {
             config = {};
         }

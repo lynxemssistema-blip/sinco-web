@@ -227,7 +227,9 @@ export default function PessoaJuridicaPage() {
         try {
             const res = await fetch(`${API_BASE}/pj/${id}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ usuario: 'Edson' }),
             });
             const json = await res.json();
