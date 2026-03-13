@@ -26,7 +26,7 @@ import RomaneioPage from './pages/Romaneio';
 import PendenciaRomaneioPage from './pages/PendenciaRomaneio';
 import RomaneioRetornoPage from './pages/RomaneioRetorno';
 import VisaoGeralProducaoPage from './pages/VisaoGeralProducao';
-
+import VisaoGeralEngenhariaPage from './pages/VisaoGeralEngenharia';
 
 function AppContent() {
   const { user, logout } = useAuth();
@@ -69,6 +69,19 @@ function AppContent() {
                 savedMenu = [...savedMenu.slice(0, apontIdx + 1), vgItem, ...savedMenu.slice(apontIdx + 1)];
               } else {
                 savedMenu = [...savedMenu, vgItem];
+              }
+            }
+          }
+
+          // Force add 'visao-geral-engenharia' if missing
+          if (!savedMenu.find(item => item.id === 'visao-geral-engenharia')) {
+            const veItem = defaultMenuItems.find(item => item.id === 'visao-geral-engenharia');
+            if (veItem) {
+              const vgIdx = savedMenu.findIndex(item => item.id === 'visao-geral-producao');
+              if (vgIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, vgIdx + 1), veItem, ...savedMenu.slice(vgIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, veItem];
               }
             }
           }
@@ -187,6 +200,8 @@ function AppContent() {
         return <ApontamentoProducaoPage />;
       case 'visao-geral-producao':
         return <VisaoGeralProducaoPage />;
+      case 'visao-geral-engenharia':
+        return <VisaoGeralEngenhariaPage />;
       case 'relatorios':
         return <div className="p-8 text-center text-gray-500">Módulo de Relatórios em Desenvolvimento</div>;
       case 'sst':

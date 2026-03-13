@@ -11,6 +11,7 @@ interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string
     PlanejadoInicioSolda: string; PlanejadoFinalSolda: string; RealizadoInicioSolda: string; RealizadoFinalSolda: string; SoldaTotalExecutado: string; SoldaTotalExecutar: string; SoldaPercentual: string; 
     PlanejadoInicioPintura: string; PlanejadoFinalPintura: string; RealizadoInicioPintura: string; RealizadoFinalPintura: string; PinturaTotalExecutado: string; PinturaTotalExecutar: string; PinturaPercentual: string; 
     PlanejadoInicioMontagem: string; PlanejadoFinalMontagem: string; RealizadoInicioMontagem: string; RealizadoFinalMontagem: string; MontagemTotalExecutado: string; MontagemTotalExecutar: string; MontagemPercentual: string; 
+    ProjetistaPlanejado?: string; PlanejadoInicioEngenharia?: string; PlanejadoFinalEngenharia?: string;
 }
 interface Rnc { IdRnc: number; Estatus: string; Tag: string; SetorResponsavel: string; DescricaoPendencia: string; DescResumo: string; UsuarioResponsavel: string; TipoTarefa?: string; DataExecucao?: string; DataCriacao: string; DataFinalizacao: string; UsuarioResponsavelFinalizacao?: string; SetorResponsavelFinalizacao?: string; DescricaoFinalizacao?: string; }
 
@@ -96,8 +97,10 @@ export default function VisaoGeralProducaoPage() {
     const [error, setError] = useState<string | null>(null);
 
     // Modais e Ações
-    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | null>(null);
-    const [rncForm, setRncForm] = useState<{idRnc?: number, estatus?: string, descricao: string, setor: string, usuario: string, tipoTarefa: string, dataExec: string, usuarioFin?: string, dataFin?: string, setorFin?: string, descFin?: string, wantsToFinalize?: boolean}>({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
+    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | null>(null);
+    const [rncForm, setRncForm] = useState<{idRnc?: number, idTag?: number, tag?: string, estatus?: string, descricao: string, setor: string, usuario: string, tipoTarefa: string, dataExec: string, usuarioFin?: string, dataFin?: string, setorFin?: string, descFin?: string, wantsToFinalize?: boolean}>({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
+    const [planejarProjetistaForm, setPlanejarProjetistaForm] = useState<{ projetistaPlanejado: string, planejadoInicioEngenharia: string, planejadoFinalEngenharia: string }>({ projetistaPlanejado: '', planejadoInicioEngenharia: '', planejadoFinalEngenharia: '' });
+    const [qtdeLiberadaForm, setQtdeLiberadaForm] = useState<{ qtdeLiberada: string }>({ qtdeLiberada: '' });
     const [showFinalizedRncs, setShowFinalizedRncs] = useState(false);
     const [usuarios, setUsuarios] = useState<any[]>([]);
     const [tipostarefa, setTipostarefa] = useState<any[]>([]);
@@ -120,7 +123,7 @@ export default function VisaoGeralProducaoPage() {
     }, [filFin, filLib]);
 
     const fetchTags = async (id: number) => { setLoadTags(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/tags/${id}`)).json(); if (r.success) setTags(r.data); } catch (e) { } finally { setLoadTags(false); } };
-    const fetchRncs = async (id: number) => { setLoadRncs(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${id}`)).json(); if (r.success) setRncs(r.data); } catch (e) { } finally { setLoadRncs(false); } };
+    const fetchRncs = async (id: number, origem = 'VISAOGERALPROJ') => { setLoadRncs(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${id}?origem=${origem}`)).json(); if (r.success) setRncs(r.data); } catch (e) { } finally { setLoadRncs(false); } };
 
     useEffect(() => { fetchProj(filFin, filLib); }, [filFin, filLib]);
 
@@ -204,6 +207,75 @@ export default function VisaoGeralProducaoPage() {
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
     };
 
+    const salvarPlanejamentoProjetista = async () => {
+        if (!selTag) return;
+        if (!planejarProjetistaForm.projetistaPlanejado || !planejarProjetistaForm.planejadoInicioEngenharia || !planejarProjetistaForm.planejadoFinalEngenharia) {
+            setMsg({ ok: false, t: 'Preencha todos os campos obrigatórios.' });
+            return;
+        }
+        setIsSaving(true); setMsg(null);
+        try {
+            const payload = {
+                projetistaPlanejado: planejarProjetistaForm.projetistaPlanejado,
+                planejadoInicioEngenharia: isoToBr(planejarProjetistaForm.planejadoInicioEngenharia),
+                planejadoFinalEngenharia: isoToBr(planejarProjetistaForm.planejadoFinalEngenharia),
+                usuario: getUser()
+            };
+            const r = await (await fetch(`${API_BASE}/visao-geral/tags/${selTag.IdTag}/planejar-projetista`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })).json();
+            if (r.success) {
+                setTags(ts => ts.map(x => x.IdTag === selTag.IdTag ? { ...x, ProjetistaPlanejado: payload.projetistaPlanejado, PlanejadoInicioEngenharia: payload.planejadoInicioEngenharia, PlanejadoFinalEngenharia: payload.planejadoFinalEngenharia } : x));
+                setMsg({ ok: true, t: 'Projetista avaliado/salvo!' }); setTimeout(() => setActionModal(null), 1500);
+            } else setMsg({ ok: false, t: r.message });
+        } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
+    const salvarQtdeLiberada = async () => {
+        if (!selTag) return;
+        const liberadaNum = parseFloat(qtdeLiberadaForm.qtdeLiberada);
+        if (isNaN(liberadaNum)) {
+            setMsg({ ok: false, t: 'Informe um valor numérico válido.' });
+            return;
+        }
+        setIsSaving(true); setMsg(null);
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral/tags/${selTag.IdTag}/qtde`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ qtdeLiberada: liberadaNum, usuario: getUser() })
+            })).json();
+            
+            if (r.success) {
+                setTags(ts => ts.map(x => x.IdTag === selTag.IdTag ? { ...x, QtdeLiberada: String(r.data.qtdeLiberada), SaldoTag: String(r.data.saldoTag) } : x));
+                setMsg({ ok: true, t: 'Quantidade liberada atualizada com sucesso!' });
+                setTimeout(() => setActionModal(null), 1500);
+            } else setMsg({ ok: false, t: r.message });
+        } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
+    const salvarFinalizarTag = async (finalizarTodas: boolean) => {
+        if (!selTag || !selProj) return;
+        setIsSaving(true); setMsg(null);
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral/tags/finalizar`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idProjeto: selProj.IdProjeto, idTag: selTag.IdTag, finalizarTodas, usuario: getUser() })
+            })).json();
+            
+            if (r.success) {
+                if (finalizarTodas) {
+                    setTags(ts => ts.map(x => (x.Finalizado !== 'C' ? { ...x, Finalizado: 'C' } : x)));
+                    setMsg({ ok: true, t: 'Todas as tags foram finalizadas!' });
+                } else {
+                    setTags(ts => ts.map(x => x.IdTag === selTag.IdTag ? { ...x, Finalizado: 'C' } : x));
+                    setMsg({ ok: true, t: 'Tag finalizada com sucesso!' });
+                }
+                setTimeout(() => setActionModal(null), 1500);
+            } else setMsg({ ok: false, t: r.message });
+        } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
     const salvarNovaRnc = async () => {
         if (!selProj || !rncForm.descricao.trim()) return;
         setIsSaving(true); setMsg(null);
@@ -212,6 +284,7 @@ export default function VisaoGeralProducaoPage() {
             const dataBr = rncForm.dataExec ? `${isoToBr(rncForm.dataExec.split('T')[0])} ${sysTime}` : '';
             const payload = {
                 idRnc: rncForm.idRnc, idProjeto: selProj.IdProjeto, projeto: selProj.Projeto,
+                idTag: rncForm.idTag, tag: rncForm.tag,
                 descricao: rncForm.descricao, setor: rncForm.setor, usuario: rncForm.usuario,
                 tipoTarefa: rncForm.tipoTarefa, dataExec: dataBr
             };
@@ -224,8 +297,8 @@ export default function VisaoGeralProducaoPage() {
                     setProjetos(ps => ps.map(x => x.IdProjeto === selProj.IdProjeto ? { ...x, qtdernc: (x.qtdernc||0) + 1, qtderncPendente: (x.qtderncPendente||0) + 1 } : x));
                 }
                 setMsg({ ok: true, t: rncForm.idRnc ? 'Pendência atualizada!' : 'Pendência criada com sucesso!' });
-                fetchRncs(selProj.IdProjeto);
-                setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
+                fetchRncs(selProj.IdProjeto, rncForm.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
+                setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
                 setTimeout(() => setMsg(null), 3000);
             } else setMsg({ ok: false, t: r.message });
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
@@ -257,8 +330,8 @@ export default function VisaoGeralProducaoPage() {
                     qtderncFinalizada: (x.qtderncFinalizada||0) + 1 
                 } : x));
                 setMsg({ ok: true, t: 'Pendência finalizada com sucesso!' });
-                fetchRncs(selProj.IdProjeto);
-                setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
+                fetchRncs(selProj.IdProjeto, rncForm.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
+                setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
                 setTimeout(() => setMsg(null), 3000);
             } else setMsg({ ok: false, t: r.message });
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
@@ -276,9 +349,10 @@ export default function VisaoGeralProducaoPage() {
                     <Search className="text-slate-400" size={16} />
                     <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-sm text-slate-700" />
                 </div>
-                <div className="flex gap-2 w-full md:w-auto">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={14} /> Mostrar Finalizados</button>
                     <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={14} /> Mostrar Liberados</button>
+                    <button onClick={() => { setFilFin(false); setFilLib(false); setFProj(''); }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={14} /> Limpar</button>
                 </div>
             </div>
 
@@ -294,7 +368,7 @@ export default function VisaoGeralProducaoPage() {
                 ) : filteredProj.length === 0 ? (
                     <div className="text-center mt-20 text-slate-400 font-medium">Nenhum projeto encontrado.</div>
                 ) : (
-                    <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                         {filteredProj.map(p => {
                             const isFin = p.Finalizado?.trim() !== ''; 
                             const isLib = p.liberado === 'S';
@@ -384,8 +458,15 @@ export default function VisaoGeralProducaoPage() {
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0">
-                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
+                                        <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0 items-start">
+                                            <div className="flex gap-4 w-full">
+                                                {!isFin ? (
+                                                    <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12}/> Finalizar Projeto</button>
+                                                ) : (
+                                                    <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12}/> Cancelar Finalização</button>
+                                                )}
+                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -454,9 +535,39 @@ export default function VisaoGeralProducaoPage() {
                                                     <td className="px-4 py-3 align-top min-w-[220px] max-w-[280px] border-r border-slate-100 bg-inherit sticky left-0 z-10 shadow-[1px_0_0_#f1f5f9] group-hover:shadow-[1px_0_0_#dbeafe]">
                                                         <div className="flex items-center gap-1.5 mb-1"><div className={`w-2 h-2 rounded-full shadow-sm ${tFin ? 'bg-emerald-500' : 'bg-amber-400'}`} /> <span className="font-black text-slate-800 text-[13px] break-all whitespace-normal leading-tight">{t.Tag}</span></div>
                                                         <div className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed whitespace-normal pr-2" title={t.DescTag}>{t.DescTag}</div>
-                                                        <div className="mt-2 flex gap-1 items-center">
+                                                        <div className="mt-2 flex flex-wrap gap-1 items-center">
                                                             <span className="bg-slate-100 border border-slate-200 text-slate-500 text-[9px] px-1.5 py-0.5 rounded font-bold">Cod: {t.IdTag}</span>
                                                             {t.StatusTag && <span className="bg-slate-100 border border-slate-200 text-slate-500 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">{t.StatusTag}</span>}
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); if (selProj) fetchRncs(selProj.IdProjeto, 'VISAOGERALTAG'); setRncForm({ idTag: t.IdTag, tag: t.Tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false }); setActionModal('addRnc'); }}
+                                                                className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                title="Gerar Pendência para esta Tag"
+                                                            >
+                                                                <ShieldAlert size={10} /> Pendência
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setSelTag(t); setPlanejarProjetistaForm({ projetistaPlanejado: t.ProjetistaPlanejado || '', planejadoInicioEngenharia: brToIso(t.PlanejadoInicioEngenharia || ''), planejadoFinalEngenharia: brToIso(t.PlanejadoFinalEngenharia || '') }); setMsg(null); setActionModal('planejarProjetista'); }}
+                                                                className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                title="Planejar Projetista e Engenharia"
+                                                            >
+                                                                <Edit3 size={10} /> Plan. Eng/Proj.
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setSelTag(t); setQtdeLiberadaForm({ qtdeLiberada: t.QtdeLiberada || '0' }); setMsg(null); setActionModal('alterarQtdeLiberada'); }}
+                                                                className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                title="Alterar Qtde Liberada"
+                                                            >
+                                                                <Edit3 size={10} /> Qtde Lib.
+                                                            </button>
+                                                            {!t.Finalizado && (
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setSelTag(t); setMsg(null); setActionModal('finTag'); }}
+                                                                    className="bg-slate-50 hover:bg-green-100 border border-slate-200 hover:border-green-300 text-slate-500 hover:text-green-700 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                    title="Finalizar Tag(s)"
+                                                                >
+                                                                    <CheckCircle size={10} /> Finalizar
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
 
@@ -619,7 +730,129 @@ export default function VisaoGeralProducaoPage() {
                 </div>
             )}
             
-            {/* Modal Finalizar */}
+            {/* Modal Planejar Projetista / Engenharia */}
+            {actionModal === 'planejarProjetista' && selTag && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                            <div>
+                                <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={18} className="text-indigo-600" /> Planejar Projetista / Engenharia</h3>
+                                <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
+                            </div>
+                            <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
+                        </div>
+                        
+                        <div className="p-6 overflow-auto bg-white flex-1 relative">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div className="md:col-span-3">
+                                    <label className="text-xs font-bold text-slate-600 uppercase">Projetista Planejado <span className="text-red-500">*</span></label>
+                                    <select value={planejarProjetistaForm.projetistaPlanejado} onChange={e => setPlanejarProjetistaForm(prev => ({...prev, projetistaPlanejado: e.target.value}))} className="mt-1.5 w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 transition-colors cursor-pointer bg-white">
+                                        <option value="">Selecione um Projetista...</option>
+                                        {planejarProjetistaForm.projetistaPlanejado && !usuarios.find(u => u.NomeCompleto === planejarProjetistaForm.projetistaPlanejado) && <option value={planejarProjetistaForm.projetistaPlanejado}>{planejarProjetistaForm.projetistaPlanejado}</option>}
+                                        {usuarios.map(u => <option key={`eng_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
+                                    </select>
+                                </div>
+                                <div className="md:col-span-1 border-t md:border-t-0 md:border-l border-slate-200 md:pl-5 pt-4 md:pt-0">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Início Engenharia (Plan) <span className="text-red-500">*</span></label>
+                                    <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
+                                        value={planejarProjetistaForm.planejadoInicioEngenharia} onChange={(e) => setPlanejarProjetistaForm(prev => ({...prev, planejadoInicioEngenharia: e.target.value}))}/>
+                                </div>
+                                <div className="md:col-span-1 pt-4 md:pt-0">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Fim Engenharia (Plan) <span className="text-red-500">*</span></label>
+                                    <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
+                                        value={planejarProjetistaForm.planejadoFinalEngenharia} onChange={(e) => setPlanejarProjetistaForm(prev => ({...prev, planejadoFinalEngenharia: e.target.value}))}/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-5 border-t border-slate-200 bg-[#f8fafc] shrink-0 flex items-center justify-between">
+                            <span className="text-xs font-medium text-slate-500">Todos os campos desta tela são obrigatórios.</span>
+                            <div className="flex gap-3 items-center">
+                                {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+                                <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+                                <button onClick={salvarPlanejamentoProjetista} disabled={isSaving} className="px-6 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+                                    {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Planejamento'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Alterar Qtde Liberada */}
+            {actionModal === 'alterarQtdeLiberada' && selTag && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                            <div>
+                                <h3 className="font-black text-slate-800 flex items-center gap-2 text-base"><Edit3 size={16} className="text-emerald-600" /> Alterar Qtde Liberada</h3>
+                                <p className="text-[10px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
+                            </div>
+                            <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={16} /></button>
+                        </div>
+                        
+                        <div className="p-6 overflow-auto bg-white flex-1 relative">
+                            <div className="flex justify-between items-center mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                                <div className="flex flex-col"><span className="text-[10px] font-bold text-slate-400 uppercase">Qtd. Tag (Total)</span><span className="text-lg font-black text-slate-700">{selTag.QtdeTag || '0'}</span></div>
+                                <div className="w-px h-8 bg-slate-200"></div>
+                                <div className="flex flex-col items-end"><span className="text-[10px] font-bold text-slate-400 uppercase">Saldo Atual</span><span className="text-lg font-black text-orange-600">{selTag.SaldoTag || '0'}</span></div>
+                            </div>
+
+                            <label className="text-xs font-bold text-slate-600 uppercase">Nova Qtde. Liberada <span className="text-red-500">*</span></label>
+                            <input 
+                                type="number" 
+                                min="0" 
+                                step="any"
+                                className="mt-1.5 w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-lg font-black text-emerald-700 focus:border-emerald-500 outline-none transition-colors" 
+                                value={qtdeLiberadaForm.qtdeLiberada} 
+                                onChange={(e) => setQtdeLiberadaForm({ qtdeLiberada: e.target.value })}
+                            />
+                            {parseFloat(qtdeLiberadaForm.qtdeLiberada) > parseFloat(selTag.QtdeTag || '0') && (
+                                <p className="text-[10px] font-bold text-red-500 mt-2">A quantidade liberada não pode ser maior que a total ({selTag.QtdeTag}).</p>
+                            )}
+                        </div>
+
+                        <div className="p-5 border-t border-slate-200 bg-[#f8fafc] shrink-0">
+                            {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold text-center mb-3 ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+                            <div className="flex gap-2 w-full">
+                                <button onClick={() => setActionModal(null)} className="flex-1 py-3 rounded-xl text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+                                <button onClick={salvarQtdeLiberada} disabled={isSaving || parseFloat(qtdeLiberadaForm.qtdeLiberada) > parseFloat(selTag.QtdeTag || '0')} className="flex-1 py-3 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/30 flex justify-center items-center gap-2 transition-all disabled:opacity-50">
+                                    {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Qtde'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Modal Finalizar Tag */}
+            {actionModal === 'finTag' && selTag && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex flex-col items-center text-center mb-4">
+                            <CheckCircle size={36} className="text-emerald-500 mb-2" />
+                            <h3 className="font-bold text-lg text-emerald-700">Finalizar Tag(s)</h3>
+                            <p className="text-xs font-bold text-slate-600 mt-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 max-w-full truncate">{selTag.Tag}</p>
+                        </div>
+                        <div className="text-[11px] text-slate-600 text-center mb-5 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            Deseja finalizar <strong>apenas a tag atual</strong> ou finalizar <strong>todas as tags pendentes</strong> deste projeto ({selProj?.Projeto})?
+                        </div>
+                        {msg && <div className={`px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
+                        <div className="flex flex-col gap-2">
+                            <button onClick={e => { e.preventDefault(); salvarFinalizarTag(false); }} disabled={isSaving} className="w-full text-white font-bold text-sm py-2.5 rounded-lg transition-all shadow-md flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-700">
+                                {isSaving ? <Loader className="animate-spin" size={16} /> : 'Finalizar Apenas Esta Tag'}
+                            </button>
+                            <button onClick={e => { e.preventDefault(); salvarFinalizarTag(true); }} disabled={isSaving} className="w-full text-indigo-700 font-bold text-sm py-2.5 rounded-lg transition-all flex justify-center items-center gap-2 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 border border-indigo-200">
+                                {isSaving ? <Loader className="animate-spin" size={16} /> : 'Finalizar Todas as Tags!'}
+                            </button>
+                            <div className="w-full h-px bg-slate-200 my-1"></div>
+                            <button onClick={() => setActionModal(null)} className="w-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 font-bold text-sm py-2.5 rounded-lg transition-colors">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Finalizar Projeto */}
             {(actionModal === 'fin' || actionModal === 'cancelFin') && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
@@ -649,7 +882,9 @@ export default function VisaoGeralProducaoPage() {
                         <div className="flex justify-between items-start mb-4 shrink-0">
                             <div>
                                 <h3 className="font-bold text-slate-800 flex items-center gap-2 text-xl"><ShieldAlert size={22} className="text-red-500" /> Gerenciar Pendências (RNC)</h3>
-                                <p className="text-xs font-bold bg-slate-100 border border-slate-200 px-2.5 py-1 mt-1.5 rounded-md text-slate-600 inline-block">{selProj?.Projeto}</p>
+                                <p className="text-xs font-bold bg-slate-100 border border-slate-200 px-2.5 py-1 mt-1.5 rounded-md text-slate-600 inline-block">
+                                    {selProj?.Projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
+                                </p>
                             </div>
                             <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
@@ -672,7 +907,7 @@ export default function VisaoGeralProducaoPage() {
                                             Cancelar Finalização
                                         </button>
                                     )}
-                                    <button onClick={() => setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
+                                    <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
                                     <button onClick={salvarNovaRnc} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><ShieldAlert size={12}/> Salvar Dados</button>
                                 </div>
                             </div>
@@ -795,7 +1030,7 @@ export default function VisaoGeralProducaoPage() {
                                                 
                                                 return (
                                                 <tr key={r.IdRnc} onClick={() => setRncForm({ 
-                                                    idRnc: r.IdRnc, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
+                                                    idRnc: r.IdRnc, idTag: r.IdTag || undefined, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
                                                     usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
                                                     usuarioFin: r.UsuarioResponsavelFinalizacao || '', dataFin: r.DataFinalizacao ? brToIso(r.DataFinalizacao) : '', setorFin: r.SetorResponsavelFinalizacao || 'Corte', descFin: r.DescricaoFinalizacao || '',
                                                     wantsToFinalize: false 

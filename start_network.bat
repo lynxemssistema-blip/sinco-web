@@ -47,7 +47,7 @@ echo  IMPORTANTE: Se aparecer janela do Firewall do
 echo  Windows, clique em "Permitir Acesso".
 echo ===================================================
 echo.
-echo Pressione qualquer tecla para fechar esta janela.
+echo Pressione qualquer tecla npara fechar esta janela.
 echo (Os servidores continuarao rodando nas janelas abertas)
 echo.
 pause >nul

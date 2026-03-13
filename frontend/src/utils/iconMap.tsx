@@ -6,7 +6,7 @@ import {
     Folder, FolderOpen, Circle, Star, Users, Briefcase,
     Truck, Archive, Hammer, Shield, Zap, Menu, Grid, Camera, FilePlus,
     FolderUp, FileCheck, FileX, RefreshCw, Trash2, XCircle, FileSpreadsheet, CheckCircle, ArrowLeftCircle,
-    BarChart3, ShieldAlert, Database
+    BarChart3, ShieldAlert, Database, Network
 } from 'lucide-react';
 
 export const iconMap: Record<string, any> = {
@@ -52,6 +52,7 @@ export const iconMap: Record<string, any> = {
     BarChart3,
     ShieldAlert,
     Database,
+    Network,
 };
 
 export const getIcon = (name: string) => {

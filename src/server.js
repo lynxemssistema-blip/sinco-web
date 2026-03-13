@@ -3217,10 +3217,25 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
         const mostrarFinalizados = req.query.finalizados === '1';
         const mostrarLiberados = req.query.liberados === '1';
 
-        // Condições de exclusão: por padrão retira finalizados E liberados
+        // Condições base de exclusão
         const condicoes = [`COALESCE(p.D_E_L_E_T_E,'') = ''`];
-        if (!mostrarFinalizados) condicoes.push(`COALESCE(p.Finalizado,'') = ''`);
-        if (!mostrarLiberados) condicoes.push(`COALESCE(p.liberado,'') = ''`);
+
+        if (mostrarFinalizados && mostrarLiberados) {
+            // Caso as duas opções primeiras sejam selecionadas exibir todos os registros
+            // nenhums condição extra
+        } else if (mostrarFinalizados && !mostrarLiberados) {
+            // 1- opção 'Mostrar Finalizados' são todos os registros onde 'Finalizado' é diferente de vazio e que não foram liberados
+            condicoes.push(`COALESCE(p.Finalizado,'') != ''`);
+            condicoes.push(`COALESCE(p.liberado,'') = ''`);
+        } else if (!mostrarFinalizados && mostrarLiberados) {
+            // 2 - opção 'Mostrar Liberado' são todos os registros que tenham o campo 'Liberado' diferente de vazio
+            condicoes.push(`COALESCE(p.liberado,'') != ''`);
+        } else {
+            // Se nenhuma das opçoes ou 'Limpar' , apenas os registros com campos 'Finalizado' e 'Liberado' vazios
+            condicoes.push(`COALESCE(p.Finalizado,'') = ''`);
+            condicoes.push(`COALESCE(p.liberado,'') = ''`);
+        }
+
         const where = condicoes.join(' AND ');
 
         // Get projects with aggregated sector totals from their tags + RNC count
@@ -3230,7 +3245,7 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
                 p.Finalizado, p.liberado, p.StatusProj, p.DescStatus,
 
                 /* ── Tags / Peças nativos da tabela Projetos ── */
-                COALESCE(p.QtdeTags, 0) AS QtdeTags,
+                COUNT(t.IdTag) AS QtdeTags,
                 COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas,
                 COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags,
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
@@ -3319,7 +3334,7 @@ app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
                 QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
-                qtdetotal, Finalizado, qtdernc,
+                qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
                 CorteTotalExecutado, CorteTotalExecutar, CortePercentual,
                 PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra,
@@ -3342,6 +3357,229 @@ app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro ao buscar tags: ' + error.message });
     }
 });
+
+// PUT planejar-projetista for a tag
+app.put('/api/visao-geral/tags/:idTag/planejar-projetista', async (req, res) => {
+    try {
+        const { projetistaPlanejado, planejadoInicioEngenharia, planejadoFinalEngenharia, usuario } = req.body;
+        
+        if (!projetistaPlanejado || !planejadoInicioEngenharia || !planejadoFinalEngenharia) {
+            return res.status(400).json({ success: false, message: 'Todos os campos são obrigatórios: Projetista, Início e Fim.' });
+        }
+
+        const [result] = await pool.execute(`
+            UPDATE tags 
+            SET ProjetistaPlanejado = ?, 
+                PlanejadoInicioEngenharia = ?, 
+                PlanejadoFinalEngenharia = ?
+            WHERE IdTag = ?
+        `, [projetistaPlanejado, planejadoInicioEngenharia, planejadoFinalEngenharia, req.params.idTag]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        }
+
+        res.json({ success: true, message: 'Projetista e datas de engenharia atualizados com sucesso.' });
+    } catch (error) {
+        console.error('Error updating tag planejar projetista:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar tag: ' + error.message });
+    }
+});
+
+// PUT alterar qtde liberada for a tag
+app.put('/api/visao-geral/tags/:idTag/qtde', async (req, res) => {
+    try {
+        const { qtdeLiberada, usuario } = req.body;
+        
+        if (qtdeLiberada === undefined || qtdeLiberada === null) {
+            return res.status(400).json({ success: false, message: 'A Quantidade Liberada é obrigatória.' });
+        }
+
+        // Fetch current tag to calculate balance
+        const [tagRows] = await pool.execute('SELECT QtdeTag FROM tags WHERE IdTag = ?', [req.params.idTag]);
+        if (tagRows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        }
+        
+        const qtdeTag = parseFloat(tagRows[0].QtdeTag) || 0;
+        const liberada = parseFloat(qtdeLiberada) || 0;
+        
+        if (liberada > qtdeTag) {
+            return res.status(400).json({ success: false, message: `Quantidade liberada (${liberada}) não pode ser maior que a Quantidade da Tag (${qtdeTag}).` });
+        }
+
+        const saldo = qtdeTag - liberada;
+
+        const [result] = await pool.execute(`
+            UPDATE tags 
+            SET QtdeLiberada = ?, 
+                SaldoTag = ?
+            WHERE IdTag = ?
+        `, [liberada, saldo, req.params.idTag]);
+
+        res.json({ success: true, message: 'Quantidade liberada atualizada com sucesso.', data: { qtdeLiberada: liberada, saldoTag: saldo } });
+    } catch (error) {
+        console.error('Error updating tag qtde liberada:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar quantidade liberada: ' + error.message });
+    }
+});
+
+// PUT finalizar tag(s)
+app.put('/api/visao-geral/tags/finalizar', async (req, res) => {
+    try {
+        const { idProjeto, idTag, finalizarTodas, usuario } = req.body;
+        
+        if (!idProjeto || !usuario) {
+            return res.status(400).json({ success: false, message: 'Projeto e Usuário são obrigatórios.' });
+        }
+
+        const dataLocal = new Date().toLocaleDateString('pt-BR');
+        
+        if (finalizarTodas) {
+            await pool.execute(`
+                UPDATE tags 
+                SET Finalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE IdProjeto = ? AND (Finalizado IS NULL OR Finalizado = '') AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `, [dataLocal, usuario, idProjeto]);
+
+            await pool.execute(`
+                UPDATE ordemservicoitem 
+                SET OrdemServicoItemFinalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE idProjeto = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = '') AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `, [dataLocal, usuario, idProjeto]);
+
+            await pool.execute(`
+                UPDATE ordemservico 
+                SET OrdemServicoFinalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE IdProjeto = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado = '') AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `, [dataLocal, usuario, idProjeto]);
+        } else {
+            if (!idTag) return res.status(400).json({ success: false, message: 'ID da Tag é obrigatório para finalizar apenas uma.' });
+            
+            await pool.execute(`
+                UPDATE tags 
+                SET Finalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE IdTag = ?
+            `, [dataLocal, usuario, idTag]);
+
+            await pool.execute(`
+                UPDATE ordemservicoitem 
+                SET OrdemServicoItemFinalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE IdTag = ?
+            `, [dataLocal, usuario, idTag]);
+
+            await pool.execute(`
+                UPDATE ordemservico 
+                SET OrdemServicoFinalizado = 'C', 
+                    DataFinalizado = ?, 
+                    UsuarioFinalizado = ? 
+                WHERE IdTag = ?
+            `, [dataLocal, usuario, idTag]);
+        }
+
+        res.json({ success: true, message: finalizarTodas ? 'Todas as tags e OS pendentes foram finalizadas.' : 'Tag e suas respectivas OS finalizadas com sucesso.' });
+    } catch (error) {
+        console.error('Error finalizando tag(s):', error);
+        res.status(500).json({ success: false, message: 'Erro ao finalizar tag(s): ' + error.message });
+    }
+});
+
+
+// =========================================================================
+// VISÃO GERAL DE ENGENHARIA API
+// =========================================================================
+
+// GET Tags for Visao Geral Engenharia
+app.get('/api/visao-geral-engenharia/tags', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(`
+            SELECT
+                IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico,
+                PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao,
+                PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, RealizadoFinalIsometrico,
+                PlanejadoInicioEngenharia, PlanejadoFinalEngenharia, RealizadoInicioEngenharia, RealizadoFinalEngenharia,
+                PlanejadoInicioAprovacao, PlanejadoFinalAprovacao, RealizadoInicioAprovacao, RealizadoFinalAprovacao
+            FROM tags
+            WHERE (Finalizado IS NULL OR Finalizado = '') 
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+            ORDER BY IdProjeto DESC, IdTag DESC
+        `);
+
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching visao-geral-engenharia tags:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar tags da engenharia: ' + error.message });
+    }
+});
+
+// PUT lote update dates for Visao Geral Engenharia
+app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
+    try {
+        const { idTags, setor, planejadoInicio, planejadoFinal, realizadoInicio, realizadoFinal, usuario } = req.body;
+        
+        if (!idTags || !Array.isArray(idTags) || idTags.length === 0) {
+            return res.status(400).json({ success: false, message: 'Nenhuma tag selecionada.' });
+        }
+        if (!setor || !['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao'].includes(setor)) {
+            return res.status(400).json({ success: false, message: 'Setor inválido.' });
+        }
+        if (!usuario) {
+            return res.status(400).json({ success: false, message: 'Usuário obrigatório.' });
+        }
+
+        const updates = [];
+        const params = [];
+        
+        if (planejadoInicio !== undefined) {
+            updates.push(`PlanejadoInicio${setor} = ?`, `UsuarioPlanejadoInicio${setor} = ?`);
+            params.push(planejadoInicio, usuario);
+        }
+        if (planejadoFinal !== undefined) {
+            updates.push(`PlanejadoFinal${setor} = ?`, `UsuarioPlanejadoFinal${setor} = ?`);
+            params.push(planejadoFinal, usuario);
+        }
+        if (realizadoInicio !== undefined) {
+            updates.push(`RealizadoInicio${setor} = ?`, `UsuarioRealizadoInicio${setor} = ?`);
+            params.push(realizadoInicio, usuario);
+        }
+        if (realizadoFinal !== undefined) {
+            updates.push(`RealizadoFinal${setor} = ?`, `UsuarioRealizadoFinal${setor} = ?`);
+            params.push(realizadoFinal, usuario);
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ success: false, message: 'Nenhum dado fornecido para atualização.' });
+        }
+
+        // Create placeholders for the IN clause
+        const placeholders = idTags.map(() => '?').join(',');
+        params.push(...idTags);
+
+        const query = `
+            UPDATE tags 
+            SET ${updates.join(', ')}
+            WHERE IdTag IN (${placeholders})
+        `;
+
+        const [result] = await pool.execute(query, params);
+
+        res.json({ success: true, message: `${result.affectedRows} tags atualizadas com sucesso.` });
+    } catch (error) {
+        console.error('Error batch updating tags:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar tags em lote: ' + error.message });
+    }
+});
+
 
 // GET RNCs for a project in production overview
 app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
@@ -3382,10 +3620,11 @@ app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
 // GET Pendencias (Origem: VISAOGERALPROJ) for a project
 app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
     try {
+        const origem = req.query.origem || 'VISAOGERALPROJ';
         const [rows] = await pool.execute(`
             SELECT
                 IdOrdemServicoItemPendencia AS IdRnc,
-                IdProjeto, Projeto, DescricaoPendencia,
+                IdProjeto, Projeto, IdTag, Tag, DescricaoPendencia,
                 SetorResponsavel, UsuarioResponsavel, TipoTarefa, DataCriacao, Estatus,
                 DataExecucao, DataAcertoProjeto AS DataFinalizacao, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor AS UsuarioResponsavelFinalizacao, DescricaoFinalizacao
             FROM ordemservicoitempendencia
@@ -3393,9 +3632,9 @@ app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
               AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
               AND Estatus IN ('PENDENCIA', 'FINALIZADO')
               AND TipoCadastro = 'RNC'
-              AND OrigemPendencia = 'VISAOGERALPROJ'
+              AND OrigemPendencia = ?
             ORDER BY IdOrdemServicoItemPendencia DESC
-        `, [req.params.projetoId]);
+        `, [req.params.projetoId, origem]);
 
         res.json({ success: true, data: rows });
     } catch (error) {
@@ -3433,14 +3672,15 @@ app.post('/api/visao-geral/pendencias', async (req, res) => {
             ]);
         } else {
             // INSERT NEW
+            const origemPendencia = data.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ';
             const [result] = await pool.execute(`
                 INSERT INTO ordemservicoitempendencia (
-                    IdProjeto, Projeto, TipoCadastro, OrigemPendencia, Estatus, DataCriacao,
+                    IdProjeto, Projeto, IdTag, Tag, TipoCadastro, OrigemPendencia, Estatus, DataCriacao,
                     DescricaoPendencia, SetorResponsavel, TipoTarefa, UsuarioResponsavel, DataExecucao,
                     DataAcertoProjeto, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor, DescricaoFinalizacao
-                ) VALUES (?, ?, 'RNC', 'VISAOGERALPROJ', 'PENDENCIA', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, 'RNC', ?, 'PENDENCIA', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `, [
-                data.idProjeto, data.projeto, now,
+                data.idProjeto, data.projeto, data.idTag || null, data.tag || null, origemPendencia, now,
                 data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
                 data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || ''
             ]);
