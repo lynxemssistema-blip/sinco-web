@@ -1,29 +1,337 @@
-[dotenv@17.2.3] injecting env (12) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
 [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
 [DB] Pool already exists for lynxlocal. Re-using.
-[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
 Server running on port 3000 and listening on all interfaces(0.0.0.0)
 Connected to MySQL database
 
-[API] 🔵 GET /lynx-logo.png
-[API] 🟢 304 (32ms)
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (25ms)
 
-[API] 🔵 GET /api/dashboard/stats
-[TenantMiddleware] Request to /dashboard/stats - Header x-tenant-db: 'lynxlocal'
+[API] =5 GET /api/config/menu
+[DEBUG TENANT] URL: /config/menu | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (3ms)
 
-[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
-[DB] [lynxlocal] 🟢 OK (60ms) - Rows/Affected: 1
-[API] 🟢 200 (72ms)
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
 
-[API] 🔵 GET /api/config/menu
-[TenantMiddleware] Request to /config/menu - Header x-tenant-db: 'lynxlocal'
+[API] =5 GET /api/config/setores
+[DEBUG TENANT] URL: /config/setores | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (3ms)
 
-[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
-[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
-[API] 🟢 200 (52ms)
+[API] =5 GET /api/config/usuarios
+[DEBUG TENANT] URL: /config/usuarios | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (3ms)
 
-[API] 🔵 GET /sw.js
-[API] 🟢 304 (3ms)
+[API] =5 GET /api/config/espessuras
+[DEBUG TENANT] URL: /config/espessuras | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
 
-[API] 🔵 GET /workbox-8c29f6e4.js
-[API] 🟢 304 (2ms)
+[API] =5 GET /api/config/materiais
+[DEBUG TENANT] URL: /config/materiais | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/apontamento/projetos/options
+[DEBUG TENANT] URL: /apontamento/projetos/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/apontamento/tags/options
+[DEBUG TENANT] URL: /apontamento/tags/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/apontamento/os/options
+[DEBUG TENANT] URL: /apontamento/os/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/apontamento/clientes/options
+[DEBUG TENANT] URL: /apontamento/clientes/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config/setores
+[DEBUG TENANT] URL: /config/setores | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config/usuarios
+[DEBUG TENANT] URL: /config/usuarios | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config
+[DEBUG TENANT] URL: /config | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (3ms)
+
+[API] =5 GET /api/config/espessuras
+[DEBUG TENANT] URL: /config/espessuras | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/config/materiais
+[DEBUG TENANT] URL: /config/materiais | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/apontamento/projetos/options
+[DEBUG TENANT] URL: /apontamento/projetos/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/apontamento/tags/options
+[DEBUG TENANT] URL: /apontamento/tags/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/apontamento/os/options
+[DEBUG TENANT] URL: /apontamento/os/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/apontamento/clientes/options
+[DEBUG TENANT] URL: /apontamento/clientes/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/config/setores
+[DEBUG TENANT] URL: /config/setores | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/apontamento/corte
+[DEBUG TENANT] URL: /apontamento/corte | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config/usuarios
+[DEBUG TENANT] URL: /config/usuarios | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/config
+[DEBUG TENANT] URL: /config | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config/setores
+[DEBUG TENANT] URL: /config/setores | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/config/usuarios
+[DEBUG TENANT] URL: /config/usuarios | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/pj
+[DEBUG TENANT] URL: /pj | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (3ms)
+
+[API] =5 GET /api/pj
+[DEBUG TENANT] URL: /pj | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? true
+[DEBUG JWT] Raw token: undefined... length: 9
+[Tenant] Middleware JWT Error: jwt malformed
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? false
+[TenantMiddleware] No token provided for /dashboard/stats
+[API] F09F9F88 401 (3ms)
+
+[API] =5 GET /api/config/menu
+[DEBUG TENANT] URL: /config/menu | Auth Header Exists? false
+[TenantMiddleware] No token provided for /config/menu
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? false
+[TenantMiddleware] No token provided for /dashboard/stats
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? false
+[TenantMiddleware] No token provided for /material
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /familia/options
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /pj/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /medida/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? false
+[TenantMiddleware] No token provided for /material
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /familia/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /pj/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /medida/options
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? false
+[TenantMiddleware] No token provided for /dashboard/stats
+[API] F09F9F88 401 (3ms)
+
+[API] =5 GET /api/config/menu
+[DEBUG TENANT] URL: /config/menu | Auth Header Exists? false
+[TenantMiddleware] No token provided for /config/menu
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/dashboard/stats
+[DEBUG TENANT] URL: /dashboard/stats | Auth Header Exists? false
+[TenantMiddleware] No token provided for /dashboard/stats
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/config/menu
+[DEBUG TENANT] URL: /config/menu | Auth Header Exists? false
+[TenantMiddleware] No token provided for /config/menu
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? false
+[TenantMiddleware] No token provided for /material
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /familia/options
+[API] F09F9F88 401 (2ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /pj/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /medida/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/material
+[DEBUG TENANT] URL: /material | Auth Header Exists? false
+[TenantMiddleware] No token provided for /material
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/familia/options
+[DEBUG TENANT] URL: /familia/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /familia/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/pj/options
+[DEBUG TENANT] URL: /pj/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /pj/options
+[API] F09F9F88 401 (1ms)
+
+[API] =5 GET /api/medida/options
+[DEBUG TENANT] URL: /medida/options | Auth Header Exists? false
+[TenantMiddleware] No token provided for /medida/options
+[API] F09F9F88 401 (1ms)

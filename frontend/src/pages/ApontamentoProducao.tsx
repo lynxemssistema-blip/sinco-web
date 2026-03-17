@@ -799,15 +799,22 @@ export default function ApontamentoProducaoPage() {
                             {/* Search */}
                             <div className="flex-1 min-w-[200px]">
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Buscar</label>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                                    <input
-                                        type="text"
-                                        placeholder="OS, cï¿½digo, plano corte, descriï¿½ï¿½o, espessura, material..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
-                                    />
+                                <div className="flex items-center gap-2">
+                                    <div className="relative flex-1">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                        <input
+                                            type="text"
+                                            placeholder="OS, cï¿½digo, plano corte, descriï¿½ï¿½o, espessura, material..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                        />
+                                    </div>
+                                    {searchTerm && (
+                                        <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+                                            <X size={16} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 

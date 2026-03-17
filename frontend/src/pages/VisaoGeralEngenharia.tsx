@@ -38,6 +38,16 @@ interface TagData {
 type SectorType = 'Medicao' | 'Isometrico' | 'Engenharia' | 'Aprovacao';
 const SECTORS: SectorType[] = ['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao'];
 
+const getSectorColors = (sector: SectorType) => {
+    switch (sector) {
+        case 'Medicao': return { head: 'bg-blue-100 text-blue-900 border-blue-200', sub: 'bg-blue-50 text-blue-800 border-blue-200' };
+        case 'Isometrico': return { head: 'bg-purple-100 text-purple-900 border-purple-200', sub: 'bg-purple-50 text-purple-800 border-purple-200' };
+        case 'Engenharia': return { head: 'bg-amber-100 text-amber-900 border-amber-200', sub: 'bg-amber-50 text-amber-800 border-amber-200' };
+        case 'Aprovacao': return { head: 'bg-emerald-100 text-emerald-900 border-emerald-200', sub: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
+        default: return { head: 'bg-gray-100 text-gray-900 border-gray-300', sub: 'bg-gray-50 text-gray-800 border-gray-200' };
+    }
+};
+
 export default function VisaoGeralEngenharia() {
     const [tags, setTags] = useState<TagData[]>([]);
     const [loading, setLoading] = useState(false);
@@ -139,7 +149,7 @@ export default function VisaoGeralEngenharia() {
         }
     };
 
-    const handleInlineDateChange = async (idTag: number, sector: SectorType, field: 'PlanejadoInicio' | 'PlanejadoFinal', isoDate: string) => {
+    const handleInlineDateChange = async (idTag: number, sector: SectorType, field: 'PlanejadoInicio' | 'PlanejadoFinal' | 'RealizadoInicio' | 'RealizadoFinal', isoDate: string) => {
         const brDate = isoToBr(isoDate);
         
         // Optimistic update
@@ -152,6 +162,8 @@ export default function VisaoGeralEngenharia() {
         };
         if (field === 'PlanejadoInicio') payload.planejadoInicio = brDate;
         if (field === 'PlanejadoFinal') payload.planejadoFinal = brDate;
+        if (field === 'RealizadoInicio') payload.realizadoInicio = brDate;
+        if (field === 'RealizadoFinal') payload.realizadoFinal = brDate;
 
         try {
             const r = await (await fetch(`${API_BASE}/visao-geral-engenharia/tags/lote`, {
@@ -163,6 +175,50 @@ export default function VisaoGeralEngenharia() {
             }
         } catch (e) {
             console.error('Network error on inline update', e);
+        }
+    };
+
+    const handleUploadIso = async (e: React.ChangeEvent<HTMLInputElement>, idTag: number, tagNum: string) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!window.confirm(`Você está associando um desenho ISOMÉTRICO para a Tag '${tagNum}'. Confirma?`)) {
+            e.target.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('isometricoPdf', file);
+
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral-engenharia/tags/${idTag}/isometrico`, {
+                method: 'POST', body: formData
+            })).json();
+            if (r.success) {
+                setTags(prev => prev.map(t => t.IdTag === idTag ? { ...t, CaminhoIsometrico: r.data.CaminhoIsometrico } : t));
+            } else {
+                alert(r.message);
+            }
+        } catch (err) {
+            alert('Erro de rede.');
+        } finally {
+            e.target.value = '';
+        }
+    };
+
+    const confirmClearIso = async (idTag: number, tagNum: string) => {
+        if (!window.confirm(`Limpar o desenho associado à Tag '${tagNum}'?`)) return;
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral-engenharia/tags/${idTag}/isometrico`, {
+                method: 'DELETE'
+            })).json();
+            if (r.success) {
+                setTags(prev => prev.map(t => t.IdTag === idTag ? { ...t, CaminhoIsometrico: '' } : t));
+            } else {
+                alert(r.message);
+            }
+        } catch (err) {
+            alert('Erro de rede.');
         }
     };
 
@@ -214,19 +270,34 @@ export default function VisaoGeralEngenharia() {
                     </div>
                     <input type="text" placeholder="Tipo Produto" value={fTipo} onChange={e => setFTipo(e.target.value)} className="w-24 md:w-32 text-xs px-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-blue-500" />
                     <input type="text" placeholder="Projetista" value={fProjPlanejado} onChange={e => setFProjPlanejado(e.target.value)} className="w-24 md:w-32 text-xs px-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-blue-500" />
+                    {(fQuery || fTipo || fProjPlanejado) && (
+                        <button onClick={() => { setFQuery(''); setFTipo(''); setFProjPlanejado(''); }} className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors">
+                            Limpar
+                        </button>
+                    )}
                 </div>
                 
                 {/* Visual Options - Checkboxes for Sectors */}
                 <div className="flex flex-wrap items-center gap-4 bg-gray-100 p-1 rounded border border-gray-200">
                     <span className="font-bold text-gray-700 ml-1">Exibir Setores:</span>
-                    <label className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded">
-                        <input type="checkbox" checked={activeSectors.size === SECTORS.length} onChange={toggleAllSectors} className="w-3 h-3" /> <span className="text-gray-700">Todos</span>
+                    <label className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded transition-colors">
+                        <input type="checkbox" checked={activeSectors.size === SECTORS.length} onChange={toggleAllSectors} className="w-3 h-3 cursor-pointer" /> <span className="text-gray-700 font-medium text-[11px]">Todos</span>
                     </label>
-                    {SECTORS.map(s => (
-                        <label key={s} className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded">
-                            <input type="checkbox" checked={activeSectors.has(s)} onChange={() => toggleSector(s)} className="w-3 h-3" /> <span className="text-gray-700">{s}</span>
-                        </label>
-                    ))}
+                    {SECTORS.map(s => {
+                        // Base colors for better visual grouping that match the table
+                        let colorClass = 'text-gray-700 hover:bg-gray-200';
+                        if (s === 'Medicao') colorClass = 'text-blue-800 hover:bg-blue-100/50';
+                        if (s === 'Isometrico') colorClass = 'text-purple-800 hover:bg-purple-100/50';
+                        if (s === 'Engenharia') colorClass = 'text-amber-800 hover:bg-amber-100/50';
+                        if (s === 'Aprovacao') colorClass = 'text-emerald-800 hover:bg-emerald-100/50';
+
+                        return (
+                            <label key={s} className={`flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded transition-colors ${colorClass} ${activeSectors.has(s) ? 'bg-white shadow-sm border border-gray-200/50' : ''}`}>
+                                <input type="checkbox" checked={activeSectors.has(s)} onChange={() => toggleSector(s)} className="w-3 h-3 cursor-pointer" /> 
+                                <span className="font-bold text-[11px] uppercase tracking-wide">{s}</span>
+                            </label>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -277,26 +348,32 @@ export default function VisaoGeralEngenharia() {
                             <th className="px-2 py-1.5 border-r border-b border-gray-300">Produto</th>
                             <th className="px-2 py-1.5 border-r border-b border-gray-300">Previsão</th>
                             <th className="px-2 py-1.5 border-r border-b border-gray-300">Projetista</th>
-                            <th className="px-2 py-1.5 border-r border-b border-gray-300">Isometrico Path</th>
+                            <th className="px-2 py-1.5 border-r border-b border-gray-300 w-24">Des. Isométrico</th>
                             
                             {/* Dynamic Sector Columns Header */}
-                            {Array.from(activeSectors).map(s => (
-                                <React.Fragment key={s}>
-                                    <th className="px-2 py-1.5 border-r border-b border-gray-300 bg-blue-50 text-blue-800 text-center" colSpan={4}>{s} - Datas</th>
-                                </React.Fragment>
-                            ))}
+                            {Array.from(activeSectors).map(s => {
+                                const colors = getSectorColors(s);
+                                return (
+                                    <React.Fragment key={s}>
+                                        <th className={`px-2 py-1.5 border-r border-b ${colors.head} text-center`} colSpan={4}>{s} - Datas</th>
+                                    </React.Fragment>
+                                );
+                            })}
                         </tr>
                         {activeSectors.size > 0 && (
                             <tr className="bg-gray-50 text-gray-600 text-[10px]">
                                 <th className="border-r border-b border-gray-300" colSpan={9}></th>
-                                {Array.from(activeSectors).map(s => (
-                                    <React.Fragment key={`${s}-sub`}>
-                                        <th className="px-1 py-1 border-r border-b border-gray-300 text-center font-normal">Plan. Início</th>
-                                        <th className="px-1 py-1 border-r border-b border-gray-300 text-center font-normal">Plan. Final</th>
-                                        <th className="px-1 py-1 border-r border-b border-gray-300 text-center font-normal">Real. Início</th>
-                                        <th className="px-1 py-1 border-r border-b border-gray-300 text-center font-normal">Real. Final</th>
-                                    </React.Fragment>
-                                ))}
+                                {Array.from(activeSectors).map(s => {
+                                    const colors = getSectorColors(s);
+                                    return (
+                                        <React.Fragment key={`${s}-sub`}>
+                                            <th className={`px-1 py-1 border-r border-b ${colors.sub} text-center font-normal`}>Plan. Início</th>
+                                            <th className={`px-1 py-1 border-r border-b ${colors.sub} text-center font-normal`}>Plan. Final</th>
+                                            <th className={`px-1 py-1 border-r border-b ${colors.sub} text-center font-normal`}>Real. Início</th>
+                                            <th className={`px-1 py-1 border-r border-b ${colors.sub} text-center font-normal`}>Real. Final</th>
+                                        </React.Fragment>
+                                    );
+                                })}
                             </tr>
                         )}
                     </thead>
@@ -313,7 +390,19 @@ export default function VisaoGeralEngenharia() {
                                 <td className="px-2 py-1 border-r border-gray-200 overflow-hidden text-ellipsis max-w-[100px]" title={t.TipoProduto}>{t.TipoProduto}</td>
                                 <td className="px-2 py-1 border-r border-gray-200">{t.DataPrevisao}</td>
                                 <td className="px-2 py-1 border-r border-gray-200 max-w-[120px] overflow-hidden text-ellipsis text-blue-800" title={t.ProjetistaPlanejado}>{t.ProjetistaPlanejado}</td>
-                                <td className="px-2 py-1 border-r border-gray-200 text-gray-500 overflow-hidden text-ellipsis max-w-[120px]" title={t.CaminhoIsometrico}>{t.CaminhoIsometrico}</td>
+                                <td className="px-2 py-1 border-r border-gray-200 text-center text-xs">
+                                    {t.CaminhoIsometrico ? (
+                                        <div className="flex items-center gap-2 justify-center">
+                                            <a href={t.CaminhoIsometrico} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline flex-1 truncate font-medium" title={t.CaminhoIsometrico}>Baixar PDF</a>
+                                            <button onClick={() => confirmClearIso(t.IdTag, t.Tag)} className="text-red-500 hover:text-red-700 bg-red-50 px-1 rounded border border-red-200" title="Remover Associação">✖</button>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center gap-1 font-medium bg-blue-50/50 px-1 py-0.5 rounded border border-blue-100/50">
+                                            <Edit3 size={12} /> Associar
+                                            <input type="file" accept=".pdf" className="hidden" onChange={(e) => handleUploadIso(e, t.IdTag, t.Tag)} />
+                                        </label>
+                                    )}
+                                </td>
 
                                 {/* Dynamic Sector Columns Body */}
                                 {Array.from(activeSectors).map(s => {
@@ -339,8 +428,22 @@ export default function VisaoGeralEngenharia() {
                                                     className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700"
                                                 />
                                             </td>
-                                            <td className="px-1 py-1 border-r border-gray-200 text-center text-gray-600 bg-gray-50">{ri}</td>
-                                            <td className="px-1 py-1 border-r border-gray-200 text-center text-gray-600 bg-gray-50">{rf}</td>
+                                            <td className="px-0.5 py-1 border-r border-gray-200 text-center">
+                                                <input 
+                                                    type="date" 
+                                                    value={brToIso(ri)} 
+                                                    onChange={e => handleInlineDateChange(t.IdTag, s, 'RealizadoInicio', e.target.value)}
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700 font-bold"
+                                                />
+                                            </td>
+                                            <td className="px-0.5 py-1 border-r border-gray-200 text-center">
+                                                <input 
+                                                    type="date" 
+                                                    value={brToIso(rf)} 
+                                                    onChange={e => handleInlineDateChange(t.IdTag, s, 'RealizadoFinal', e.target.value)}
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700 font-bold"
+                                                />
+                                            </td>
                                         </React.Fragment>
                                     );
                                 })}

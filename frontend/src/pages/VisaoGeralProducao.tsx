@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign } from 'lucide-react';
+import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -13,7 +13,7 @@ interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string
     PlanejadoInicioMontagem: string; PlanejadoFinalMontagem: string; RealizadoInicioMontagem: string; RealizadoFinalMontagem: string; MontagemTotalExecutado: string; MontagemTotalExecutar: string; MontagemPercentual: string; 
     ProjetistaPlanejado?: string; PlanejadoInicioEngenharia?: string; PlanejadoFinalEngenharia?: string;
 }
-interface Rnc { IdRnc: number; Estatus: string; Tag: string; SetorResponsavel: string; DescricaoPendencia: string; DescResumo: string; UsuarioResponsavel: string; TipoTarefa?: string; DataExecucao?: string; DataCriacao: string; DataFinalizacao: string; UsuarioResponsavelFinalizacao?: string; SetorResponsavelFinalizacao?: string; DescricaoFinalizacao?: string; }
+interface Rnc { IdRnc: number; Estatus: string; Tag: string; SetorResponsavel: string; DescricaoPendencia: string; DescResumo: string; UsuarioResponsavel: string; TipoTarefa?: string; DataExecucao?: string; DataCriacao: string; DataFinalizacao: string; UsuarioResponsavelFinalizacao?: string; SetorResponsavelFinalizacao?: string; DescricaoFinalizacao?: string; DescEmpresa?: string; DescTag?: string; }
 
 const toNum = (v: any) => parseFloat(String(v ?? '0')) || 0;
 const safePct = (e: any, t: any) => toNum(t) > 0 ? Math.min(Math.round((toNum(e) / toNum(t)) * 100), 100) : 0;
@@ -97,7 +97,7 @@ export default function VisaoGeralProducaoPage() {
     const [error, setError] = useState<string | null>(null);
 
     // Modais e Ações
-    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | null>(null);
+    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'addTask' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | null>(null);
     const [rncForm, setRncForm] = useState<{idRnc?: number, idTag?: number, tag?: string, estatus?: string, descricao: string, setor: string, usuario: string, tipoTarefa: string, dataExec: string, usuarioFin?: string, dataFin?: string, setorFin?: string, descFin?: string, wantsToFinalize?: boolean}>({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
     const [planejarProjetistaForm, setPlanejarProjetistaForm] = useState<{ projetistaPlanejado: string, planejadoInicioEngenharia: string, planejadoFinalEngenharia: string }>({ projetistaPlanejado: '', planejadoInicioEngenharia: '', planejadoFinalEngenharia: '' });
     const [qtdeLiberadaForm, setQtdeLiberadaForm] = useState<{ qtdeLiberada: string }>({ qtdeLiberada: '' });
@@ -110,6 +110,57 @@ export default function VisaoGeralProducaoPage() {
     
     // Estado para editar datas de setor da Tag
     const [tagSectorDates, setTagSectorDates] = useState<{ [key: string]: string }>({});
+
+    const [isExporting, setIsExporting] = useState(false);
+
+    // === EXPORT REPORT ===
+    const exportarTarefasPCP = async () => {
+        if (filteredRncs.length === 0) return;
+        setIsExporting(true);
+        try {
+            const payload = {
+                tarefas: filteredRncs.map(r => ({
+                    idRnc: r.IdRnc,
+                    projeto: selProj?.Projeto || '',
+                    cliente: r.DescEmpresa || '',
+                    tag: r.Tag || '',
+                    descTag: r.DescTag || '',
+                    tipoTarefa: r.TipoTarefa || '',
+                    descricao: r.DescricaoPendencia || '',
+                    dataExecucao: r.DataExecucao || '',
+                    usuarioResponsavel: r.UsuarioResponsavel || '',
+                    status: r.Estatus || ''
+                })),
+                usuario: getUser()
+            };
+
+            const response = await fetch(`${API_BASE}/tarefas/exportar-excel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.message || 'Erro ao gerar relatório');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Relatorio_Agendar_TarefaPCP.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err: any) {
+            setMsg({ ok: false, t: err.message || 'Erro ao exportar tarefas.' });
+            setTimeout(() => setMsg(null), 5000);
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const getUser = () => { try { const u = JSON.parse(localStorage.getItem('sinco_user') || '{}'); return u.username || u.name || 'Sistema'; } catch { return 'Sistema'; } };
 
@@ -304,6 +355,32 @@ export default function VisaoGeralProducaoPage() {
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
     };
 
+    const salvarNovaTarefa = async () => {
+        if (!selProj || !rncForm.descricao.trim()) return;
+        setIsSaving(true); setMsg(null);
+        try {
+            const sysTime = new Date().toLocaleTimeString('pt-BR');
+            const dataBr = rncForm.dataExec ? `${isoToBr(rncForm.dataExec.split('T')[0])} ${sysTime}` : '';
+            const payload = {
+                idRnc: rncForm.idRnc, idProjeto: selProj.IdProjeto, projeto: selProj.Projeto,
+                idTag: rncForm.idTag, tag: rncForm.tag,
+                descricao: rncForm.descricao, setor: rncForm.setor, usuario: rncForm.usuario,
+                tipoTarefa: rncForm.tipoTarefa, dataExec: dataBr,
+                tipoRegistro: 'TAREFA', estatus: 'TarefaAberta', origemPendencia: 'ACAOPCP'
+            };
+            const r = await (await fetch(`${API_BASE}/visao-geral/pendencias`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })).json();
+            if (r.success) {
+                setMsg({ ok: true, t: rncForm.idRnc ? 'Tarefa atualizada!' : 'Tarefa criada com sucesso!' });
+                fetchRncs(selProj.IdProjeto, 'ACAOPCP');
+                setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
+                setTimeout(() => setMsg(null), 3000);
+            } else setMsg({ ok: false, t: r.message });
+        } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
 
     const finalizarRnc = async () => {
         if (!selProj || !rncForm.idRnc) return;
@@ -324,13 +401,16 @@ export default function VisaoGeralProducaoPage() {
                 body: JSON.stringify(payload)
             })).json();
             if (r.success) {
-                setProjetos(ps => ps.map(x => x.IdProjeto === selProj.IdProjeto ? { 
-                    ...x, 
-                    qtderncPendente: Math.max((x.qtderncPendente||0) - 1, 0), 
-                    qtderncFinalizada: (x.qtderncFinalizada||0) + 1 
-                } : x));
-                setMsg({ ok: true, t: 'Pendência finalizada com sucesso!' });
-                fetchRncs(selProj.IdProjeto, rncForm.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
+                if (actionModal === 'addRnc') {
+                    setProjetos(ps => ps.map(x => x.IdProjeto === selProj.IdProjeto ? { 
+                        ...x, 
+                        qtderncPendente: Math.max((x.qtderncPendente||0) - 1, 0), 
+                        qtderncFinalizada: (x.qtderncFinalizada||0) + 1 
+                    } : x));
+                }
+                setMsg({ ok: true, t: actionModal === 'addTask' ? 'Tarefa finalizada com sucesso!' : 'Pendência finalizada com sucesso!' });
+                const fetchSource = actionModal === 'addTask' ? 'ACAOPCP' : (rncForm.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
+                fetchRncs(selProj.IdProjeto, fetchSource);
                 setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
                 setTimeout(() => setMsg(null), 3000);
             } else setMsg({ ok: false, t: r.message });
@@ -466,6 +546,7 @@ export default function VisaoGeralProducaoPage() {
                                                     <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12}/> Cancelar Finalização</button>
                                                 )}
                                                 <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
+                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="text-[10px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-1 transition-colors ml-2"><CalendarDays size={12}/> Agendar Tarefa</button>
                                             </div>
                                         </div>
                                     </div>
@@ -501,6 +582,11 @@ export default function VisaoGeralProducaoPage() {
                                     <Search size={14} className="text-slate-400 mr-2" />
                                     <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
                                 </div>
+                                {fTag && (
+                                    <button onClick={() => setFTag('')} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs" title="Limpar pesquisa">
+                                        <X size={14} /> Limpar
+                                    </button>
+                                )}
                                 <div className="h-6 w-px bg-slate-300 mx-1"></div>
                                 <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-slate-100 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs">
                                     <X size={16} /> Fechar
@@ -544,6 +630,13 @@ export default function VisaoGeralProducaoPage() {
                                                                 title="Gerar Pendência para esta Tag"
                                                             >
                                                                 <ShieldAlert size={10} /> Pendência
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); if (selProj) fetchRncs(selProj.IdProjeto, 'ACAOPCP'); setRncForm({ idTag: t.IdTag, tag: t.Tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false }); setActionModal('addTask'); }}
+                                                                className="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                title="Agendar Tarefa"
+                                                            >
+                                                                <CalendarDays size={10} /> Tarefa
                                                             </button>
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); setSelTag(t); setPlanejarProjetistaForm({ projetistaPlanejado: t.ProjetistaPlanejado || '', planejadoInicioEngenharia: brToIso(t.PlanejadoInicioEngenharia || ''), planejadoFinalEngenharia: brToIso(t.PlanejadoFinalEngenharia || '') }); setMsg(null); setActionModal('planejarProjetista'); }}
@@ -944,7 +1037,7 @@ export default function VisaoGeralProducaoPage() {
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição Detalhada</label>
-                                <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value}))} rows={2} placeholder="Descreva a pendência..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-red-400 resize-none font-medium" />
+                                <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a pendência..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-red-400 resize-none font-medium" />
                             </div>
 
                             {/* BLOCO DE FINALIZAÇÃO */}
@@ -980,7 +1073,7 @@ export default function VisaoGeralProducaoPage() {
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Descrição do Retorno / Resolução</label>
-                                    <textarea disabled={rncForm.estatus === 'FINALIZADO'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
+                                    <textarea disabled={rncForm.estatus === 'FINALIZADO'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
                                 </div>
                             </div>
                             )}
@@ -1037,6 +1130,189 @@ export default function VisaoGeralProducaoPage() {
                                                 })} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'FINALIZADO' ? 'opacity-60' : ''}`}>
                                                     <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
                                                     <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{r.Estatus || 'Aberta'}</span></td>
+                                                    <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
+                                                    <td className="px-3 py-2 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
+                                                    <td className="px-3 py-2 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
+                                                    <td className="px-3 py-2 font-bold text-slate-600 text-[9px] uppercase"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors"></div>{r.SetorResponsavel}</span></td>
+                                                    <td className="px-3 py-2 text-right font-mono text-[9px] text-slate-400">{r.DataCriacao}</td>
+                                                </tr>
+                                            )})}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Agendar Tarefa */}
+            {actionModal === 'addTask' && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl p-5 w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                        
+                        {/* HEADER DA MODAL */}
+                        <div className="flex justify-between items-start mb-4 shrink-0">
+                            <div>
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-xl"><CalendarDays size={22} className="text-blue-500" /> Agendar Tarefa (PCP)</h3>
+                                <p className="text-xs font-bold bg-slate-100 border border-slate-200 px-2.5 py-1 mt-1.5 rounded-md text-slate-600 inline-block">
+                                    {selProj?.Projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
+                                </p>
+                            </div>
+                            <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+                        </div>
+
+                        {/* ÁREA DE FORMULÁRIO (TOP) */}
+                        <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 mb-4 shrink-0 shadow-sm relative">
+                            {/* Overlay de Loading do Salvar */}
+                            {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-xl z-10 flex items-center justify-center"><Loader className="animate-spin text-blue-600" size={28} /></div>}
+                            
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-bold text-sm text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Nova Tarefa'}</h4>
+                                <div className="flex gap-2 items-center">
+                                    {rncForm.idRnc && rncForm.estatus !== 'TarefaFinalizada' && !rncForm.wantsToFinalize && (
+                                        <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: true, dataFin: new Date().toISOString().split('T')[0]}))} className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                            <CheckCircle size={14}/> Habilitar Finalização
+                                        </button>
+                                    )}
+                                    {rncForm.wantsToFinalize && (
+                                        <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: false}))} className="px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                            Cancelar Finalização
+                                        </button>
+                                    )}
+                                    <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
+                                    <button onClick={salvarNovaTarefa} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><CalendarDays size={12}/> Agendar Tarefa</button>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Responsável</label>
+                                    <select value={rncForm.usuario} onChange={e => setRncForm(prev => ({...prev, usuario: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                        <option value="">Selecione...</option>
+                                        {rncForm.usuario && !usuarios.find(u => u.NomeCompleto === rncForm.usuario) && <option value={rncForm.usuario}>{rncForm.usuario}</option>}
+                                        {usuarios.map(u => <option key={`task_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Tipo de Tarefa</label>
+                                    <select value={rncForm.tipoTarefa} onChange={e => setRncForm(prev => ({...prev, tipoTarefa: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                        <option value="">Selecione...</option>
+                                        {rncForm.tipoTarefa && !tipostarefa.find(t => t.TipoTarefa === rncForm.tipoTarefa) && <option value={rncForm.tipoTarefa}>{rncForm.tipoTarefa}</option>}
+                                        {tipostarefa.map(t => <option key={`task_${t.IdTipoTarefa}`} value={t.TipoTarefa}>{t.TipoTarefa}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
+                                    <select value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                        {SECTORS.map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
+                                        <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
+                                        {rncForm.setor && !SECTORS.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Data Execução (Prevista)</label>
+                                    <input type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({...prev, dataExec: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição / Notas da Tarefa</label>
+                                <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-400 resize-none font-medium" />
+                            </div>
+
+                            {/* BLOCO DE FINALIZAÇÃO DA TAREFA */}
+                            {rncForm.idRnc && (rncForm.estatus === 'TarefaFinalizada' || rncForm.wantsToFinalize) && (
+                            <div className={`mt-4 pt-3 border-t border-slate-200 ${rncForm.estatus === 'TarefaFinalizada' ? 'opacity-80' : ''}`}>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-bold text-xs text-emerald-700 flex items-center gap-1.5 uppercase"><CheckCircle size={14}/> Responsável pela Finalização {rncForm.estatus === 'TarefaFinalizada' && '(Já Finalizada)'}</h4>
+                                    {rncForm.estatus !== 'TarefaFinalizada' && (
+                                        <button onClick={finalizarRnc} disabled={!rncForm.usuarioFin || !rncForm.dataFin || isSaving} className="px-2.5 py-1 text-[10px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50 uppercase"><CheckCircle size={12}/> Confirmar Finalização</button>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+                                    <div>
+                                        <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Responsável</label>
+                                        <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.usuarioFin} onChange={e => setRncForm(prev => ({...prev, usuarioFin: e.target.value}))} className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-400 disabled:opacity-75">
+                                            <option value="">Selecione...</option>
+                                            {rncForm.usuarioFin && !usuarios.find(u => u.NomeCompleto === rncForm.usuarioFin) && <option value={rncForm.usuarioFin}>{rncForm.usuarioFin}</option>}
+                                            {usuarios.map(u => <option key={`fin_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Data de Finalização</label>
+                                        <input disabled={rncForm.estatus === 'TarefaFinalizada'} type="date" value={rncForm.dataFin} onChange={e => setRncForm(prev => ({...prev, dataFin: e.target.value}))} className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-400 disabled:opacity-75" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Setor</label>
+                                        <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-400 disabled:opacity-75">
+                                            {SECTORS.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
+                                            <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
+                                            {rncForm.setorFin && !SECTORS.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Descrição do Retorno / Resolução</label>
+                                    <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
+                                </div>
+                            </div>
+                            )}
+
+                            {msg && <div className={`mt-3 px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
+                        </div>
+
+                        {/* ÁREA DE GRID (BOTTOM) */}
+                        <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-white border border-slate-200 rounded-xl relative">
+                            <div className="bg-[#f8fafc] border-b border-slate-200 px-4 py-2 flex justify-between items-center shrink-0">
+                                <h5 className="text-[10px] font-bold text-slate-500 uppercase">Histórico de Tarefas (PCP)</h5>
+                                <button
+                                    onClick={exportarTarefasPCP}
+                                    disabled={filteredRncs.length === 0 || isExporting}
+                                    className="px-3 py-1.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                                >
+                                    {isExporting ? <Loader className="animate-spin" size={12} /> : <FileDown size={14} />}
+                                    Emitir Relatório
+                                </button>
+                            </div>
+
+                            {loadRncs ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50/50 z-10"><Loader className="animate-spin" size={28} /> <span className="text-sm font-bold">Carregando tarefas...</span></div>
+                            ) : rncs.length === 0 ? (
+                                <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-medium bg-slate-50">Nenhuma tarefa encontrada.</div>
+                            ) : (
+                                <div className="flex-1 py-0 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50 [&::-webkit-scrollbar]:h-2 relative bg-white min-h-0">
+                                    <div className="w-max min-w-full pb-2">
+                                        <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
+                                            <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200">
+                                            <tr>
+                                                <th className="px-3 py-2.5">ID</th>
+                                                <th className="px-3 py-2.5">Status</th>
+                                                <th className="px-3 py-2.5">Descrição</th>
+                                                <th className="px-3 py-2.5">Responsável</th>
+                                                <th className="px-3 py-2.5">Tipo Tarefa</th>
+                                                <th className="px-3 py-2.5">Setor</th>
+                                                <th className="px-3 py-2.5 text-right flex-1">Data Cri.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {filteredRncs.map((r, idx) => {
+                                                const rawSetor = (r.SetorResponsavel || '').trim();
+                                                const mappedSetor = SECTORS.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
+                                                
+                                                const rawTipoTarefa = (r.TipoTarefa || '').trim();
+                                                const mappedTipoTarefa = tipostarefa.find(t => t.TipoTarefa.toLowerCase() === rawTipoTarefa.toLowerCase())?.TipoTarefa || rawTipoTarefa;
+                                                
+                                                const mappedUsuario = usuarios.find(u => u.NomeCompleto.toLowerCase() === (r.UsuarioResponsavel || '').toLowerCase())?.NomeCompleto || r.UsuarioResponsavel || '';
+                                                
+                                                return (
+                                                <tr key={r.IdRnc} onClick={() => setRncForm({ 
+                                                    idRnc: r.IdRnc, idTag: r.IdTag || undefined, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
+                                                    usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
+                                                    wantsToFinalize: false 
+                                                })} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'TarefaFinalizada' ? 'opacity-60' : ''}`}>
+                                                    <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
+                                                    <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{r.Estatus || 'Aberta'}</span></td>
                                                     <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
                                                     <td className="px-3 py-2 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
                                                     <td className="px-3 py-2 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>

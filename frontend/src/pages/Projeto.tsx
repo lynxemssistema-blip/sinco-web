@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2, Trash2, X, FolderKanban, Save,
@@ -667,8 +667,17 @@ export default function ProjetoPage() {
                             </div>
                         </div>
 
-                        {/* Botão de Pesquisar */}
-                        <div className="ml-auto mt-2 md:mt-0">
+                        {/* Botões de Pesquisar e Limpar */}
+                        <div className="ml-auto mt-2 md:mt-0 flex items-center gap-2">
+                            {(searchFilters.projeto || searchFilters.descProjeto || searchFilters.cliente || searchFilters.dataInicio || searchFilters.dataFim) && (
+                                <button
+                                    onClick={() => setSearchFilters({ projeto: '', descProjeto: '', cliente: '', dataInicio: '', dataFim: '' })}
+                                    className="px-4 py-2 text-red-600 font-bold text-sm tracking-wide rounded hover:bg-red-50 transition-colors flex items-center gap-2 border border-transparent hover:border-red-200"
+                                >
+                                    <X size={16} />
+                                    Limpar
+                                </button>
+                            )}
                             <button
                                 onClick={fetchProjetos}
                                 disabled={loading}

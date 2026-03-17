@@ -197,15 +197,22 @@ export default function ConfiguracaoSistemaPage() {
 
             {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4 mb-6">
-                <div className="relative flex-1 group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Buscar por chave, valor ou descrição..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all shadow-sm group-hover:shadow-md"
-                        value={searchTerm}
-                        onChange={(e) => handleSearch(e.target.value)}
-                    />
+                <div className="relative flex-1 flex items-center gap-2 group">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Buscar por chave, valor ou descrição..."
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all shadow-sm group-hover:shadow-md"
+                            value={searchTerm}
+                            onChange={(e) => handleSearch(e.target.value)}
+                        />
+                    </div>
+                    {searchTerm && (
+                        <button onClick={() => handleSearch('')} className="p-2.5 rounded-xl border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+                            <X size={20} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="relative group min-w-[200px]">

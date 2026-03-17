@@ -720,17 +720,24 @@ export default function OrdemServicoPage() {
                     </div>
 
                     {/* Search Input */}
-                    <div className="relative flex-1 min-w-[200px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                            type="text"
-                            placeholder={searchMode === 'os' ? "Buscar OS, projeto, tag..." : "Buscar código desenho..."}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
-                        />
-                        {(searchingItems || (searchMode === 'os' && loading && searchTerm)) && (
-                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={16} />
+                    <div className="relative flex-1 min-w-[200px] flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <input
+                                type="text"
+                                placeholder={searchMode === 'os' ? "Buscar OS, projeto, tag..." : "Buscar código desenho..."}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
+                            />
+                            {(searchingItems || (searchMode === 'os' && loading && searchTerm)) && (
+                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={16} />
+                            )}
+                        </div>
+                        {searchTerm && (
+                            <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-xl border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+                                <X size={20} />
+                            </button>
                         )}
                     </div>
 

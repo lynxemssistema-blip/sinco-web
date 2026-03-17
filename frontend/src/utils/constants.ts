@@ -24,6 +24,7 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'apontamento', icon: 'Factory', label: 'Apontamento Produção', href: '/apontamento' },
     { id: 'visao-geral-producao', icon: 'BarChart3', label: 'Visão Geral Produção', href: '/visao-geral-producao' },
     { id: 'visao-geral-engenharia', icon: 'Network', label: 'Visão Geral Engenharia', href: '/visao-geral-engenharia' },
+    { id: 'controle-expedicao', icon: 'PackageCheck', label: 'Controle Expedição', href: '/controle-expedicao' },
     { id: 'relatorios', icon: 'FileText', label: 'Relatórios', href: '/relatorios' },
     { id: 'sst', icon: 'ShieldCheck', label: 'SST - Segurança', href: '/sst' },
     { id: 'cipa', icon: 'HardHat', label: 'CIPA - Segurança', href: '/cipa' },

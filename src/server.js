@@ -3580,6 +3580,76 @@ app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
     }
 });
 
+// Upload configurations for Isometricos
+const storageIsometrico = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const isoDir = path.join(__dirname, '../public/uploads/isometricos');
+        if (!fs.existsSync(isoDir)) {
+            fs.mkdirSync(isoDir, { recursive: true });
+        }
+        cb(null, isoDir)
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'iso-' + req.params.idTag + '-' + uniqueSuffix + ext)
+    }
+});
+const uploadIso = multer({ storage: storageIsometrico });
+
+// POST upload isometrico
+app.post('/api/visao-geral-engenharia/tags/:idTag/isometrico', uploadIso.single('isometricoPdf'), async (req, res) => {
+    try {
+        const file = req.file;
+        const { idTag } = req.params;
+        
+        if (!file) {
+            return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado.' });
+        }
+
+        const [rows] = await pool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag já Finalizado!' });
+
+        const filePath = `/uploads/isometricos/${file.filename}`;
+
+        await pool.execute("UPDATE tags SET CaminhoIsometrico = ? WHERE IdTag = ?", [filePath, idTag]);
+
+        res.json({ success: true, message: 'Desenho Isométrico associado com sucesso.', data: { CaminhoIsometrico: filePath } });
+    } catch (error) {
+        console.error('Error uploading isometrico:', error);
+        res.status(500).json({ success: false, message: 'Erro ao associar desenho: ' + error.message });
+    }
+});
+
+// DELETE limpar isometrico
+app.delete('/api/visao-geral-engenharia/tags/:idTag/isometrico', async (req, res) => {
+    try {
+        const { idTag } = req.params;
+        
+        const [rows] = await pool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag já Finalizado!' });
+
+        const [tagRow] = await pool.execute("SELECT CaminhoIsometrico FROM tags WHERE IdTag = ?", [idTag]);
+        const caminho = tagRow[0].CaminhoIsometrico;
+
+        if (caminho) {
+            const absolutePath = path.join(__dirname, '../public', caminho);
+            if (fs.existsSync(absolutePath)) {
+                fs.unlinkSync(absolutePath);
+            }
+        }
+
+        await pool.execute("UPDATE tags SET CaminhoIsometrico = NULL WHERE IdTag = ?", [idTag]);
+
+        res.json({ success: true, message: 'Desenho Isométrico removido com sucesso.', data: { CaminhoIsometrico: null } });
+    } catch (error) {
+        console.error('Error clearing isometrico:', error);
+        res.status(500).json({ success: false, message: 'Erro ao limpar desenho: ' + error.message });
+    }
+});
+
 
 // GET RNCs for a project in production overview
 app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
@@ -3621,6 +3691,14 @@ app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
 app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
     try {
         const origem = req.query.origem || 'VISAOGERALPROJ';
+        
+        let tipoCadastro = 'RNC';
+        let statusList = "'PENDENCIA', 'FINALIZADO'";
+        if (origem === 'ACAOPCP') {
+            tipoCadastro = 'TAREFA';
+            statusList = "'TarefaAberta', 'TarefaFinalizada'";
+        }
+
         const [rows] = await pool.execute(`
             SELECT
                 IdOrdemServicoItemPendencia AS IdRnc,
@@ -3630,11 +3708,11 @@ app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
             FROM ordemservicoitempendencia
             WHERE IdProjeto = ?
               AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
-              AND Estatus IN ('PENDENCIA', 'FINALIZADO')
-              AND TipoCadastro = 'RNC'
+              AND Estatus IN (${statusList})
+              AND TipoCadastro = ?
               AND OrigemPendencia = ?
             ORDER BY IdOrdemServicoItemPendencia DESC
-        `, [req.params.projetoId, origem]);
+        `, [req.params.projetoId, tipoCadastro, origem]);
 
         res.json({ success: true, data: rows });
     } catch (error) {
@@ -3672,15 +3750,18 @@ app.post('/api/visao-geral/pendencias', async (req, res) => {
             ]);
         } else {
             // INSERT NEW
-            const origemPendencia = data.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ';
+            const origemPendencia = data.origemPendencia || (data.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
+            const tipoCadastro = data.tipoRegistro || 'RNC';
+            const estatus = data.estatus || 'PENDENCIA';
+            
             const [result] = await pool.execute(`
                 INSERT INTO ordemservicoitempendencia (
                     IdProjeto, Projeto, IdTag, Tag, TipoCadastro, OrigemPendencia, Estatus, DataCriacao,
                     DescricaoPendencia, SetorResponsavel, TipoTarefa, UsuarioResponsavel, DataExecucao,
                     DataAcertoProjeto, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor, DescricaoFinalizacao
-                ) VALUES (?, ?, ?, ?, 'RNC', ?, 'PENDENCIA', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `, [
-                data.idProjeto, data.projeto, data.idTag || null, data.tag || null, origemPendencia, now,
+                data.idProjeto, data.projeto, data.idTag || null, data.tag || null, tipoCadastro, origemPendencia, estatus, now,
                 data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
                 data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || ''
             ]);
@@ -3688,7 +3769,8 @@ app.post('/api/visao-geral/pendencias', async (req, res) => {
             idRnc = result.insertId;
 
             // Increment totals (qtdernc, qtderncPendente) on projetos, tags, ordemservico
-            if (data.idProjeto) {
+            // Only increment legacy RNC counters if it's a legacy RNC
+            if (data.idProjeto && tipoCadastro === 'RNC') {
                 await pool.execute(`UPDATE projetos SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ?`, [data.idProjeto]);
                 await pool.execute(`UPDATE tags SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`, [data.idProjeto]);
                 await pool.execute(`UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`, [data.idProjeto]);
@@ -3721,7 +3803,7 @@ app.put('/api/visao-geral/pendencias/:id/finalizar', async (req, res) => {
     try {
         await pool.execute(`
             UPDATE ordemservicoitempendencia
-            SET Estatus = 'FINALIZADO',
+            SET Estatus = IF(TipoCadastro = 'TAREFA', 'TarefaFinalizada', 'FINALIZADO'),
                 FinalizadoPorUsuarioSetor = ?,
                 DataAcertoProjeto = ?,
                 SetorResponsavelFinalizacao = ?,
@@ -3729,12 +3811,14 @@ app.put('/api/visao-geral/pendencias/:id/finalizar', async (req, res) => {
             WHERE IdOrdemServicoItemPendencia = ?
         `, [usuarioFin, dtFinFormatada, setorFin, descFin || '', id]);
 
-        // Adjust project/tag/os counts
-        if (idProjeto) {
+        // Specific legacy counters just for RNC (avoiding count pollution by Tarefas)
+        const [pendencyInfo] = await pool.execute(`SELECT TipoCadastro, IdTag, IdOrdemServico FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?`, [id]);
+        
+        if (idProjeto && pendencyInfo.length > 0 && pendencyInfo[0].TipoCadastro === 'RNC') {
             await pool.execute(`UPDATE projetos SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdProjeto = ?`, [idProjeto]);
             
             // Get specific Tag and OS for this pendency to update them correctly
-            const [pendency] = await pool.execute(`SELECT IdTag, IdOrdemServico FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?`, [id]);
+            const pendency = pendencyInfo;
             if (pendency.length > 0) {
                 const { IdTag, IdOrdemServico } = pendency[0];
                 if (IdTag) await pool.execute(`UPDATE tags SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdTag = ?`, [IdTag]);
@@ -6432,6 +6516,204 @@ app.post('/api/admin/db/save', authenticateAdmin, async (req, res) => {
     } catch (error) {
         console.error('Error saving DB config:', error);
         res.status(500).json({ success: false, message: 'Erro ao salvar configura��o: ' + error.message });
+    }
+});
+
+// ============================================================================
+// CONTROLE DE EXPEDIÇÃO
+// ============================================================================
+
+app.get('/api/controle-expedicao', async (req, res) => {
+    try {
+        const { projeto, tag, descTag, empresa, codmat, descResumo, dataPrevisaoInicio, dataPrevisaoFim, concluidos } = req.query;
+        let query = "SELECT IdProjeto, Projeto, DescEmpresa, Tag, DescTag, codmatfabricante, DataPrevisao, QtdeTotal, PesoUnitario, MontagemTotalExecutado, TotalExpedicao, Comprimento, Profundidade, Largura, descresumo, descdetal, RealizadoInicioExpedicao, RealizadoFinalExpedicao, IdTag, Idordemservico, IdOrdemServicoItem, Finalizadotag, FinalizadoProjeto, OrdemServicoItemFinalizado, enderecoarquivo, ProdutoPrincipal FROM viewcontroleexpedicao WHERE 1=1";
+        const queryParams = [];
+
+        if (projeto) { query += " AND Projeto LIKE ?"; queryParams.push(`%${projeto}%`); }
+        if (tag) { query += " AND Tag LIKE ?"; queryParams.push(`%${tag}%`); }
+        if (descTag) { query += " AND DescTag LIKE ?"; queryParams.push(`%${descTag}%`); }
+        if (empresa) { query += " AND DescEmpresa LIKE ?"; queryParams.push(`%${empresa}%`); }
+        if (codmat) { query += " AND codmatfabricante LIKE ?"; queryParams.push(`%${codmat}%`); }
+        if (descResumo) { query += " AND DescResumo LIKE ?"; queryParams.push(`%${descResumo}%`); } 
+        
+        if (dataPrevisaoInicio && dataPrevisaoFim) {
+            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') BETWEEN ? AND ?";
+            queryParams.push(dataPrevisaoInicio, dataPrevisaoFim);
+        } else if (dataPrevisaoInicio) {
+            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') >= ?";
+            queryParams.push(dataPrevisaoInicio);
+        } else if (dataPrevisaoFim) {
+            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') <= ?";
+            queryParams.push(dataPrevisaoFim);
+        }
+        
+        if (!concluidos || concluidos !== '1') {
+            query += " AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado <> 'C') AND (Finalizadotag IS NULL OR Finalizadotag <> 'C')";
+        }
+
+        query += " ORDER BY Projeto ASC, Tag ASC LIMIT 1000";
+
+        const [rows] = await pool.execute(query, queryParams);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Erro ao buscar viewcontroleexpedicao:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ABRIR ARQUIVO GENÉRICO (3D, PDF, etc) - SIMULA PROCESS.START DO VB.NET NO SERVIDOR
+app.get('/api/controle-expedicao/abrir-arquivo', (req, res) => {
+    try {
+        let { caminho, tipo } = req.query;
+
+        if (!caminho) {
+            return res.status(400).json({ success: false, message: 'Caminho não informado' });
+        }
+
+        if (tipo === 'pdf') {
+            const extensoes = [".SLDPRT", ".SLDASM", ".sldprt", ".sldasm", ".asm", ".ASM", ".psm", ".PSM", ".par", ".PAR"];
+            extensoes.forEach(ext => {
+                caminho = caminho.replace(ext, ".PDF");
+            });
+        }
+
+        if (fs.existsSync(caminho)) {
+            const { exec } = require('child_process');
+            exec(`start "" "${caminho}"`, (error) => {
+                if (error) {
+                    console.error('Erro ao abrir arquivo:', error);
+                    return res.status(500).json({ success: false, message: 'Erro ao executar arquivo' });
+                }
+                res.json({ success: true, message: 'Arquivo aberto com sucesso' });
+            });
+        } else {
+            res.status(404).json({ success: false, message: 'Arquivo não existe!!' });
+        }
+    } catch (error) {
+        console.error('Erro exception abrir:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ABRIR ISOMÉTRICO (Busca caminho no banco e abre)
+app.get('/api/controle-expedicao/abrir-iso', async (req, res) => {
+    try {
+        const { idTag } = req.query;
+        if (!idTag) return res.status(400).json({ success: false, message: 'IdTag não informado' });
+
+        const [rows] = await pool.execute("SELECT CaminhoIsometrico FROM tags WHERE idtag = ?", [idTag]);
+        
+        if (rows.length > 0 && rows[0].CaminhoIsometrico) {
+            const endereco = rows[0].CaminhoIsometrico;
+            if (fs.existsSync(endereco)) {
+                const { exec } = require('child_process');
+                exec(`start "" "${endereco}"`, (error) => {
+                    if (error) {
+                        return res.status(500).json({ success: false, message: 'Erro ao executar isométrico' });
+                    }
+                    res.json({ success: true, message: 'Isométrico aberto com sucesso' });
+                });
+            } else {
+                res.status(404).json({ success: false, message: 'Arquivo referenciado na base de dados não existe!!' });
+            }
+        } else {
+            res.status(404).json({ success: false, message: 'Nenhum caminho isométrico encontrado para esta Tag.' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/controle-expedicao/ordem-item', async (req, res) => {
+    try {
+        const { idOrdemServico, idOrdemServicoItem, tag, projeto } = req.query;
+        let query = `
+            SELECT idordemservicoitemControle, IdOrdemServicoITem, IdOrdemServico, Projeto, Tag, 
+                   ESTATUS_OrdemServico, CriadoPor, DataCriacao, CodMatFabricante, QtdeTotal, 
+                   TotalExpedicao, DescResumo, DescDetal
+            FROM viewordemservicoitemcontrole 
+            WHERE IdOrdemServicoITem = ? AND IdOrdemServico = ? AND origem = 'EXpedicao'
+        `;
+        const queryParams = [idOrdemServicoItem, idOrdemServico];
+        
+        if (tag) {
+            query += " AND Tag LIKE ?";
+            queryParams.push(`%${tag}%`);
+        }
+        if (projeto) {
+            query += " AND Projeto LIKE ?";
+            queryParams.push(`%${projeto}%`);
+        }
+
+        const [rows] = await pool.execute(query, queryParams);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Erro ao buscar viewordemservicoitemcontrole:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Exportar Tarefas / PCP Excel
+app.post('/api/tarefas/exportar-excel', async (req, res) => {
+    try {
+        const { tarefas, usuario } = req.body;
+        
+        // 1. Buscar Caminhos e Template
+        const [configRows] = await pool.execute(
+            "SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoTemplateExcelRelatorios'"
+        );
+        const templatePath = configRows.length > 0 ? configRows[0].valor : null;
+
+        if (!templatePath || !fs.existsSync(templatePath)) {
+            console.warn(`[Excel] Planilha template não encontrada: ${templatePath}`);
+            return res.status(400).json({ success: false, message: 'A planilha template não foi encontrada no caminho configurado.' });
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(templatePath);
+        const worksheet = workbook.getWorksheet(1); // Pega a primeira aba
+        
+        // Cabeçalho (BH2 = Data, BH3 = Usuario)
+        const nowFormatted = new Date().toLocaleDateString('pt-BR');
+        worksheet.getCell('BH2').value = nowFormatted;
+        worksheet.getCell('BH3').value = usuario || 'Sistema';
+
+        // Linha 12 tem a formatação base, copiamos os valores a partir da linha 13
+        tarefas.forEach((t, idx) => {
+            const rowIdx = idx + 13;
+            worksheet.getCell(`A${rowIdx}`).value = (t.idRnc || '').toString().trim().toUpperCase();
+            worksheet.getCell(`F${rowIdx}`).value = (t.projeto || '').toString().trim().toUpperCase();
+            worksheet.getCell(`K${rowIdx}`).value = (t.cliente || '').toString().trim().toUpperCase();
+            worksheet.getCell(`R${rowIdx}`).value = (t.tag || '').toString().trim().toUpperCase();
+            worksheet.getCell(`W${rowIdx}`).value = (t.descTag || '').toString().trim().toUpperCase();
+            worksheet.getCell(`AF${rowIdx}`).value = (t.tipoTarefa || '').toString().trim().toUpperCase();
+            worksheet.getCell(`AH${rowIdx}`).value = (t.descricao || '').toString().trim().toUpperCase();
+            
+            // Formatando a data
+            let dataExec = t.dataExecucao || '';
+            if (dataExec && typeof dataExec === 'string' && dataExec.includes('T')) {
+                const parts = dataExec.split('T')[0].split('-');
+                if (parts.length === 3) dataExec = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            worksheet.getCell(`AW${rowIdx}`).value = dataExec.trim().toUpperCase();
+            worksheet.getCell(`BD${rowIdx}`).value = (t.usuarioResponsavel || '').toString().trim().toUpperCase();
+            worksheet.getCell(`BI${rowIdx}`).value = (t.status || '').toString().trim().toUpperCase();
+        });
+
+        // Response as stream
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent('Relatorio_Agendar_TarefaPCP.xlsx'));
+        
+        await workbook.xlsx.write(res);
+        res.end();
+        console.log(`[Excel] Relatório de tarefas gerado e baixado (${tarefas?.length || 0} itens)`);
+
+    } catch (error) {
+        console.error('[Excel Tarefas] Erro ao exportar:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: 'Erro ao gerar relatório Excel: ' + error.message });
+        }
     }
 });
 
