@@ -5,7 +5,7 @@ const app = express();
 const pool = require('./config/db');
 const tenantMiddleware = require('./middleware/tenant');
 const matrizRoutes = require('./routes/matrizRoutes');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const multer = require('multer');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
@@ -6653,6 +6653,137 @@ app.get('/api/controle-expedicao/ordem-item', async (req, res) => {
     }
 });
 
+app.post('/api/controle-expedicao/apontar', async (req, res) => {
+    const { idOrdemServicoItem, idOrdemServico, idTag, idProjeto, qtde, qtdeTotalDaLinha } = req.body;
+    const qtdeNum = parseFloat(qtde);
+    
+    // Auth context (if any) or 'Sistema'
+    let usuarioLogado = 'Sistema';
+    const authHeader = req.headers['authorization'];
+    if (authHeader) {
+        try {
+            const token = authHeader.split(' ')[1];
+            const decoded = jwt.verify(token, JWT_SECRET);
+            if (decoded && decoded.login) usuarioLogado = decoded.login;
+        } catch(e) {}
+    }
+
+    if (!idOrdemServicoItem || !qtdeNum || qtdeNum <= 0) {
+        return res.status(400).json({ success: false, message: 'Dados inválidos.' });
+    }
+
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        const dataAtual = getCurrentDateTimeBR();
+
+        let qtdExpedidaGeral = 0;
+
+        // 4 e 5: a quantidade digitada será acrescida ao campo de total de expedição
+        // Se na primeira atualização a data de realizado inicio estiver vazia, atualizar.
+        // 6: Se qtde entrada + total expedição == qtde total, atualizar realizado final.
+
+        const tabelas = [
+            { 
+                nome: 'ordemservicoitem', idCampo: 'IdOrdemServicoItem', idValor: idOrdemServicoItem, campoFinal: 'RealizadofinalExpedicao',
+                campoInicio: 'RealizadoInicioExpedicao', campoUserInicio: 'UsuarioRealizadoInicioExpedicao', campoUserFinal: 'UsuarioRealizadoFinalExpedicao', campoTotal: 'TotalExpedicao'
+            },
+            { 
+                nome: 'ordemservico', idCampo: 'IdOrdemServico', idValor: idOrdemServico, campoFinal: 'RealizadoFinalExpedicao',
+                campoInicio: 'RealizadoInicioExpedicao', campoUserInicio: 'UsuarioRealizadoInicioExpedicao', campoUserFinal: 'UsuarioRealizadoFinalExpedicao', campoTotal: 'TotalExpedicao'
+            },
+            { 
+                nome: 'tags', idCampo: 'IdTag', idValor: idTag, campoFinal: 'realizadoFinalExpedicao',
+                campoInicio: 'RealizadoInicioExpedicao', campoUserInicio: 'UsuarioRealizadoInicioExpedicao', campoUserFinal: 'UsuarioRealizadoFinalExpedicao', campoTotal: 'TotalExpedicao'
+            },
+            { 
+                nome: 'projetos', idCampo: 'IdProjeto', idValor: idProjeto, campoFinal: 'RealizadoFinalExpedicao',
+                // Projetos have specific case requirements and different user fields for Expedicao
+                campoInicio: 'RealizadoInicioExpedicao', campoUserInicio: 'UsuarioRealizadoInicioExpedicao', campoUserFinal: 'UsuarioRealizadoFinalExpedicao', campoTotal: 'TotalExpedicao'
+            }
+        ];
+
+        for (const t of tabelas) {
+            if (!t.idValor) continue;
+
+            const [rows] = await connection.execute(
+                `SELECT \`${t.campoTotal}\`, \`${t.campoInicio}\` FROM \`${t.nome}\` WHERE \`${t.idCampo}\` = ?`,
+                [t.idValor]
+            );
+
+            if (rows.length > 0) {
+                const atual = rows[0];
+                const totalExpedicaoAnterior = parseFloat(atual[t.campoTotal]) || 0;
+                const novoTotal = totalExpedicaoAnterior + qtdeNum;
+                
+                let updates = [];
+                let params = [];
+
+                updates.push(`\`${t.campoTotal}\` = ?`);
+                params.push(novoTotal);
+
+                // Set Inicio se vazio
+                if (!atual[t.campoInicio] || atual[t.campoInicio].trim() === '') {
+                    updates.push(`\`${t.campoInicio}\` = ?`);
+                    params.push(dataAtual);
+                    updates.push(`\`${t.campoUserInicio}\` = ?`);
+                    params.push(usuarioLogado);
+                }
+
+                // Check final
+                if (novoTotal >= qtdeTotalDaLinha) {
+                    updates.push(`\`${t.campoFinal}\` = ?`);
+                    params.push(dataAtual);
+                    updates.push(`\`${t.campoUserFinal}\` = ?`);
+                    params.push(usuarioLogado);
+                }
+
+                if (t.nome === 'ordemservicoitem') {
+                    qtdExpedidaGeral = novoTotal;
+                }
+
+                params.push(t.idValor);
+
+                await connection.execute(
+                    `UPDATE \`${t.nome}\` SET ${updates.join(', ')} WHERE \`${t.idCampo}\` = ?`,
+                    params
+                );
+            }
+        }
+
+        const qtdFaltante = qtdeTotalDaLinha - qtdExpedidaGeral;
+        // 7 etapa: Historico na ordemservicoitemcontrole
+        await connection.execute(
+            `INSERT INTO ordemservicoitemcontrole (
+                IdOrdemServico, IdOrdemServicoItem, QtdeTotal, 
+                Processo, Origem, 
+                QtdeProduzida, txtMontagem, 
+                QtdeFaltante, 
+                CriadoPor, DataCriacao, D_E_L_E_T_E
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')`,
+            [
+                idOrdemServico, idOrdemServicoItem, qtdeTotalDaLinha,
+                'EXPEDICAO', 'EXPEDICAO', // OrigemPendencia
+                qtdeNum, // MontagemTotalExecutado = entrada
+                String(qtdeNum),
+                qtdFaltante < 0 ? 0 : qtdFaltante, // MontagemTotalExecutar
+                usuarioLogado, dataAtual
+            ]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: 'Apontamento registrado com sucesso.' });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error('Erro ao apontar expedição:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao salvar.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 // Exportar Tarefas / PCP Excel
 app.post('/api/tarefas/exportar-excel', async (req, res) => {
     try {
@@ -6716,6 +6847,102 @@ app.post('/api/tarefas/exportar-excel', async (req, res) => {
         }
     }
 });
+
+// Pesquisar Desenho Endpoint
+app.get('/api/pesquisar-desenho', async (req, res) => {
+    let connection = null;
+    try {
+        const { projeto, tag, codMat, descResumo, descDetal, espessura, material } = req.query;
+        
+        // Use connection specific to tenant db if applicable
+        connection = await (req.tenantDbPool || pool).getConnection();
+
+        // 1. Fetch Active Sectors
+        const [setores] = await connection.execute(
+            `SELECT idSetor, Setor, DataLiberada FROM setor WHERE DataLiberada = 'SIM' AND D_E_L_E_T_E = ''`
+        );
+        
+        const allowedSectors = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+        
+        const setoresAtivos = setores.map(s => {
+            // Remove prefix "txt" se presente
+            let limpo = s.Setor;
+            if (limpo.toLowerCase().startsWith('txt')) {
+                limpo = limpo.substring(3);
+            }
+            return {
+                ...s,
+                NomeLimpo: limpo,
+                colTxt: `txt${limpo}`,
+                colSt: `sttxt${limpo}`
+            };
+        }).filter(s => allowedSectors.includes(s.NomeLimpo.toLowerCase()));
+
+        // 2. Build Base Query
+        let query = `
+            SELECT 
+                Projeto, Tag, IdOrdemServico, IdOrdemServicoItem, idplanodecorte, QtdeTotal,
+                CodMatFabricante, DescResumo, DescDetal, Espessura, MaterialSW,
+                Liberado_Engenharia, Data_Liberacao_Engenharia, OrdemServicoItemFinalizado,
+                REPLACE(EnderecoArquivo, '##', '\\\\') as EnderecoArquivo
+        `;
+
+        // 3. Add Sector columns dynamically based on Setor name in DB
+        setoresAtivos.forEach(s => {
+            query += `, \`${s.colTxt}\`, \`${s.colSt}\``;
+        });
+
+        query += ` FROM ordemservicoitem WHERE D_E_L_E_T_E = ''`;
+        const params = [];
+
+        // 4. Filters
+        if (projeto) {
+            query += ` AND Projeto LIKE ?`;
+            params.push(`%${projeto}%`);
+        }
+        if (tag) {
+            query += ` AND Tag LIKE ?`;
+            params.push(`%${tag}%`);
+        }
+        if (codMat) {
+            query += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codMat}%`);
+        }
+        if (descResumo) {
+            query += ` AND DescResumo LIKE ?`;
+            params.push(`%${descResumo}%`);
+        }
+        if (descDetal) {
+            query += ` AND DescDetal LIKE ?`;
+            params.push(`%${descDetal}%`);
+        }
+        if (espessura) {
+            query += ` AND Espessura LIKE ?`;
+            params.push(`%${espessura}%`);
+        }
+        if (material) {
+            query += ` AND MaterialSW LIKE ?`;
+            params.push(`%${material}%`);
+        }
+
+        query += ` ORDER BY Projeto ASC, Tag ASC LIMIT 500`;
+
+        const [items] = await connection.execute(query, params);
+
+        res.json({
+            success: true,
+            setores: setoresAtivos,
+            data: items
+        });
+
+    } catch (err) {
+        console.error('Erro na pesquisa de desenho:', err);
+        res.status(500).json({ success: false, message: 'Erro ao pesquisar desenhos.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 
 // Static files and SPA Catch-all (Must be last)
 app.use(express.static(path.join(__dirname, '../frontend/dist')));

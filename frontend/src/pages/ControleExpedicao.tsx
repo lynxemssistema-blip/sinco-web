@@ -64,6 +64,12 @@ export default function ControleExpedicaoPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Modal state for Apontar Expedição
+    const [apontarItem, setApontarItem] = useState<ControleExpItem | null>(null);
+    const [apontarQtde, setApontarQtde] = useState('');
+    const [isApontarSubmitting, setIsApontarSubmitting] = useState(false);
+
+
     // Filtros
     // Projeto,tag,descrição da tag,empresa,cod. mat . fabricante,descriçao do resumo,descrição detalhe,data previsão
     const [filProjeto, setFilProjeto] = useState('');
@@ -155,6 +161,79 @@ export default function ControleExpedicaoPage() {
             console.error('Erro ao buscar dados secundários', err);
         } finally {
             setLoadingSec(false);
+        }
+    };
+
+    const openApontarModal = (item: ControleExpItem) => {
+        const totalExpedicao = item.TotalExpedicao || 0;
+        const qtdeTotal = item.QtdeTotal || item.QTDETOTAL || 0;
+        
+        const limiteMaximo = qtdeTotal - totalExpedicao;
+        
+        if (totalExpedicao >= qtdeTotal || limiteMaximo <= 0) {
+            alert(`Processo finalizado: O total de expedição (${totalExpedicao}) atingiu a quantidade total do item (${qtdeTotal}).`);
+            return;
+        }
+
+        setApontarItem(item);
+        setApontarQtde('');
+    };
+
+    const closeApontarModal = () => {
+        setApontarItem(null);
+        setApontarQtde('');
+    };
+
+    const submitApontar = async () => {
+        if (!apontarItem) return;
+        
+        const qtdeInput = parseFloat(apontarQtde);
+        // 3. quantidade entrada deverá ser um numero valido maior que zzeros
+        if (isNaN(qtdeInput) || qtdeInput <= 0) {
+            alert(`A quantidade precisará ser maior que zero (0).`);
+            return;
+        }
+
+        const totalExpedicao = apontarItem.TotalExpedicao || 0;
+        const qtdeTotal = apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0;
+        const limiteMaximo = qtdeTotal - totalExpedicao;
+
+        // Limite da quantidade 
+        if (qtdeInput > limiteMaximo) {
+            alert(`Quantidade inválida! A quantidade de entrada (${qtdeInput}) não pode ser maior que o limite permitido (${limiteMaximo}).`);
+            return;
+        }
+
+        setIsApontarSubmitting(true);
+        try {
+            const url = new URL(`${window.location.origin}${API_BASE}/controle-expedicao/apontar`);
+            const payload = {
+                idOrdemServicoItem: apontarItem.idordemservicoitem || apontarItem.IdOrdemServicoItem,
+                idOrdemServico: apontarItem.Idordemservico,
+                idTag: apontarItem.IdTag,
+                idProjeto: apontarItem.Idprojeto || apontarItem.IdProjeto, // The view has Idprojeto (lowercase 'p')
+                qtde: qtdeInput,
+                qtdeTotalDaLinha: qtdeTotal
+            };
+
+            const res = await fetch(url.toString(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Expedição apontada com sucesso!');
+                closeApontarModal();
+                fetchControle(); // refresh grid
+            } else {
+                alert(data.message || 'Erro ao apontar expedição.');
+            }
+        } catch (err: any) {
+            alert('Erro ao se comunicar com o servidor.');
+        } finally {
+            setIsApontarSubmitting(false);
         }
     };
 
@@ -328,9 +407,11 @@ export default function ControleExpedicaoPage() {
                                                             <button onClick={(e) => { e.stopPropagation(); abrirIsoLocal(item.IdTag) }} className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
                                                                 <FileCode2 size={14} /> Abrir Isométrico
                                                             </button>
-                                                            <button onClick={(e) => e.stopPropagation()} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
-                                                                <RefreshCw size={14} /> Atualizar Expedição
-                                                            </button>
+                                                            {(item.TotalExpedicao < (item.QtdeTotal || item.QTDETOTAL || 0)) && (
+                                                                <button onClick={(e) => { e.stopPropagation(); openApontarModal(item); }} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+                                                                    <RefreshCw size={14} /> Atualizar Expedição
+                                                                </button>
+                                                            )}
                                                         </div>
 
                                                         {/* Grid Secundário (ordemservicoitemcontrole) */}
@@ -386,6 +467,57 @@ export default function ControleExpedicaoPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Modal Apontar Expedição */}
+            {apontarItem && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="bg-blue-600 px-4 py-3 flex justify-between items-center text-white">
+                            <h3 className="font-bold flex items-center gap-2">
+                                <Box size={18} /> Apontar Expedição
+                            </h3>
+                            <button onClick={closeApontarModal} className="text-white/80 hover:text-white transition-colors" disabled={isApontarSubmitting}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <div className="bg-slate-50 p-3 rounded border border-slate-100 text-xs text-slate-600">
+                                <div><strong className="text-slate-700">OS:</strong> {apontarItem.Idordemservico}</div>
+                                <div><strong className="text-slate-700">Item:</strong> {apontarItem.idordemservicoitem || apontarItem.IdOrdemServicoItem}</div>
+                                <div><strong className="text-slate-700">Tag:</strong> {apontarItem.Tag}</div>
+                                <div className="mt-2 text-blue-700 font-bold">
+                                    Limite Perm.: {(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0)} - {(apontarItem.TotalExpedicao || 0)} = {(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0) - (apontarItem.TotalExpedicao || 0)}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Qtd. Expedição:</label>
+                                <input
+                                    type="number"
+                                    autoFocus
+                                    min="1"
+                                    max={(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0) - (apontarItem.TotalExpedicao || 0)}
+                                    value={apontarQtde}
+                                    onChange={(e) => setApontarQtde(e.target.value)}
+                                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                    placeholder="Digite a quantidade"
+                                    disabled={isApontarSubmitting}
+                                />
+                            </div>
+                        </div>
+                        <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                            <button onClick={closeApontarModal} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors disabled:opacity-50">
+                                Cancelar
+                            </button>
+                            <button onClick={submitApontar} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 rounded shadow-sm inline-flex items-center gap-2 transition-colors disabled:opacity-50">
+                                {isApontarSubmitting && <Loader2 size={14} className="animate-spin" />}
+                                Confirmar Apontamento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

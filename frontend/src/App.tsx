@@ -28,6 +28,7 @@ import RomaneioRetornoPage from './pages/RomaneioRetorno';
 import VisaoGeralProducaoPage from './pages/VisaoGeralProducao';
 import VisaoGeralEngenhariaPage from './pages/VisaoGeralEngenharia';
 import ControleExpedicaoPage from './pages/ControleExpedicao';
+import PesquisarDesenhoPage from './pages/PesquisarDesenho';
 
 function AppContent() {
   const { user, logout } = useAuth();
@@ -105,6 +106,19 @@ function AppContent() {
           } else {
              // Remove it if present and user is not one of those dbNames
              savedMenu = savedMenu.filter(item => item.id !== 'controle-expedicao');
+          }
+
+          // Force add 'pesquisar-desenho' if missing
+          if (!savedMenu.find(item => item.id === 'pesquisar-desenho')) {
+            const pdItem = defaultMenuItems.find(item => item.id === 'pesquisar-desenho');
+            if (pdItem) {
+              const ceIdx = savedMenu.findIndex(item => item.id === 'controle-expedicao');
+              if (ceIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, ceIdx + 1), pdItem, ...savedMenu.slice(ceIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, pdItem];
+              }
+            }
           }
 
           // if (!user.isSuperadmin) {
@@ -233,6 +247,8 @@ function AppContent() {
       case 'controle-expedicao':
         if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;
         return <ControleExpedicaoPage />;
+      case 'pesquisar-desenho':
+        return <PesquisarDesenhoPage />;
       case 'relatorios':
         return <div className="p-8 text-center text-gray-500">Módulo de Relatórios em Desenvolvimento</div>;
       case 'sst':

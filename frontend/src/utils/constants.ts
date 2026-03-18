@@ -25,6 +25,7 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'visao-geral-producao', icon: 'BarChart3', label: 'Visão Geral Produção', href: '/visao-geral-producao' },
     { id: 'visao-geral-engenharia', icon: 'Network', label: 'Visão Geral Engenharia', href: '/visao-geral-engenharia' },
     { id: 'controle-expedicao', icon: 'PackageCheck', label: 'Controle Expedição', href: '/controle-expedicao' },
+    { id: 'pesquisar-desenho', icon: 'FileSearch', label: 'Pesquisar Desenho', href: '/pesquisar-desenho' },
     { id: 'relatorios', icon: 'FileText', label: 'Relatórios', href: '/relatorios' },
     { id: 'sst', icon: 'ShieldCheck', label: 'SST - Segurança', href: '/sst' },
     { id: 'cipa', icon: 'HardHat', label: 'CIPA - Segurança', href: '/cipa' },
