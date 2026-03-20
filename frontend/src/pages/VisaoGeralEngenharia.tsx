@@ -51,7 +51,7 @@ const getSectorColors = (sector: SectorType) => {
 export default function VisaoGeralEngenharia() {
     const [tags, setTags] = useState<TagData[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [, setError] = useState<string | null>(null);
 
     const [activeSectors, setActiveSectors] = useState<Set<SectorType>>(new Set());
     

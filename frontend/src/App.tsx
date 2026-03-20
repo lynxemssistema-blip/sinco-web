@@ -29,7 +29,9 @@ import VisaoGeralProducaoPage from './pages/VisaoGeralProducao';
 import VisaoGeralEngenhariaPage from './pages/VisaoGeralEngenharia';
 import ControleExpedicaoPage from './pages/ControleExpedicao';
 import PesquisarDesenhoPage from './pages/PesquisarDesenho';
-
+import TarefasPage from './pages/Tarefas';
+import VisaoGeralPendenciasPage from './pages/VisaoGeralPendencias';
+import ListaReposicaoPage from './pages/ListaReposicao';
 function AppContent() {
   const { user, logout } = useAuth();
   const [activePageId, setActivePageId] = useState('dashboard');
@@ -117,6 +119,46 @@ function AppContent() {
                 savedMenu = [...savedMenu.slice(0, ceIdx + 1), pdItem, ...savedMenu.slice(ceIdx + 1)];
               } else {
                 savedMenu = [...savedMenu, pdItem];
+              }
+            }
+          }
+
+          // Force add 'tarefas' if missing
+          if (!savedMenu.find(item => item.id === 'tarefas')) {
+            const tarefasItem = defaultMenuItems.find(item => item.id === 'tarefas');
+            if (tarefasItem) {
+              const pdIdx = savedMenu.findIndex(item => item.id === 'pesquisar-desenho');
+              if (pdIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, pdIdx + 1), tarefasItem, ...savedMenu.slice(pdIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, tarefasItem];
+              }
+            }
+          }
+
+          // Force add 'visao-geral-pendencias' if missing
+          if (!savedMenu.find(item => item.id === 'visao-geral-pendencias')) {
+            const vgpItem = defaultMenuItems.find(item => item.id === 'visao-geral-pendencias');
+            if (vgpItem) {
+              const tarefasIdx = savedMenu.findIndex(item => item.id === 'tarefas');
+              if (tarefasIdx >= 0) {
+                // Insere logo apos asTarefas
+                savedMenu = [...savedMenu.slice(0, tarefasIdx + 1), vgpItem, ...savedMenu.slice(tarefasIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, vgpItem];
+              }
+            }
+          }
+
+          // Force add 'pecas-reposicao' se missing
+          if (!savedMenu.find(item => item.id === 'pecas-reposicao')) {
+            const repoItem = defaultMenuItems.find(item => item.id === 'pecas-reposicao');
+            if (repoItem) {
+              const vgpIdx = savedMenu.findIndex(item => item.id === 'visao-geral-pendencias');
+              if (vgpIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, vgpIdx + 1), repoItem, ...savedMenu.slice(vgpIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, repoItem];
               }
             }
           }
@@ -249,6 +291,12 @@ function AppContent() {
         return <ControleExpedicaoPage />;
       case 'pesquisar-desenho':
         return <PesquisarDesenhoPage />;
+      case 'tarefas':
+        return <TarefasPage />;
+      case 'visao-geral-pendencias':
+        return <VisaoGeralPendenciasPage />;
+      case 'pecas-reposicao':
+        return <ListaReposicaoPage />;
       case 'relatorios':
         return <div className="p-8 text-center text-gray-500">Módulo de Relatórios em Desenvolvimento</div>;
       case 'sst':

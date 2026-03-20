@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, X, ChevronDown, ChevronUp, PackageCheck, Box, FileText, FileCode2, RefreshCw } from 'lucide-react';
+import { Loader2, X, ChevronDown, ChevronUp, PackageCheck, Box, FileText, FileCode2, RefreshCw, ArrowLeft } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -81,6 +81,19 @@ export default function ControleExpedicaoPage() {
     const [filDataPrevisaoInicio, setFilDataPrevisaoInicio] = useState('');
     const [filDataPrevisaoFim, setFilDataPrevisaoFim] = useState('');
     const [mostrarConcluidos, setMostrarConcluidos] = useState(false);
+    const [fromGlobal, setFromGlobal] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const openFrom = params.get('from');
+        if (openFrom === 'visao-geral-pendencias') {
+            setFromGlobal(true);
+        }
+        const openTag = params.get('tag');
+        const openProj = params.get('projeto');
+        if (openTag) setFilTag(openTag);
+        if (openProj) setFilProjeto(openProj);
+    }, []);
 
     // Expanded row memory
     const [expandedRow, setExpandedRow] = useState<string | null>(null); // e.g. `${idOS}_${idOSItem}`
@@ -151,6 +164,7 @@ export default function ControleExpedicaoPage() {
             url.searchParams.append('idOrdemServicoItem', (item.idordemservicoitem || item.IdOrdemServicoItem).toString());
             url.searchParams.append('tag', item.Tag);
             url.searchParams.append('projeto', item.projeto || item.Projeto);
+            if (item.IdProjeto) url.searchParams.append('IdProjeto', item.IdProjeto.toString());
 
             const res = await fetch(url.toString());
             const data = await res.json();
@@ -211,7 +225,7 @@ export default function ControleExpedicaoPage() {
                 idOrdemServicoItem: apontarItem.idordemservicoitem || apontarItem.IdOrdemServicoItem,
                 idOrdemServico: apontarItem.Idordemservico,
                 idTag: apontarItem.IdTag,
-                idProjeto: apontarItem.Idprojeto || apontarItem.IdProjeto, // The view has Idprojeto (lowercase 'p')
+                idProjeto: apontarItem.IdProjeto, // The view has IdProjeto (uppercase 'P')
                 qtde: qtdeInput,
                 qtdeTotalDaLinha: qtdeTotal
             };
@@ -276,10 +290,21 @@ export default function ControleExpedicaoPage() {
             {/* Cabeçalho de Filtros */}
             <div className="bg-white p-3 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-200 mb-2 shrink-0">
                 <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-xs font-bold text-slate-700 flex items-center gap-2">
-                        <PackageCheck className="text-blue-600" size={16} />
-                        Filtros de Pesquisa
-                    </h2>
+                    <div className="flex items-center gap-2">
+                        {fromGlobal && (
+                            <button
+                                onClick={() => window.location.href = '/visao-geral-pendencias'}
+                                className="flex items-center justify-center p-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                                title="Voltar para Todas as Pendências"
+                            >
+                                <ArrowLeft size={16} />
+                            </button>
+                        )}
+                        <h2 className="text-xs font-bold text-slate-700 flex items-center gap-2">
+                            <PackageCheck className="text-blue-600" size={16} />
+                            Filtros de Pesquisa
+                        </h2>
+                    </div>
                     <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 cursor-pointer bg-slate-50 px-2 py-1 rounded border border-slate-200 hover:bg-slate-100 transition-colors">
                         <input type="checkbox" checked={mostrarConcluidos} onChange={e => setMostrarConcluidos(e.target.checked)} className="accent-blue-600 w-3 h-3" />
                         Exibir Concluídos

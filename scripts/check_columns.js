@@ -1,27 +1,17 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' }); // or just '.' depending on cwd
 
-const dbConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: 3306
-};
-
-async function checkColumns() {
-    let connection;
+async function check() {
     try {
-        console.log('Connecting to DB:', dbConfig.database);
-        connection = await mysql.createConnection(dbConfig);
-        const [cols] = await connection.execute('DESCRIBE ordemservicoitem');
-        console.log('Columns in ordemservicoitem:');
-        console.log(cols.map(c => c.Field).filter(f => f.toLowerCase().includes('txt')).join(', '));
-    } catch (error) {
-        console.error('Error:', error);
-    } finally {
-        if (connection) await connection.end();
-    }
+        const pool = mysql.createPool({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+        });
+        const [rows] = await pool.execute('DESCRIBE ordemservicoitempendencia');
+        console.log(rows.map(r => r.Field).join(', '));
+        process.exit(0);
+    } catch(e) { console.error(e); process.exit(1); }
 }
-
-checkColumns();
+check();

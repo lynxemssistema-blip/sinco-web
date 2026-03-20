@@ -70,6 +70,166 @@ app.use('/api', tenantMiddleware);
 // Admin Routes
 app.use('/api/matriz', matrizRoutes);
 
+// Reposição Routes
+app.get('/api/reposicao/itens', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                IdOrdemServicoItem, IdOrdemServico, IdMaterial, Projeto, DescEmpresa, Tag, DescTag, 
+                CodMatFabricante, DescResumo, DescDetal, Espessura, 
+                MaterialSW, EnderecoArquivo, EnderecoArquivoItemOrdemServico,
+                CriadoPor, DataCriacao, QtdeTotal, SetorReposicao, 
+                IdOrdemservicoReposicao, IdOrdemServicoItemReposicao, IdPendenciaReposicao, 
+                Reposicao, D_E_L_E_T_E,
+                cortetotalexecutado, cortetotalexecutar,
+                txtcorte, txtdobra, txtsolda, txtpintura, txtmontagem,
+                sttxtCorte, sttxtDobra, sttxtSolda, sttxtPintura, sttxtMontagem, 
+                sttxtMEDICAO, sttxtISOMETRICO, sttxtENGENHARIA, sttxtACABAMENTO, sttxtAPROVACAO
+            FROM ordemservicoitem
+            WHERE Reposicao = 'S' 
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+        `;
+        const [rows] = await pool.query(query);
+        console.log(`[DEBUG REPOSICAO] tenantId was unused | rows.length: ${rows.length}`);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Erro ao buscar itens de reposição:', error);
+        res.status(500).json({ success: false, message: 'Erro interno no servidor ao buscar reposição.' });
+    }
+});
+
+app.delete('/api/reposicao/itens/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const query = `
+            UPDATE ordemservicoitem 
+            SET 
+                D_E_L_E_T_E = '*', 
+                DataD_E_L_E_T_E = ?, 
+                UsuarioD_E_L_E_T_E = ? 
+            WHERE IdOrdemServicoItem = ?
+        `;
+        const d = new Date();
+        const dateBR = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        
+        const [result] = await pool.query(query, [dateBR, 'Sistema', id]);
+        
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: 'Item excluído com sucesso (reposição).' });
+        } else {
+            res.status(404).json({ success: false, message: 'Item não encontrado ou já excluído.' });
+        }
+    } catch (error) {
+        console.error('Erro ao excluir item de reposição:', error);
+        res.status(500).json({ success: false, message: 'Erro interno no servidor ao excluir reposição.' });
+    }
+});
+
+app.post('/api/reposicao/apontamento', async (req, res) => {
+    let connection;
+    try {
+        const { IdOrdemServicoItem, quantidadeApontada } = req.body;
+        
+        if (!IdOrdemServicoItem || !quantidadeApontada || quantidadeApontada <= 0) {
+            return res.status(400).json({ success: false, message: 'Dados inválidos para o apontamento.' });
+        }
+
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        // 1. Validar e capturar o Item
+        const [items] = await connection.query(`
+            SELECT IdOrdemServicoItem, IdOrdemServico, IdMaterial, QtdeTotal, cortetotalexecutado, cortetotalexecutar, 
+                   sttxtCorte, IdOrdemservicoReposicao, IdOrdemServicoItemReposicao, IdPendenciaReposicao
+            FROM ordemservicoitem 
+            WHERE IdOrdemServicoItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*') FOR UPDATE
+        `, [IdOrdemServicoItem]);
+
+        if (items.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, message: 'Peça de reposição não localizada.' });
+        }
+
+        const item = items[0];
+        
+        if (item.sttxtCorte === 'C') {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: 'Este item de reposição já está concluído.' });
+        }
+
+        const atualExecutado = Number(item.cortetotalexecutado) || 0;
+        const qtdeTotal = Number(item.QtdeTotal) || 0;
+        const limiteMaximo = qtdeTotal - atualExecutado;
+
+        if (quantidadeApontada > limiteMaximo) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: `A quantidade informada excede o limite restante de reposição (${limiteMaximo}).` });
+        }
+
+        const novoCorteExecutado = atualExecutado + Number(quantidadeApontada);
+        const novoCorteExecutar = Math.max(0, qtdeTotal - novoCorteExecutado);
+        const novoSttxtCorte = novoCorteExecutado === qtdeTotal ? 'C' : item.sttxtCorte;
+
+        // 2. Atualizar ordemservicoitem
+        await connection.query(`
+            UPDATE ordemservicoitem 
+            SET cortetotalexecutado = ?, cortetotalexecutar = ?, sttxtCorte = ?
+            WHERE IdOrdemServicoItem = ?
+        `, [novoCorteExecutado, novoCorteExecutar, novoSttxtCorte, IdOrdemServicoItem]);
+
+        // 3. Inserir Log em ordemservicoitemcontrole
+        const d = new Date();
+        const dataAtual = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        const usuarioLogado = req.user?.nome || req.user?.login || 'Sistema';
+
+        await connection.query(`
+            INSERT INTO ordemservicoitemcontrole (
+                IdOrdemServico, IdOrdemServicoItem, IdOSItemProcesso, Processo, CodigoJuridicoMat,
+                QtdeTotal, IdMaterial, QtdeProduzida, QtdeFaltante, CriadoPor, DataCriacao,
+                D_E_L_E_T_E, UsuarioD_E_L_E_T_E, DataD_E_L_E_T_E, Situacao, DescricaoEstorno,
+                txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, 
+                txtMEDICAO, txtISOMETRICO, txtENGENHARIA, txtACABAMENTO, Origem
+            ) VALUES (
+                ?, ?, 0, '', '',
+                ?, ?, ?, ?, ?, ?,
+                '', '', '', '', '',
+                '', '', '', '', '',
+                '', '', '', '', ''
+            )
+        `, [
+            item.IdOrdemServico, IdOrdemServicoItem, 
+            qtdeTotal, item.IdMaterial || '', novoCorteExecutado, novoCorteExecutar, usuarioLogado, dataAtual
+        ]);
+
+        // 4. Fechar RNC automaticamente caso 100% reposto
+        if (novoCorteExecutado === qtdeTotal && item.IdPendenciaReposicao) {
+            const descFinalizacao = `RNC Automática  - Encerramento do Pedido de Reposição de Peça da OS: ${item.IdOrdemServico} Item: ${item.IdOrdemServicoItemReposicao || ''} Concluido , Excluindo da Lista de Pendência`;
+            
+            await connection.query(`
+                UPDATE ordemservicoitempendencia
+                SET UsuarioProjeto = ?, 
+                    DataAcertoProjeto = ?,
+                    DescricaoFinalizacao = ?,
+                    FinalizadoPorUsuarioSetor = ?,
+                    SetorResponsavelFinalizacao = ?,
+                    Estatus = 'FINALIZADA'
+                WHERE IdOrdemServicoItemPendencia = ?
+            `, [
+                usuarioLogado, dataAtual, descFinalizacao, usuarioLogado, 'Produção', item.IdPendenciaReposicao
+            ]);
+        }
+
+        await connection.commit();
+        res.json({ success: true, message: 'Peças repostas apontadas com sucesso!' });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error('Erro na transaction do Apontamento de Reposição:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao processar apontamento.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
 
 // Configure Multer (Uploads)
 const uploadDir = path.join(__dirname, '../public/uploads');
@@ -315,6 +475,52 @@ app.post('/api/romaneio/open-folder/:id', async (req, res) => {
 
 // --- ROUTES ---
 
+// GET /api/tarefas - List tarefas
+app.get('/api/tarefas', async (req, res) => {
+    try {
+        const { showFinalized } = req.query;
+        let estatusCondition = "Estatus = 'TarefaAberta'";
+        if (showFinalized === 'true') {
+            estatusCondition = "(Estatus = 'TarefaAberta' OR Estatus = 'Finalizada')";
+        }
+
+        const query = `
+            SELECT 
+                IdOrdemServicoItemPendencia,
+                IdProjeto, Projeto,
+                DescEmpresa,
+                IdTag, Tag, descTag AS DescTag,
+                IdOrdemServico, IdOrdemServicoItem,
+                CodMatFabricante,
+                DescricaoPendencia,
+                Usuario,
+                DataCriacao,
+                TipoTarefa,
+                SetorResponsavel, UsuarioResponsavel,
+                IdUsuarioResponsavel,
+                EmailResponsavelPelaTarefa, DataExecucao,
+                SetorResponsavelFinalizacao,
+                FinalizadoPorUsuarioSetor,
+                DescricaoFinalizacao,
+                DataAcertoProjeto AS Data_Correcao,
+                UsuarioProjeto,
+                Estatus AS Status,
+                TipoCadastro, ControleEnvioEmail,
+                TipoRegistro
+            FROM viewordemservicoitempendencia
+            WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+              AND TipoRegistro = 'TAREFA'
+              AND OrigemPendencia = 'ACAOPCP'
+              AND ${estatusCondition}
+            ORDER BY DataCriacao DESC
+        `;
+        const [rows] = await pool.execute(query);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Erro ao buscar tarefas:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar tarefas' });
+    }
+});
 
 
 // GET /api/romaneio - List all
@@ -3687,6 +3893,39 @@ app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
     }
 });
 
+// GET Todas as Pendencias globais do sistema
+app.get('/api/todas-pendencias', async (req, res) => {
+    try {
+        const { exibirFinalizadas } = req.query; // 'true' or 'false'
+        
+        // Regra de filtragem de status solicitada
+        let statusFilter = "AND (Estatus IS NULL OR Estatus <> 'FINALIZADA')";
+        if (exibirFinalizadas === 'true') {
+            statusFilter = "AND Estatus = 'FINALIZADA'";
+        }
+
+        const [rows] = await pool.execute(`
+            SELECT 
+                IdOrdemServicoItemPendencia, IdOrdemServico, IdOrdemServicoItem, IdPLanodeCorte, IdRomaneio, IdProjeto, IdTag, CodMatFabricante,
+                Projeto, Tag, DescEmpresa, IdMaterial, DescResumo, DescDetal, Espessura,
+                MaterialSW, EnderecoArquivo, DescricaoPendencia, Usuario, CriadoPorSetor, DataCriacao, Estatus,
+                txtCorte, txtdobra, txtSolda, txtPintura, txtMontagem, DescricaoFinalizacao, UsuarioProjeto, FinalizadoPorUsuarioSetor,
+                DataAcertoProjeto, RNCImagens, Situacao, SetorResponsavel, TipoCadastro, DataExecucao, ControleEnvioEmail,
+                EmailResponsavelPelaTarefa, IdUsuarioResponsavel, UsuarioResponsavel, TipoTarefa, TipoRegistro, SetorResponsavelFinalizacao, OrigemPendencia
+            FROM viewordemservicoitempendencia
+            WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
+            ${statusFilter}
+            ORDER BY IdOrdemServicoItemPendencia DESC
+            LIMIT 3000
+        `);
+
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching todas-pendencias:', error);
+        res.status(500).json({ success: false, message: 'Erro: ' + error.message });
+    }
+});
+
 // GET Pendencias (Origem: VISAOGERALPROJ) for a project
 app.get('/api/visao-geral/pendencias/:projetoId', async (req, res) => {
     try {
@@ -3741,29 +3980,34 @@ app.post('/api/visao-geral/pendencias', async (req, res) => {
                     DataAcertoProjeto = ?,
                     SetorResponsavelFinalizacao = ?,
                     FinalizadoPorUsuarioSetor = ?,
-                    DescricaoFinalizacao = ?
+                    DescricaoFinalizacao = ?,
+                    TipoRegistro = ?,
+                    DataFinalizacao = ?
                 WHERE IdOrdemServicoItemPendencia = ?
             `, [
                 data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
-                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || '',
+                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || '', data.tipoRegistro || 'RNC', data.dataFin || '',
                 idRnc
             ]);
         } else {
             // INSERT NEW
             const origemPendencia = data.origemPendencia || (data.idTag ? 'VISAOGERALTAG' : 'VISAOGERALPROJ');
-            const tipoCadastro = data.tipoRegistro || 'RNC';
+            const tipoCadastro = data.tipoCadastro || 'RNC';
+            const tipoRegistro = data.tipoRegistro || 'RNC';
             const estatus = data.estatus || 'PENDENCIA';
             
             const [result] = await pool.execute(`
                 INSERT INTO ordemservicoitempendencia (
                     IdProjeto, Projeto, IdTag, Tag, TipoCadastro, OrigemPendencia, Estatus, DataCriacao,
                     DescricaoPendencia, SetorResponsavel, TipoTarefa, UsuarioResponsavel, DataExecucao,
-                    DataAcertoProjeto, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor, DescricaoFinalizacao
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    DataAcertoProjeto, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor, DescricaoFinalizacao,
+                    TipoRegistro, DataFinalizacao
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `, [
-                data.idProjeto, data.projeto, data.idTag || null, data.tag || null, tipoCadastro, origemPendencia, estatus, now,
+                data.idProjeto || null, data.projeto || null, data.idTag || null, data.tag || null, tipoCadastro, origemPendencia, estatus, now,
                 data.descricao || '', data.setor || '', data.tipoTarefa || '', data.usuario || '', data.dataExec || '',
-                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || ''
+                data.dataFin || '', data.setorFin || '', data.usuarioFin || '', data.descFin || '',
+                tipoRegistro, data.dataFin || ''
             ]);
 
             idRnc = result.insertId;
@@ -3788,28 +4032,39 @@ app.post('/api/visao-geral/pendencias', async (req, res) => {
 app.put('/api/visao-geral/pendencias/:id/finalizar', async (req, res) => {
     const id = req.params.id;
     const { usuarioFin, dataFin, setorFin, descFin, idProjeto } = req.body;
-    if (!usuarioFin || !dataFin || !setorFin || !idProjeto) return res.status(400).json({ success: false, message: 'Faltam dados de finalização' });
+    
+    // idProjeto não é mais obrigatório pois Tarefas podem ser genéricas (sem vinculo de projeto)
+    if (!usuarioFin || !dataFin || !setorFin) {
+        return res.status(400).json({ success: false, message: 'Faltam dados de finalização' });
+    }
 
     let dtFinFormatada = '';
     if (dataFin) {
-        const parts = dataFin.split('-');
-        if (parts.length === 3) {
-            dtFinFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        // Checando se a data enviada pelo frontend tem tracinhos
+        if (dataFin.includes('-')) {
+            const parts = dataFin.split('-');
+            if (parts.length === 3) {
+                dtFinFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+                dtFinFormatada = dataFin;
+            }
         } else {
+            // Provavelmente já veio formatada (ex: 19/03/2026) da função isoToBr do frontend
             dtFinFormatada = dataFin;
         }
     }
 
     try {
         await pool.execute(`
-            UPDATE ordemservicoitempendencia
-            SET Estatus = IF(TipoCadastro = 'TAREFA', 'TarefaFinalizada', 'FINALIZADO'),
-                FinalizadoPorUsuarioSetor = ?,
+            UPDATE ordemservicoitempendencia SET
+                Estatus = 'Finalizada',
                 DataAcertoProjeto = ?,
                 SetorResponsavelFinalizacao = ?,
-                DescricaoFinalizacao = ?
+                FinalizadoPorUsuarioSetor = ?,
+                DescricaoFinalizacao = ?,
+                DataFinalizacao = ?
             WHERE IdOrdemServicoItemPendencia = ?
-        `, [usuarioFin, dtFinFormatada, setorFin, descFin || '', id]);
+        `, [dtFinFormatada, setorFin, usuarioFin, descFin || '', dtFinFormatada, id]);
 
         // Specific legacy counters just for RNC (avoiding count pollution by Tarefas)
         const [pendencyInfo] = await pool.execute(`SELECT TipoCadastro, IdTag, IdOrdemServico FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?`, [id]);
@@ -6859,7 +7114,7 @@ app.get('/api/pesquisar-desenho', async (req, res) => {
 
         // 1. Fetch Active Sectors
         const [setores] = await connection.execute(
-            `SELECT idSetor, Setor, DataLiberada FROM setor WHERE DataLiberada = 'SIM' AND D_E_L_E_T_E = ''`
+            `SELECT idSetor, Setor, DataLiberada FROM setor WHERE DataLiberada = 'SIM' AND (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL)`
         );
         
         const allowedSectors = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
@@ -6880,17 +7135,19 @@ app.get('/api/pesquisar-desenho', async (req, res) => {
 
         // 2. Build Base Query
         let query = `
-            SELECT 
-                Projeto, Tag, IdOrdemServico, IdOrdemServicoItem, idplanodecorte, QtdeTotal,
-                CodMatFabricante, DescResumo, DescDetal, Espessura, MaterialSW,
-                Liberado_Engenharia, Data_Liberacao_Engenharia, OrdemServicoItemFinalizado,
-                REPLACE(EnderecoArquivo, '##', '\\\\') as EnderecoArquivo
+            SELECT Projeto,Tag,IdOrdemServico,IdOrdemServicoItem,idplanodecorte,QtdeTotal,
+                 CodMatFabricante,DescResumo,DescDetal,Espessura,MaterialSW,
+                 IF(Liberado_Engenharia = 'S' OR Liberado_Engenharia = 'SIM', 'SIM', 'NÃO') AS Liberado_Engenharia,
+                 Data_Liberacao_Engenharia,
+                 IF(OrdemServicoItemFinalizado = 'C' OR OrdemServicoItemFinalizado = 'SIM' OR OrdemServicoItemFinalizado = 'S', 'SIM', 'NÃO') AS OrdemServicoItemFinalizado,
+                 txtCorte,sttxtCorte,txtDobra,sttxtDobra,TxtSolda,sttxtSolda ,
+                 txtPintura,sttxtPintura,txtMontagem ,sttxtMOntagem ,replace(EnderecoArquivo,'##','\\\\') as  EnderecoArquivo
         `;
 
         // 3. Add Sector columns dynamically based on Setor name in DB
-        setoresAtivos.forEach(s => {
-            query += `, \`${s.colTxt}\`, \`${s.colSt}\``;
-        });
+        // setoresAtivos.forEach(s => {
+        //     query += `, \`${s.colTxt}\`, \`${s.colSt}\``;
+        // });
 
         query += ` FROM ordemservicoitem WHERE D_E_L_E_T_E = ''`;
         const params = [];

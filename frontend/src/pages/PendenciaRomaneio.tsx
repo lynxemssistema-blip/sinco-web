@@ -74,6 +74,15 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
     const [searchQuery1, setSearchQuery1] = useState('');
     const [searchQuery2, setSearchQuery2] = useState('');
     const [isCustomTaskType, setIsCustomTaskType] = useState(false);
+    const [fromGlobal, setFromGlobal] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const openFrom = params.get('from');
+        if (openFrom === 'visao-geral-pendencias') {
+            setFromGlobal(true);
+        }
+    }, []);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -331,13 +340,23 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
         <div className="w-full max-w-[1920px] mx-auto space-y-6 pb-20">
             {/* Header Controls */}
             <div className="flex items-center justify-between">
-                <button
-                    onClick={() => onNavigate('romaneio')}
-                    className="inline-flex items-center gap-2 text-gray-500 hover:text-[#32423D] font-medium transition-colors"
-                >
-                    <ArrowLeft size={20} />
-                    Voltar para Romaneios
-                </button>
+                {fromGlobal ? (
+                    <button
+                        onClick={() => window.location.href = '/visao-geral-pendencias'}
+                        className="inline-flex items-center gap-2 text-gray-500 hover:text-[#32423D] font-medium transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                        Voltar para Pendências Globais
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => onNavigate('romaneio')}
+                        className="inline-flex items-center gap-2 text-gray-500 hover:text-[#32423D] font-medium transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                        Voltar para Romaneios
+                    </button>
+                )}
                 <div className="flex items-center gap-3">
                     <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold flex items-center gap-1.5">
                         <AlertTriangle size={14} />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X,
+    Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X, ArrowLeft,
     Scissors, Wrench, Flame, Paintbrush, Settings2, Plus, History, AlertCircle, Filter, XCircle, Star, Map,
     PenTool, Box, AlertTriangle
 } from 'lucide-react';
@@ -110,6 +110,7 @@ export default function ApontamentoProducaoPage() {
     const [visibleSetores, setVisibleSetores] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [fromGlobal, setFromGlobal] = useState(false);
 
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
@@ -175,6 +176,20 @@ export default function ApontamentoProducaoPage() {
     const [exibirFinalizadas, setExibirFinalizadas] = useState(false);
     const [searchQuery1, setSearchQuery1] = useState('');
     const [searchQuery2, setSearchQuery2] = useState('');
+
+    const [openRncId, setOpenRncId] = useState<string | null>(null);
+    const [openRncItemOS, setOpenRncItemOS] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('from') === 'visao-geral-pendencias') setFromGlobal(true);
+        const rnc = params.get('openRnc');
+        const itemOs = params.get('item');
+        if (rnc && itemOs) {
+            setOpenRncId(rnc);
+            setOpenRncItemOS(itemOs);
+        }
+    }, []);
 
     // Config options for Pendencia
     const [setoresConfig, setSetoresConfig] = useState<string[]>([]);
@@ -247,9 +262,58 @@ export default function ApontamentoProducaoPage() {
     useEffect(() => {
         fetch(`${API_BASE}/config/setores`)
             .then(res => res.json())
-            .then(json => { if (json.success) setSetoresConfig(json.setores); })
+            .then(json => { if (json.success) setSetoresConfig(json.setores || json.data); })
             .catch(console.error);
     }, []);
+
+    useEffect(() => {
+        if (openRncId && openRncItemOS && itens.length > 0 && !pendenciaModalOpen) {
+            const item = itens.find(i => i.IdOrdemServicoItem.toString() === openRncItemOS);
+            if (item) {
+                setSelectedItem(item);
+                setLoadingPendencias(true);
+                
+                fetch(`${API_BASE}/producao/pendencias/historico?codMatFabricante=${encodeURIComponent(item.CodMatFabricante || '')}`)
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) setPendenciasHistorico(json.data);
+                        setLoadingPendencias(false);
+                    })
+                    .catch(() => setLoadingPendencias(false));
+
+                setPendenciaModalOpen(true);
+            }
+        }
+    }, [itens, openRncId, openRncItemOS, pendenciaModalOpen]);
+
+    // Quando o histórico carregar e tivermos um openRncId pendente, carregamos os dados para edição
+    useEffect(() => {
+        if (openRncId && pendenciasHistorico.length > 0 && pendenciaModalOpen) {
+            const p = pendenciasHistorico.find(x => x.IDRNC.toString() === openRncId);
+            // Wait for loadPendenciaForEdit to be available (it is defined below, so we might need to duplicate its essential parts or just use it if it's hoisted. Wait, const arrows are not hoisted!)
+            if (p) {
+                setIdRncEdicao(p.IDRNC);
+                setTipoRnc('RNC');
+                setDescricaoPendencia(p.DescricaoPendencia || '');
+                setSetorResponsavel(p.SetorResponsavel || '');
+                setUsuarioResponsavel(p.Colaborador || '');
+                setTituloRnc(p.DescResumo || '');
+                setSubTituloRnc(p.DescDetal || '');
+                setDataExecucaoRnc(p.DataExecucao ? p.DataExecucao.split('T')[0] : '');
+                setFinalizandoRnc(p.ST === 'FINALIZADO');
+                setSetorFinalizacao(p.SetorResponsavelFinalizacao || '');
+                setColaboradorFinalizacao(p.FinalizadoPorUsuarioSetor || '');
+                setDataFinalizacao(p.DataFinalizacao ? p.DataFinalizacao.split('T')[0] : '');
+                setDescricaoFinalizacao(p.DescricaoFinalizacao || '');
+                setEspessuraRnc(p.Espessura || '');
+                setMaterialSWRnc(p.MaterialSW || '');
+                
+                // Clear the trigger
+                setOpenRncId(null);
+                setOpenRncItemOS(null);
+            }
+        }
+    }, [pendenciasHistorico, openRncId, pendenciaModalOpen]);
 
     // Fetch usuarios config para pendencias
     useEffect(() => {
@@ -259,7 +323,7 @@ export default function ApontamentoProducaoPage() {
             .catch(console.error);
     }, []);
 
-    // Fetch config for visible sectors
+    // Config for visible sectors
     useEffect(() => {
         fetch(`${API_BASE}/config`)
             .then(res => res.json())
@@ -282,6 +346,28 @@ export default function ApontamentoProducaoPage() {
                 }
             })
             .catch(() => setVisibleSetores(['corte', 'dobra', 'solda', 'pintura', 'montagem']));
+    }, []);
+
+    // Ler Query Params caso venha de links globais
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const openOs = params.get('os');
+        const openItem = params.get('item');
+        const openFrom = params.get('from');
+        
+        if (openFrom === 'visao-geral-pendencias') {
+            setFromGlobal(true);
+            setSetorAtivo('mapa');
+        }
+
+        if (openOs) {
+            setOsFilter(openOs);
+            setSearchTerm(openOs);
+        }
+        if (openItem) {
+            setItemFilter(openItem);
+            setSearchTerm(openItem);
+        }
     }, []);
 
     const filteredSetores = useMemo(() => {
@@ -539,7 +625,7 @@ export default function ApontamentoProducaoPage() {
                 dataExecucao: dataExecucaoRnc,
                 usuarioCriacao: 'Sistema', // TODO: Context/Auth
                 descProjeto: selectedItem.DescProjeto || selectedItem.Projeto || '',
-                origemPendencia: 'MAPAPRODUCAO',
+                origemPendencia: 'MapaProducaoPendencia',
                 idOrdemServicoItemPendencia: idRncEdicao,
                 acao: finalizandoRnc ? 'FINALIZAR' : 'SALVAR',
                 setorResponsavelFinalizacao: finalizandoRnc ? setorFinalizacao : null,
@@ -572,7 +658,7 @@ export default function ApontamentoProducaoPage() {
                 fetchItens();
                 addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Operação realizada com sucesso.' });
             } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar pendï¿½ncia.' });
+                addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar pendência.' });
             }
         } catch (err) {
             addToast({ type: 'error', title: 'Erro', message: 'Erro de conexï¿½o.' });
@@ -726,11 +812,24 @@ export default function ApontamentoProducaoPage() {
 
     return (
         <div className="space-y-4">
+            {!fromGlobal ? (
+                <>
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#32423D]">Apontamento de Produção</h1>
-                    <p className="text-gray-500 text-sm">Registre a produção por setor</p>
+                    <div className="flex items-center gap-3">
+                        {fromGlobal && (
+                            <button
+                                onClick={() => window.location.href = '/visao-geral-pendencias'}
+                                className="flex items-center justify-center p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-[#32423D] transition-colors"
+                                title="Voltar para Todas as Pendências"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                        )}
+                        <h1 className="text-2xl font-bold text-[#32423D]">Apontamento de Produção</h1>
+                    </div>
+                    <p className="text-gray-500 text-sm mt-1">Registre a produção por setor</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <motion.button
@@ -1350,7 +1449,7 @@ export default function ApontamentoProducaoPage() {
                                                                     setPendenciaModalOpen(true);
                                                                 }}
                                                                 className="flex items-center justify-center w-7 h-7 bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-200"
-                                                                title="Gerar Pendï¿½ncia"
+                                                                title="Gerar Pendência"
                                                             >
                                                                 <AlertTriangle size={14} />
                                                             </button>
@@ -1500,6 +1599,30 @@ export default function ApontamentoProducaoPage() {
                     )}
                 </AnimatePresence>
             </div>
+            </>
+            ) : (
+                <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-200 p-8 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-sm border border-blue-100">
+                        <AlertTriangle size={36} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-[#32423D] mb-2 tracking-tight">Log de Pendência (Mapa)</h2>
+                    <p className="text-gray-500 mb-8 max-w-md text-center text-sm leading-relaxed">
+                        A janela de histórico e edição da pendência está aberta automaticamente. Quando finalizar sua consulta, feche o modal da pendência e clique no botão abaixo para retornar.
+                    </p>
+                    <button
+                        onClick={() => window.location.href = '/visao-geral-pendencias'}
+                        className="group flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all font-medium shadow-sm active:scale-95 z-10"
+                    >
+                        <ArrowLeft size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
+                        Voltar para Todas as Pendências
+                    </button>
+                    
+                    {/* Decoration elements */}
+                    <div className="absolute top-10 right-10 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                    <div className="absolute bottom-10 left-10 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                </div>
+            )}
 
             {/* Modal de Apontamento */}
             <AnimatePresence>
@@ -1974,7 +2097,7 @@ export default function ApontamentoProducaoPage() {
                 )}
             </AnimatePresence>
 
-            {/* Modal de Gerar Pendï¿½ncia */}
+            {/* Modal de Gerar Pendência */}
             <AnimatePresence>
                 {pendenciaModalOpen && selectedItem && (
                     <motion.div
@@ -1997,7 +2120,7 @@ export default function ApontamentoProducaoPage() {
                                     <div className="flex items-center gap-3">
                                         <AlertTriangle size={24} />
                                         <div>
-                                            <h2 className="font-bold text-lg">Gerar Pendï¿½ncia (RNC)</h2>
+                                            <h2 className="font-bold text-lg">Gerar Pendência (RNC)</h2>
                                         </div>
                                     </div>
                                     <button onClick={() => setPendenciaModalOpen(false)} className="p-2 rounded-full hover:bg-white/20 transition-colors">

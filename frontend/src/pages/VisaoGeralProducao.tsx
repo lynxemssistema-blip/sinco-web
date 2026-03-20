@@ -20,22 +20,6 @@ const safePct = (e: any, t: any) => toNum(t) > 0 ? Math.min(Math.round((toNum(e)
 const brToIso = (br: string) => { const m = br?.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; };
 const isoToBr = (iso: string) => { const [y, m, d] = (iso || '').split('-'); return d ? `${d}/${m}/${y}` : ''; };
 
-const brToIsoDateTime = (br: string) => {
-    if (!br) return '';
-    const parts = br.split(' ');
-    const datePart = parts[0];
-    const timePart = parts[1] || '00:00:00';
-    const m = datePart.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    return m ? `${m[3]}-${m[2]}-${m[1]}T${timePart}` : '';
-};
-const isoToBrDateTime = (iso: string) => {
-    if (!iso) return '';
-    const parts = iso.split('T');
-    const [y, m, d] = parts[0].split('-');
-    const timePart = parts[1] ? ` ${parts[1]}` : ' 00:00:00';
-    return d ? `${d}/${m}/${y}${timePart}` : '';
-};
-
 const businessDaysUntil = (dateStr: string) => {
     if (!dateStr) return null;
     const m = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (!m) return null;
@@ -95,6 +79,34 @@ export default function VisaoGeralProducaoPage() {
     const [rncPanel, setRncPanel] = useState(false); const [fProj, setFProj] = useState(''); const [fTag, setFTag] = useState('');
     const [filFin, setFilFin] = useState(false); const [filLib, setFilLib] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [fromGlobal, setFromGlobal] = useState(false);
+
+    // Ler Query Params
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const openFrom = params.get('from');
+        
+        if (openFrom === 'visao-geral-pendencias') {
+            setFromGlobal(true);
+        }
+    }, []);
+
+    // Se estivermos em fromGlobal e os projetos carregarem, procurar o projeto e carregar as rncs
+    useEffect(() => {
+        if (!fromGlobal || projetos.length === 0 || selProj) return;
+        const params = new URLSearchParams(window.location.search);
+        const projId = params.get('projetoId');
+        const origem = params.get('origem') || 'VISAOGERALPROJ';
+        if (projId) {
+            const p = projetos.find(x => x.IdProjeto.toString() === projId);
+            if (p) {
+                setSelProj(p);
+                fetchRncs(p.IdProjeto, origem);
+            }
+        }
+    }, [fromGlobal, projetos, selProj]);
+
+
 
     // Modais e Ações
     const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'addTask' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | null>(null);
@@ -110,6 +122,36 @@ export default function VisaoGeralProducaoPage() {
     
     // Estado para editar datas de setor da Tag
     const [tagSectorDates, setTagSectorDates] = useState<{ [key: string]: string }>({});
+
+    // Qdo as rncs carregarem e tiver openRnc na url, abrir diretamente
+    useEffect(() => {
+        if (!fromGlobal || rncs.length === 0 || actionModal) return;
+        const params = new URLSearchParams(window.location.search);
+        const openRnc = params.get('openRnc');
+        const origem = params.get('origem') || 'VISAOGERALPROJ';
+        
+        if (openRnc) {
+            const r = rncs.find(x => x.IdRnc.toString() === openRnc);
+            if (r) {
+                const rawSetor = (r.SetorResponsavel || '').trim();
+                const mappedSetor = SECTORS.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
+                
+                const rawTipoTarefa = (r.TipoTarefa || '').trim();
+                const mappedTipoTarefa = tipostarefa.find(t => t.TipoTarefa.toLowerCase() === rawTipoTarefa.toLowerCase())?.TipoTarefa || rawTipoTarefa;
+                
+                const mappedUsuario = usuarios.find(u => u.NomeCompleto.toLowerCase() === (r.UsuarioResponsavel || '').toLowerCase())?.NomeCompleto || r.UsuarioResponsavel || '';
+
+                setRncForm({ 
+                    idRnc: r.IdRnc, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
+                    usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
+                    usuarioFin: r.UsuarioResponsavelFinalizacao || '', dataFin: r.DataFinalizacao ? brToIso(r.DataFinalizacao) : '', setorFin: r.SetorResponsavelFinalizacao || 'Corte', descFin: r.DescricaoFinalizacao || '',
+                    wantsToFinalize: false 
+                });
+                
+                setActionModal(origem.includes('ACAOPCP') ? 'addTask' : 'addRnc');
+            }
+        }
+    }, [fromGlobal, rncs, actionModal, tipostarefa, usuarios]);
 
     const [isExporting, setIsExporting] = useState(false);
 
@@ -423,139 +465,161 @@ export default function VisaoGeralProducaoPage() {
 
     return (
         <div className="flex flex-col h-full bg-[#f4f7f9] overflow-hidden font-sans">
-            {/* Top Bar */}
-            <div className="bg-white border-b px-6 py-4 flex flex-col md:flex-row items-center gap-4 shrink-0 shadow-sm z-10 w-full">
-                <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500/30 transition-shadow">
-                    <Search className="text-slate-400" size={16} />
-                    <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-sm text-slate-700" />
-                </div>
-                <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                    <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={14} /> Mostrar Finalizados</button>
-                    <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={14} /> Mostrar Liberados</button>
-                    <button onClick={() => { setFilFin(false); setFilLib(false); setFProj(''); }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={14} /> Limpar</button>
-                </div>
-            </div>
-
-            {/* Grid Area */}
-            <div className="flex-1 overflow-auto p-4 md:p-6 pb-20 scrollbar-thumb-slate-300 scrollbar-track-transparent">
-                {error && <div className="bg-red-50 text-red-600 border border-red-200 p-4 rounded-lg mb-6 shadow-sm"><strong className="font-bold">Erro: </strong>{error}</div>}
-                
-                {load ? (
-                    <div className="flex justify-center mt-20 text-slate-500 flex-col items-center gap-3">
-                        <Loader className="animate-spin" size={32} />
-                        <span className="font-bold tracking-wide">Buscando Projetos...</span>
+            {!fromGlobal ? (
+                <>
+                    {/* Top Bar */}
+                    <div className="bg-white border-b px-6 py-4 flex flex-col md:flex-row items-center gap-4 shrink-0 shadow-sm z-10 w-full">
+                        <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500/30 transition-shadow">
+                            <Search className="text-slate-400" size={16} />
+                            <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-sm text-slate-700" />
+                        </div>
+                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={14} /> Mostrar Finalizados</button>
+                            <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={14} /> Mostrar Liberados</button>
+                            <button onClick={() => { setFilFin(false); setFilLib(false); setFProj(''); }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={14} /> Limpar</button>
+                        </div>
                     </div>
-                ) : filteredProj.length === 0 ? (
-                    <div className="text-center mt-20 text-slate-400 font-medium">Nenhum projeto encontrado.</div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-                        {filteredProj.map(p => {
-                            const isFin = p.Finalizado?.trim() !== ''; 
-                            const isLib = p.liberado === 'S';
 
-                            return (
-                                <div key={p.IdProjeto} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col relative overflow-hidden group">
-                                    
-                                    {/* Header do Card */}
-                                    <div className="p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openDetailsModal(p)}>
-                                        <div className="flex-1 mr-4">
-                                            <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                                                <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
-                                                {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
-                                                {isLib && !isFin && <span className="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
-                                            </div>
-                                            <h3 className="font-black text-slate-800 text-lg leading-tight mb-1 group-hover:text-blue-700 transition-colors" title={p.Projeto}>{p.Projeto}</h3>
-                                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
-                                        </div>
-                                        <button className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition-colors border border-blue-100 shadow-sm shrink-0" title="Ver Tags Detalhadas">
-                                            <ArrowRight size={18} />
-                                        </button>
-                                    </div>
+                    {/* Grid Area */}
+                    <div className="flex-1 overflow-auto p-4 md:p-6 pb-20 scrollbar-thumb-slate-300 scrollbar-track-transparent">
+                        {error && <div className="bg-red-50 text-red-600 border border-red-200 p-4 rounded-lg mb-6 shadow-sm"><strong className="font-bold">Erro: </strong>{error}</div>}
+                        
+                        {load ? (
+                            <div className="flex justify-center mt-20 text-slate-500 flex-col items-center gap-3">
+                                <Loader className="animate-spin" size={32} />
+                                <span className="font-bold tracking-wide">Buscando Projetos...</span>
+                            </div>
+                        ) : filteredProj.length === 0 ? (
+                            <div className="text-center mt-20 text-slate-400 font-medium">Nenhum projeto encontrado.</div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+                                {filteredProj.map(p => {
+                                    const isFin = p.Finalizado?.trim() !== ''; 
+                                    const isLib = p.liberado === 'S';
 
-                                    {/* Body do Card (KPIs e Progresso) */}
-                                    <div className="p-5 flex-1 flex flex-col gap-5">
-                                        
-                                        {/* Quadro de KPIs */}
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {/* Tags */}
-                                            <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-blue-200 transition-colors">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><TagIcon size={10}/> Tags</span>
-                                                <div className="text-base font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.QtdeTags}</span></div>
-                                                <span className="text-[9px] font-bold text-blue-600 mt-1">{p.PercentualTags}%</span>
-                                            </div>
-                                            {/* Pecas */}
-                                            <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-emerald-200 transition-colors">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><LayoutGrid size={10}/> Peças</span>
-                                                <div className="text-base font-black text-slate-800">{p.QtdePecasExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</span></div>
-                                                <span className="text-[9px] font-bold text-emerald-600 mt-1">{p.PercentualPecas}%</span>
-                                            </div>
-                                            {/* RNCs */}
-                                            <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-red-200 transition-colors cursor-pointer group/rnc">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><ShieldAlert size={10}/> RNCs</span>
-                                                <div className="text-base font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors">{p.qtdernc} Total</div>
-                                                <div className="flex gap-1 mt-1 font-bold text-[8px] uppercase">
-                                                    <span className="text-red-500 bg-red-50 border border-red-100 px-1 rounded">{p.qtderncPendente} Pend</span>
-                                                    <span className="text-emerald-500 bg-emerald-50 border border-emerald-100 px-1 rounded">{p.qtderncFinalizada} Fin</span>
+                                    return (
+                                        <div key={p.IdProjeto} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col relative overflow-hidden group">
+                                            
+                                            {/* Header do Card */}
+                                            <div className="p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openDetailsModal(p)}>
+                                                <div className="flex-1 mr-4">
+                                                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                                                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
+                                                        {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
+                                                        {isLib && !isFin && <span className="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
+                                                    </div>
+                                                    <h3 className="font-black text-slate-800 text-lg leading-tight mb-1 group-hover:text-blue-700 transition-colors" title={p.Projeto}>{p.Projeto}</h3>
+                                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
                                                 </div>
+                                                <button className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition-colors border border-blue-100 shadow-sm shrink-0" title="Ver Tags Detalhadas">
+                                                    <ArrowRight size={18} />
+                                                </button>
                                             </div>
-                                        </div>
 
-                                        {/* Barras de Setor */}
-                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-3 gap-x-2 w-full pt-1">
-                                            {SECTORS.map((s) => {
-                                                const e = toNum(p[s.ex as keyof Projeto]), t = toNum(p[s.t as keyof Projeto]);
-                                                const pct = safePct(e, t);
-                                                return (
-                                                    <div key={s.k} className="flex flex-col gap-1 w-full">
-                                                        <div className="flex justify-between items-end border-b border-slate-100 pb-0.5 whitespace-nowrap">
-                                                            <span className="text-[9px] font-bold text-slate-500 uppercase">{s.k}</span>
-                                                            <span className={`text-[10px] font-black ${pct >= 100 && t > 0 ? "text-emerald-600" : "text-slate-700"}`}>{pct}%</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 w-full">
-                                                            <div className="h-1 bg-slate-200 rounded-full w-full overflow-hidden shrink"><div className={`h-full ${s.c} transition-all duration-500`} style={{ width: `${pct}%` }} /></div>
-                                                            <div className="text-[8px] text-slate-400 font-bold shrink-0 w-8 text-right">({e}/{t})</div>
+                                            {/* Body do Card (KPIs e Progresso) */}
+                                            <div className="p-5 flex-1 flex flex-col gap-5">
+                                                
+                                                {/* Quadro de KPIs */}
+                                                <div className="grid grid-cols-3 gap-2">
+                                                    {/* Tags */}
+                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-blue-200 transition-colors">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><TagIcon size={10}/> Tags</span>
+                                                        <div className="text-base font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.QtdeTags}</span></div>
+                                                        <span className="text-[9px] font-bold text-blue-600 mt-1">{p.PercentualTags}%</span>
+                                                    </div>
+                                                    {/* Pecas */}
+                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-emerald-200 transition-colors">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><LayoutGrid size={10}/> Peças</span>
+                                                        <div className="text-base font-black text-slate-800">{p.QtdePecasExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</span></div>
+                                                        <span className="text-[9px] font-bold text-emerald-600 mt-1">{p.PercentualPecas}%</span>
+                                                    </div>
+                                                    {/* RNCs */}
+                                                    <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-red-200 transition-colors cursor-pointer group/rnc">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><ShieldAlert size={10}/> RNCs</span>
+                                                        <div className="text-base font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors">{p.qtdernc} Total</div>
+                                                        <div className="flex gap-1 mt-1 font-bold text-[8px] uppercase">
+                                                            <span className="text-red-500 bg-red-50 border border-red-100 px-1 rounded">{p.qtderncPendente} Pend</span>
+                                                            <span className="text-emerald-500 bg-emerald-50 border border-emerald-100 px-1 rounded">{p.qtderncFinalizada} Fin</span>
                                                         </div>
                                                     </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    {/* Footer do Card com Datas (Editaveis via botao) */}
-                                    <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex gap-4 justify-between items-center sm:flex-row flex-col sm:items-center">
-                                        <div className="flex gap-6 w-full sm:w-auto">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
-                                                <span className="text-xs font-bold text-slate-700">{p.DataCriacao || '—'}</span>
-                                            </div>
-                                            <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6">
-                                                <div className="flex justify-between w-full">
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-blue-500"/> Entrega Prev.</span>
-                                                    <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 ml-4 flex items-center gap-0.5"><Edit3 size={10}/> Editar</button>
                                                 </div>
-                                                <span className={`text-xs font-bold ${businessDaysUntil(p.DataPrevisao) === -1 ? 'text-red-600' : 'text-slate-800'}`}>
-                                                    {p.DataPrevisao || 'Não definida'} {businessDaysUntil(p.DataPrevisao) === -1 && '(Atrasado)'}
-                                                </span>
+
+                                                {/* Barras de Setor */}
+                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-y-3 gap-x-2 w-full pt-1">
+                                                    {SECTORS.map((s) => {
+                                                        const e = toNum(p[s.ex as keyof Projeto]), t = toNum(p[s.t as keyof Projeto]);
+                                                        const pct = safePct(e, t);
+                                                        return (
+                                                            <div key={s.k} className="flex flex-col gap-1 w-full">
+                                                                <div className="flex justify-between items-end border-b border-slate-100 pb-0.5 whitespace-nowrap">
+                                                                    <span className="text-[9px] font-bold text-slate-500 uppercase">{s.k}</span>
+                                                                    <span className={`text-[10px] font-black ${pct >= 100 && t > 0 ? "text-emerald-600" : "text-slate-700"}`}>{pct}%</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 w-full">
+                                                                    <div className="h-1 bg-slate-200 rounded-full w-full overflow-hidden shrink"><div className={`h-full ${s.c} transition-all duration-500`} style={{ width: `${pct}%` }} /></div>
+                                                                    <div className="text-[8px] text-slate-400 font-bold shrink-0 w-8 text-right">({e}/{t})</div>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Footer do Card com Datas (Editaveis via botao) */}
+                                            <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex gap-4 justify-between items-center sm:flex-row flex-col sm:items-center">
+                                                <div className="flex gap-6 w-full sm:w-auto">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
+                                                        <span className="text-xs font-bold text-slate-700">{p.DataCriacao || '—'}</span>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6">
+                                                        <div className="flex justify-between w-full">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-blue-500"/> Entrega Prev.</span>
+                                                            <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 ml-4 flex items-center gap-0.5"><Edit3 size={10}/> Editar</button>
+                                                        </div>
+                                                        <span className={`text-xs font-bold ${businessDaysUntil(p.DataPrevisao) === -1 ? 'text-red-600' : 'text-slate-800'}`}>
+                                                            {p.DataPrevisao || 'Não definida'} {businessDaysUntil(p.DataPrevisao) === -1 && '(Atrasado)'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0 items-start">
+                                                    <div className="flex gap-4 w-full">
+                                                        {!isFin ? (
+                                                            <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12}/> Finalizar Projeto</button>
+                                                        ) : (
+                                                            <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12}/> Cancelar Finalização</button>
+                                                        )}
+                                                        <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="text-[10px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-1 transition-colors ml-2"><CalendarDays size={12}/> Agendar Tarefa</button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0 items-start">
-                                            <div className="flex gap-4 w-full">
-                                                {!isFin ? (
-                                                    <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12}/> Finalizar Projeto</button>
-                                                ) : (
-                                                    <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12}/> Cancelar Finalização</button>
-                                                )}
-                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
-                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="text-[10px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-1 transition-colors ml-2"><CalendarDays size={12}/> Agendar Tarefa</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        })}
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </>
+            ) : (
+                <div className="flex flex-col items-center justify-center p-12 h-full gap-5 mx-6 bg-white shadow-sm border border-slate-200 rounded-3xl mt-6">
+                    <div className="bg-blue-50 text-blue-600 w-20 h-20 rounded-full flex items-center justify-center border border-blue-100 shadow-sm animate-pulse">
+                        <ShieldAlert size={36} />
+                    </div>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-black text-slate-800 mb-2">Log de Pendência (Visão Geral Produção)</h2>
+                        <p className="text-sm font-medium text-slate-500 max-w-sm mx-auto">
+                            A janela de histórico e edição da pendência está aberta automaticamente. Quando finalizar sua consulta, feche o modal da pendência e clique no botão abaixo para retornar.
+                        </p>
+                    </div>
+                    <button 
+                        onClick={() => window.location.href = '/visao-geral-pendencias'}
+                        className="mt-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-300 text-sm px-6 py-3 rounded-xl transition-colors shadow-sm cursor-pointer flex items-center gap-2"
+                    >
+                        &larr; Voltar para Todas as Pendências
+                    </button>
+                </div>
+            )}
 
             {/* ══ MODAL DE COMPLETO DE TAGS DA SEGUNDA TELA ══ */}
             {showDetailsModal && selProj && (
@@ -979,7 +1043,14 @@ export default function VisaoGeralProducaoPage() {
                                     {selProj?.Projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
                                 </p>
                             </div>
-                            <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+                            <div className="flex items-center gap-2">
+                                {fromGlobal && (
+                                    <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+                                        &larr; Voltar
+                                    </button>
+                                )}
+                                <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+                            </div>
                         </div>
 
                         {/* ÁREA DE FORMULÁRIO (TOP) */}
@@ -1123,7 +1194,7 @@ export default function VisaoGeralProducaoPage() {
                                                 
                                                 return (
                                                 <tr key={r.IdRnc} onClick={() => setRncForm({ 
-                                                    idRnc: r.IdRnc, idTag: r.IdTag || undefined, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
+                                                    idRnc: r.IdRnc, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
                                                     usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
                                                     usuarioFin: r.UsuarioResponsavelFinalizacao || '', dataFin: r.DataFinalizacao ? brToIso(r.DataFinalizacao) : '', setorFin: r.SetorResponsavelFinalizacao || 'Corte', descFin: r.DescricaoFinalizacao || '',
                                                     wantsToFinalize: false 
@@ -1160,7 +1231,14 @@ export default function VisaoGeralProducaoPage() {
                                     {selProj?.Projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
                                 </p>
                             </div>
-                            <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+                            <div className="flex items-center gap-2">
+                                {fromGlobal && (
+                                    <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+                                        &larr; Voltar
+                                    </button>
+                                )}
+                                <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+                            </div>
                         </div>
 
                         {/* ÁREA DE FORMULÁRIO (TOP) */}
@@ -1307,7 +1385,7 @@ export default function VisaoGeralProducaoPage() {
                                                 
                                                 return (
                                                 <tr key={r.IdRnc} onClick={() => setRncForm({ 
-                                                    idRnc: r.IdRnc, idTag: r.IdTag || undefined, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
+                                                    idRnc: r.IdRnc, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
                                                     usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
                                                     wantsToFinalize: false 
                                                 })} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'TarefaFinalizada' ? 'opacity-60' : ''}`}>

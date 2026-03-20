@@ -76,6 +76,19 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     const [companies, setCompanies] = useState<PessoaJuridica[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [fromGlobal, setFromGlobal] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const romaneioOpen = params.get('romaneio');
+        if (romaneioOpen) {
+            setSearchTerm(romaneioOpen);
+        }
+        const openFrom = params.get('from');
+        if (openFrom === 'visao-geral-pendencias') {
+            setFromGlobal(true);
+        }
+    }, []);
 
     // Selection State for Actions
     const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -582,12 +595,23 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             <div className="space-y-6">
                 {/* Header & Main Actions */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
-                            <Truck className="text-[#32423D]" />
-                            Romaneios
-                        </h1>
-                        <p className="text-gray-500 mt-1">Selecione um romaneio abaixo para habilitar as ações.</p>
+                    <div className="flex items-center gap-4">
+                        {fromGlobal && (
+                            <button
+                                onClick={() => window.location.href = '/visao-geral-pendencias'}
+                                className="flex items-center justify-center p-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                                title="Voltar para Todas as Pendências"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                        )}
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
+                                <Truck className="text-[#32423D]" />
+                                Romaneios
+                            </h1>
+                            <p className="text-gray-500 mt-1">Selecione um romaneio abaixo para habilitar as ações.</p>
+                        </div>
                     </div>
                 </div>
 
