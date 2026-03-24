@@ -111,6 +111,7 @@ export default function ApontamentoProducaoPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
+    const [showTabs, setShowTabs] = useState(true); // new state for tabs visibility
 
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
@@ -835,6 +836,16 @@ export default function ApontamentoProducaoPage() {
                     <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowTabs(!showTabs)}
+                        className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                        title="Ocultar/Visualizar Abas de Setor"
+                    >
+                        {showTabs ? <X size={18} /> : <Settings2 size={18} />}
+                        <span className="hidden sm:inline">{showTabs ? 'Ocultar Abas' : 'Mostrar Abas'}</span>
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setShowFilters(!showFilters)}
                         className={`inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-colors ${showFilters || hasActiveFilters
                             ? 'border-[#E0E800] bg-[#E0E800]/10 text-[#32423D]'
@@ -861,29 +872,38 @@ export default function ApontamentoProducaoPage() {
             </div>
 
             {/* Setor Tabs */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2">
-                <div className="flex flex-wrap gap-2">
-                    {filteredSetores.map((setor) => {
-                        const Icon = setor.icon;
-                        const isActive = setorAtivo === setor.id;
-                        return (
-                            <motion.button
-                                key={setor.id}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setSetorAtivo(setor.id)}
-                                className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all text-sm ${isActive
-                                    ? `${setor.color} text-white shadow-lg`
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
-                            >
-                                <Icon size={16} />
-                                {setor.label}
-                            </motion.button>
-                        );
-                    })}
-                </div>
-            </div>
+            <AnimatePresence>
+                {showTabs && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-2 overflow-hidden"
+                    >
+                        <div className="flex flex-wrap gap-2">
+                            {filteredSetores.map((setor) => {
+                                const Icon = setor.icon;
+                                const isActive = setorAtivo === setor.id;
+                                return (
+                                    <motion.button
+                                        key={setor.id}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => setSetorAtivo(setor.id)}
+                                        className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all text-sm ${isActive
+                                            ? `${setor.color} text-white shadow-lg`
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        <Icon size={16} />
+                                        {setor.label}
+                                    </motion.button>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Filters Panel */}
             <AnimatePresence>
@@ -1746,6 +1766,37 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {modalSetor !== 'mapa' && (
+                                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center justify-between shadow-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                        <Settings2 size={16} />
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-blue-800">Próximo Setor:</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-blue-900 bg-white px-3 py-1.5 rounded shadow-sm border border-blue-100 uppercase tracking-wider">
+                                                    {(() => {
+                                                        const sequence = [
+                                                            { id: 'corte', field: 'txtCorte', label: 'Corte' },
+                                                            { id: 'dobra', field: 'txtDobra', label: 'Dobra' },
+                                                            { id: 'solda', field: 'txtSolda', label: 'Solda' },
+                                                            { id: 'pintura', field: 'txtPintura', label: 'Pintura' },
+                                                            { id: 'montagem', field: 'TxtMontagem', label: 'Montagem' }
+                                                        ];
+                                                        const currentIndex = sequence.findIndex(s => s.id === modalSetor);
+                                                        if (currentIndex === -1) return '-';
+                                                        for (let i = currentIndex + 1; i < sequence.length; i++) {
+                                                            const target = sequence[i];
+                                                            if (itemDetails.item[target.field as keyof ApontamentoItem] === '1') {
+                                                                return target.label;
+                                                            }
+                                                        }
+                                                        return 'Finalizado';
+                                                    })()}
+                                                </span>
+                                            </div>
+                                        )}
 
                                         {/* Progress */}
                                         <div className="bg-[#E0E800]/10 rounded-lg p-4">

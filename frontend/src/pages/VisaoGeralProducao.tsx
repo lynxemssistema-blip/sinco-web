@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown } from 'lucide-react';
+import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -76,10 +76,22 @@ export default function VisaoGeralProducaoPage() {
     const [load, setLoad] = useState(true); const [loadTags, setLoadTags] = useState(false); const [loadRncs, setLoadRncs] = useState(false);
     const [selProj, setSelProj] = useState<Projeto | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [rncPanel, setRncPanel] = useState(false); const [fProj, setFProj] = useState(''); const [fTag, setFTag] = useState('');
-    const [filFin, setFilFin] = useState(false); const [filLib, setFilLib] = useState(false);
+    const [rncPanel, setRncPanel] = useState(false); const [fTag, setFTag] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
+
+    // State Persistence
+    const [viewMode, setViewMode] = useState<'card' | 'list'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list') || 'card');
+    const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
+    const [filFin, setFilFin] = useState(() => localStorage.getItem('vgp_filFin') === 'true');
+    const [filLib, setFilLib] = useState(() => localStorage.getItem('vgp_filLib') === 'true');
+
+    useEffect(() => {
+        localStorage.setItem('vgp_viewMode', viewMode);
+        localStorage.setItem('vgp_fProj', fProj);
+        localStorage.setItem('vgp_filFin', String(filFin));
+        localStorage.setItem('vgp_filLib', String(filLib));
+    }, [viewMode, fProj, filFin, filLib]);
 
     // Ler Query Params
     useEffect(() => {
@@ -477,6 +489,10 @@ export default function VisaoGeralProducaoPage() {
                             <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={14} /> Mostrar Finalizados</button>
                             <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={14} /> Mostrar Liberados</button>
                             <button onClick={() => { setFilFin(false); setFilLib(false); setFProj(''); }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={14} /> Limpar</button>
+                            <div className="hidden md:flex bg-slate-100 p-1 rounded-xl items-center shadow-inner ml-2">
+                                <button onClick={() => setViewMode('card')} className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`} title="Visão em Cards"><LayoutGrid size={14} /> Cards</button>
+                                <button onClick={() => setViewMode('list')} className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`} title="Visão em Lista"><List size={14} /> Lista</button>
+                            </div>
                         </div>
                     </div>
 
@@ -491,6 +507,106 @@ export default function VisaoGeralProducaoPage() {
                             </div>
                         ) : filteredProj.length === 0 ? (
                             <div className="text-center mt-20 text-slate-400 font-medium">Nenhum projeto encontrado.</div>
+                        ) : viewMode === 'list' ? (
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-auto min-w-full">
+                                <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[800px]">
+                                    <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">Tags</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">RNCs</th>
+                                            <th className="px-4 py-3 border-r border-slate-100 w-32">Datas</th>
+                                            <th className="px-3 py-3 text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {filteredProj.map((p, idx) => {
+                                            const isFin = p.Finalizado?.trim() !== ''; 
+                                            const isLib = p.liberado === 'S';
+                                            return (
+                                                <tr key={p.IdProjeto} className={`group hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
+                                                    <td className="px-4 py-3 align-top max-w-[280px] border-r border-slate-100 whitespace-normal">
+                                                        <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                                                            <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
+                                                            <div className="font-black text-slate-800 text-[13px] leading-tight" title={p.Projeto}>{p.Projeto}</div>
+                                                        </div>
+                                                        <div className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</div>
+                                                        <div className="flex items-center gap-2 flex-wrap mt-2">
+                                                            {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
+                                                            {isLib && !isFin && <span className="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
+                                                        <div className="flex flex-col items-center justify-center w-32 mx-auto">
+                                                            <div className="flex justify-between items-center w-full mb-1">
+                                                                <span className="text-xs font-black text-slate-800">{p.QtdePecasExecutadas}<span className="text-[10px] text-slate-400 font-medium">/{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</span></span>
+                                                                <span className="text-[10px] font-bold text-emerald-600">{p.PercentualPecas}%</span>
+                                                            </div>
+                                                            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-emerald-500 rounded-full transition-all duration-300" style={{ width: `${p.PercentualPecas}%` }} />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
+                                                        <div className="flex flex-col items-center justify-center text-center">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</span>
+                                                            <div className="text-sm font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-[10px] text-slate-400 font-medium">/{p.QtdeTags}</span></div>
+                                                            <span className="text-[9px] font-bold text-blue-600">{p.PercentualTags}%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
+                                                        <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg group/rnc transition-colors mx-auto w-24 border border-transparent hover:border-slate-200">
+                                                            <div className="text-sm font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors flex items-center gap-1"><ShieldAlert size={12}/> {p.qtdernc} Tot</div>
+                                                            <div className="flex flex-col gap-1 mt-1 font-bold text-[8px] uppercase w-full">
+                                                                <span className="text-red-500 bg-red-50 border border-red-100 px-1 py-0.5 rounded w-full text-center">{p.qtderncPendente} Pend</span>
+                                                                <span className="text-emerald-500 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded w-full text-center">{p.qtderncFinalizada} Fin</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 align-middle border-r border-slate-100 w-40">
+                                                        <div className="flex flex-col gap-3">
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
+                                                                <span className="text-xs font-bold text-slate-700">{p.DataCriacao || '—'}</span>
+                                                            </div>
+                                                            <div className="flex flex-col gap-0.5 group/edit">
+                                                                <div className="flex justify-between items-center w-full">
+                                                                    <span className="text-[9px] font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-blue-500"/> Prev.</span>
+                                                                    <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-0.5" title="Editar Data"><Edit3 size={10}/> Edit</button>
+                                                                </div>
+                                                                <span className={`text-[11px] font-bold ${businessDaysUntil(p.DataPrevisao) === -1 ? 'text-red-600' : 'text-slate-800'}`}>
+                                                                    {p.DataPrevisao || 'Não definida'} {businessDaysUntil(p.DataPrevisao) === -1 && '(Atrasado)'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-middle text-center min-w-[140px]">
+                                                        <div className="flex flex-col gap-1.5 justify-center">
+                                                            <button onClick={() => openDetailsModal(p)} className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-lg transition-colors border border-blue-100 shadow-sm text-[10px] font-black uppercase flex items-center justify-center gap-1.5 w-full">
+                                                                <LayoutGrid size={12} /> Exibir Detalhes Tag
+                                                            </button>
+                                                            <div className="grid grid-cols-2 gap-1.5 text-[9px] font-bold uppercase">
+                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-red-100 shadow-sm flex items-center justify-center gap-1" title="Gerar Pendência">
+                                                                    <ShieldAlert size={12} /> RNC
+                                                                </button>
+                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-indigo-100 shadow-sm flex items-center justify-center gap-1" title="Agendar Tarefa">
+                                                                    <CalendarDays size={12} /> Tarf
+                                                                </button>
+                                                            </div>
+                                                            {!isFin ? (
+                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[9px] text-emerald-600 hover:bg-emerald-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-emerald-200 mt-0.5"><CheckCircle size={10}/> Finalizar Proj.</button>
+                                                            ) : (
+                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[9px] text-orange-600 hover:bg-orange-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-orange-200 mt-0.5"><RotateCcw size={10}/> Cancelar Fin.</button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                                 {filteredProj.map(p => {

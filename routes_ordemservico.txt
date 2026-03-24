@@ -1,0 +1,300 @@
+78: IdOrdemServicoItem, IdOrdemServico, IdMaterial, Projeto, DescEmpresa, Tag, DescTag,
+80: MaterialSW, EnderecoArquivo, EnderecoArquivoItemOrdemServico,
+82: IdOrdemservicoReposicao, IdOrdemServicoItemReposicao, IdPendenciaReposicao,
+88: FROM ordemservicoitem
+105: UPDATE ordemservicoitem
+110: WHERE IdOrdemServicoItem = ?
+131: const { IdOrdemServicoItem, quantidadeApontada } = req.body;
+133: if (!IdOrdemServicoItem || !quantidadeApontada || quantidadeApontada <= 0) {
+142: SELECT IdOrdemServicoItem, IdOrdemServico, IdMaterial, QtdeTotal, cortetotalexecutado, cortetotalexecutar,
+143: sttxtCorte, IdOrdemservicoReposicao, IdOrdemServicoItemReposicao, IdPendenciaReposicao
+144: FROM ordemservicoitem
+145: WHERE IdOrdemServicoItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*') FOR UPDATE
+146: `, [IdOrdemServicoItem]);
+173: // 2. Atualizar ordemservicoitem
+175: UPDATE ordemservicoitem
+177: WHERE IdOrdemServicoItem = ?
+178: `, [novoCorteExecutado, novoCorteExecutar, novoSttxtCorte, IdOrdemServicoItem]);
+180: // 3. Inserir Log em ordemservicoitemcontrole
+186: INSERT INTO ordemservicoitemcontrole (
+187: IdOrdemServico, IdOrdemServicoItem, IdOSItemProcesso, Processo, CodigoJuridicoMat,
+200: item.IdOrdemServico, IdOrdemServicoItem,
+206: const descFinalizacao = `RNC Automática  - Encerramento do Pedido de Reposição de Peça da OS: ${item.IdOrdemServico} Item: ${item.IdOrdemServicoItemReposicao || ''} Concluido , Excluindo da Lista de Pendência`;
+209: UPDATE ordemservicoitempendencia
+216: WHERE IdOrdemServicoItemPendencia = ?
+489: IdOrdemServicoItemPendencia,
+493: IdOrdemServico, IdOrdemServicoItem,
+510: FROM viewordemservicoitempendencia
+564: let conditionFinalizado = "(OrdemServicoItemFinalizado = '' OR OrdemServicoItemFinalizado IS NULL)";
+566: conditionFinalizado = "(OrdemServicoItemFinalizado = '' OR OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = 'C')";
+613: const { IdOrdemServicoItem, qtde, usuario } = req.body;
+615: if (!IdOrdemServicoItem || !qtde || qtde <= 0) {
+622: "SELECT * FROM viewitensprojetoemaberto WHERE IdOrdemServicoItem = ?",
+623: [IdOrdemServicoItem]
+650: IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao,
+659: id, IdOrdemServicoItem, usuario || 'Sistema', getCurrentDateTimeBR(),
+668: // --- ATUALIZA��O REQUISITADA: SalvarDados em ordemservicoitemcontrole para 'Expedicao' ---
+670: // ClasseordemservicoitemControle.SalvarDados(..., "Expedicao", ...)
+672: INSERT INTO ordemservicoitemcontrole (
+673: IdOrdemServico,
+674: IdOrdemServicoItem,
+685: item.IdOrdemServico,
+686: IdOrdemServicoItem,
+861: "SELECT IdRomaneio, IDOrdemServicoITEM, qtdeUsuario FROM romaneioitem WHERE IdRomaneioItem = ?",
+872: const idOSItem = item.IDOrdemServicoITEM;
+903: // 5. Atualizar Saldo na Ordem de Servi�o (ordemservicoitem)
+905: "SELECT RomaneioTotalEnviado, RomaneioSaldoEnviar FROM ordemservicoitem WHERE IdOrdemServicoItem = ?",
+919: "UPDATE ordemservicoitem SET RomaneioTotalEnviado = ?, RomaneioSaldoEnviar = ?, EnviadoParaRomaneio = ? WHERE IdOrdemServicoItem = ?",
+1461: "SELECT QtdeRomaneio, QtdeTotalRetorno, IDOrdemServicoITEM FROM romaneioitem WHERE IdRomaneioItem = ?",
+1475: IdRomaneioItem, IDOrdemServicoITEM, QtdeIdentificadores, DataCriacao,
+1478: [idRomaneioItem, item.IDOrdemServicoITEM, qtdeRetorno, usuario || 'Sistema', observacao || '', tipoRetorno || 'ENTRADA/RETORNO']
+3458: COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+3463: COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+3467: COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+3472: COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
+3652: UPDATE ordemservicoitem
+3653: SET OrdemServicoItemFinalizado = 'C',
+3656: WHERE idProjeto = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = '') AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+3660: UPDATE ordemservico
+3661: SET OrdemServicoFinalizado = 'C',
+3664: WHERE IdProjeto = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado = '') AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+3678: UPDATE ordemservicoitem
+3679: SET OrdemServicoItemFinalizado = 'C',
+3686: UPDATE ordemservico
+3687: SET OrdemServicoFinalizado = 'C',
+3863: IdOrdemServicoItemPendencia AS IdRnc,
+3866: IdOrdemServico,
+3880: FROM ordemservicoitempendencia
+3884: ORDER BY IdOrdemServicoItemPendencia DESC
+3907: IdOrdemServicoItemPendencia, IdOrdemServico, IdOrdemServicoItem, IdPLanodeCorte, IdRomaneio, IdProjeto, IdTag, CodMatFabricante,
+3913: FROM viewordemservicoitempendencia
+3916: ORDER BY IdOrdemServicoItemPendencia DESC
+3941: IdOrdemServicoItemPendencia AS IdRnc,
+3945: FROM ordemservicoitempendencia
+3951: ORDER BY IdOrdemServicoItemPendencia DESC
+3972: UPDATE ordemservicoitempendencia SET
+3984: WHERE IdOrdemServicoItemPendencia = ?
+3998: INSERT INTO ordemservicoitempendencia (
+4013: // Increment totals (qtdernc, qtderncPendente) on projetos, tags, ordemservico
+4018: await pool.execute(`UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`, [data.idProjeto]);
+4057: UPDATE ordemservicoitempendencia SET
+4064: WHERE IdOrdemServicoItemPendencia = ?
+4068: const [pendencyInfo] = await pool.execute(`SELECT TipoCadastro, IdTag, IdOrdemServico FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?`, [id]);
+4076: const { IdTag, IdOrdemServico } = pendency[0];
+4078: if (IdOrdemServico) await pool.execute(`UPDATE ordemservico SET qtderncPendente = GREATEST(COALESCE(qtderncPendente,0) - 1, 0), qtderncFinalizada = COALESCE(qtderncFinalizada,0) + 1 WHERE IdOrdemServico = ?`, [IdOrdemServico]);
+4206: // ordemservico: DataFinalizacao (diferente!)
+4208: `UPDATE ordemservico SET OrdemServicoFinalizado='C', UsuarioFinalizado=?, DataFinalizacao=? WHERE IdProjeto=?`,
+4211: // ordemservicoitem: DataFinalizado
+4213: `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='C', UsuarioFinalizado=?, DataFinalizado=?
+4214: WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
+4258: // ordemservico
+4260: `UPDATE ordemservico SET OrdemServicoFinalizado='', UsuarioFinalizado='', DataFinalizacao='' WHERE IdProjeto=?`,
+4263: // ordemservicoitem
+4265: `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='', UsuarioFinalizado='', DataFinalizado=''
+4266: WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
+4686: app.get('/api/ordemservico/projetos', async (req, res) => {
+4690: FROM ordemservico
+4702: app.get('/api/ordemservico/tags', async (req, res) => {
+4707: FROM ordemservico
+4725: app.get('/api/ordemservico/busca-item', async (req, res) => {
+4734: osi.IdOrdemServicoItem, osi.IdOrdemServico, osi.CodMatFabricante,
+4737: FROM ordemservicoitem osi
+4738: INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+4753: app.get('/api/ordemservico', async (req, res) => {
+4775: whereClause += " AND (CAST(IdOrdemServico AS CHAR) LIKE ? OR Tag LIKE ? OR DescTag LIKE ? OR Projeto LIKE ?)";
+4781: `SELECT COUNT(*) as total FROM ordemservico WHERE ${whereClause}`,
+4789: IdOrdemServico, Projeto, Tag, DescTag, Descricao,
+4795: OrdemServicoFinalizado, DataFinalizado,
+4804: EnderecoOrdemServico
+4805: FROM ordemservico
+4807: ORDER BY IdOrdemServico DESC
+4823: console.error('Error fetching ordemservico:', error);
+4829: app.get('/api/ordemservico/:id', async (req, res) => {
+4832: 'SELECT * FROM ordemservico WHERE IdOrdemServico = ?',
+4841: console.error('Error fetching ordemservico:', error);
+4847: app.get('/api/ordemservico/:id/itens', async (req, res) => {
+4851: IdOrdemServicoItem, IdOrdemServico, DescResumo, DescDetal,
+4855: OrdemServicoItemFinalizado as Finalizado,
+4861: FROM ordemservicoitem
+4862: WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+4863: ORDER BY IdOrdemServicoItem
+4867: console.error('Error fetching ordemservicoitem:', error);
+4913: whereClause += ' AND os.IdOrdemServico = ?';
+4918: whereClause += ' AND osi.IdOrdemServicoItem = ?';
+4928: CAST(os.IdOrdemServico AS CHAR) LIKE ? OR
+4929: CAST(osi.IdOrdemServicoItem AS CHAR) LIKE ? OR
+4954: osi.IdOrdemServicoItem,
+4955: osi.IdOrdemServico,
+4960: osi.EnderecoArquivoItemOrdemServico,
+4987: (SELECT DescResumo FROM ordemservicoitem WHERE IdOrdemServico = osi.IdOrdemServico AND ProdutoPrincipal = 'sim' LIMIT 1) as NomeProdutoPrincipal
+4988: FROM ordemservicoitem osi
+4989: INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+4992: ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+5030: whereClause += ' AND osi.IdOrdemServicoItem = ?';
+5041: CAST(os.IdOrdemServico AS CHAR) LIKE ? OR
+5042: CAST(osi.IdOrdemServicoItem AS CHAR) LIKE ?
+5062: whereClause += ' AND os.IdOrdemServico = ?';
+5074: osi.IdOrdemServicoItem,
+5075: osi.IdOrdemServico,
+5082: osi.EnderecoArquivoItemOrdemServico,
+5105: (SELECT DescResumo FROM ordemservicoitem WHERE IdOrdemServico = osi.IdOrdemServico AND ProdutoPrincipal = 'sim' LIMIT 1) as NomeProdutoPrincipal,
+5107: FROM ordemservicoitemcontrole
+5108: WHERE IdOrdemServicoItem = osi.IdOrdemServicoItem
+5111: FROM ordemservicoitem osi
+5112: INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+5115: ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+5131: FROM ordemservico os
+5132: INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
+5150: FROM ordemservico os
+5151: INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
+5177: SELECT DISTINCT os.IdOrdemServico as value,
+5178: CONCAT('OS ', os.IdOrdemServico, ' - ', os.Tag) as label
+5179: FROM ordemservico os
+5180: INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
+5196: query += ' ORDER BY os.IdOrdemServico DESC';
+5211: FROM ordemservico os
+5212: INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
+5236: osi.IdOrdemServicoItem,
+5237: osi.IdOrdemServico,
+5242: osi.EnderecoArquivoItemOrdemServico,
+5257: FROM ordemservicoitem osi
+5258: INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico
+5259: WHERE osi.IdOrdemServicoItem = ?
+5269: // Buscar hist�rico de apontamentos baseando-se na viewordemservicoitemcontrole conforme sistema legado (VB.NET)
+5273: idordemservicoitemControle,
+5285: FROM viewordemservicoitemcontrole
+5286: WHERE IdOrdemServicoItem = ?
+5287: ORDER BY DataCriacao DESC, idordemservicoitemControle DESC
+5317: const { IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, CriadoPor } = req.body;
+5319: if (!IdOrdemServicoItem || !Processo || !QtdeProduzida) {
+5322: message: 'IdOrdemServicoItem, Processo e QtdeProduzida s�o obrigat�rios'
+5349: os.IdProjeto, os.Projeto, os.IdTag, os.Tag, os.IdOrdemServico
+5350: FROM ordemservicoitem osi
+5351: INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+5352: WHERE osi.IdOrdemServicoItem = ?
+5353: `, [IdOrdemServicoItem]);
+5421: // 5. Update ordemservicoitem
+5423: UPDATE ordemservicoitem
+5444: updateItemQuery += ` WHERE IdOrdemServicoItem = ? `;
+5445: updateItemParams.push(IdOrdemServicoItem);
+5450: await conn.execute(`UPDATE ordemservico SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdOrdemServico = ? `, [currentInputQty, item.IdOrdemServico]);
+5460: INSERT INTO ordemservicoitemcontrole(
+5461: IdOrdemServicoItem, IdOrdemServico, Processo, QtdeTotal, QtdeProduzida, ${txtSetor}, CriadoPor, DataCriacao, D_E_L_E_T_E
+5463: `, [IdOrdemServicoItem, item.IdOrdemServico, sName.toLowerCase(), item.QtdeTotal, currentInputQty, currentInputQty, CriadoPor || 'Sistema', now]);
+5484: // Equivalent to checking viewordemservicoitemstatussetor.Resultado = 0
+5492: FROM ordemservicoitem
+5493: WHERE IdOrdemServicoItem = ?
+5494: `, [IdOrdemServicoItem]);
+5500: await conn.execute("UPDATE ordemservicoitem SET OrdemServicoItemFinalizado = 'C' WHERE IdOrdemServicoItem = ?", [IdOrdemServicoItem]);
+5504: await conn.execute("UPDATE ordemservicoitem SET OrdemServicoItemFinalizado = 'C' WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')", [item.IdOrdemServico]);
+5509: SELECT COUNT(IdOrdemServicoItem) as count
+5510: FROM ordemservicoitem
+5511: WHERE(OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')
+5512: AND IdOrdemServico = ?
+5514: `, [item.IdOrdemServico]);
+5519: UPDATE ordemservico
+5520: SET OrdemServicoFinalizado = 'C',
+5524: WHERE IdOrdemServico = ?
+5525: `, [dateNow, CriadoPor || 'Sistema', dateNow, item.IdOrdemServico]);
+5530: SELECT COUNT(IdOrdemServico) as count
+5531: FROM ordemservico
+5532: WHERE(OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+5592: 'SELECT IdOrdemServicoItem, Processo, QtdeProduzida FROM ordemservicoitemcontrole WHERE IdOrdemServicoItemControle = ?',
+5600: const { IdOrdemServicoItem, Processo, QtdeProduzida } = rows[0];
+5605: `UPDATE ordemservicoitemcontrole
+5607: WHERE IdOrdemServicoItemControle = ? `,
+5614: FROM ordemservicoitemcontrole
+5615: WHERE IdOrdemServicoItem = ? AND Processo = ? AND(D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+5616: `, [IdOrdemServicoItem, Processo]);
+5619: 'SELECT QtdeTotal FROM ordemservicoitem WHERE IdOrdemServicoItem = ?',
+5620: [IdOrdemServicoItem]
+5630: `UPDATE ordemservicoitem SET ${setorConfig.percentual} = ? WHERE IdOrdemServicoItem = ? `,
+5631: [novoPercentual, IdOrdemServicoItem]
+5741: if (!data.idOrdemServicoItem || !data.descricaoPendencia) {
+5771: if (data.idOrdemServicoItemPendencia && data.acao === 'FINALIZAR') {
+5773: UPDATE ordemservicoitempendencia
+5781: WHERE IdOrdemServicoItemPendencia = ?
+5789: data.idOrdemServicoItemPendencia
+5794: } else if (data.idOrdemServicoItemPendencia) {
+5796: UPDATE ordemservicoitempendencia
+5806: WHERE IdOrdemServicoItemPendencia = ?
+5815: data.idOrdemServicoItemPendencia
+5823: INSERT INTO ordemservicoitempendencia (
+5824: IdOrdemservicoItem, IdOrdemServico, IdProjeto, Projeto,
+5845: data.idOrdemServicoItem, data.idOrdemServico, data.idProjeto, data.projeto,
+5879: IdOrdemServicoItemPendencia as IDRNC,
+5882: IdOrdemServico,
+5883: IdOrdemservicoItem as IdOrdemServicoItem,
+5900: FROM ordemservicoitempendencia
+5924: sql += ` ORDER BY IdOrdemServicoItemPendencia DESC `;
+5941: const { idOrdemServicoItem, qtdeReposicao, motivo, usuario } = req.body;
+5943: if (!idOrdemServicoItem || !qtdeReposicao || qtdeReposicao <= 0) {
+5956: `SELECT * FROM ordemservicoitem WHERE IdOrdemServicoItem = ?`,
+5957: [idOrdemServicoItem]
+5971: `UPDATE ordemservicoitem SET QtdeReposicao = ? WHERE IdOrdemServicoItem = ?`,
+5972: [novaQtdeReposicao, idOrdemServicoItem].map(p => p === undefined ? '' : p)
+5993: INSERT INTO ordemservicoitem (
+5994: IdOrdemServico, IdProjeto, Projeto, IdTag, Tag, DescTag,
+6005: Reposicao, IdOrdemservicoReposicao, IdOrdemservicoItemReposicao, MotivoReposicao
+6023: itemPai.IdOrdemServico, itemPai.IdProjeto, itemPai.Projeto, itemPai.IdTag, itemPai.Tag, itemPai.DescTag,
+6033: itemPai.IdOrdemServico, idOrdemServicoItem, motivo || ''
+6039: console.log(`[Reposicao] Cadastrado Novo Item Pai ${novoIdPai} para OS ${itemPai.IdOrdemServico}`);
+6062: INSERT INTO ordemservicoitem (
+6063: IdOrdemServico, IdProjeto, Projeto, IdTag, Tag, DescTag,
+6078: itemPai.IdOrdemServico, itemPai.IdProjeto, itemPai.Projeto, itemPai.IdTag, itemPai.Tag, itemPai.DescTag,
+6091: // MontarPendenciaReposicao(dgvItemOrdemservico)
+6092: // Optamos por simular o log m�nimo na ordemservicoitempendencia ou ordemservicoitemcontrole
+6094: `INSERT INTO ordemservicoitemcontrole (
+6095: IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, CriadoPor, DataCriacao, D_E_L_E_T_E, DescricaoEstorno
+6097: [idOrdemServicoItem, itemPai.IdOrdemServico, novoQtdeTotal, usuario || 'Sistema', nowFormat].map(p => p === undefined ? '' : p)
+6355: v.IDOrdemServicoITEM as IdOrdemServicoItem,
+6356: v.IDOrdemServico as IdOrdemServico,
+6398: SELECT v.* FROM viewordemservicoitempendencia v
+6418: sql += " ORDER BY v.IdOrdemServicoItemPendencia DESC ";
+6438: if (data.idOrdemServicoItemPendencia) {
+6440: "SELECT Estatus FROM ordemservicoitempendencia WHERE idOrdemServicoItemPendencia = ?",
+6441: [data.idOrdemServicoItemPendencia]
+6493: if (!data.idOrdemServicoItemPendencia) {
+6498: "UPDATE ordemservicoitempendencia SET UltimaPendencia = '' WHERE CodMatFabricante = ?",
+6503: INSERT INTO ordemservicoitempendencia(
+6504: IdOrdemServicoItem, IdOrdemServico, IdRomaneio, Romaneio, IdPlanodeCorte,
+6516: data.idOrdemServicoItem, data.idOrdemServico, data.idRomaneio, data.romaneio, '',
+6529: // 1. Update OrdemServico (verified columns exist)
+6530: if (data.idOrdemServico) {
+6532: "UPDATE ordemservico SET qtdernc = COALESCE(qtdernc, 0) + 1, qtderncPendente = COALESCE(qtderncPendente, 0) + 1 WHERE IdOrdemServico = ?",
+6533: [data.idOrdemServico]
+6556: UPDATE ordemservicoitempendencia SET
+6561: WHERE idOrdemServicoItemPendencia = ?
+6568: data.idOrdemServicoItemPendencia
+6589: const { idOrdemServicoItemPendencia, usuario, setor } = req.body;
+6592: if (!idOrdemServicoItemPendencia) {
+6601: "SELECT IdOrdemServico, IdTag, IdProjeto, Estatus FROM ordemservicoitempendencia WHERE IdOrdemServicoItemPendencia = ?",
+6602: [idOrdemServicoItemPendencia]
+6623: UPDATE ordemservicoitempendencia SET
+6630: WHERE IdOrdemServicoItemPendencia = ?
+6631: `, [usuario || 'Sistema', setor || '', nowFormatted, descricaoFinalizacao, idOrdemServicoItemPendencia]);
+6634: // OrdemServico
+6635: if (pendency.IdOrdemServico) {
+6637: "UPDATE ordemservico SET qtderncPendente = IF(qtderncPendente > 0, qtderncPendente - 1, 0) WHERE IdOrdemServico = ?",
+6638: [pendency.IdOrdemServico]
+6789: let query = "SELECT IdProjeto, Projeto, DescEmpresa, Tag, DescTag, codmatfabricante, DataPrevisao, QtdeTotal, PesoUnitario, MontagemTotalExecutado, TotalExpedicao, Comprimento, Profundidade, Largura, descresumo, descdetal, RealizadoInicioExpedicao, RealizadoFinalExpedicao, IdTag, Idordemservico, IdOrdemServicoItem, Finalizadotag, FinalizadoProjeto, OrdemServicoItemFinalizado, enderecoarquivo, ProdutoPrincipal FROM viewcontroleexpedicao WHERE 1=1";
+6811: query += " AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado <> 'C') AND (Finalizadotag IS NULL OR Finalizadotag <> 'C')";
+6890: const { idOrdemServico, idOrdemServicoItem, tag, projeto } = req.query;
+6892: SELECT idordemservicoitemControle, IdOrdemServicoITem, IdOrdemServico, Projeto, Tag,
+6893: ESTATUS_OrdemServico, CriadoPor, DataCriacao, CodMatFabricante, QtdeTotal,
+6895: FROM viewordemservicoitemcontrole
+6896: WHERE IdOrdemServicoITem = ? AND IdOrdemServico = ? AND origem = 'EXpedicao'
+6898: const queryParams = [idOrdemServicoItem, idOrdemServico];
+6912: console.error('Erro ao buscar viewordemservicoitemcontrole:', error);
+6918: const { idOrdemServicoItem, idOrdemServico, idTag, idProjeto, qtde, qtdeTotalDaLinha } = req.body;
+6932: if (!idOrdemServicoItem || !qtdeNum || qtdeNum <= 0) {
+6951: nome: 'ordemservicoitem', idCampo: 'IdOrdemServicoItem', idValor: idOrdemServicoItem, campoFinal: 'RealizadofinalExpedicao',
+6955: nome: 'ordemservico', idCampo: 'IdOrdemServico', idValor: idOrdemServico, campoFinal: 'RealizadoFinalExpedicao',
+7004: if (t.nome === 'ordemservicoitem') {
+7018: // 7 etapa: Historico na ordemservicoitemcontrole
+7020: `INSERT INTO ordemservicoitemcontrole (
+7021: IdOrdemServico, IdOrdemServicoItem, QtdeTotal,
+7028: idOrdemServico, idOrdemServicoItem, qtdeTotalDaLinha,
+7144: SELECT Projeto,Tag,IdOrdemServico,IdOrdemServicoItem,idplanodecorte,QtdeTotal,
+7148: IF(OrdemServicoItemFinalizado = 'C' OR OrdemServicoItemFinalizado = 'SIM' OR OrdemServicoItemFinalizado = 'S', 'SIM', 'NÃO') AS OrdemServicoItemFinalizado,
+7158: query += ` FROM ordemservicoitem WHERE D_E_L_E_T_E = ''`;

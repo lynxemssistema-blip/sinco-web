@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ChevronRight, ChevronDown, ClipboardList, Eye,
     Loader2, RefreshCw, Box, CheckCircle, Clock, XCircle, User, Calendar, Settings2, FileText, FolderOpen,
-    Filter, Layers, X, ArrowLeft
+    Filter, Layers, X
 } from 'lucide-react';
 import { ProgressBar } from '../components/ordem-servico/ProgressBar';
 import { SetorDatas } from '../components/ordem-servico/SetorDatas';
-import { useToast } from '../contexts/ToastContext';
 
 const API_BASE = '/api';
 
@@ -110,49 +109,12 @@ interface DropdownOption {
 
 
 
-
-import React from 'react';
-class ErrorBoundary extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false, error: null, errorInfo: null };
-    }
-    static getDerivedStateFromError(error) {
-        return { hasError: true, error };
-    }
-    componentDidCatch(error, errorInfo) {
-        this.setState({ errorInfo });
-    }
-    render() {
-        if (this.state.hasError) {
-            return (
-                <div style={{ padding: '20px', backgroundColor: '#fee', color: '#c00' }}>
-                    <h2>Something went wrong in OrdemServico!</h2>
-                    <details style={{ whiteSpace: 'pre-wrap' }}>
-                        {this.state.error && this.state.error.toString()}
-                        <br />
-                        {this.state.errorInfo && this.state.errorInfo.componentStack}
-                    </details>
-                </div>
-            );
-        }
-        return this.props.children;
-    }
-}
-
 export default function OrdemServicoPage() {
-    return <ErrorBoundary><OrdemServicoContent /></ErrorBoundary>;
-}
-
-function OrdemServicoContent() {
     // Data state
     const [ordens, setOrdens] = useState<OrdemServico[]>([]);
     const [expandedOrdens, setExpandedOrdens] = useState<Set<number>>(new Set());
-    const [selectedOSId, setSelectedOSId] = useState<number | null>(null);
     const [ordensItens, setOrdensItens] = useState<Record<number, OrdemServicoItem[]>>({});
     const [loadingItens, setLoadingItens] = useState<Set<number>>(new Set());
-    const [liberandoOS, setLiberandoOS] = useState<number | null>(null);
-    const { addToast } = useToast();
 
     // Pagination
     const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -313,11 +275,19 @@ function OrdemServicoContent() {
         }
     }, []);
 
-        const toggleOS = useCallback(async (osId: number) => {
-        setSelectedOSId(osId);
-        if (!ordensItens[osId]) {
-            fetchItens(osId);
-        }
+    const toggleOS = useCallback(async (osId: number) => {
+        setExpandedOrdens(prev => {
+            const newExpanded = new Set(prev);
+            if (newExpanded.has(osId)) {
+                newExpanded.delete(osId);
+            } else {
+                newExpanded.add(osId);
+                if (!ordensItens[osId]) {
+                    fetchItens(osId);
+                }
+            }
+            return newExpanded;
+        });
     }, [ordensItens, fetchItens]);
 
     const loadMore = useCallback(() => {
@@ -368,228 +338,113 @@ function OrdemServicoContent() {
     };
 
     // Render a single OS card
-    
-    const handleLiberarOS = async (os: OrdemServico) => {
-        if (os.Fator === 0 || os.Fator === '0' || os.Fator == null) {
-            addToast({ type: 'error', title: 'Erro', message: 'O fator da Ordem de Serviço não pode ser 0 ou nulo para liberação.' });
-            return;
-        }
-
-        const tipoLiberacao = window.prompt("Digite 'Total' ou 'Parcial' para confirmar o tipo de liberação:");
-        if (!tipoLiberacao || (tipoLiberacao.toLowerCase() !== 'total' && tipoLiberacao.toLowerCase() !== 'parcial')) {
-            addToast({ type: 'error', title: 'Atenção', message: 'Liberação cancelada. É necessário informar Total ou Parcial.' });
-            return;
-        }
-
-        setLiberandoOS(os.IdOrdemServico);
-        try {
-            const token = localStorage.getItem('sinco_token');
-            const res = await fetch(`${API_BASE}/ordemservico/liberar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({
-                    IdOrdemServico: os.IdOrdemServico,
-                    IdTag: os.IdTag,
-                    IdProjeto: os.IdProjeto,
-                    Fator: os.Fator,
-                    EnderecoOrdemServico: os.EnderecoOrdemServico,
-                    TipoLiberacao: tipoLiberacao.toLowerCase() === 'total' ? 'Total' : 'Parcial'
-                })
-            });
-            const json = await res.json();
-            if (json.success) {
-                addToast({ type: 'success', title: 'Sucesso', message: `Ordem de Serviço ${os.IdOrdemServico} liberada! (${tipoLiberacao})` });
-                setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Liberado_Engenharia: 'S', OrdemServicoFinalizado: 'C' } : o));
-            } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao liberar Ordem de Serviço.' });
-            }
-        } catch (e: any) {
-            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor.' });
-        } finally {
-            setLiberandoOS(null);
-        }
-    };
-
-    const handleCancelarLiberacao = async (os: OrdemServico) => {
-        if (!window.confirm(`Ao cancelar a liberação da Ordem de Serviço nº ${os.IdOrdemServico}\nCaso existam Planos de Corte vinculados aos itens desta OS e não haja execução, os respectivos itens serão automaticamente cancelados. Deseja prosseguir?`)) {
-            return;
-        }
-
-        setLiberandoOS(os.IdOrdemServico);
-        try {
-            const token = localStorage.getItem('sinco_token');
-            const res = await fetch(`${API_BASE}/ordemservico/cancelar-liberacao`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ IdOrdemServico: os.IdOrdemServico })
-            });
-            const json = await res.json();
-            if (json.success) {
-                addToast({ type: 'success', title: 'Sucesso', message: 'Liberação cancelada!' });
-                setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Liberado_Engenharia: '', OrdemServicoFinalizado: '' } : o));
-            } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao cancelar liberação.' });
-            }
-        } catch (e: any) {
-            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor.' });
-        } finally {
-            setLiberandoOS(null);
-        }
-    };
-
-    const handleAtualizarArquivos = async (os: OrdemServico) => {
-        if (os.Liberado_Engenharia === 'S') {
-            addToast({ type: 'error', title: 'Erro', message: 'Ordem de Serviço já Liberada para Produção, não pode mais ser modificada!' });
-            return;
-        }
-
-        setLiberandoOS(os.IdOrdemServico);
-        try {
-            const token = localStorage.getItem('sinco_token');
-            const res = await fetch(`${API_BASE}/ordemservico/atualizar-arquivos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ IdOrdemServico: os.IdOrdemServico })
-            });
-            const json = await res.json();
-            if (json.success) {
-                addToast({ type: 'success', title: 'Arquivos Atualizados', message: 'Diretórios limpos e arquivos processados.' });
-            } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao atualizar arquivos.' });
-            }
-        } catch (e: any) {
-            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor.' });
-        } finally {
-            setLiberandoOS(null);
-        }
-    };
-
-    const handleAlterarFator = async (os: OrdemServico) => {
-        if (os.Liberado_Engenharia === 'S') {
-            addToast({ type: 'error', title: 'Erro', message: 'Ordem de Serviço já Liberada para Produção, não pode mais ser modificada!' });
-            return;
-        }
-
-        const items = ordensItens[os.IdOrdemServico];
-        if (!items || items.length === 0) {
-            addToast({ type: 'error', title: 'Atenção', message: 'Não há itens a serem alterados!' });
-            return;
-        }
-
-        const novoFator = window.prompt("Informe o novo valor Multiplicador", os.Fator?.toString() || "1");
-        if (!novoFator) return;
-        
-        const fatorNum = parseFloat(novoFator.replace(',', '.'));
-        if (isNaN(fatorNum) || fatorNum <= 0) {
-            addToast({ type: 'error', title: 'Atenção', message: 'O valor informado não é um número válido' });
-            return;
-        }
-
-        setLiberandoOS(os.IdOrdemServico);
-        try {
-            const token = localStorage.getItem('sinco_token');
-            const res = await fetch(`${API_BASE}/ordemservico/alterar-fator`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ 
-                    IdOrdemServico: os.IdOrdemServico,
-                    FatorMultiplicador: fatorNum
-                })
-            });
-            const json = await res.json();
-            if (json.success) {
-                addToast({ type: 'success', title: 'Fator Alterado', message: 'Multplicador, pesos e áreas atualizados com sucesso.' });
-                // Atualiza OS localmente para refletir o novo fator
-                setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Fator: fatorNum } : o));
-            } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao alterar fator.' });
-            }
-        } catch (e: any) {
-            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor.' });
-        } finally {
-            setLiberandoOS(null);
-        }
-    };
-
-    const renderOSDetail = (os: OrdemServico) => {
+    const renderOSCard = (os: OrdemServico, idx: number) => {
+        const isExpanded = expandedOrdens.has(os.IdOrdemServico);
         const itens = ordensItens[os.IdOrdemServico] || [];
         const isLoadingItens = loadingItens.has(os.IdOrdemServico);
+
         return (
-            
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-4">
-                {/* Voltar and Actions Bar */}
-                <div className="px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-100 bg-gray-50 gap-4">
-                    <button onClick={() => setSelectedOSId(null)} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                        <ArrowLeft size={16} />
-                        Voltar para Lista
-                    </button>
-                    
-                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                        <div className="text-right sm:mr-4">
-                            <div className="text-xs text-gray-400">Ordem de Serviço</div>
-                            <div className="text-lg font-bold text-primary">OS {os.IdOrdemServico}</div>
-                        </div>
+            <div key={os.IdOrdemServico}>
+                {/* OS Row */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: Math.min(idx * 0.01, 0.2) }}
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-accent/5' : ''}`}
+                    onClick={() => toggleOS(os.IdOrdemServico)}
+                >
+                    <div className="w-6 h-6 flex items-center justify-center text-gray-400">
+                        {isLoadingItens ? (
+                            <Loader2 size={16} className="animate-spin" />
+                        ) : isExpanded ? (
+                            <ChevronDown size={18} className="text-primary" />
+                        ) : (
+                            <ChevronRight size={18} />
+                        )}
+                    </div>
+
+                    {getStatusIcon(os.Estatus, os.OrdemServicoFinalizado)}
+
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                        <ClipboardList size={16} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                            <button 
-                                onClick={() => handleAtualizarArquivos(os)}
-                                disabled={liberandoOS === os.IdOrdemServico}
-                                className={`p-2.5 border rounded-lg shadow-sm transition-colors ${
-                                    os.Liberado_Engenharia === 'S' 
-                                        ? 'bg-gray-50 text-blue-400 border-gray-200 cursor-not-allowed opacity-60' 
-                                        : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 disabled:opacity-50'
-                                }`}
-                                title="Atualizar arquivos na pasta da OS"
-                            >
-                                <RefreshCw size={18} />
-                            </button>
-
-                            <button 
-                                onClick={() => handleAlterarFator(os)}
-                                disabled={liberandoOS === os.IdOrdemServico}
-                                className={`p-2.5 border rounded-lg shadow-sm transition-colors ${
-                                    os.Liberado_Engenharia === 'S' 
-                                        ? 'bg-gray-50 text-purple-400 border-gray-200 cursor-not-allowed opacity-60' 
-                                        : 'bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 disabled:opacity-50'
-                                }`}
-                                title="Alterar Fator Multiplicador da O.S."
-                            >
-                                <Settings2 size={18} />
-                            </button>
-
-                            {os.Liberado_Engenharia !== 'S' ? (
-                                <button 
-                                    onClick={() => handleLiberarOS(os)}
-                                    disabled={liberandoOS === os.IdOrdemServico}
-                                    className="p-2.5 bg-green-50 text-green-600 border border-green-200 rounded-lg hover:bg-green-100 transition-colors shadow-sm disabled:opacity-50"
-                                    title="Liberar Ordem de Serviço"
-                                >
-                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
-                                </button>
-                            ) : (
-                                <button 
-                                    onClick={() => {
-                                        addToast({ type: 'info', title: 'Atenção', message: 'A OS já está liberada! Utilize a opção de Cancelar Liberação se necessário.' });
-                                    }}
-                                    className="p-2.5 bg-gray-50 text-green-500 border border-gray-200 rounded-lg cursor-not-allowed opacity-60"
-                                    title="Ordem de Serviço já liberada"
-                                >
-                                    <CheckCircle size={18} />
-                                </button>
-                            )}
-
-                            {os.Liberado_Engenharia === 'S' && (
-                                <button 
-                                    onClick={() => handleCancelarLiberacao(os)}
-                                    disabled={liberandoOS === os.IdOrdemServico}
-                                    className="p-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm disabled:opacity-50"
-                                    title="Cancelar Liberação Engenharia"
-                                >
-                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
-                                </button>
-                            )}
+                            <span className="text-xs font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">OS {os.IdOrdemServico}</span>
+                            <span className="text-sm font-medium text-gray-900 truncate">{os.Tag || '-'}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">
+                            {os.Projeto} • {os.DescTag || 'Sem descrição'}
                         </div>
                     </div>
-                </div>
+
+                    <div className="hidden md:flex flex-col items-center text-center w-16">
+                        <span className="text-sm font-medium text-gray-900">{os.QtdeItensExecutados || 0}/{os.QtdeTotalItens || 0}</span>
+                        <span className="text-[10px] text-gray-400">Itens</span>
+                    </div>
+
+                    <div className="hidden md:flex flex-col items-center w-20">
+                        <span className="text-sm font-medium text-gray-900">{os.PercentualItens || 0}%</span>
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-0.5">
+                            <div
+                                className={`h-full rounded-full transition-all ${getProgressColor(Number(os.PercentualItens))}`}
+                                style={{ width: `${Math.min(Number(os.PercentualItens) || 0, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <span className={`hidden sm:inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(os.OrdemServicoFinalizado)}`}>
+                        {os.OrdemServicoFinalizado === 'C' ? 'Finalizado' : 'Em Andamento'}
+                    </span>
+
+                    {ordensItens[os.IdOrdemServico] && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-accent/20 text-primary">
+                            <Box size={12} />
+                            {itens.length}
+                        </span>
+                    )}
+
+                    <button
+                        onClick={(e) => { e.stopPropagation(); toggleOS(os.IdOrdemServico); }}
+                        className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-accent/20 transition-colors"
+                        title="Ver Detalhes"
+                    >
+                        <Eye size={16} />
+                    </button>
+
+                    {os.EnderecoOrdemServico && (
+                        <button
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    await fetch('/api/system/open-folder', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ path: os.EnderecoOrdemServico })
+                                    });
+                                } catch (err) {
+                                    console.error('Failed to open folder', err);
+                                }
+                            }}
+                            className="p-2 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title={`Abrir pasta: ${os.EnderecoOrdemServico}`}
+                        >
+                            <FolderOpen size={16} />
+                        </button>
+                    )}
+                </motion.div>
+
+                {/* Expanded Content */}
+                <AnimatePresence>
+                    {isExpanded && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden bg-gray-50/50"
+                        >
                             {/* Info Panel */}
                             <div className="px-6 py-4 border-b border-gray-100">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -807,108 +662,9 @@ function OrdemServicoContent() {
                                     </div>
                                 </div>
                             )}
-                        </div>
-        );
-    };
-
-    const renderOSCard = (os: OrdemServico, idx: number) => {
-        const isExpanded = false;
-        const itens = ordensItens[os.IdOrdemServico] || [];
-        const isLoadingItens = loadingItens.has(os.IdOrdemServico);
-
-        return (
-            <div key={os.IdOrdemServico}>
-                {/* OS Row */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: Math.min(idx * 0.01, 0.2) }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-accent/5' : ''}`}
-                    onClick={() => toggleOS(os.IdOrdemServico)}
-                >
-                    <div className="w-6 h-6 flex items-center justify-center text-gray-400">
-                        {isLoadingItens ? (
-                            <Loader2 size={16} className="animate-spin" />
-                        ) : isExpanded ? (
-                            <ChevronDown size={18} className="text-primary" />
-                        ) : (
-                            <ChevronRight size={18} />
-                        )}
-                    </div>
-
-                    {getStatusIcon(os.Estatus, os.OrdemServicoFinalizado)}
-
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                        <ClipboardList size={16} />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">OS {os.IdOrdemServico}</span>
-                            <span className="text-sm font-medium text-gray-900 truncate">{os.Tag || '-'}</span>
-                        </div>
-                        <div className="text-xs text-gray-500 truncate">
-                            {os.Projeto} • {os.DescTag || 'Sem descrição'}
-                        </div>
-                    </div>
-
-                    <div className="hidden md:flex flex-col items-center text-center w-16">
-                        <span className="text-sm font-medium text-gray-900">{os.QtdeItensExecutados || 0}/{os.QtdeTotalItens || 0}</span>
-                        <span className="text-[10px] text-gray-400">Itens</span>
-                    </div>
-
-                    <div className="hidden md:flex flex-col items-center w-20">
-                        <span className="text-sm font-medium text-gray-900">{os.PercentualItens || 0}%</span>
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-0.5">
-                            <div
-                                className={`h-full rounded-full transition-all ${getProgressColor(Number(os.PercentualItens))}`}
-                                style={{ width: `${Math.min(Number(os.PercentualItens) || 0, 100)}%` }}
-                            />
-                        </div>
-                    </div>
-
-                    <span className={`hidden sm:inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(os.OrdemServicoFinalizado)}`}>
-                        {os.OrdemServicoFinalizado === 'C' ? 'Finalizado' : 'Em Andamento'}
-                    </span>
-
-                    {ordensItens[os.IdOrdemServico] && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-accent/20 text-primary">
-                            <Box size={12} />
-                            {itens.length}
-                        </span>
+                        </motion.div>
                     )}
-
-                    <button
-                        onClick={(e) => { e.stopPropagation(); toggleOS(os.IdOrdemServico); }}
-                        className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-accent/20 transition-colors"
-                        title="Ver Detalhes"
-                    >
-                        <Eye size={16} />
-                    </button>
-
-                    {os.EnderecoOrdemServico && (
-                        <button
-                            onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                    await fetch('/api/system/open-folder', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ path: os.EnderecoOrdemServico })
-                                    });
-                                } catch (err) {
-                                    console.error('Failed to open folder', err);
-                                }
-                            }}
-                            className="p-2 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                            title={`Abrir pasta: ${os.EnderecoOrdemServico}`}
-                        >
-                            <FolderOpen size={16} />
-                        </button>
-                    )}
-                </motion.div>
-
-                
+                </AnimatePresence>
             </div>
         );
     };
@@ -1105,7 +861,7 @@ function OrdemServicoContent() {
             )}
 
             {/* Main Content */}
-            {searchMode === 'os' && selectedOSId ? renderOSDetail(ordens.find(o => o.IdOrdemServico === selectedOSId)!) : searchMode === 'os' && (
+            {searchMode === 'os' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     {loading ? (
                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">

@@ -18,6 +18,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, menuItems, activePageId, activeLabel, onNavigate, onLogout, user }: AppLayoutProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isDark, setIsDark] = useState(false); // Simple logic for demo, ideally use context/localstorage
 
@@ -122,9 +123,12 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     );
 
     return (
-        <div className="min-h-screen bg-background transition-colors duration-300">
+        <div className="h-screen w-screen overflow-hidden bg-background transition-colors duration-300 flex">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex w-72 bg-[#F9F8F3] text-primary fixed inset-y-0 left-0 z-30 shadow-xl flex-col border-r border-primary/10">
+            <aside className={cn(
+                "hidden md:flex bg-[#F9F8F3] text-primary fixed inset-y-0 left-0 z-30 shadow-xl flex-col border-r border-primary/10 transition-transform duration-300 w-72 h-full",
+                isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"
+            )}>
                 <SidebarContent />
             </aside>
 
@@ -157,7 +161,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-                            className="fixed inset-y-0 left-0 w-[80%] max-w-[300px] bg-[#F9F8F3] text-primary z-50 md:hidden shadow-2xl border-r border-primary/10"
+                            className="fixed inset-y-0 left-0 w-[80%] max-w-[300px] bg-[#F9F8F3] text-primary z-50 md:hidden shadow-2xl border-r border-primary/10 h-full"
                         >
                             <SidebarContent isMobile={true} />
                             <button
@@ -172,13 +176,25 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="md:pl-72 pt-16 md:pt-0 min-h-screen transition-all">
+            <main className={cn(
+                "pt-16 md:pt-0 h-full w-full overflow-auto custom-scrollbar transition-all duration-300",
+                isSidebarCollapsed ? "md:ml-0" : "md:ml-72"
+            )}>
                 <div className="p-4 md:p-8 w-full max-w-[1920px] mx-auto space-y-6">
                     {/* Header Desktop (Breadcrumb/Title) */}
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{activeLabel}</h1>
-                            <p className="text-muted-foreground text-sm mt-1">Gerenciamento e Controle</p>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                            <button 
+                                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                                className="hidden md:flex p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg text-primary/70 transition-colors"
+                                title={isSidebarCollapsed ? "Mostrar Menu" : "Ocultar Menu"}
+                            >
+                                <Menu size={24} />
+                            </button>
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{activeLabel}</h1>
+                                <p className="text-muted-foreground text-sm mt-1">Gerenciamento e Controle</p>
+                            </div>
                         </div>
                         <div className="hidden md:flex items-center gap-4">
                             {/* User Profile or Actions */}
