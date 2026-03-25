@@ -691,9 +691,8 @@ app.post('/api/romaneio/:id/items', async (req, res) => {
         ];
 
         await pool.execute(historicoSql, historicoParams);
-        // -----------------------------------------------------------------------------------------
 
-        res.json({ success: true, message: 'Item inclu�do com sucesso no romaneio.' });
+        res.json({ success: true, message: 'Item adicionado ao romaneio com sucesso e controle logado!' });
     } catch (error) {
         console.error('Error adding item to romaneio:', error);
         res.status(500).json({ success: false, message: 'Erro ao incluir item no romaneio.' });
@@ -4758,10 +4757,15 @@ app.get('/api/ordemservico', async (req, res) => {
         const projeto = req.query.projeto;
         const tag = req.query.tag;
         const search = req.query.search;
+        const filter = req.query.filter || 'liberados';
 
         // Construir WHERE din�mico
         let whereClause = "(D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')";
         const params = [];
+
+        if (filter === 'liberados') {
+            whereClause += " AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')";
+        }
 
         if (projeto) {
             whereClause += " AND Projeto = ?";
@@ -4801,7 +4805,7 @@ app.get('/api/ordemservico', async (req, res) => {
                 PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem,
                 PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA,
                 PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO,
-                EnderecoOrdemServico
+                EnderecoOrdemServico, NumeroOPOmie
             FROM ordemservico 
             WHERE ${whereClause}
             ORDER BY IdOrdemServico DESC
@@ -4847,13 +4851,342 @@ app.get('/api/ordemservico/:id', async (req, res) => {
 
 
 // ---------------------------------------------------------
+
+// ---------------------------------------------------------
+
+// ---------------------------------------------------------
+// NOVA ROTA: Finalizar Ordem Servico (Etapa 6)
+// ---------------------------------------------------------
+app.post('/api/ordemservico/finalizar', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico } = req.body;
+        
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico é obrigatório' });
+
+        const [rows] = await connection.query('SELECT OrdemServicoFinalizado FROM ordemservico WHERE IdOrdemServico = ?', [IdOrdemServico]);
+
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Ordem de Serviço não encontrada.' });
+
+        if (rows[0].OrdemServicoFinalizado === 'C') {
+            return res.status(400).json({ success: false, message: 'O.S. já Finalizada' });
+        }
+
+        const dataatual = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        // Update ordemservico
+        await connection.query(`
+            UPDATE ordemservico 
+            SET OrdemServicoFinalizado = 'C',
+                DataFinalizado = ?
+            WHERE IdOrdemServico = ?
+        `, [dataatual, IdOrdemServico]);
+
+        // Update ordemservicoitem
+        await connection.query(`
+            UPDATE ordemservicoitem
+            SET OrdemServicoItemFinalizado = 'C'
+            WHERE IdOrdemServico = ?
+        `, [IdOrdemServico]);
+
+        return res.json({ success: true, message: 'Processo Finalização Concluído' });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// NOVA ROTA: Excluir/Cancelar Ordem de Serviço
+// ---------------------------------------------------------
+
+// ---------------------------------------------------------
+// NOVA ROTA: Cancelar Finalizacao Ordem Servico (Etapa 7)
+// ---------------------------------------------------------
+app.post('/api/ordemservico/cancelar-finalizacao', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico } = req.body;
+        
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico é obrigatório' });
+
+        const [rows] = await connection.query('SELECT OrdemServicoFinalizado FROM ordemservico WHERE IdOrdemServico = ?', [IdOrdemServico]);
+
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Ordem de Serviço não encontrada.' });
+
+        if (rows[0].OrdemServicoFinalizado !== 'C') {
+            return res.status(400).json({ success: false, message: 'Não Há itens para continuar processo (OS não finalizada).' });
+        }
+
+        try {
+            await connection.query('UPDATE planocorte SET Concluido = "" WHERE IdOrdemServico = ?', [IdOrdemServico]);
+        } catch(e) {
+            console.log("Aviso: tabela planocorte possivelmente ignorada/vazia para UPDATE:", e.message);
+        }
+
+        await connection.query('UPDATE ordemservico SET ORDEMSERVICOFINALIZADO = "", DataFinalizado = NULL WHERE IdOrdemServico = ?', [IdOrdemServico]);
+        
+        await connection.query('UPDATE ordemservicoitem SET ORDEMSERVICOITEMFINALIZADO = "" WHERE IdOrdemServico = ?', [IdOrdemServico]);
+
+        return res.json({ success: true, message: 'Processo de cancelamento da Finalização Executado' });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+
+// ---------------------------------------------------------
+// NOVA ROTA: Inserir Numero OP do Omie (Etapa 8)
+// ---------------------------------------------------------
+
+// ---------------------------------------------------------
+// NOVA ROTA: Criar Cópia da Ordem de Serviço (Etapa 9)
+// ---------------------------------------------------------
+app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico, novoFator, usuarioNome, novoIdProjeto, novoIdTag, novaDescricao } = req.body;
+        
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico de origem é obrigatório' });
+        if (!novoIdProjeto || !novoIdTag) return res.status(400).json({ success: false, message: 'Projeto e Tag de destino são obrigatórios' });
+        
+        const fator = isNaN(parseFloat(novoFator)) || parseFloat(novoFator) <= 0 ? 1 : parseFloat(novoFator);
+        const criador = usuarioNome || 'Sistema Web';
+
+        // 1. Obter a O.S Original
+        const [origOS] = await connection.query('SELECT * FROM ordemservico WHERE IdOrdemServico = ?', [IdOrdemServico]);
+        if (origOS.length === 0) return res.status(404).json({ success: false, message: 'O.S de origem não encontrada' });
+        const os = origOS[0];
+
+        // 2. Obter Dados do Novo Projeto e Nova Tag
+        const [rowProjeto] = await connection.query('SELECT Projeto, DescEmpresa, IdEmpresa FROM projetos WHERE IdProjeto = ?', [novoIdProjeto]);
+        if (rowProjeto.length === 0) return res.status(404).json({ success: false, message: 'Projeto de destino não encontrado' });
+        const { Projeto: nomeProjeto, DescEmpresa: descEmpresaPrj, IdEmpresa: idEmpresaPrj } = rowProjeto[0];
+
+        const [rowTag] = await connection.query('SELECT Tag, DescTag, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag FROM tags WHERE IdTag = ?', [novoIdTag]);
+        if (rowTag.length === 0) return res.status(404).json({ success: false, message: 'Tag de destino não encontrada' });
+        const { Tag: nomeTag, DescTag: descTagDestino, DataPrevisao: dataPrevTag } = rowTag[0];
+
+        // 3. Inserir Header (Mestre) Limpando Variáveis de Estado
+        const queryInsertMestre = `
+            INSERT INTO ordemservico (
+                IdProjeto, Projeto, IdTag, Tag, DescTag, Descricao, fator, EnderecoOrdemServico, 
+                CriadoPor, DataCriacao, Estatus, D_E_L_E_T_E, Liberado_Engenharia, Data_Liberacao_Engenharia, 
+                idOSReferencia, OrdemServicoFinalizado, DataPrevisao, 
+                QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdepecasExecutadas, Percentualpecas, 
+                IdEmpresa, DescEmpresa
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'A', '', '', '', ?, '', ?, '', '', '', '', '', '', ?, ?)
+        `;
+        
+        const descUsada = novaDescricao || os.Descricao;
+        const prevUsada = dataPrevTag || os.DataPrevisao;
+
+        const [resultInsert] = await connection.query(queryInsertMestre, [
+            novoIdProjeto, nomeProjeto, novoIdTag, nomeTag, descTagDestino, descUsada, fator, os.EnderecoOrdemServico,
+            criador, IdOrdemServico, prevUsada, idEmpresaPrj, descEmpresaPrj
+        ]);
+
+        const novoId = resultInsert.insertId;
+
+        // Tentar formatar Diretório fisíco
+        let newEndereco = os.EnderecoOrdemServico;
+        if (newEndereco) {
+            const format5 = (num) => String(num).padStart(5, '0');
+            const oldPref1 = `OS_${format5(IdOrdemServico)}`;
+            const oldPref2 = `OS_${IdOrdemServico}`;
+            const newPref = `OS_${format5(novoId)}`;
+            
+            if (newEndereco.includes(oldPref1)) newEndereco = newEndereco.replace(oldPref1, newPref);
+            else if (newEndereco.includes(oldPref2)) newEndereco = newEndereco.replace(oldPref2, newPref);
+            else newEndereco += `_COPIA_${novoId}`;
+
+            await connection.query('UPDATE ordemservico SET EnderecoOrdemServico = ? WHERE IdOrdemServico = ?', [newEndereco, novoId]);
+
+            try {
+                const fsp = require('fs/promises');
+                const p = require('path');
+                await fsp.mkdir(newEndereco, { recursive: true });
+                const subdirs = ['DXF', 'PDF', 'DFT', 'PUNC', 'LASER', 'Projeto', 'PEÇAS DE ESTOQUE', 'LXDS'];
+                for (const sd of subdirs) {
+                    await fsp.mkdir(p.join(newEndereco, sd), { recursive: true }).catch(() => {});
+                }
+            } catch (e) {
+                console.log('[CloneOS] Pasta de rede inacesível:', e.message);
+            }
+        }
+
+        // 4. Inserir Itens (Filhas)
+        const queryInsertItens = `
+            INSERT INTO ordemservicoitem (
+                IdOrdemServico, IdProjeto, Projeto, IdTag, Tag, DescTag,
+                ESTATUS_OrdemServico, IdMaterial, DescResumo, DescDetal,
+                Autor, Palavrachave, Notas, Espessura, AreaPintura,
+                NumeroDobras, Peso, Unidade, UnidadeSW, ValorSW, Altura,
+                Largura, CodMatFabricante, DtCad, UsuarioCriacao,
+                UsuarioAlteracao, DtAlteracao, EnderecoArquivo, MaterialSW,
+                QtdeTotal, CriadoPor, DataCriacao, Estatus, Acabamento, D_E_L_E_T_E, Fator, qtde,
+                txtSoldagem, txtTipoDesenho, txtCorte, txtDobra, txtSolda,
+                txtPintura, txtMontagem, CorteTotalExecutar, DobraTotalExecutar, SoldaTotalExecutar,
+                PinturaTotalExecutar, MontagemTotalExecutar, Comprimentocaixadelimitadora,
+                Larguracaixadelimitadora, Espessuracaixadelimitadora, AreaPinturaUnitario,
+                PesoUnitario, txtItemEstoque, DataPrevisao, Liberado_Engenharia, DATA_LIBERACAO_ENGENHARIA,
+                OrdemServicoItemFinalizado, sttxtCorte, sttxtDobra, sttxtSolda, sttxtPintura, sttxtMontagem,
+                ProdutoPrincipal, EnderecoArquivoItemOrdemServico, IdEmpresa, DescEmpresa
+            )
+            SELECT
+                ?, ?, ?, ?, ?, ?,
+                ESTATUS_OrdemServico, IdMaterial, DescResumo, DescDetal,
+                Autor, Palavrachave, Notas, Espessura, 
+                IF(EnderecoArquivo IS NOT NULL AND EnderecoArquivo != '', AreaPinturaUnitario * qtde * ?, 0),
+                NumeroDobras, 
+                IF(EnderecoArquivo IS NOT NULL AND EnderecoArquivo != '', PesoUnitario * qtde * ?, 0),
+                Unidade, UnidadeSW, ValorSW, Altura,
+                Largura, CodMatFabricante, DtCad, UsuarioCriacao,
+                UsuarioAlteracao, DtAlteracao, EnderecoArquivo, MaterialSW,
+                IF(EnderecoArquivo IS NOT NULL AND EnderecoArquivo != '', ? * qtde, 0),
+                ?, NOW(), Estatus, Acabamento, D_E_L_E_T_E, ?, qtde,
+                txtSoldagem, txtTipoDesenho, txtCorte, txtDobra, txtSolda,
+                txtPintura, txtMontagem, CorteTotalExecutar, DobraTotalExecutar, SoldaTotalExecutar,
+                PinturaTotalExecutar, MontagemTotalExecutar, Comprimentocaixadelimitadora,
+                Larguracaixadelimitadora, Espessuracaixadelimitadora, AreaPinturaUnitario,
+                PesoUnitario, txtItemEstoque, ?, '', '',
+                '', '', '', '', '', '',
+                ProdutoPrincipal, EnderecoArquivoItemOrdemServico, ?, ?
+            FROM ordemservicoitem 
+            WHERE (IdOrdemServico = ?) AND (IdOrdemServicoReposicao IS NULL OR IdOrdemServicoReposicao = '')
+        `;
+
+        await connection.query(queryInsertItens, [
+            novoId, novoIdProjeto, nomeProjeto, novoIdTag, nomeTag, descTagDestino,
+            fator, fator, fator, criador, fator, prevUsada, idEmpresaPrj, descEmpresaPrj, IdOrdemServico
+        ]);
+
+        return res.json({ success: true, message: 'Nova Cópia da Ordem de Serviço inserida!', novoId });
+
+    } catch (e) {
+        console.error("Erro ao clonar O.S (Inter-Projetos):", e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+app.post('/api/ordemservico/numero-op', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico, NumeroOPOmie } = req.body;
+        
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico é obrigatório' });
+
+        await connection.query('UPDATE ordemservico SET NumeroOPOmie = ? WHERE IdOrdemServico = ?', [NumeroOPOmie || '', IdOrdemServico]);
+        
+        await connection.query('UPDATE ordemservicoitem SET NumeroOpOmie = ? WHERE IdOrdemServico = ?', [NumeroOPOmie || '', IdOrdemServico]);
+
+        return res.json({ success: true, message: 'Número da OP do OMIE atualizado com sucesso!' });
+
+    } catch (e) {
+        console.error("Erro ao atualizar Numero OP Omie:", e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico, Usuario } = req.body;
+        
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico é obrigatório' });
+
+        // Validação idêntica ao VB.NET: verificar se há execução ou plano de corte
+        const [rows] = await connection.query(`
+            SELECT 
+                count(idplanodecorte) +
+                count(CorteTotalExecutado) + count(DobraTotalExecutado) + count(SoldaTotalExecutado) +
+                count(PinturaTotalExecutado) + count(MontagemTotalExecutado) as totalExecutado
+            FROM ordemservicoitem 
+            WHERE IdOrdemServico = ? 
+              AND (idplanodecorte > 0 OR CorteTotalExecutado > 0 OR DobraTotalExecutado > 0 OR SoldaTotalExecutado > 0 OR PinturaTotalExecutado > 0 OR MontagemTotalExecutado > 0)
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+        `, [IdOrdemServico]);
+
+        let totalExecutado = 0;
+        if (rows.length > 0) {
+            totalExecutado = parseInt(rows[0].totalExecutado) || 0;
+        }
+
+        if (totalExecutado > 0) {
+            // Busca apenas os planos de corte para listar na mensagem, caso haja para exibição de detalhes
+            const [planoRows] = await connection.query(`
+                SELECT idplanodecorte, CodMatFabricante
+                FROM ordemservicoitem 
+                WHERE IdOrdemServico = ? AND idplanodecorte > 0 AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `, [IdOrdemServico]);
+
+            let MsgDetalhes = '';
+            for (const p of planoRows) {
+                MsgDetalhes += `\nPlanoCorte = ${p.idplanodecorte}  Numero Desenho: = ${p.CodMatFabricante}`;
+            }
+
+            return res.status(400).json({
+                success: false, 
+                message: `A OS Numero: ${IdOrdemServico} contém processos em andamento, por este motivo não pode ser cancelada. Ver plano(s) de corte:${MsgDetalhes}`
+            });
+        }
+
+        // Realiza o "Soft Delete" na tabela ordemservico
+        const dataatual = new Date().toISOString().slice(0, 19).replace('T', ' '); // Formato: YYYY-MM-DD HH:mm:ss
+        const executor = Usuario || 'Sistema'; // Fallback
+
+        const [updateOS] = await connection.query(`
+            UPDATE ordemservico 
+            SET D_E_L_E_T_E = '*', Usuáriod_e_l_e_t_e = ?, DataD_E_L_E_T_E = ?
+            WHERE IdOrdemServico = ?
+        `, [executor, dataatual, IdOrdemServico]);
+
+        if (updateOS.affectedRows === 0) {
+            return res.status(400).json({ success: false, message: 'Ordem de Serviço não encontrada ou já excluída.' });
+        }
+
+        // Realiza o "Soft Delete" na tabela ordemservicoitem
+        await connection.query(`
+            UPDATE ordemservicoitem
+            SET D_E_L_E_T_E = '*', Usuáriod_e_l_e_t_e = ?, DataD_E_L_E_T_E = ?
+            WHERE IdOrdemServico = ?
+        `, [executor, dataatual, IdOrdemServico]);
+
+        // Aqui entraria: ClasseclOrdemServico.CalcularordemservicoitemFatorOS_TAG_PROJETO() 
+        // Em um ecosistema reativo moderno ou onde essa query roda, precisariamos recalcular nivel superior.
+        // Como o React recarrega a grid com dados do SQL, o `D_E_L_E_T_E = '*'` ja omitira da listagem inicial.
+
+        return res.json({ success: true, message: 'Ordem de serviço excluída com sucesso.' });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 // NOVA ROTA: Atualizar arquivos na pasta da OS (Icone 3)
 // ---------------------------------------------------------
 app.post('/api/ordemservico/atualizar-arquivos', tenantMiddleware, async (req, res) => {
     let connection;
     try {
-        const tenantConnection = await req.tenantDbPromise;
-        connection = await tenantConnection.getConnection();
+        connection = await pool.getConnection();
         const { IdOrdemServico } = req.body;
 
         const [osRows] = await connection.query('SELECT EnderecoOrdemServico, Liberado_Engenharia FROM ordemservico WHERE IdOrdemServico = ?', [IdOrdemServico]);
@@ -4877,8 +5210,74 @@ app.post('/api/ordemservico/atualizar-arquivos', tenantMiddleware, async (req, r
             }
         }
 
-        // ImportarArquivos stub - Node translation depends on server access, but for now we confirm clearance
-        res.json({ success: true, message: 'Arquivos locais/pastas preparados com sucesso.' });
+        
+        // ImportarArquivos (Port from VB.NET)
+        const fsLib = require('fs');
+        const [itens] = await connection.query('SELECT IdOrdemServicoItem, EnderecoArquivo, MaterialSW, QtdeTotal, Espessura, txtTipoDesenho, Acabamento FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = "")', [IdOrdemServico]);
+        
+        const paramExportar = '1';
+
+        for (const pasta of pastasLimpar) {
+            const pastaUpper = pasta.toUpperCase();
+            const alvoDir = path.join(diretorio, pastaUpper);
+            if (!fsLib.existsSync(alvoDir)) {
+                try { fsLib.mkdirSync(alvoDir, { recursive: true }); } catch(e){}
+            }
+
+            for (const item of itens) {
+                if (!item.EnderecoArquivo) continue;
+                
+                let origem = item.EnderecoArquivo;
+                
+                // Adapta extensões
+                const extsToReplace = ['.SLDPRT', '.SLDASM', '.ASM', '.PSM', '.PAR'];
+                for (const ext of extsToReplace) {
+                    const re = new RegExp(ext.replace('.', '\.'), 'i');
+                    if (re.test(origem)) {
+                        origem = origem.replace(re, '.' + pastaUpper);
+                        break;
+                    }
+                }
+                
+                const materialSW = item.MaterialSW || 'Sem Material';
+                const qtdeTotal = item.QtdeTotal || 'Sem Quantidade'; 
+                const espessura = item.Espessura || 'Sem Espessura';
+                const tipoDesenho = item.txtTipoDesenho || 'Sem Tipo Desenho';
+
+                if (fsLib.existsSync(origem)) {
+                    const nomeStr = path.parse(origem).name;
+                    const extStr = path.parse(origem).ext;
+                    let novoNome = '';
+
+                    const isAssembly = /\.(SLDASM|ASM)$/i.test(item.EnderecoArquivo);
+
+                    if (isAssembly) {
+                        novoNome = `OS_${IdOrdemServico}_${tipoDesenho}_${qtdeTotal}_${nomeStr}${extStr}`;
+                    } else if (paramExportar === '1') {
+                        novoNome = `OS_${IdOrdemServico}_${espessura}_${materialSW}_${qtdeTotal}_${nomeStr}${extStr}`;
+                    } else if (paramExportar === '2') {
+                        novoNome = `OS_${IdOrdemServico}_${qtdeTotal}_${nomeStr}_${materialSW}_${espessura}${extStr}`;
+                    } else {
+                        novoNome = `OS_${IdOrdemServico}_${espessura}_${materialSW}_${qtdeTotal}_${nomeStr}${extStr}`;
+                    }
+
+                    const destinoArquivo = path.join(alvoDir, novoNome);
+
+                    try {
+                        fsLib.copyFileSync(origem, destinoArquivo);
+                        
+                        if (pastaUpper === 'PDF') {
+                            await connection.query('UPDATE ordemservicoitem SET EnderecoArquivoItemOrdemServico = ? WHERE IdOrdemServicoItem = ?', [destinoArquivo, item.IdOrdemServicoItem]);
+                        }
+                    } catch(err) {
+                        console.error('Erro ao copiar arquivo:', err.message);
+                    }
+                }
+            }
+        }
+
+        res.json({ success: true, message: 'Arquivos locais importados e pastas atualizadas com sucesso.' });
+
     } catch (e) {
         console.error(e);
         res.status(500).json({ success: false, message: e.message });
@@ -4893,8 +5292,7 @@ app.post('/api/ordemservico/atualizar-arquivos', tenantMiddleware, async (req, r
 app.post('/api/ordemservico/alterar-fator', tenantMiddleware, async (req, res) => {
     let connection;
     try {
-        const tenantConnection = await req.tenantDbPromise;
-        connection = await tenantConnection.getConnection();
+        connection = await pool.getConnection();
         const { IdOrdemServico, FatorMultiplicador } = req.body;
 
         const fator = parseFloat(FatorMultiplicador);
@@ -5130,7 +5528,7 @@ app.get('/api/ordemservico/:id/itens', async (req, res) => {
     try {
         const [rows] = await pool.execute(`
             SELECT 
-                IdOrdemServicoItem, IdOrdemServico, DescResumo, DescDetal,
+                IdOrdemServicoItem, IdOrdemServico, DescResumo, DescDetal, Fator,
                 QtdeTotal, Peso, AreaPintura, Acabamento, Unidade,
                 Espessura, Altura, Largura,
                 CodMatFabricante, MaterialSW, EnderecoArquivo,

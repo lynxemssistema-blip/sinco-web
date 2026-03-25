@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ChevronRight, ChevronDown, ClipboardList, Eye,
     Loader2, RefreshCw, Box, CheckCircle, Clock, XCircle, User, Calendar, Settings2, FileText, FolderOpen,
-    Filter, Layers, X, ArrowLeft
+    Filter, Layers, X, ArrowLeft, Trash2, Flag, RotateCcw, Hash, Copy
 } from 'lucide-react';
 import { ProgressBar } from '../components/ordem-servico/ProgressBar';
 import { SetorDatas } from '../components/ordem-servico/SetorDatas';
 import { useToast } from '../contexts/ToastContext';
+import Swal from 'sweetalert2';
 
 const API_BASE = '/api';
 
@@ -65,6 +66,7 @@ interface OrdemServico {
     RealizadoInicioACABAMENTO?: string;
     RealizadoFinalACABAMENTO?: string;
     EnderecoOrdemServico?: string;
+    NumeroOPOmie?: string;
 }
 
 interface OrdemServicoItem {
@@ -72,6 +74,7 @@ interface OrdemServicoItem {
     IdOrdemServico?: string | number;
     DescResumo?: string;
     DescDetal?: string;
+    Fator?: number;
     QtdeTotal?: number;
     Peso?: number;
     AreaPintura?: number;
@@ -152,6 +155,14 @@ function OrdemServicoContent() {
     const [ordensItens, setOrdensItens] = useState<Record<number, OrdemServicoItem[]>>({});
     const [loadingItens, setLoadingItens] = useState<Set<number>>(new Set());
     const [liberandoOS, setLiberandoOS] = useState<number | null>(null);
+
+    // Modal Clone Inter-Projetos
+    const [showModalClonar, setShowModalClonar] = useState<OrdemServico | null>(null);
+    const [cloneDescricao, setCloneDescricao] = useState('');
+    const [cloneFator, setCloneFator] = useState(1);
+    const [cloneProjetoId, setCloneProjetoId] = useState<number | string>('');
+    const [cloneTagId, setCloneTagId] = useState<number | string>('');
+    const [mostrarTodos, setMostrarTodos] = useState(false);
     const { addToast } = useToast();
 
     // Pagination
@@ -232,6 +243,8 @@ function OrdemServicoContent() {
             const params = new URLSearchParams();
             params.set('page', String(page));
             params.set('limit', '50');
+            if (!mostrarTodos) params.set('filter', 'liberados');
+            else params.set('filter', 'todos');
             if (projetoFilter) params.set('projeto', projetoFilter);
             if (tagFilter) params.set('tag', tagFilter);
             if (searchTerm && searchMode === 'os') params.set('search', searchTerm);
@@ -255,7 +268,7 @@ function OrdemServicoContent() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [projetoFilter, tagFilter, searchTerm, searchMode]);
+    }, [projetoFilter, tagFilter, searchTerm, searchMode, mostrarTodos]);
 
     // Search items by document code
     const searchItems = useCallback(async (term: string) => {
@@ -292,7 +305,7 @@ function OrdemServicoContent() {
     // Initial load and filter changes
     useEffect(() => {
         fetchOrdens(1);
-    }, [projetoFilter, tagFilter]);
+    }, [projetoFilter, tagFilter, mostrarTodos]);
 
     const fetchItens = useCallback(async (osId: number) => {
         setLoadingItens(prev => new Set(prev).add(osId));
@@ -438,11 +451,6 @@ function OrdemServicoContent() {
     };
 
     const handleAtualizarArquivos = async (os: OrdemServico) => {
-        if (os.Liberado_Engenharia === 'S') {
-            addToast({ type: 'error', title: 'Erro', message: 'Ordem de Serviço já Liberada para Produção, não pode mais ser modificada!' });
-            return;
-        }
-
         setLiberandoOS(os.IdOrdemServico);
         try {
             const token = localStorage.getItem('sinco_token');
@@ -465,11 +473,6 @@ function OrdemServicoContent() {
     };
 
     const handleAlterarFator = async (os: OrdemServico) => {
-        if (os.Liberado_Engenharia === 'S') {
-            addToast({ type: 'error', title: 'Erro', message: 'Ordem de Serviço já Liberada para Produção, não pode mais ser modificada!' });
-            return;
-        }
-
         const items = ordensItens[os.IdOrdemServico];
         if (!items || items.length === 0) {
             addToast({ type: 'error', title: 'Atenção', message: 'Não há itens a serem alterados!' });
@@ -511,6 +514,207 @@ function OrdemServicoContent() {
         }
     };
 
+    const handleExcluirOS = async (os: OrdemServico) => {
+        const confirmDelete = window.confirm(`Deseja Excluir/Cancelar a Ordem de Serviço: ${os.IdOrdemServico}?`);
+        if (!confirmDelete) return;
+
+        setLiberandoOS(os.IdOrdemServico);
+        try {
+            const token = localStorage.getItem('sinco_token');
+            const res = await fetch(`${API_BASE}/ordemservico/excluir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    IdOrdemServico: os.IdOrdemServico,
+                    Usuario: 'Sistema' // Pode ser pego do Contexto de Auth depois se disponivel
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                addToast({ type: 'success', title: 'Sucesso', message: data.message });
+                // Remove da listagem local
+                setOrdens(prev => prev.filter(o => o.IdOrdemServico !== os.IdOrdemServico));
+                setSelectedOSId(null);
+            } else {
+                addToast({ type: 'error', title: 'Atenção', message: data.message });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor ao excluir.' });
+        } finally {
+            setLiberandoOS(null);
+        }
+    };
+
+    const handleFinalizarOS = async (os: OrdemServico) => {
+        const confirmResult = window.confirm(`Deseja Finalizar todo o processo de fabricação da OS - ${os.IdOrdemServico} selecionada?`);
+        if (!confirmResult) return;
+
+        if (os.OrdemServicoFinalizado === 'C') {
+            addToast({ type: 'error', title: 'Atenção', message: 'O.S. já Finalizada' });
+            return;
+        }
+
+        setLiberandoOS(os.IdOrdemServico);
+        try {
+            const token = localStorage.getItem('sinco_token');
+            const res = await fetch(`${API_BASE}/ordemservico/finalizar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ IdOrdemServico: os.IdOrdemServico })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                addToast({ type: 'success', title: 'Conclusão OS', message: data.message });
+                // Refresh records natively
+                fetchOrdens(1); 
+            } else {
+                addToast({ type: 'error', title: 'Atenção', message: data.message });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor ao finalizar.' });
+        } finally {
+            setLiberandoOS(null);
+        }
+    };
+
+    const handleCancelarFinalizacaoOS = async (os: OrdemServico) => {
+        const confirmResult = window.confirm(`Deseja cancelar a finalização de todo o processo de fabricação da OS - ${os.IdOrdemServico}?`);
+        if (!confirmResult) return;
+
+        if (os.OrdemServicoFinalizado !== 'C') {
+            addToast({ type: 'error', title: 'Atenção', message: 'A O.S. não está Finalizada!' });
+            return;
+        }
+
+        setLiberandoOS(os.IdOrdemServico);
+        try {
+            const token = localStorage.getItem('sinco_token');
+            const res = await fetch(`${API_BASE}/ordemservico/cancelar-finalizacao`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ IdOrdemServico: os.IdOrdemServico })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                addToast({ type: 'success', title: 'Conclusão', message: data.message });
+                fetchOrdens(1); 
+            } else {
+                addToast({ type: 'error', title: 'Atenção', message: data.message });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor ao cancelar finalização.' });
+        } finally {
+            setLiberandoOS(null);
+        }
+    };
+
+
+    const handleInserirOpOmie = async (os: OrdemServico) => {
+        const result = await Swal.fire({
+            title: 'OMIE',
+            text: 'Informe o número da Ordem de Produção do OMIE',
+            input: 'text',
+            inputValue: os.NumeroOPOmie || '',
+            showCancelButton: true,
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            inputValidator: (value) => {
+                if (!value || value.trim() === '') {
+                    return 'O número da OP do OMIE não pode estar vazio!';
+                }
+            }
+        });
+
+        if (result.isConfirmed) {
+            const numeroOp = result.value;
+            setLiberandoOS(os.IdOrdemServico);
+            try {
+                const response = await fetch(`${API_BASE}/ordemservico/numero-op`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('sinco_token')}`
+                    },
+                    body: JSON.stringify({
+                        IdOrdemServico: os.IdOrdemServico,
+                        NumeroOPOmie: numeroOp.trim()
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    addToast({ type: 'success', title: 'Sucesso', message: `Número OP ${numeroOp} associado com sucesso à OS ${os.IdOrdemServico}!` });
+                    fetchOrdens(1);
+                } else {
+                    addToast({ type: 'error', title: 'Erro', message: data.message || 'Erro ao atualizar número OP do OMIE.' });
+                }
+            } catch (error: any) {
+                console.error('Erro ao atualizar OP do OMIE:', error);
+                addToast({ type: 'error', title: 'Erro de Conexão', message: 'Não foi possível conectar ao servidor.' });
+            } finally {
+                setLiberandoOS(null);
+            }
+        } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+            addToast({ type: 'info', title: 'Aviso', message: 'Operação cancelada pelo usuário.' });
+        }
+    };
+
+
+    
+    
+    const handleOpenClonarOS = (os: OrdemServico) => {
+        setCloneDescricao(os.Descricao || '');
+        setCloneFator(1);
+        setCloneProjetoId(os.IdProjeto || '');
+        setCloneTagId(os.IdTag || '');
+        setShowModalClonar(os);
+    };
+
+    const executeClone = async (os: OrdemServico) => {
+        if (!cloneProjetoId || !cloneTagId) {
+            addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um Projeto e uma Tag destino!' });
+            return;
+        }
+
+        setLiberandoOS(os.IdOrdemServico);
+        try {
+            const response = await fetch(`${API_BASE}/ordemservico/clonar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('sinco_token')}`
+                },
+                body: JSON.stringify({
+                    IdOrdemServico: os.IdOrdemServico,
+                    novoIdProjeto: cloneProjetoId,
+                    novoIdTag: cloneTagId,
+                    novaDescricao: cloneDescricao,
+                    novoFator: cloneFator,
+                    usuarioNome: localStorage.getItem('user_name') || 'Usuario Web'
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setShowModalClonar(null);
+                addToast({ type: 'success', title: 'Sucesso', message: `OS clonada perfeitamente! Nova OS ID: ${data.novoId}` });
+                fetchOrdens(1);
+            } else {
+                addToast({ type: 'error', title: 'Erro na Clonagem', message: data.message || 'Erro ao duplicar a OS.' });
+            }
+        } catch (error: any) {
+            console.error('Erro ao clonar O.S:', error);
+            addToast({ type: 'error', title: 'Erro de Conexão', message: 'Falha ao se comunicar com a API de Clonagem.' });
+        } finally {
+            setLiberandoOS(null);
+        }
+    };
+
     const renderOSDetail = (os: OrdemServico) => {
         const itens = ordensItens[os.IdOrdemServico] || [];
         const isLoadingItens = loadingItens.has(os.IdOrdemServico);
@@ -533,28 +737,71 @@ function OrdemServicoContent() {
                             <button 
                                 onClick={() => handleAtualizarArquivos(os)}
                                 disabled={liberandoOS === os.IdOrdemServico}
-                                className={`p-2.5 border rounded-lg shadow-sm transition-colors ${
-                                    os.Liberado_Engenharia === 'S' 
-                                        ? 'bg-gray-50 text-blue-400 border-gray-200 cursor-not-allowed opacity-60' 
-                                        : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 disabled:opacity-50'
-                                }`}
+                                className="p-2.5 border rounded-lg shadow-sm transition-colors bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 disabled:opacity-50"
                                 title="Atualizar arquivos na pasta da OS"
                             >
                                 <RefreshCw size={18} />
                             </button>
 
+                            {os.Liberado_Engenharia === 'S' && os.OrdemServicoFinalizado !== 'C' && (
+                                <button 
+                                    onClick={() => handleInserirOpOmie(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico}
+                                    className="p-2.5 bg-yellow-50 text-yellow-600 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors shadow-sm disabled:opacity-50"
+                                    title="Informar Ordem de Produção ERP (OMIE)"
+                                >
+                                    <Hash size={18} />
+                                </button>
+                            )}
+
                             <button 
                                 onClick={() => handleAlterarFator(os)}
                                 disabled={liberandoOS === os.IdOrdemServico}
-                                className={`p-2.5 border rounded-lg shadow-sm transition-colors ${
-                                    os.Liberado_Engenharia === 'S' 
-                                        ? 'bg-gray-50 text-purple-400 border-gray-200 cursor-not-allowed opacity-60' 
-                                        : 'bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 disabled:opacity-50'
-                                }`}
+                                className="p-2.5 border rounded-lg shadow-sm transition-colors bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 disabled:opacity-50"
                                 title="Alterar Fator Multiplicador da O.S."
                             >
                                 <Settings2 size={18} />
                             </button>
+
+                            <button 
+                                onClick={() => handleExcluirOS(os)}
+                                disabled={liberandoOS === os.IdOrdemServico}
+                                className="p-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm disabled:opacity-50"
+                                title="Excluir Ordem de Serviço"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+
+                            <button 
+                                onClick={() => handleOpenClonarOS(os)}
+                                disabled={liberandoOS === os.IdOrdemServico}
+                                className="p-2.5 bg-sky-50 text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-100 transition-colors shadow-sm disabled:opacity-50"
+                                title="Criar Cópia (Duplicar) desta Ordem de Serviço"
+                            >
+                                <Copy size={18} />
+                            </button>
+
+                            {os.OrdemServicoFinalizado !== 'C' && (
+                                <button 
+                                    onClick={() => handleFinalizarOS(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico}
+                                    className="p-2.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-sm disabled:opacity-50"
+                                    title="Finalizar Ordem de Serviço"
+                                >
+                                    <Flag size={18} />
+                                </button>
+                            )}
+
+                            {os.OrdemServicoFinalizado === 'C' && (
+                                <button 
+                                    onClick={() => handleCancelarFinalizacaoOS(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico}
+                                    className="p-2.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors shadow-sm disabled:opacity-50"
+                                    title="Cancelar Finalização da O.S."
+                                >
+                                    <RotateCcw size={18} />
+                                </button>
+                            )}
 
                             {os.Liberado_Engenharia !== 'S' ? (
                                 <button 
@@ -751,6 +998,7 @@ function OrdemServicoContent() {
                                             <span className="w-8">PDF</span>
                                             <span className="w-32">Código Desenho</span>
                                             <span className="flex-1">Descrição</span>
+                                            <span className="w-12 text-center" title="Fator Multiplicador">Fator</span>
                                             <span className="w-12 text-center">Qtde</span>
                                             <span className="w-14 text-center">Peso</span>
                                             <span className="w-16 hidden lg:block text-center">Corte</span>
@@ -795,6 +1043,9 @@ function OrdemServicoContent() {
                                                     {item.DescResumo || '-'}
                                                 </span>
 
+                                                <span className="w-12 text-xs font-semibold text-accent text-center bg-accent/10 rounded my-auto py-0.5" title="Fator">
+                                                    {item.Fator !== undefined ? item.Fator : '1'}
+                                                </span>
                                                 <span className="w-12 text-xs text-gray-600 text-center">{item.QtdeTotal || '-'}</span>
                                                 <span className="w-14 text-xs text-gray-600 text-center">{item.Peso ? `${item.Peso}kg` : '-'}</span>
                                                 {visibleSetores.includes('corte') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.CortePercentual} label="Corte" /></div>}
@@ -1023,6 +1274,19 @@ function OrdemServicoContent() {
                         </select>
                     </div>
 
+                    {/* Mostrar Todos */}
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 bg-white">
+                        <input
+                            type="checkbox"
+                            checked={mostrarTodos}
+                            onChange={(e) => setMostrarTodos(e.target.checked)}
+                            className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
+                        />
+                        <span className="text-sm text-gray-700 cursor-pointer select-none" onClick={() => setMostrarTodos(!mostrarTodos)}>
+                            Exibir Não Liberados / Finalizados
+                        </span>
+                    </div>
+
                     {/* Clear Filters */}
                     {hasActiveFilters && (
                         <button
@@ -1105,12 +1369,18 @@ function OrdemServicoContent() {
             )}
 
             {/* Main Content */}
-            {searchMode === 'os' && selectedOSId ? renderOSDetail(ordens.find(o => o.IdOrdemServico === selectedOSId)!) : searchMode === 'os' && (
+            {searchMode === 'os' && selectedOSId && ordens.find(o => o.IdOrdemServico === selectedOSId) ? renderOSDetail(ordens.find(o => o.IdOrdemServico === selectedOSId)!) : searchMode === 'os' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     {loading ? (
                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
                             <Loader2 size={32} className="animate-spin" />
                             <p className="text-sm">Carregando ordens de serviço...</p>
+                        </div>
+                    ) : ordens.length === 0 && selectedOSId ? (
+                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
+                            <ClipboardList size={40} strokeWidth={1.5} />
+                            <p className="text-sm">Atualizando...</p>
+                            {(() => { setTimeout(() => setSelectedOSId(null), 10); return null; })()}
                         </div>
                     ) : ordens.length === 0 ? (
                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
