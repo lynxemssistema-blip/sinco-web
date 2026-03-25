@@ -184,21 +184,22 @@ export default function ProjetoPage() {
     };
 
     // Fetch Projetos
-    const fetchProjetos = async () => {
+    const fetchProjetos = async (overrideFilters?: any) => {
         setLoading(true);
         setError(null);
         try {
+            const activeFilters = overrideFilters || searchFilters;
             const params = new URLSearchParams();
-            if (searchFilters.projeto) params.append('projeto', searchFilters.projeto);
-            if (searchFilters.descProjeto) params.append('descProjeto', searchFilters.descProjeto);
-            if (searchFilters.cliente) params.append('descEmpresa', searchFilters.cliente); // Enviamos descEmpresa para buscar
-            if (searchFilters.dataInicio) {
+            if (activeFilters.projeto) params.append('projeto', activeFilters.projeto);
+            if (activeFilters.descProjeto) params.append('descProjeto', activeFilters.descProjeto);
+            if (activeFilters.cliente) params.append('descEmpresa', activeFilters.cliente); // Enviamos descEmpresa para buscar
+            if (activeFilters.dataInicio) {
                 // Formato de HTML input date é YYYY-MM-DD. Precisamos converter para DD/MM/YYYY
-                const [y, m, d] = searchFilters.dataInicio.split('-');
+                const [y, m, d] = activeFilters.dataInicio.split('-');
                 params.append('dataInicio', `${d}/${m}/${y}`);
             }
-            if (searchFilters.dataFim) {
-                const [y, m, d] = searchFilters.dataFim.split('-');
+            if (activeFilters.dataFim) {
+                const [y, m, d] = activeFilters.dataFim.split('-');
                 params.append('dataFim', `${d}/${m}/${y}`);
             }
 
@@ -671,7 +672,11 @@ export default function ProjetoPage() {
                         <div className="ml-auto mt-2 md:mt-0 flex items-center gap-2">
                             {(searchFilters.projeto || searchFilters.descProjeto || searchFilters.cliente || searchFilters.dataInicio || searchFilters.dataFim) && (
                                 <button
-                                    onClick={() => setSearchFilters({ projeto: '', descProjeto: '', cliente: '', dataInicio: '', dataFim: '' })}
+                                    onClick={() => {
+                                        const emptyFilters = { projeto: '', descProjeto: '', cliente: '', dataInicio: '', dataFim: '' };
+                                        setSearchFilters(emptyFilters);
+                                        fetchProjetos(emptyFilters);
+                                    }}
                                     className="px-4 py-2 text-red-600 font-bold text-sm tracking-wide rounded hover:bg-red-50 transition-colors flex items-center gap-2 border border-transparent hover:border-red-200"
                                 >
                                     <X size={16} />
@@ -679,7 +684,7 @@ export default function ProjetoPage() {
                                 </button>
                             )}
                             <button
-                                onClick={fetchProjetos}
+                                onClick={() => fetchProjetos()}
                                 disabled={loading}
                                 className="px-6 py-2 bg-[#E0E800]/20 border border-[#32423D]/20 text-[#32423D] font-bold text-sm tracking-wide rounded hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2"
                             >

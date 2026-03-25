@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ChevronRight, ChevronDown, ClipboardList, Eye,
     Loader2, RefreshCw, Box, CheckCircle, Clock, XCircle, User, Calendar, Settings2, FileText, FolderOpen,
-    Filter, Layers, X, ArrowLeft, Trash2, Flag, RotateCcw, Hash, Copy
+    Filter, Layers, X, ArrowLeft, Trash2, Flag, RotateCcw, Hash, Copy, FileSpreadsheet, PenTool, AlertTriangle, Star
 } from 'lucide-react';
 import { ProgressBar } from '../components/ordem-servico/ProgressBar';
 import { SetorDatas } from '../components/ordem-servico/SetorDatas';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 import Swal from 'sweetalert2';
 
 const API_BASE = '/api';
@@ -84,6 +85,7 @@ interface OrdemServicoItem {
     CodMatFabricante?: string;
     MaterialSW?: string;
     EnderecoArquivo?: string;
+    ProdutoPrincipal?: string;
     Finalizado?: string;
     CortePercentual?: number;
     DobraPercentual?: number;
@@ -148,6 +150,7 @@ export default function OrdemServicoPage() {
 }
 
 function OrdemServicoContent() {
+    const { token } = useAuth();
     // Data state
     const [ordens, setOrdens] = useState<OrdemServico[]>([]);
     const [expandedOrdens, setExpandedOrdens] = useState<Set<number>>(new Set());
@@ -156,14 +159,108 @@ function OrdemServicoContent() {
     const [loadingItens, setLoadingItens] = useState<Set<number>>(new Set());
     const [liberandoOS, setLiberandoOS] = useState<number | null>(null);
 
+    // Liberar OS com Fator Modal
+    const [liberacaoFatorModal, setLiberacaoFatorModal] = useState<OrdemServico | null>(null);
+    const [novoFator, setNovoFator] = useState<string>('');
+
     // Modal Clone Inter-Projetos
     const [showModalClonar, setShowModalClonar] = useState<OrdemServico | null>(null);
     const [cloneDescricao, setCloneDescricao] = useState('');
     const [cloneFator, setCloneFator] = useState(1);
     const [cloneProjetoId, setCloneProjetoId] = useState<number | string>('');
     const [cloneTagId, setCloneTagId] = useState<number | string>('');
+    const [cloneTags, setCloneTags] = useState<DropdownOption[]>([]);
     const [mostrarTodos, setMostrarTodos] = useState(false);
     const { addToast } = useToast();
+
+    const handleOpenFile = async (e: React.MouseEvent, path: string, type: 'pdf' | 'dxf' | 'sldprt') => {
+        e.stopPropagation();
+        if (!path) return;
+        try {
+            const res = await fetch(`${API_BASE}/ordemservicoitem/check-file?path=${encodeURIComponent(path)}&type=${type}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            if (data.exists) {
+                if (type === 'pdf') {
+                    window.open(`${API_BASE}/pdf?path=${encodeURIComponent(path)}`, '_blank');
+                } else {
+                    window.open(`${API_BASE}/download?path=${encodeURIComponent(path)}&type=${type}`, '_blank');
+                }
+            } else {
+                addToast({ type: 'error', title: 'Arquivo Mídia', message: 'Arquivo não existe no servidor!' });
+            }
+        } catch (err: any) {
+            addToast({ type: 'error', title: 'Erro', message: `Falha ao abrir arquivo: ${err.message}` });
+        }
+    };
+
+    const handleTogglePrincipal = async (e: React.MouseEvent, item: OrdemServicoItem, marcar: boolean, osId: number) => {
+        e.stopPropagation();
+        
+        try {
+            const token = localStorage.getItem('sinco_token');
+            const res = await fetch(`${API_BASE}/ordemservicoitem/${item.IdOrdemServicoItem}/toggle-principal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    marcar,
+                    idOrdemServico: osId,
+                    codMatFabricante: item.CodMatFabricante,
+                    descResumo: item.DescResumo,
+                    descDetal: item.DescDetal
+                })
+            });
+            const json = await res.json();
+            if (json.success) {
+                addToast({ type: 'success', title: 'Sucesso', message: json.message });
+                setOrdensItens(prev => {
+                    const osItems = [...(prev[osId] || [])];
+                    const updatedItems = osItems.map(i => ({
+                        ...i,
+                        ProdutoPrincipal: i.IdOrdemServicoItem === item.IdOrdemServicoItem 
+                            ? (marcar ? 'SIM' : undefined) 
+                            : (marcar ? undefined : i.ProdutoPrincipal)
+                    }));
+                    return { ...prev, [osId]: updatedItems };
+                });
+            } else {
+                addToast({ type: 'error', title: 'Erro', message: json.message });
+            }
+        } catch (err: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de comunicação com servidor.' });
+        }
+    };
+
+    const handleDeleteItem = async (e: React.MouseEvent, item: OrdemServicoItem, osId: number) => {
+        e.stopPropagation();
+        if (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM') {
+            addToast({ type: 'warning', title: 'Atenção', message: 'Item da Ordem Serviço não pode ser excluido, O.S. já liberada! Verifique!' });
+            return;
+        }
+        
+        if (!window.confirm("Deseja excluir o registro selecionado?")) return;
+        
+        try {
+            const res = await fetch(`${API_BASE}/ordemservicoitem/${item.IdOrdemServicoItem}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                addToast({ type: 'success', title: 'Sucesso', message: 'Item excluído com sucesso!' });
+                setOrdensItens(prev => ({
+                    ...prev,
+                    [osId]: prev[osId].filter(i => i.IdOrdemServicoItem !== item.IdOrdemServicoItem)
+                }));
+            } else {
+                addToast({ type: 'error', title: 'Falha', message: data.message });
+            }
+        } catch (err: any) {
+            addToast({ type: 'error', title: 'Erro', message: err.message });
+        }
+    };
 
     // Pagination
     const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -178,6 +275,7 @@ function OrdemServicoContent() {
     // Dropdown options
     const [projetos, setProjetos] = useState<DropdownOption[]>([]);
     const [tags, setTags] = useState<DropdownOption[]>([]);
+    const [projetosClonagem, setProjetosClonagem] = useState<DropdownOption[]>([]);
 
     // Item search mode
     const [searchMode, setSearchMode] = useState<'os' | 'item'>('os');
@@ -192,14 +290,17 @@ function OrdemServicoContent() {
     useEffect(() => {
         const fetchOptions = async () => {
             try {
-                const [projRes, tagsRes] = await Promise.all([
+                const [projRes, tagsRes, projCloneRes] = await Promise.all([
                     fetch(`${API_BASE}/ordemservico/projetos`),
-                    fetch(`${API_BASE}/ordemservico/tags`)
+                    fetch(`${API_BASE}/ordemservico/tags`),
+                    fetch(`${API_BASE}/ordemservico/projetos-clonagem`)
                 ]);
                 const projJson = await projRes.json();
                 const tagsJson = await tagsRes.json();
+                const projCloneJson = await projCloneRes.json();
                 if (projJson.success) setProjetos(projJson.data);
                 if (tagsJson.success) setTags(tagsJson.data);
+                if (projCloneJson.success) setProjetosClonagem(projCloneJson.data);
             } catch (err) {
                 console.error('Error fetching options:', err);
             }
@@ -233,6 +334,19 @@ function OrdemServicoContent() {
                 });
         }
     }, [projetoFilter]);
+
+    // Update clone tags when clone project changes
+    useEffect(() => {
+        if (cloneProjetoId) {
+            fetch(`${API_BASE}/ordemservico/tags-clonagem?projetoId=${encodeURIComponent(cloneProjetoId)}`)
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) setCloneTags(json.data);
+                });
+        } else {
+            setCloneTags([]);
+        }
+    }, [cloneProjetoId]);
 
     const fetchOrdens = useCallback(async (page = 1, append = false) => {
         if (page === 1) setLoading(true);
@@ -382,17 +496,26 @@ function OrdemServicoContent() {
 
     // Render a single OS card
     
-    const handleLiberarOS = async (os: OrdemServico) => {
-        if (os.Fator === 0 || os.Fator === '0' || os.Fator == null) {
-            addToast({ type: 'error', title: 'Erro', message: 'O fator da Ordem de Serviço não pode ser 0 ou nulo para liberação.' });
+    const proceedWithLiberacao = async (os: OrdemServico, fator: number | string) => {
+        const result = await Swal.fire({
+            title: 'Tipo de Liberação',
+            text: `Como deseja liberar a Ordem de Serviço ${os.IdOrdemServico}?`,
+            icon: 'question',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Total',
+            denyButtonText: 'Parcial',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#10B981',
+            denyButtonColor: '#F59E0B',
+            reverseButtons: true
+        });
+
+        if (result.isDismissed) {
             return;
         }
 
-        const tipoLiberacao = window.prompt("Digite 'Total' ou 'Parcial' para confirmar o tipo de liberação:");
-        if (!tipoLiberacao || (tipoLiberacao.toLowerCase() !== 'total' && tipoLiberacao.toLowerCase() !== 'parcial')) {
-            addToast({ type: 'error', title: 'Atenção', message: 'Liberação cancelada. É necessário informar Total ou Parcial.' });
-            return;
-        }
+        const tipoLiberacao = result.isConfirmed ? 'Total' : 'Parcial';
 
         setLiberandoOS(os.IdOrdemServico);
         try {
@@ -404,7 +527,7 @@ function OrdemServicoContent() {
                     IdOrdemServico: os.IdOrdemServico,
                     IdTag: os.IdTag,
                     IdProjeto: os.IdProjeto,
-                    Fator: os.Fator,
+                    Fator: fator,
                     EnderecoOrdemServico: os.EnderecoOrdemServico,
                     TipoLiberacao: tipoLiberacao.toLowerCase() === 'total' ? 'Total' : 'Parcial'
                 })
@@ -412,7 +535,7 @@ function OrdemServicoContent() {
             const json = await res.json();
             if (json.success) {
                 addToast({ type: 'success', title: 'Sucesso', message: `Ordem de Serviço ${os.IdOrdemServico} liberada! (${tipoLiberacao})` });
-                setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Liberado_Engenharia: 'S', OrdemServicoFinalizado: 'C' } : o));
+                setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Liberado_Engenharia: 'S', OrdemServicoFinalizado: 'C', Fator: Number(fator) } : o));
             } else {
                 addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao liberar Ordem de Serviço.' });
             }
@@ -421,6 +544,16 @@ function OrdemServicoContent() {
         } finally {
             setLiberandoOS(null);
         }
+    };
+
+    const handleLiberarOS = async (os: OrdemServico) => {
+        if (os.Fator === 0 || os.Fator === '0' || os.Fator == null) {
+            setLiberacaoFatorModal(os);
+            setNovoFator('');
+            return;
+        }
+
+        await proceedWithLiberacao(os, os.Fator);
     };
 
     const handleCancelarLiberacao = async (os: OrdemServico) => {
@@ -945,6 +1078,8 @@ function OrdemServicoContent() {
                                     {/* Skeleton Table Header */}
                                     <div className="flex items-center gap-2 pl-6 py-2 text-[10px] font-medium text-gray-300 uppercase border-b border-gray-100">
                                         <span className="w-8">PDF</span>
+                                        <span className="w-8">DXF</span>
+                                        <span className="w-8">3D</span>
                                         <span className="w-32">Código Desenho</span>
                                         <span className="flex-1">Descrição</span>
                                         <span className="w-12 text-center">Qtde</span>
@@ -954,13 +1089,18 @@ function OrdemServicoContent() {
                                         {visibleSetores.includes('solda') && <span className="w-16 hidden lg:block text-center">Solda</span>}
                                         {visibleSetores.includes('pintura') && <span className="w-16 hidden lg:block text-center">Pintura</span>}
                                         {visibleSetores.includes('montagem') && <span className="w-16 hidden lg:block text-center">Mont.</span>}
+                                        <span className="w-10 ml-auto mr-2"></span>
                                     </div>
 
                                     {/* Skeleton Rows */}
                                     {[1, 2, 3, 4, 5].map((i) => (
                                         <div key={i} className="flex items-center gap-2 pl-6 py-3 animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
-                                            {/* PDF Icon Skeleton */}
-                                            <div className="w-8 h-8 rounded bg-gray-200" />
+                                            {/* Media Icon Skeletons */}
+                                            <div className="flex gap-1 w-28">
+                                                <div className="w-8 h-8 rounded bg-gray-200 shrink-0" />
+                                                <div className="w-8 h-8 rounded bg-gray-200 shrink-0" />
+                                                <div className="w-8 h-8 rounded bg-gray-200 shrink-0" />
+                                            </div>
                                             {/* Código Desenho Skeleton */}
                                             <div className="w-32 h-6 rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200" />
                                             {/* Descrição Skeleton */}
@@ -995,7 +1135,11 @@ function OrdemServicoContent() {
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 pl-6 py-1 text-[10px] font-medium text-gray-400 uppercase">
-                                            <span className="w-8">PDF</span>
+                                            <span className="w-8" title="PDF do Item">PDF</span>
+                                            <span className="w-8">DXF</span>
+                                            <span className="w-8">3D</span>
+                                            <span className="w-8 text-center" title="PDF da OS">OS</span>
+                                            <span className="w-8 text-center" title="Conjunto Principal">★</span>
                                             <span className="w-32">Código Desenho</span>
                                             <span className="flex-1">Descrição</span>
                                             <span className="w-12 text-center" title="Fator Multiplicador">Fator</span>
@@ -1011,26 +1155,113 @@ function OrdemServicoContent() {
                                         {itens.map((item) => (
                                             <div
                                                 key={item.IdOrdemServicoItem}
-                                                className="flex items-center gap-2 pl-6 py-2 rounded-lg hover:bg-white transition-colors group"
+                                                className={`flex items-center gap-2 pl-6 py-2 rounded-lg transition-colors group ${
+                                                    item.ProdutoPrincipal === 'SIM' ? 'bg-amber-50/60 hover:bg-amber-100/60' : 'hover:bg-white'
+                                                }`}
                                             >
-                                                {item.EnderecoArquivo ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const path = item.EnderecoArquivo || '';
-                                                            const pdfUrl = `${API_BASE}/pdf?path=${encodeURIComponent(path)}`;
-                                                            window.open(pdfUrl, '_blank');
-                                                        }}
-                                                        className="w-8 h-8 rounded flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                                                        title={`Abrir desenho: ${item.CodMatFabricante}`}
-                                                    >
-                                                        <FileText size={14} />
-                                                    </button>
-                                                ) : (
-                                                    <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300">
-                                                        <FileText size={14} />
-                                                    </div>
-                                                )}
+                                                <div className="flex gap-1 shrink-0" style={{ width: '11.5rem' }}>
+                                                    {item.EnderecoArquivo ? (
+                                                        <button
+                                                            onClick={(e) => handleOpenFile(e, item.EnderecoArquivo || '', 'pdf')}
+                                                            className="w-8 h-8 rounded flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                            title={`Abrir PDF do Item: ${item.CodMatFabricante}`}
+                                                        >
+                                                            <FileText size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300">
+                                                            <FileText size={14} />
+                                                        </div>
+                                                    )}
+
+                                                    {item.EnderecoArquivo ? (
+                                                        <button
+                                                            onClick={(e) => handleOpenFile(e, item.EnderecoArquivo || '', 'dxf')}
+                                                            className="w-8 h-8 rounded flex items-center justify-center bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                            title={`Download DXF: ${item.CodMatFabricante}`}
+                                                        >
+                                                            <PenTool size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300">
+                                                            <PenTool size={14} />
+                                                        </div>
+                                                    )}
+
+                                                    {item.EnderecoArquivo ? (
+                                                        <button
+                                                            onClick={(e) => handleOpenFile(e, item.EnderecoArquivo || '', 'sldprt')}
+                                                            className="w-8 h-8 rounded flex items-center justify-center bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
+                                                            title={`Download 3D: ${item.CodMatFabricante}`}
+                                                        >
+                                                            <Box size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300">
+                                                            <Box size={14} />
+                                                        </div>
+                                                    )}
+
+                                                    {os.EnderecoOrdemServico ? (
+                                                        <button
+                                                            onClick={(e) => handleOpenFile(e, os.EnderecoOrdemServico || '', 'pdf')}
+                                                            className="w-8 h-8 rounded flex items-center justify-center bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                                                            title={`Abrir PDF da O.S.`}
+                                                        >
+                                                            <FileText size={14} />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300" title="Sem PDF da O.S.">
+                                                            <FileText size={14} />
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {item.ProdutoPrincipal === 'SIM' ? (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                const isBloqueada = (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') || (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM');
+                                                                if (isBloqueada) {
+                                                                    e.stopPropagation();
+                                                                    addToast({ type: 'warning', title: 'Atenção', message: 'Ação bloqueada: O.S. já liberada ou finalizada!' });
+                                                                    return;
+                                                                }
+                                                                handleTogglePrincipal(e, item, false, os.IdOrdemServico);
+                                                            }}
+                                                            className={`w-8 h-8 rounded flex items-center justify-center ${
+                                                                (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') || (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM')
+                                                                    ? 'bg-yellow-50 text-yellow-400 cursor-not-allowed opacity-80'
+                                                                    : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                                                            } transition-colors`}
+                                                            title={`Conjunto Principal: ${item.CodMatFabricante}`}
+                                                        >
+                                                            <Star size={14} className="fill-current" />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                const isBloqueada = (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') || (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM');
+                                                                if (isBloqueada) {
+                                                                    e.stopPropagation();
+                                                                    addToast({ type: 'warning', title: 'Atenção', message: 'Ação bloqueada: O.S. já liberada ou finalizada!' });
+                                                                    return;
+                                                                }
+                                                                handleTogglePrincipal(e, item, true, os.IdOrdemServico);
+                                                            }}
+                                                            className={`w-8 h-8 rounded flex items-center justify-center ${
+                                                                (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') || (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM')
+                                                                    ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                                                                    : 'bg-gray-50 text-gray-400 hover:bg-yellow-50 hover:text-yellow-600'
+                                                            } transition-colors`}
+                                                            title={
+                                                                (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') || (item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM')
+                                                                    ? 'Ação bloqueada'
+                                                                    : `Marcar: ${item.CodMatFabricante} como Conjunto Principal`
+                                                            }
+                                                        >
+                                                            <Star size={14} />
+                                                        </button>
+                                                    )}
+                                                </div>
 
                                                 <span
                                                     className="w-32 text-xs font-bold text-primary bg-accent/20 px-2 py-1 rounded truncate"
@@ -1053,6 +1284,16 @@ function OrdemServicoContent() {
                                                 {visibleSetores.includes('solda') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.SoldaPercentual} label="Solda" /></div>}
                                                 {visibleSetores.includes('pintura') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.PinturaPercentual} label="Pintura" /></div>}
                                                 {visibleSetores.includes('montagem') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.MontagemPercentual} label="Montagem" /></div>}
+                                                
+                                                {!(os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') && !(item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM') && (
+                                                    <button
+                                                        onClick={(e) => handleDeleteItem(e, item, os.IdOrdemServico)}
+                                                        className="w-8 h-8 rounded flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors ml-auto mr-2"
+                                                        title="Excluir Linha Selecionada"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1155,6 +1396,33 @@ function OrdemServicoContent() {
                             title={`Abrir pasta: ${os.EnderecoOrdemServico}`}
                         >
                             <FolderOpen size={16} />
+                        </button>
+                    )}
+                    
+                    {os.EnderecoOrdemServico && (
+                        <button
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    addToast({ type: 'info', title: 'Aguarde', message: 'Gerando Relatório Excel...' });
+                                    const res = await fetch(`/api/ordemservico/${os.IdOrdemServico}/excel`, { 
+                                        method: 'POST',
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        addToast({ type: 'success', title: 'Concluído', message: 'Excel gerado e pasta aberta!' });
+                                    } else {
+                                        throw new Error(data.message || 'Erro do servidor');
+                                    }
+                                } catch (err: any) {
+                                    addToast({ type: 'error', title: 'Falha', message: `Ao gerar Excel: ${err.message}` });
+                                }
+                            }}
+                            className="p-2 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                            title="Gerar Relatório Excel"
+                        >
+                            <FileSpreadsheet size={16} />
                         </button>
                     )}
                 </motion.div>
@@ -1447,6 +1715,185 @@ function OrdemServicoContent() {
                             </p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Modal de Clonar OS */}
+            <AnimatePresence>
+                {showModalClonar && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
+                        >
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                                <h3 className="text-lg font-bold text-primary flex items-center gap-2">
+                                    <Copy size={20} className="text-accent" />
+                                    Clonar Ordem de Serviço
+                                </h3>
+                                <button
+                                    onClick={() => setShowModalClonar(null)}
+                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                                <div className="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm mb-4">
+                                    <strong>Atenção:</strong> Você está prestes a duplicar a <strong>OS {showModalClonar.IdOrdemServico}</strong>.<br/> 
+                                    Selecione o Projeto e a Tag de destino.
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Novo Projeto Destino *
+                                    </label>
+                                    <select
+                                        value={cloneProjetoId}
+                                        onChange={(e) => {
+                                            setCloneProjetoId(e.target.value);
+                                        }}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                        required
+                                    >
+                                        <option value="">Selecione o Projeto...</option>
+                                        {projetosClonagem.map(p => (
+                                            <option key={p.value} value={p.value}>{p.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Nova Tag Destino *
+                                    </label>
+                                    <select
+                                        value={cloneTagId}
+                                        onChange={(e) => setCloneTagId(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                        required
+                                    >
+                                        <option value="">Selecione a Tag...</option>
+                                        {cloneTags.map(t => (
+                                            <option key={t.value} value={t.value}>{t.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fator Multiplicador
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={cloneFator}
+                                        onChange={(e) => setCloneFator(parseInt(e.target.value) || 1)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Multiplica as quantidades e pesos da OS original.</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Nova Descrição (Opcional)
+                                    </label>
+                                    <textarea
+                                        value={cloneDescricao}
+                                        onChange={(e) => setCloneDescricao(e.target.value)}
+                                        rows={3}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent resize-none"
+                                        placeholder="Descreva o motivo da clonagem ou especificidades da nova OS..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
+                                <button
+                                    onClick={() => setShowModalClonar(null)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={() => executeClone(showModalClonar)}
+                                    disabled={liberandoOS === showModalClonar.IdOrdemServico || !cloneProjetoId || !cloneTagId}
+                                    className="px-6 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {liberandoOS === showModalClonar.IdOrdemServico ? (
+                                        <><Loader2 size={16} className="animate-spin" /> Clonando...</>
+                                    ) : (
+                                        <><Copy size={16} /> Confirmar Clonagem</>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Fator Modal */}
+            {liberacaoFatorModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl flex flex-col animate-in zoom-in-95 duration-200 border border-gray-100 overflow-hidden">
+                        <div className="bg-red-50 px-6 py-4 flex items-center gap-3 border-b border-red-100">
+                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                                <AlertTriangle size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold text-red-800">Fator Inválido ou Ausente</h3>
+                                <p className="text-xs text-red-600/80">O fator da O.S. não pode ser zero.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4 text-center">
+                                Por favor, informe um novo Fator Multiplicador para a Ordem de Serviço <span className="font-semibold text-gray-800">OS {liberacaoFatorModal.IdOrdemServico}</span> antes de prosseguir com a liberação.
+                            </p>
+                            
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-gray-700 ml-1">Fator Multiplicador (Apenas Inteiros)</label>
+                                <input 
+                                    type="number" 
+                                    step="1"
+                                    min="1"
+                                    autoFocus
+                                    value={novoFator}
+                                    onChange={(e) => setNovoFator(e.target.value.replace(/\D/g, ''))}
+                                    placeholder="Ex: 1, 2, 3..."
+                                    className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-2 justify-end">
+                            <button
+                                onClick={() => setLiberacaoFatorModal(null)}
+                                className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-white transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const num = parseInt(novoFator, 10);
+                                    if (!num || num <= 0) {
+                                        addToast({ type: 'error', title: 'Atenção', message: 'Fator inválido. Digite um número inteiro maior que zero.' });
+                                        return;
+                                    }
+                                    setLiberacaoFatorModal(null);
+                                    proceedWithLiberacao(liberacaoFatorModal, num);
+                                }}
+                                disabled={!novoFator || parseInt(novoFator, 10) <= 0}
+                                className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Confirmar Liberação
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

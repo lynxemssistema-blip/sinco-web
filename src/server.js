@@ -4721,6 +4721,25 @@ app.get('/api/ordemservico/tags', async (req, res) => {
 });
 
 // SEARCH: Busca global em itens por c�digo do documento/desenho
+
+// OPTIONS: Lista de Projetos para Clonagem
+app.get('/api/ordemservico/projetos-clonagem', async (req, res) => {
+    try {
+        const [rows] = await pool.execute("SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto");
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false }); }
+});
+
+// OPTIONS: Lista de Tags para Clonagem
+app.get('/api/ordemservico/tags-clonagem', async (req, res) => {
+    try {
+        const projetoId = req.query.projetoId;
+        if (!projetoId) return res.json({ success: true, data: [] });
+        const [rows] = await pool.execute("SELECT IdTag as value, Tag as label FROM tags WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND IdProjeto = ? ORDER BY Tag", [projetoId]);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false }); }
+});
+
 app.get('/api/ordemservico/busca-item', async (req, res) => {
     try {
         const search = req.query.q;
@@ -4959,7 +4978,7 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
         if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico de origem é obrigatório' });
         if (!novoIdProjeto || !novoIdTag) return res.status(400).json({ success: false, message: 'Projeto e Tag de destino são obrigatórios' });
         
-        const fator = isNaN(parseFloat(novoFator)) || parseFloat(novoFator) <= 0 ? 1 : parseFloat(novoFator);
+        const fator = isNaN(parseInt(novoFator)) || parseInt(novoFator) <= 0 ? 1 : parseInt(novoFator);
         const criador = usuarioNome || 'Sistema Web';
 
         // 1. Obter a O.S Original
@@ -4968,9 +4987,9 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
         const os = origOS[0];
 
         // 2. Obter Dados do Novo Projeto e Nova Tag
-        const [rowProjeto] = await connection.query('SELECT Projeto, DescEmpresa, IdEmpresa FROM projetos WHERE IdProjeto = ?', [novoIdProjeto]);
+        const [rowProjeto] = await connection.query('SELECT Projeto FROM projetos WHERE IdProjeto = ?', [novoIdProjeto]);
         if (rowProjeto.length === 0) return res.status(404).json({ success: false, message: 'Projeto de destino não encontrado' });
-        const { Projeto: nomeProjeto, DescEmpresa: descEmpresaPrj, IdEmpresa: idEmpresaPrj } = rowProjeto[0];
+        const { Projeto: nomeProjeto } = rowProjeto[0];
 
         const [rowTag] = await connection.query('SELECT Tag, DescTag, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag FROM tags WHERE IdTag = ?', [novoIdTag]);
         if (rowTag.length === 0) return res.status(404).json({ success: false, message: 'Tag de destino não encontrada' });
@@ -4984,15 +5003,17 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
                 idOSReferencia, OrdemServicoFinalizado, DataPrevisao, 
                 QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdepecasExecutadas, Percentualpecas, 
                 IdEmpresa, DescEmpresa
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'A', '', '', '', ?, '', ?, '', '', '', '', '', '', ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'A', '', '', '', ?, '', ?, '', '', '', '', '', '', ?, ?)
         `;
         
         const descUsada = novaDescricao || os.Descricao;
         const prevUsada = dataPrevTag || os.DataPrevisao;
+        const today = new Date();
+        const dataCriacaoFormatada = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
         const [resultInsert] = await connection.query(queryInsertMestre, [
             novoIdProjeto, nomeProjeto, novoIdTag, nomeTag, descTagDestino, descUsada, fator, os.EnderecoOrdemServico,
-            criador, IdOrdemServico, prevUsada, idEmpresaPrj, descEmpresaPrj
+            criador, dataCriacaoFormatada, IdOrdemServico, prevUsada, os.IdEmpresa, os.DescEmpresa
         ]);
 
         const novoId = resultInsert.insertId;
@@ -5053,7 +5074,7 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
                 Largura, CodMatFabricante, DtCad, UsuarioCriacao,
                 UsuarioAlteracao, DtAlteracao, EnderecoArquivo, MaterialSW,
                 IF(EnderecoArquivo IS NOT NULL AND EnderecoArquivo != '', ? * qtde, 0),
-                ?, NOW(), Estatus, Acabamento, D_E_L_E_T_E, ?, qtde,
+                ?, ?, Estatus, Acabamento, D_E_L_E_T_E, ?, qtde,
                 txtSoldagem, txtTipoDesenho, txtCorte, txtDobra, txtSolda,
                 txtPintura, txtMontagem, CorteTotalExecutar, DobraTotalExecutar, SoldaTotalExecutar,
                 PinturaTotalExecutar, MontagemTotalExecutar, Comprimentocaixadelimitadora,
@@ -5067,7 +5088,7 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
 
         await connection.query(queryInsertItens, [
             novoId, novoIdProjeto, nomeProjeto, novoIdTag, nomeTag, descTagDestino,
-            fator, fator, fator, criador, fator, prevUsada, idEmpresaPrj, descEmpresaPrj, IdOrdemServico
+            fator, fator, fator, criador, dataCriacaoFormatada, fator, prevUsada, os.IdEmpresa, os.DescEmpresa, IdOrdemServico
         ]);
 
         return res.json({ success: true, message: 'Nova Cópia da Ordem de Serviço inserida!', novoId });
@@ -5152,7 +5173,7 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
 
         const [updateOS] = await connection.query(`
             UPDATE ordemservico 
-            SET D_E_L_E_T_E = '*', Usuáriod_e_l_e_t_e = ?, DataD_E_L_E_T_E = ?
+            SET D_E_L_E_T_E = '*', UsuarioD_E_L_E_T_E = ?, DataD_E_L_E_T_E = ?
             WHERE IdOrdemServico = ?
         `, [executor, dataatual, IdOrdemServico]);
 
@@ -5163,7 +5184,7 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
         // Realiza o "Soft Delete" na tabela ordemservicoitem
         await connection.query(`
             UPDATE ordemservicoitem
-            SET D_E_L_E_T_E = '*', Usuáriod_e_l_e_t_e = ?, DataD_E_L_E_T_E = ?
+            SET D_E_L_E_T_E = '*', UsuarioD_E_L_E_T_E = ?, DataD_E_L_E_T_E = ?
             WHERE IdOrdemServico = ?
         `, [executor, dataatual, IdOrdemServico]);
 
@@ -5175,6 +5196,128 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
 
     } catch (e) {
         console.error(e);
+        res.status(500).json({ success: false, message: e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ---------------------------------------------------------
+// NOVA ROTA: Gerar Relatorio Excel (Etapa 10)
+// ---------------------------------------------------------
+app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const IdOrdemServico = req.params.id;
+
+        const [origOS] = await connection.query('SELECT * FROM ordemservico WHERE IdOrdemServico = ?', [IdOrdemServico]);
+        if (origOS.length === 0) return res.status(404).json({ success: false, message: 'O.S não encontrada' });
+        const os = origOS[0];
+
+        const db = require('./config/db');
+        const store = db.asyncLocalStorage.getStore();
+        const dbName = store ? store.dbName : 'lynxlocal';
+        
+        // Caminho padrao fallback conforme instrucao (G:\Meu Drive\Configurações + dbName + Configuracao...)
+        let templatePath = `G:\\Meu Drive\\Configurações\\${dbName}\\Configuracao\\Template-OS-rev02.xlsx`;
+
+        // O usuário especificou que, para o lynxlocal, a base do arquivo é exatamente esta:
+        if (dbName === 'lynxlocal' || dbName === 'Lynx') {
+            templatePath = 'G:\\Meu Drive\\Estrutura padrão Lynx\\023-SGQ\\023-001-FORMULARIOS\\Templat-OS-Rev03.xlsx';
+        }
+        
+        // Tenta buscar da configuracaosistema primeiro (mais seguro se existir lá)
+        const [configRows] = await connection.query("SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoTemplateExcelOrdemServico'");
+        if (configRows.length > 0 && configRows[0].valor) {
+            templatePath = configRows[0].valor;
+        }
+
+        const fs = require('fs');
+        if (!fs.existsSync(templatePath)) {
+            // Tentativa alternativa caso o nome do arquivo seja "Templat" sem E
+            const altPath = templatePath.replace('Template', 'Templat');
+            if (fs.existsSync(altPath)) {
+                templatePath = altPath;
+            } else {
+                return res.status(400).json({ success: false, message: 'Template Excel não encontrado: ' + templatePath });
+            }
+        }
+
+        const ExcelJS = require('exceljs');
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(templatePath);
+        const worksheet = workbook.worksheets[0];
+
+        const format5 = (num) => String(num).padStart(5, '0');
+        const osString = format5(os.IdOrdemServico);
+
+        // Header mapping
+        worksheet.getCell('W1').value = osString;
+        worksheet.getCell('D8').value = (os.Projeto || '') + ' - ' + (os.DescEmpresa || '');
+        worksheet.getCell('D9').value = (os.Tag || '').trim().toUpperCase();
+        worksheet.getCell('N8').value = (os.Descricao || '').trim().toUpperCase();
+        worksheet.getCell('D10').value = (os.EnderecoOrdemServico || '').trim().toUpperCase();
+        worksheet.getCell('D13').value = (os.CriadoPor || '').trim().toUpperCase();
+        worksheet.getCell('D14').value = (os.DataCriacao || '').trim().toUpperCase();
+
+        const [itens] = await connection.query(`
+            SELECT * FROM ordemservicoitem 
+            WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            ORDER BY IdOrdemServicoItem
+        `, [IdOrdemServico]);
+
+        // Items mapping starting at row 19 (using row 18 as template)
+        const startRow = 18;
+        
+        for (let i = 0; i < itens.length; i++) {
+            const item = itens[i];
+            
+            // Insert row by duplicating style of row 18
+            worksheet.duplicateRow(startRow, 1, true);
+            const row = worksheet.getRow(startRow + 1 + i);
+            
+            row.getCell('A').value = String(item.IdOrdemServicoItem || '').trim().toUpperCase();
+            row.getCell('B').value = String(item.CodMatFabricante || '').trim().toUpperCase();
+            row.getCell('I').value = String(item.QtdeTotal || '').trim().toUpperCase();
+            row.getCell('J').value = String(item.MaterialSW || '').trim().toUpperCase();
+            row.getCell('K').value = String(item.Unidade || '').trim().toUpperCase();
+            row.getCell('L').value = String(item.Espessura || '').trim().toUpperCase();
+            row.getCell('M').value = String(item.Altura || '').trim().toUpperCase();
+            row.getCell('N').value = String(item.Largura || '').trim().toUpperCase();
+            row.getCell('O').value = String(item.txtItemEstoque || '').trim().toUpperCase();
+            row.getCell('P').value = String(item.DescResumo || '').trim().toUpperCase();
+            row.getCell('S').value = String(item.DescDetal || '').trim().toUpperCase();
+            row.getCell('V').value = String(item.Acabamento || '').trim().toUpperCase();
+            row.getCell('W').value = String(item.txtTipoDesenho || '').trim().toUpperCase();
+            row.commit();
+        }
+
+        // Deleta a linha template original (A18:W18)
+        worksheet.spliceRows(startRow, 1);
+
+        const destPath = os.EnderecoOrdemServico;
+        if (!destPath || !fs.existsSync(destPath)) {
+            return res.status(400).json({ success: false, message: 'Diretório final da OS não existe: ' + destPath });
+        }
+
+        const fileName = `OS_${osString}.xlsx`;
+        const path = require('path');
+        const finalFile = path.join(destPath, fileName);
+
+        await workbook.xlsx.writeFile(finalFile);
+
+        // Open Explorer
+        try {
+            require('child_process').exec(`explorer "${destPath}"`);
+        } catch (e) {
+            console.error('Falha ao abrir explorer:', e);
+        }
+
+        return res.json({ success: true, message: 'Relatório Excel gerado com sucesso.', file: finalFile });
+
+    } catch (e) {
+        console.error("Erro na geração de Excel:", e);
         res.status(500).json({ success: false, message: e.message });
     } finally {
         if (connection) connection.release();
@@ -5532,6 +5675,7 @@ app.get('/api/ordemservico/:id/itens', async (req, res) => {
                 QtdeTotal, Peso, AreaPintura, Acabamento, Unidade,
                 Espessura, Altura, Largura,
                 CodMatFabricante, MaterialSW, EnderecoArquivo,
+                ProdutoPrincipal,
                 OrdemServicoItemFinalizado as Finalizado,
                 txtCorte, sttxtCorte, CortePercentual,
                 txtDobra, sttxtDobra, DobraPercentual,
@@ -7881,6 +8025,116 @@ app.get('/api/pesquisar-desenho', async (req, res) => {
     } catch (err) {
         console.error('Erro na pesquisa de desenho:', err);
         res.status(500).json({ success: false, message: 'Erro ao pesquisar desenhos.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// --- APIs de Desenho (PDF, DXF, 3D) ---
+const resolveDrawingPath = (basePath, type) => {
+    if (!basePath) return '';
+    let resolved = basePath;
+    const extensoes = [".SLDPRT", ".SLDASM", ".sldprt", ".sldasm", ".asm", ".ASM", ".psm", ".PSM", ".par", ".PAR"];
+    const target = type.toUpperCase() === 'PDF' ? '.PDF' : type.toUpperCase() === 'DXF' ? '.DXF' : '.SLDPRT';
+    
+    for (const ext of extensoes) {
+        resolved = resolved.replace(ext, target);
+    }
+    return resolved;
+};
+
+app.get('/api/ordemservicoitem/check-file', (req, res) => {
+    try {
+        const { path: filePath, type } = req.query;
+        if (!filePath) return res.json({ exists: false });
+        
+        const fs = require('fs');
+        const resolvedPath = resolveDrawingPath(filePath, type || 'pdf');
+        
+        if (fs.existsSync(resolvedPath)) {
+            return res.json({ exists: true, resolvedPath });
+        } else {
+            return res.json({ exists: false });
+        }
+    } catch (err) {
+        res.status(500).json({ exists: false, error: err.message });
+    }
+});
+
+// Sem autenticação obrigatória para facilitar window.open em nova guia. Ideal: usar tokens em querystring se necessário.
+app.get('/api/pdf', (req, res) => {
+    try {
+        const { path: filePath } = req.query;
+        if (!filePath) return res.status(400).send('Path is required');
+        
+        const fs = require('fs');
+        const resolvedPath = resolveDrawingPath(filePath, 'pdf');
+        
+        if (fs.existsSync(resolvedPath)) {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline');
+            const stream = fs.createReadStream(resolvedPath);
+            stream.pipe(res);
+        } else {
+            res.status(404).send('<script>alert("Arquivo PDF não encontrado!"); window.close();</script>');
+        }
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+app.get('/api/download', (req, res) => {
+    try {
+        const { path: filePath, type } = req.query;
+        if (!filePath || !type) return res.status(400).send('Path and type are required');
+        
+        const fs = require('fs');
+        const resolvedPath = resolveDrawingPath(filePath, type);
+        
+        if (fs.existsSync(resolvedPath)) {
+            const fileName = require('path').basename(resolvedPath);
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            const stream = fs.createReadStream(resolvedPath);
+            stream.pipe(res);
+        } else {
+            res.status(404).send('<script>alert("Arquivo não encontrado!"); window.close();</script>');
+        }
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// --- Ícone 5: Excluir linha OS ---
+app.delete('/api/ordemservicoitem/:id', async (req, res) => {
+    let connection = null;
+    try {
+        const id = req.params.id;
+        connection = await (req.tenantDbPool || pool).getConnection();
+        
+        const [rows] = await connection.execute("SELECT Liberado_Engenharia FROM ordemservicoitem WHERE IdOrdemServicoItem = ?", [id]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Item não encontrado.' });
+        
+        if (rows[0].Liberado_Engenharia === 'S' || rows[0].Liberado_Engenharia === 'SIM') {
+            return res.status(400).json({ success: false, message: 'Item da Ordem Serviço não pode ser excluido, O.S. já liberada! Verifique!' });
+        }
+        
+        const usuarioDesc = req.user?.nome || 'Sistema';
+        
+        const [updateRes] = await connection.execute(
+            `UPDATE ordemservicoitem 
+             SET d_e_l_e_t_e = '*', Usuáriod_e_l_e_t_e = ?, datad_e_l_e_t_e = NOW() 
+             WHERE IdOrdemServicoItem = ?`,
+            [usuarioDesc, id]
+        );
+        
+        if (updateRes.affectedRows === 0) {
+            return res.status(400).json({ success: false, message: 'Item não excluído, verifique.' });
+        }
+        
+        res.json({ success: true, message: 'Item excluído com sucesso.' });
+    } catch (err) {
+        console.error('Erro ao excluir item OS:', err);
+        res.status(500).json({ success: false, message: err.message });
     } finally {
         if (connection) connection.release();
     }
