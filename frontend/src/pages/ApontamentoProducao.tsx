@@ -6,6 +6,7 @@ import {
     PenTool, Box, AlertTriangle
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAppConfig } from '../contexts/AppConfigContext';
 
 const API_BASE = '/api';
 
@@ -105,9 +106,13 @@ const setores: { id: Setor; label: string; icon: typeof Scissors; color: string 
 
 export default function ApontamentoProducaoPage() {
     const { addToast } = useToast();
+    const { processosVisiveis } = useAppConfig();
+    // visibleSetores is derived from the global config (replaces per-component state)
+    const visibleSetores: string[] = processosVisiveis;
+    // filteredSetores: the tabs to show (always include 'mapa' + 'mapaproducao', filter sectors by config)
+    const filteredSetores = setores.filter(s => s.id === 'mapa' || s.id === 'mapaproducao' || processosVisiveis.includes(s.id));
     const [setorAtivo, setSetorAtivo] = useState<Setor>('corte');
     const [itens, setItens] = useState<ApontamentoItem[]>([]);
-    const [visibleSetores, setVisibleSetores] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
@@ -371,9 +376,7 @@ export default function ApontamentoProducaoPage() {
         }
     }, []);
 
-    const filteredSetores = useMemo(() => {
-        return setores.filter(s => s.id === 'mapa' || visibleSetores.includes(s.id));
-    }, [visibleSetores]);
+
 
     // Fetch itens for setor
     const fetchItens = useCallback(async () => {

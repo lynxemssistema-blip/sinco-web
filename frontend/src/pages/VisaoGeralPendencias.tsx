@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Loader2, ListChecks, Filter, RefreshCw, Eye, ChevronDown, ChevronUp, XCircle } from 'lucide-react';
+import { useAppConfig } from '../contexts/AppConfigContext';
 
 const API_BASE = '/api';
 
@@ -51,6 +52,8 @@ interface PendenciaGlobal {
 }
 
 export default function VisaoGeralPendenciasPage() {
+    const { processosVisiveis } = useAppConfig();
+    const sv = (setor: string) => processosVisiveis.includes(setor);
     const [items, setItems] = useState<PendenciaGlobal[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -279,11 +282,11 @@ export default function VisaoGeralPendenciasPage() {
                                 <th className="px-4 py-3">Usuário</th>
                                 <th className="px-4 py-3">Criado Por</th>
                                 <th className="px-4 py-3">Data Criação</th>
-                                <th className="px-4 py-3">Corte</th>
-                                <th className="px-4 py-3">Dobra</th>
-                                <th className="px-4 py-3">Solda</th>
-                                <th className="px-4 py-3">Pintura</th>
-                                <th className="px-4 py-3">Montagem</th>
+                                {sv('corte') && <th className="px-4 py-3">Corte</th>}
+                                {sv('dobra') && <th className="px-4 py-3">Dobra</th>}
+                                {sv('solda') && <th className="px-4 py-3">Solda</th>}
+                                {sv('pintura') && <th className="px-4 py-3">Pintura</th>}
+                                {sv('montagem') && <th className="px-4 py-3">Montagem</th>}
                                 <th className="px-4 py-3">Data Acerto Proj</th>
                                 <th className="px-4 py-3">RNC Imagens</th>
                                 <th className="px-4 py-3">Setor Resp.</th>
@@ -348,11 +351,11 @@ export default function VisaoGeralPendenciasPage() {
                                     <td className="px-4 py-3 text-[10px] text-slate-600 truncate max-w-[100px]" title={item.Usuario}>{item.Usuario || '—'}</td>
                                     <td className="px-4 py-3 text-[10px] text-slate-600">{item.CriadoPorSetor || '—'}</td>
                                     <td className="px-4 py-3 text-[10px] text-slate-500 font-mono">{item.DataCriacao || '—'}</td>
-                                    <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtCorte || '—'}</td>
-                                    <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtdobra || '—'}</td>
-                                    <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtSolda || '—'}</td>
-                                    <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtPintura || '—'}</td>
-                                    <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtMontagem || '—'}</td>
+                                    {sv('corte') && <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtCorte || '—'}</td>}
+                                    {sv('dobra') && <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtdobra || '—'}</td>}
+                                    {sv('solda') && <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtSolda || '—'}</td>}
+                                    {sv('pintura') && <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtPintura || '—'}</td>}
+                                    {sv('montagem') && <td className="px-4 py-3 text-[10px] text-slate-600">{item.txtMontagem || '—'}</td>}
                                     <td className="px-4 py-3 text-[10px] text-slate-500 font-mono">{item.DataAcertoProjeto || '—'}</td>
                                     <td className="px-4 py-3 text-[10px] text-slate-600">{item.RNCImagens ? 'Tem img' : '—'}</td>
                                     <td className="px-4 py-3 text-[10px] font-bold text-slate-700">{item.SetorResponsavel || '—'}</td>

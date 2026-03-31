@@ -5,12 +5,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'SincoWebSecret2026!KeySecure';
 const tenantMiddleware = async (req, res, next) => {
     // 1. Get Token from Authorization header
     const authHeader = req.headers['authorization'];
-    console.log(`[DEBUG TENANT] URL: ${req.url} | Auth Header Exists? ${!!authHeader}`);
     let token = null;
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
-        console.log(`[DEBUG JWT] Raw token: ${token.substring(0, 20)}... length: ${token.length}`);
     }
 
     // Public routes that don't need tenant context (e.g., login)

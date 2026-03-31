@@ -21,10 +21,20 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'projetos', icon: 'FolderKanban', label: 'Projetos', href: '/projetos' },
     { id: 'tipos-produto', icon: 'Boxes', label: 'Tipos Produto', href: '/tipos-produto' },
     { id: 'ordens-servico', icon: 'ClipboardList', label: 'Ordens de Serviço', href: '/ordens-servico' },
+    {
+        id: 'plano-corte',
+        icon: 'Scissors',
+        label: 'Plano de Corte',
+        children: [
+            { id: 'montagem-plano-corte', icon: 'FolderOpen', label: 'Montagem Plano de Corte', href: '/montagem-plano-corte' },
+            { id: 'producao-plano-corte', icon: 'Factory', label: 'Produção Plano de Corte', href: '/producao-plano-corte' },
+        ]
+    },
     { id: 'apontamento', icon: 'Factory', label: 'Apontamento Produção', href: '/apontamento' },
     { id: 'visao-geral-producao', icon: 'BarChart3', label: 'Visão Geral Produção', href: '/visao-geral-producao' },
     { id: 'visao-geral-engenharia', icon: 'Network', label: 'Visão Geral Engenharia', href: '/visao-geral-engenharia' },
     { id: 'controle-expedicao', icon: 'PackageCheck', label: 'Controle Expedição', href: '/controle-expedicao' },
+    { id: 'teste-final-montagem', icon: 'ClipboardCheck', label: 'Teste Final Montagem', href: '/teste-final-montagem' },
     { id: 'pesquisar-desenho', icon: 'FileSearch', label: 'Pesquisar Desenho', href: '/pesquisar-desenho' },
     { id: 'tarefas', icon: 'ListTodo', label: 'Tarefas', href: '/tarefas' },
     { id: 'visao-geral-pendencias', icon: 'ListChecks', label: 'Todas as Pendências', href: '/visao-geral-pendencias' },

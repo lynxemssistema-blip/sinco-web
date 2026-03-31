@@ -8740,6 +8740,47 @@ app.post('/api/plano-corte/:id/abrir-pasta', async (req, res) => {
 });
 
 // ============================================================================
+// PLANO DE CORTE — Abrir Desenho no Servidor (3D ou PDF)
+// ============================================================================
+app.post('/api/plano-corte/abrir-desenho', async (req, res) => {
+    try {
+        let { filePath, tipo } = req.body;
+        if (!filePath) return res.json({ success: false, message: 'Caminho do arquivo não fornecido.' });
+
+        const fs = require('fs');
+        const { exec } = require('child_process');
+
+        // Se for PDF, aplica normalização de extensões conforme VB.NET
+        if (tipo === 'PDF') {
+            const extensoes = [
+                '.SLDPRT', '.SLDASM', '.sldprt', '.sldasm', 
+                '.asm', '.ASM', '.psm', '.PSM', '.par', '.PAR'
+            ];
+            for (const ext of extensoes) {
+                filePath = filePath.replace(new RegExp(ext.replace('.', '\\.'), 'g'), '.PDF');
+            }
+        }
+
+        if (!fs.existsSync(filePath)) {
+            return res.json({ success: false, message: `Arquivo não encontrado: ${filePath}` });
+        }
+
+        const cmd = `start "" "${filePath}"`;
+        exec(cmd, (err) => {
+            if (err) {
+                console.error('[PlanoCorte/AbrirDesenho] Erro abrir:', err.message);
+                return res.json({ success: false, message: 'Falha ao abrir desenho: ' + err.message });
+            }
+            res.json({ success: true, message: 'Desenho aberto no servidor' });
+        });
+
+    } catch (err) {
+        console.error('[PlanoCorte/AbrirDesenho] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro interno: ' + err.message });
+    }
+});
+
+// ============================================================================
 // PLANO DE CORTE — Liberar Plano de Corte (Importar Arquivos + Set Enviadocorte 'S')
 // ============================================================================
 app.post('/api/plano-corte/:id/liberar', async (req, res) => {
@@ -8897,6 +8938,248 @@ app.post('/api/plano-corte/:id/cancelar-liberacao', async (req, res) => {
 });
 
 // ============================================================================
+// PLANO DE CORTE — Bloquear preenchimento automático (Enviadocorte = 'B')
+// Equivalente: BancoDados.AlteracaoEspecifica("planodecorte","enviadocorte","B",...)
+// Condições: plano NÃO pode estar liberado ('S') nem já bloqueado ('B')
+// ============================================================================
+app.post('/api/plano-corte/:id/bloquear', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        const { id } = req.params;
+
+        const [rows] = await connection.execute(
+            `SELECT IdPlanodecorte, Enviadocorte FROM planodecorte WHERE IdPlanodecorte = ? LIMIT 1`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.json({ success: false, message: 'Plano de corte não encontrado.' });
+        }
+
+        const plano = rows[0];
+
+        if (plano.Enviadocorte === 'S' || plano.Enviadocorte === 'SIM') {
+            return res.json({ success: false, message: 'Plano já liberado para a fábrica. Cancele a liberação antes de bloquear.' });
+        }
+
+        if (plano.Enviadocorte === 'B') {
+            return res.json({ success: false, message: 'Plano já está bloqueado para preenchimento automático.' });
+        }
+
+        await connection.execute(
+            `UPDATE planodecorte SET Enviadocorte = 'B' WHERE IdPlanodecorte = ?`,
+            [id]
+        );
+
+        res.json({
+            success: true,
+            message: `Plano #${id} bloqueado para preenchimento automático.`
+        });
+
+    } catch (err) {
+        console.error('[PlanoCorte/Bloquear] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao bloquear plano: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Desbloquear preenchimento automático (Enviadocorte = '')
+// Desfaz o processo de bloqueio (ícone 6)
+// ============================================================================
+app.post('/api/plano-corte/:id/desbloquear', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        const { id } = req.params;
+
+        const [rows] = await connection.execute(
+            `SELECT IdPlanodecorte, Enviadocorte FROM planodecorte WHERE IdPlanodecorte = ? LIMIT 1`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.json({ success: false, message: 'Plano de corte não encontrado.' });
+        }
+
+        if (rows[0].Enviadocorte !== 'B') {
+            return res.json({ success: false, message: 'Plano não está bloqueado.' });
+        }
+
+        await connection.execute(
+            `UPDATE planodecorte SET Enviadocorte = '' WHERE IdPlanodecorte = ?`,
+            [id]
+        );
+
+        res.json({
+            success: true,
+            message: `Plano #${id} desbloqueado. Preenchimento automático liberado.`
+        });
+
+    } catch (err) {
+        console.error('[PlanoCorte/Desbloquear] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao desbloquear plano: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Excluir Plano de Corte (Soft Delete)
+// Ícone 7: Só exclui se não houver execução (cortetotalexecutado = 0)
+// ============================================================================
+app.post('/api/plano-corte/:id/excluir', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        const { id } = req.params;
+
+        // 1. Verificar se plano já tem histórico de execução
+        const [execRows] = await connection.execute(
+            `SELECT SUM(COALESCE(cortetotalexecutado, 0)) as totalExecutado 
+             FROM ordemservicoitem 
+             WHERE idplanodecorte = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')`,
+            [id]
+        );
+
+        const totalExecutado = Number(execRows[0]?.totalExecutado) || 0;
+
+        if (totalExecutado > 0) {
+            return res.json({ 
+                success: false, 
+                message: 'Plano de corte tem histórico de execução! Não pode ser excluído.' 
+            });
+        }
+
+        // 2. Transação para limpar vínculos e marcar como deletado
+        await connection.beginTransaction();
+
+        const now = new Date();
+        const dataAtual = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const usuarioLogado = req.user?.nome || req.user?.login || 'Sistema';
+
+        // Desvincular itens
+        await connection.execute(
+            `UPDATE ordemservicoitem SET idplanodecorte = '' WHERE idplanodecorte = ?`,
+            [id]
+        );
+
+        // Soft delete no plano
+        await connection.execute(
+            `UPDATE planodecorte 
+             SET D_E_L_E_T_E = '*', 
+                 DataD_E_L_E_T_E = ?, 
+                 UsuarioD_E_L_E_T_E = ? 
+             WHERE IdPlanodecorte = ?`,
+            [dataAtual, usuarioLogado, id]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: `Plano #${id} excluído com sucesso.`
+        });
+
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('[PlanoCorte/Excluir] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao excluir plano: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Gerar Relatório Excel (Ícone 8)
+// Somente exportação (sem cópia de arquivos)
+// ============================================================================
+app.post('/api/plano-corte/:id/exportar-excel', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tenantPool = req.tenantDbPool || pool;
+
+        // Invocando a função interna que já faz a lógica complexa do excel
+        const excelResult = await ExportarPlanoExcelPadrao(id, tenantPool);
+
+        if (excelResult.success) {
+            // Tenta abrir o arquivo automaticamente no Excel (servidor local)
+            const { exec } = require('child_process');
+            const cmd = `start "" "${excelResult.path}"`;
+            exec(cmd, (err) => {
+                if (err) console.error('[PlanoExcel/Abrir] Falha ao abrir:', err.message);
+            });
+
+            res.json({
+                success: true,
+                message: `Relatório Excel do Plano #${id} gerado e aberto com sucesso.`,
+                path: excelResult.path
+            });
+        } else {
+            res.json({
+                success: false,
+                message: excelResult.message || 'Falha ao gerar relatório.'
+            });
+        }
+
+    } catch (err) {
+        console.error('[PlanoCorte/ExportarExcel] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao gerar Excel: ' + err.message });
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Remover item (desvincular de plano)
+// ============================================================================
+app.post('/api/plano-corte/remover-item', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        
+        const { idOrdemServicoItem } = req.body;
+        if (!idOrdemServicoItem) {
+            return res.status(400).json({ success: false, message: 'ID do item não fornecido.' });
+        }
+
+        // 1. Verificar se o item está em um plano que permite alteração (opcional, mas recomendado)
+        const [statusRows] = await connection.execute(`
+            SELECT osi.IdPlanodecorte, pc.Enviadocorte, pc.Concluido
+            FROM ordemservicoitem osi
+            LEFT JOIN planodecorte pc ON osi.IdPlanodecorte = pc.IdPlanodecorte
+            WHERE osi.IdOrdemServicoItem = ?
+        `, [idOrdemServicoItem]);
+
+        if (statusRows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Item não encontrado.' });
+        }
+
+        const itemData = statusRows[0];
+        if (itemData.Enviadocorte === 'S' || itemData.Concluido === 'S' || itemData.Concluido === 'C') {
+            return res.status(403).json({ success: false, message: 'Não é possível remover itens de um plano já enviado ou concluído.' });
+        }
+
+        // 2. Desvincular item do plano
+        await connection.execute(
+            `UPDATE ordemservicoitem SET IdPlanodecorte = NULL WHERE IdOrdemServicoItem = ?`,
+            [idOrdemServicoItem]
+        );
+
+        res.json({ success: true, message: 'Item removido do plano com sucesso.' });
+    } catch (err) {
+        console.error('[PlanoCorte/RemoverItem] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao remover item: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
 // PLANO DE CORTE — Incluir itens de OS em plano (cria ou reutiliza)
 // ============================================================================
 app.post('/api/plano-corte/incluir-itens', async (req, res) => {
@@ -9046,6 +9329,316 @@ app.post('/api/plano-corte/incluir-itens', async (req, res) => {
         if (connection) connection.release();
     }
 });
+// ============================================================================
+// PLANO DE CORTE — Exportar Excel Padrão (ExportarPlanoExcelPadrao do VB.NET)
+// ============================================================================
+const ExportarPlanoExcelPadrao = async (idPlano, tenantPool) => {
+    const dbPool = tenantPool || pool;
+    try {
+        console.log(`[PlanoExcel] Iniciando exportação do Plano #${idPlano}`);
+
+        // 1. Buscar template
+        const [cfgRows] = await dbPool.execute(
+            "SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoTemplateExcelPlanoCorte' LIMIT 1"
+        );
+        const templatePath = cfgRows.length > 0 ? cfgRows[0].valor : null;
+
+        // 2. Buscar dados do plano
+        const [planoRows] = await dbPool.execute(
+            `SELECT * FROM planodecorte WHERE IdPlanodecorte = ? LIMIT 1`,
+            [idPlano]
+        );
+        if (planoRows.length === 0) throw new Error('Plano de corte não encontrado');
+        const plano = planoRows[0];
+
+        if (!plano.EnderecoCompletoPlanoCorte) {
+            throw new Error('Plano sem caminho de diretório definido');
+        }
+
+        // 3. Buscar itens do plano (aglutinados por OS/Item — visão individual)
+        const [itens] = await dbPool.execute(`
+            SELECT 
+                osi.IdOrdemServico,
+                osi.IdOrdemServicoItem,
+                osi.Espessura,
+                osi.MaterialSW,
+                osi.CodMatFabricante,
+                osi.QtdeTotal,
+                osi.EnderecoArquivo,
+                osi.DescResumo,
+                osi.DescDetal
+            FROM ordemservicoitem osi
+            WHERE osi.idplanodecorte = ?
+              AND (osi.d_e_l_e_t_e IS NULL OR osi.d_e_l_e_t_e = '')
+            ORDER BY osi.IdOrdemServico, osi.IdOrdemServicoItem
+        `, [idPlano]);
+
+        // 4. Gerar Excel
+        const workbook = new ExcelJS.Workbook();
+        let worksheet;
+
+        if (templatePath && fs.existsSync(templatePath)) {
+            console.log(`[PlanoExcel] Usando template: ${templatePath}`);
+            await workbook.xlsx.readFile(templatePath);
+            worksheet = workbook.getWorksheet(1);
+        } else {
+            console.warn(`[PlanoExcel] Template não encontrado. Criando planilha nova.`);
+            worksheet = workbook.addWorksheet('Plano de Corte');
+            
+            // Definição de Estilos
+            const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+            const headerFont = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+            const centerAlign = { vertical: 'middle', horizontal: 'center' };
+            const leftAlign   = { vertical: 'middle', horizontal: 'left' };
+            const thinBorder  = {
+                top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' }
+            };
+
+            // 1. Cabeçalho do Plano
+            const row1 = worksheet.getRow(1);
+            row1.values = ['ID Plano', 'Descrição', 'Espessura', 'Material SW', 'Data Cad.'];
+            row1.height = 25;
+            for(let i=1; i<=5; i++) {
+                const cell = row1.getCell(i);
+                cell.fill = headerFill;
+                cell.font = headerFont;
+                cell.alignment = centerAlign;
+                cell.border = thinBorder;
+            }
+
+            const row2 = worksheet.getRow(2);
+            row2.values = [
+                plano.IdPlanodecorte,
+                plano.DescPlanodecorte || '',
+                plano.Espessura || '',
+                plano.MaterialSW || '',
+                plano.DataCad || ''
+            ];
+            row2.height = 20;
+            for(let i=1; i<=5; i++) {
+                const cell = row2.getCell(i);
+                cell.alignment = leftAlign;
+                cell.border = thinBorder;
+            }
+
+            // Espaço vazio
+            worksheet.addRow([]);
+
+            // 2. Cabeçalho dos Itens
+            const row5 = worksheet.getRow(5);
+            row5.values = ['OS', 'Item OS', 'Espessura', 'Material SW', 'Cod. Fab.', 'Qtde Total', 'Desc. Resumo', 'Desc. Detalhe'];
+            row5.height = 25;
+            for(let i=1; i<=8; i++) {
+                const cell = row5.getCell(i);
+                cell.fill = headerFill;
+                cell.font = headerFont;
+                cell.alignment = centerAlign;
+                cell.border = thinBorder;
+            }
+
+            // Dados dos Itens
+            itens.forEach((item, idx) => {
+                const row = worksheet.getRow(6 + idx);
+                row.values = [
+                    item.IdOrdemServico,
+                    item.IdOrdemServicoItem,
+                    item.Espessura || '',
+                    item.MaterialSW || '',
+                    item.CodMatFabricante || '',
+                    item.QtdeTotal || 0,
+                    item.DescResumo || '',
+                    item.DescDetal || ''
+                ];
+                row.height = 20;
+                for(let i=1; i<=8; i++) {
+                    const cell = row.getCell(i);
+                    cell.alignment = leftAlign;
+                    cell.border = thinBorder;
+                }
+            });
+
+            // Ajuste de largura das colunas
+            worksheet.columns = [
+                { width: 12 }, { width: 30 }, { width: 12 }, { width: 22 },
+                { width: 25 }, { width: 12 }, { width: 35 }, { width: 50 },
+            ];
+        }
+
+        // 5. Preencher cabeçalho (se template existir, usa células VB-padrão)
+        // 5. Preencher cabeçalho (se template existir, usa células VB-padrão)
+        if (templatePath && fs.existsSync(templatePath)) {
+            try {
+                const paddedId = String(idPlano).padStart(5, '0');
+                worksheet.getCell('A1').value = paddedId;
+                worksheet.getCell('A2').value = plano.DescPlanodecorte || '';
+                worksheet.getCell('A3').value = plano.Espessura || '';
+                worksheet.getCell('A4').value = plano.MaterialSW || '';
+                worksheet.getCell('A5').value = plano.DataCad || '';
+
+                // Itens a partir da linha 10 (ajustar conforme template real)
+                itens.forEach((item, idx) => {
+                    const row = 10 + idx;
+                    worksheet.getCell(`A${row}`).value = item.IdOrdemServico;
+                    worksheet.getCell(`B${row}`).value = item.IdOrdemServicoItem;
+                    worksheet.getCell(`C${row}`).value = item.Espessura || '';
+                    worksheet.getCell(`D${row}`).value = item.MaterialSW || '';
+                    worksheet.getCell(`E${row}`).value = item.CodMatFabricante || '';
+                    worksheet.getCell(`F${row}`).value = item.QtdeTotal || 0;
+                    worksheet.getCell(`G${row}`).value = item.DescResumo || '';
+                    worksheet.getCell(`H${row}`).value = item.DescDetal || '';
+                });
+            } catch (cellErr) {
+                console.warn('[PlanoExcel] Erro ao preencher células do template:', cellErr.message);
+            }
+        }
+
+        // 6. Salvar no diretório do plano
+        const folderPath = plano.EnderecoCompletoPlanoCorte.trim();
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        const now = new Date();
+        const timestamp = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+        const paddedId = String(idPlano).padStart(5, '0');
+        const fileName = `PlanoCorte_${paddedId}_${timestamp}.xlsx`;
+        const savePath = path.join(folderPath, fileName);
+
+        await workbook.xlsx.writeFile(savePath);
+        console.log(`[PlanoExcel] Arquivo gerado: ${savePath}`);
+        return { success: true, path: savePath, fileName };
+
+    } catch (err) {
+        console.error(`[PlanoExcel] Erro ao exportar plano #${idPlano}:`, err.message);
+        return { success: false, error: err.message };
+    }
+};
+
+// ============================================================================
+// PLANO DE CORTE — Atualizar Arquivos (ImportarArquivos + ExportarPlanoExcel)
+// Equivalente ao botão VB.NET: LimparDiretorio + ImportarArquivos (LXDS/DXF/DFT/PDF)
+// Condição: deve ser executado somente quando aglutinado = true (verificação no frontend)
+// ============================================================================
+app.post('/api/plano-corte/:id/atualizar-arquivos', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        const { id } = req.params;
+
+        // 1. Buscar dados do plano
+        const [planoRows] = await connection.execute(
+            `SELECT IdPlanodecorte, DescPlanodecorte, EnderecoCompletoPlanoCorte 
+             FROM planodecorte WHERE IdPlanodecorte = ? LIMIT 1`,
+            [id]
+        );
+
+        if (planoRows.length === 0) {
+            return res.json({ success: false, message: 'Plano de corte não encontrado.' });
+        }
+
+        const plano = planoRows[0];
+        const folderPath = (plano.EnderecoCompletoPlanoCorte || '').trim();
+
+        if (!folderPath) {
+            return res.json({ success: false, message: 'Plano sem caminho de diretório definido. Verifique as configurações.' });
+        }
+
+        // 2. Buscar itens do plano (equivalente ao DGVItensPLanodeCorte)
+        const [itens] = await connection.execute(`
+            SELECT IdOrdemServicoItem, IdOrdemServico, EnderecoArquivo
+            FROM ordemservicoitem
+            WHERE idplanodecorte = ?
+              AND (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')
+        `, [id]);
+
+        if (itens.length === 0) {
+            return res.json({ success: false, message: 'Nenhum item encontrado neste plano de corte.' });
+        }
+
+        // 3. LimparDiretorio(EnderecoCompletoPlanoCorte) — equivalente ao VB
+        limparDiretorio(folderPath);
+
+        // Garante que a pasta existe após limpar
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+        }
+
+        // 4. ImportarArquivos para cada extensão: LXDS, DXF, DFT, PDF
+        const extensoes = ['LXDS', 'DXF', 'DFT', 'PDF'];
+        const stats = { copiados: 0, ignorados: 0, erros: 0, semOrigemExistente: 0 };
+        const detalhes = [];
+
+        for (const ext of extensoes) {
+            let copiasExt = 0;
+
+            for (const item of itens) {
+                if (!item.EnderecoArquivo || item.EnderecoArquivo.trim() === '') {
+                    stats.ignorados++;
+                    continue;
+                }
+
+                const originPath = item.EnderecoArquivo.trim();
+
+                try {
+                    if (!fs.existsSync(originPath)) {
+                        stats.semOrigemExistente++;
+                        continue;
+                    }
+
+                    const files = fs.readdirSync(originPath);
+                    for (const file of files) {
+                        const fileExt = path.extname(file).toUpperCase().replace('.', '');
+                        if (fileExt !== ext) continue;
+
+                        const srcFile = path.join(originPath, file);
+                        const dstFile = path.join(folderPath, file);
+
+                        try {
+                            fs.copyFileSync(srcFile, dstFile);
+                            stats.copiados++;
+                            copiasExt++;
+                        } catch (copyErr) {
+                            console.error(`[PlanoCorte/AtualizarArquivos] Erro ao copiar ${file}:`, copyErr.message);
+                            stats.erros++;
+                        }
+                    }
+                } catch (dirErr) {
+                    console.error(`[PlanoCorte/AtualizarArquivos] Erro ao ler diretório ${originPath}:`, dirErr.message);
+                    stats.erros++;
+                }
+            }
+
+            detalhes.push(`${ext}: ${copiasExt}`);
+        }
+
+        console.log(`[PlanoCorte/AtualizarArquivos] Plano #${id}: ${stats.copiados} arq. copiados (${detalhes.join(', ')})`);
+
+        // 5. ExportarPlanoExcelPadrao() — equivalente ao VB
+        connection.release();
+        connection = null;
+        const excelResult = await ExportarPlanoExcelPadrao(id, tenantPool);
+
+        const excelMsg = excelResult.success
+            ? ` Excel gerado: ${excelResult.fileName}`
+            : ` (Excel: ${excelResult.error})`;
+
+        res.json({
+            success: true,
+            message: `Plano de Corte #${id} atualizado! ${stats.copiados} arquivo(s) importado(s) [${detalhes.join(' | ')}].${excelMsg}`,
+            stats,
+            excelGerado: excelResult.success,
+            excelPath: excelResult.path || null
+        });
+
+    } catch (err) {
+        console.error('[PlanoCorte/AtualizarArquivos] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar arquivos: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 // Static files and SPA Catch-all (Must be last)
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));

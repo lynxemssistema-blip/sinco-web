@@ -77,6 +77,8 @@ export default function VisaoGeralProducaoPage() {
     const [selProj, setSelProj] = useState<Projeto | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [rncPanel, setRncPanel] = useState(false); const [fTag, setFTag] = useState('');
+    const [fDataEntradaIni, setFDataEntradaIni] = useState(''); const [fDataEntradaFim, setFDataEntradaFim] = useState('');
+    const [fDataPrevIni, setFDataPrevIni] = useState(''); const [fDataPrevFim, setFDataPrevFim] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
 
@@ -472,7 +474,16 @@ export default function VisaoGeralProducaoPage() {
     };
 
     const filteredProj = projetos.filter(p => !fProj || String(p.IdProjeto).includes(fProj) || p.Projeto?.toLowerCase().includes(fProj.toLowerCase()) || p.DescProjeto?.toLowerCase().includes(fProj.toLowerCase()));
-    const filteredTags = tags.filter(t => !fTag || t.Tag?.toLowerCase().includes(fTag.toLowerCase()) || t.DescTag?.toLowerCase().includes(fTag.toLowerCase()));
+    const filteredTags = tags.filter(t => {
+        if (fTag && !t.Tag?.toLowerCase().includes(fTag.toLowerCase()) && !t.DescTag?.toLowerCase().includes(fTag.toLowerCase())) return false;
+        const tEntrada = t.DataEntrada ? brToIso(t.DataEntrada) : '';
+        const tPrev = t.DataPrevisao ? brToIso(t.DataPrevisao) : '';
+        if (fDataEntradaIni && tEntrada && tEntrada < fDataEntradaIni) return false;
+        if (fDataEntradaFim && tEntrada && tEntrada > fDataEntradaFim) return false;
+        if (fDataPrevIni && tPrev && tPrev < fDataPrevIni) return false;
+        if (fDataPrevFim && tPrev && tPrev > fDataPrevFim) return false;
+        return true;
+    });
     const filteredRncs = rncs.filter(r => showFinalizedRncs || r.Estatus !== 'FINALIZADO');
 
     return (
@@ -758,16 +769,28 @@ export default function VisaoGeralProducaoPage() {
                             </div>
                             
                             <div className="flex items-center gap-3">
-                                <div className="bg-white rounded-lg border border-slate-200 flex items-center px-3 py-1.5 shadow-sm w-48 lg:w-64 hidden sm:flex">
-                                    <Search size={14} className="text-slate-400 mr-2" />
+                                <div className="hidden sm:flex items-center gap-1.5 flex-wrap md:flex-nowrap">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Entrada:</span>
+                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                    <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
+                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                </div>
+                                <div className="hidden sm:flex items-center gap-1.5 flex-wrap md:flex-nowrap">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1 md:ml-2">Prev:</span>
+                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                    <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
+                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                </div>
+                                <div className="bg-white rounded-lg border border-slate-200 flex items-center px-2 py-1.5 shadow-sm w-32 sm:w-40 lg:w-48 hidden sm:flex ml-1 md:ml-2">
+                                    <Search size={14} className="text-slate-400 mr-2 shrink-0" />
                                     <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
                                 </div>
-                                {fTag && (
-                                    <button onClick={() => setFTag('')} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs" title="Limpar pesquisa">
-                                        <X size={14} /> Limpar
+                                {(fTag || fDataEntradaIni || fDataEntradaFim || fDataPrevIni || fDataPrevFim) && (
+                                    <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs" title="Limpar pesquisa e filtros">
+                                        <X size={14} /> <span className="hidden lg:inline">Limpar</span>
                                     </button>
                                 )}
-                                <div className="h-6 w-px bg-slate-300 mx-1"></div>
+                                <div className="h-6 w-px bg-slate-300 mx-1 hidden sm:block"></div>
                                 <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-slate-100 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs">
                                     <X size={16} /> Fechar
                                 </button>

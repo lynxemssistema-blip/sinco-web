@@ -4,6 +4,7 @@ import { defaultMenuItems } from './utils/constants'; // Import default structur
 import { AppLayout } from './layout/AppLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
+import { AppConfigProvider } from './contexts/AppConfigContext';
 import LoginPage from './pages/Login';
 
 // Pages
@@ -32,6 +33,9 @@ import PesquisarDesenhoPage from './pages/PesquisarDesenho';
 import TarefasPage from './pages/Tarefas';
 import VisaoGeralPendenciasPage from './pages/VisaoGeralPendencias';
 import ListaReposicaoPage from './pages/ListaReposicao';
+import MontagemPlanoCortePage from './pages/MontagemPlanoCorte';
+import ProducaoPlanoCortePage from './pages/ProducaoPlanoCorte';
+import TesteFinalMontagemPage from './pages/TesteFinalMontagem';
 function AppContent() {
   const { user, logout } = useAuth();
   const [activePageId, setActivePageId] = useState('dashboard');
@@ -90,7 +94,18 @@ function AppContent() {
             }
           }
 
-
+          // Force add 'plano-corte' se missing
+          if (!savedMenu.find(item => item.id === 'plano-corte')) {
+            const pcItem = defaultMenuItems.find(item => item.id === 'plano-corte');
+            if (pcItem) {
+              const osIdx = savedMenu.findIndex(item => item.id === 'ordens-servico');
+              if (osIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, osIdx + 1), pcItem, ...savedMenu.slice(osIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, pcItem];
+              }
+            }
+          }
 
           // Force add 'controle-expedicao' if it belongs to lynxlocal or alfatec
           if (user.dbName === 'lynxlocal' || user.dbName === 'alfatec') {
@@ -108,6 +123,24 @@ function AppContent() {
           } else {
              // Remove it if present and user is not one of those dbNames
              savedMenu = savedMenu.filter(item => item.id !== 'controle-expedicao');
+          }
+
+          // Force add 'teste-final-montagem' restrito a alfatec2 e lynxlocal
+          const TFM_BANKS = ['lynxlocal', 'alfatec2'];
+          if (TFM_BANKS.includes(user.dbName ?? '')) {
+            if (!savedMenu.find(item => item.id === 'teste-final-montagem')) {
+              const tfmItem = defaultMenuItems.find(item => item.id === 'teste-final-montagem');
+              if (tfmItem) {
+                const ceIdx = savedMenu.findIndex(item => item.id === 'controle-expedicao');
+                if (ceIdx >= 0) {
+                  savedMenu = [...savedMenu.slice(0, ceIdx + 1), tfmItem, ...savedMenu.slice(ceIdx + 1)];
+                } else {
+                  savedMenu = [...savedMenu, tfmItem];
+                }
+              }
+            }
+          } else {
+            savedMenu = savedMenu.filter(item => item.id !== 'teste-final-montagem');
           }
 
           // Force add 'pesquisar-desenho' if missing
@@ -163,9 +196,6 @@ function AppContent() {
             }
           }
 
-          // if (!user.isSuperadmin) {
-          //   savedMenu = savedMenu.filter(item => item.id !== 'superadmin');
-          // }
           setMenuItems(savedMenu);
         } else {
           // If no custom menu, use default.
@@ -280,6 +310,10 @@ function AppContent() {
         return <TipoProdutoPage />;
       case 'ordens-servico':
         return <OrdemServicoPage />;
+      case 'montagem-plano-corte':
+        return <MontagemPlanoCortePage />;
+      case 'producao-plano-corte':
+        return <ProducaoPlanoCortePage />;
       case 'apontamento':
         return <ApontamentoProducaoPage />;
       case 'visao-geral-producao':
@@ -289,6 +323,9 @@ function AppContent() {
       case 'controle-expedicao':
         if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;
         return <ControleExpedicaoPage />;
+      case 'teste-final-montagem':
+        if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec2') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;
+        return <TesteFinalMontagemPage />;
       case 'pesquisar-desenho':
         return <PesquisarDesenhoPage />;
       case 'tarefas':
@@ -353,7 +390,9 @@ export default function App() {
   return (
     <AuthProvider>
       <AlertProvider>
-        <AppContent />
+        <AppConfigProvider>
+          <AppContent />
+        </AppConfigProvider>
       </AlertProvider>
     </AuthProvider>
   );

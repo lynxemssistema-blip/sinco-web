@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon } from 'lucide-react';
 import { cn } from '../lib/cn';
@@ -20,7 +20,10 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-    const [isDark, setIsDark] = useState(false); // Simple logic for demo, ideally use context/localstorage
+    const [isDark, setIsDark] = useState(false);
+
+    // Ref para o scroll container do sidebar desktop
+    const sidebarScrollRef = useRef<HTMLDivElement>(null);
 
     const toggleTheme = () => {
         setIsDark(!isDark);
@@ -31,17 +34,41 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
+    // Auto-expand parent if child is active
+    useEffect(() => {
+        menuItems.forEach(item => {
+            if (item.children) {
+                const hasActiveChild = item.children.some(c => c.id === activePageId);
+                if (hasActiveChild) {
+                    setExpandedItems(prev => ({ ...prev, [item.id]: true }));
+                }
+            }
+        });
+    }, [activePageId, menuItems]);
+
+    // Scroll automático para centralizar o item ativo no sidebar
+    useEffect(() => {
+        if (!sidebarScrollRef.current) return;
+        // Aguarda um tick para garantir que o DOM foi atualizado
+        const timer = setTimeout(() => {
+            const activeEl = sidebarScrollRef.current?.querySelector(`[data-menu-id="${activePageId}"]`) as HTMLElement | null;
+            if (activeEl) {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 80);
+        return () => clearTimeout(timer);
+    }, [activePageId]);
+
     const renderMenuItem = (item: MenuItem, depth = 0, isMobile = false) => {
         const Icon = getIcon(item.icon);
         const isActive = activePageId === item.id;
         const hasChildren = item.children && item.children.length > 0;
         const isExpanded = expandedItems[item.id];
 
-        // Ensure parent is expanded if child is active? (Optional logic)
-
         return (
             <li key={item.id} className="mb-1">
                 <button
+                    data-menu-id={item.id}
                     onClick={() => {
                         if (hasChildren) {
                             toggleExpand(item.id);
@@ -87,7 +114,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         );
     };
 
-    const SidebarContent = ({ isMobile = false }) => (
+    const SidebarContent = ({ isMobile = false, scrollRef }: { isMobile?: boolean; scrollRef?: React.RefObject<HTMLDivElement> }) => (
         <div className="flex flex-col h-full">
             <div className="p-4 border-b border-primary/10 flex items-center gap-3">
                 <img src="/lynx-logo.png" alt="Lynx" className="w-8 h-8 rounded-lg object-contain" />
@@ -97,7 +124,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar">
                 <ul>
                     {menuItems.map(item => renderMenuItem(item, 0, isMobile))}
                 </ul>
@@ -129,7 +156,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 "hidden md:flex bg-[#F9F8F3] text-primary fixed inset-y-0 left-0 z-30 shadow-xl flex-col border-r border-primary/10 transition-transform duration-300 w-72 h-full",
                 isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"
             )}>
-                <SidebarContent />
+                <SidebarContent scrollRef={sidebarScrollRef} />
             </aside>
 
             {/* Mobile Header */}

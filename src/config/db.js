@@ -10,11 +10,12 @@ const dbConfig = {
   database: process.env.CENTRAL_DB_NAME || 'lynxlocal',
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 50, // Increased for scalability
-  queueLimit: 0,
+  connectionLimit: 10,          // T7: reduced from 50 - more appropriate for shared remote MySQL
+  queueLimit: 30,               // T7: limit queued requests to prevent memory buildup
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-  connectTimeout: 20000
+  keepAliveInitialDelay: 30000, // T8: 30s delay before first keepalive ping
+  connectTimeout: 10000,        // T8: reduced from 20s - fail faster on dead connections
+  idleTimeout: 60000            // T8: release idle connections after 60s
 };
 
 const { AsyncLocalStorage } = require('async_hooks');
@@ -59,26 +60,17 @@ const initPool = (config) => {
   }
 };
 
-// Initial startup
+// Initial startup - single call only
 initPool(dbConfig);
 
 // Helper to get current pool based on context
 const getPool = () => {
   const store = asyncLocalStorage.getStore();
-  if (store && store.dbName) {
-    // console.log(`[DB] getPool context: ${store.dbName}`);
-  } else {
-    // console.log(`[DB] getPool context: DEFAULT (No store or dbName)`);
-  }
-
   if (store && store.dbName && pools.has(store.dbName)) {
     return pools.get(store.dbName);
   }
   return defaultPool;
 };
-
-// Initial startup
-initPool(dbConfig);
 
 // Wrapper for execute
 const execute = async (sql, params) => {

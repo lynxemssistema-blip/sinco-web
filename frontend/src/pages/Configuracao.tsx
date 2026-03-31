@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Save, Lock, User, Settings2, CheckCircle, Menu, Trash2, ChevronUp, ChevronDown, ChevronRight, Edit2, FolderPlus, X, ChevronLeft, Eye, EyeOff, Database, Server, ArrowRight } from 'lucide-react';
+import { Shield, Save, Lock, User, Settings2, CheckCircle, Menu, Trash2, ChevronUp, ChevronDown, ChevronRight, Edit2, FolderPlus, X, ChevronLeft, Eye, EyeOff, Database, Server, ArrowRight, List } from 'lucide-react';
 import { iconMap } from '../utils/iconMap';
 import type { MenuItem } from '../utils/iconMap';
 import { useToast } from '../contexts/ToastContext';
+import { useAppConfig, saveLocalPrefs } from '../contexts/AppConfigContext';
 import { defaultMenuItems } from '../utils/constants';
 
 const API_BASE = '/api';
 
 export default function ConfiguracaoPage() {
     const { addToast } = useToast();
+    const { refetchConfig } = useAppConfig();
     const [isAdmin, setIsAdmin] = useState(false);
     const [login, setLogin] = useState('');
     const [senha, setSenha] = useState('');
@@ -17,6 +19,9 @@ export default function ConfiguracaoPage() {
     // Config Regras
     const [restringirApontamento, setRestringirApontamento] = useState('Não');
     const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
+    const [planoCorteFiltroDC, setPlanoCorteFiltroDC] = useState<'corte' | 'chaparia'>('corte');
+    const [maxRegistros, setMaxRegistros] = useState<number>(500);
+    const [maxRegistrosCustom, setMaxRegistrosCustom] = useState<string>('');
 
     // Config Menu
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -53,6 +58,16 @@ export default function ConfiguracaoPage() {
                 }
             })
             .catch(() => addToast({ type: 'error', title: 'Erro', message: 'Erro ao carregar configurações' }));
+
+        // Preferências situacionais: lê do localStorage
+        const filtroSalvo = localStorage.getItem('sinco_planoCorteFiltroDC') as 'corte' | 'chaparia' | null;
+        if (filtroSalvo === 'chaparia') setPlanoCorteFiltroDC('chaparia');
+        else setPlanoCorteFiltroDC('corte');
+
+        const maxSalvo = parseInt(localStorage.getItem('sinco_maxRegistros') || '500') || 500;
+        setMaxRegistros(maxSalvo);
+        const presets = [100, 300, 500, 1000, 5000];
+        setMaxRegistrosCustom(presets.includes(maxSalvo) ? '' : String(maxSalvo));
     };
 
     const fetchMenu = () => {
@@ -167,16 +182,27 @@ export default function ConfiguracaoPage() {
     };
 
     const handleSaveRegras = async () => {
+        // 1. Salva preferências situacionais no localStorage (sem banco)
+        saveLocalPrefs({ planoCorteFiltroDC, maxRegistros });
+
+        // 2. Salva regras de negócio na API (banco de dados)
         try {
-            await fetch(`${API_BASE}/config`, {
+            const res = await fetch(`${API_BASE}/config`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     restringirApontamento,
-                    processosVisiveis: JSON.stringify(processosVisiveis)
+                    processosVisiveis: JSON.stringify(processosVisiveis),
                 })
             });
-            addToast({ type: 'success', title: 'Sucesso', message: 'Regras salvas com sucesso!' });
+            const data = await res.json();
+            if (data.success) {
+                // Atualiza contexto global para as outras telas
+                refetchConfig();
+                addToast({ type: 'success', title: 'Sucesso', message: 'Configurações salvas!' });
+            } else {
+                addToast({ type: 'error', title: 'Erro', message: data.message || 'Erro ao salvar regras' });
+            }
         } catch (err) {
             addToast({ type: 'error', title: 'Erro', message: 'Erro ao salvar regras' });
         }
@@ -554,6 +580,82 @@ export default function ConfiguracaoPage() {
                             </div>
                             <p className="text-xs text-gray-400 mt-2">
                                 Desmarque os setores que sua fábrica não utiliza. Eles serão ocultados das telas de Apontamento e OS.
+                            </p>
+                        </div>
+
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <h3 className="font-medium text-gray-900 mb-3">Filtro Padrão — Plano de Corte</h3>
+                            <p className="text-sm text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setPlanoCorteFiltroDC('corte')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+                                        planoCorteFiltroDC === 'corte'
+                                            ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+                                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                                    }`}
+                                >
+                                    Setor Corte
+                                    <span className="text-[10px] opacity-70 font-mono">(TxtCorte = 1)</span>
+                                </button>
+                                <button
+                                    onClick={() => setPlanoCorteFiltroDC('chaparia')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+                                        planoCorteFiltroDC === 'chaparia'
+                                            ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+                                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                                    }`}
+                                >
+                                    Desenho Chaparia
+                                    <span className="text-[10px] opacity-70 font-mono">(TxtTipoDesenho = CHAPARIA)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* ===== LIMITE DE REGISTROS ===== */}
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <div className="flex items-center gap-2 mb-1">
+                                <List size={18} className="text-[#32423D]" />
+                                <h3 className="font-medium text-gray-900">Limite de Registros por Listagem</h3>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-4">
+                                Número máximo de registros retornados em todas as consultas do sistema.
+                                Valor atual: <span className="font-bold text-[#32423D]">{maxRegistros}</span> registros.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {[100, 300, 500, 1000, 5000].map(val => (
+                                    <button
+                                        key={val}
+                                        onClick={() => { setMaxRegistros(val); setMaxRegistrosCustom(''); }}
+                                        className={`px-5 py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+                                            maxRegistros === val && maxRegistrosCustom === ''
+                                                ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+                                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                                        }`}
+                                    >
+                                        {val.toLocaleString('pt-BR')}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="99999"
+                                    placeholder="Ex: 2000"
+                                    value={maxRegistrosCustom}
+                                    onChange={e => {
+                                        const v = e.target.value;
+                                        setMaxRegistrosCustom(v);
+                                        const n = parseInt(v);
+                                        if (!isNaN(n) && n > 0) setMaxRegistros(n);
+                                    }}
+                                    className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#E0E800] focus:border-transparent outline-none"
+                                />
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">
+                                Este limite é aplicado globalmente em todos os SELECTs do app. Um valor muito alto pode impactar a performance.
                             </p>
                         </div>
                     </div>
