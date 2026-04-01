@@ -8566,39 +8566,66 @@ app.get('/api/plano-corte/itens-disponiveis', async (req, res) => {
 // ============================================================================
 // PLANO DE CORTE â€” Lista de planos (Etapa 2: Visualizar)
 // ============================================================================
-app.get('/api/plano-corte/lista', async (req, res) => {
+// GET /api/producao-plano-corte/lista - Lista de planos (Etapa 2: Visualizar)
+app.get(['/api/plano-corte/lista', '/api/producao-plano-corte/lista'], async (req, res) => {
     let connection = null;
     try {
         const tenantPool = req.tenantDbPool || pool;
         connection = await tenantPool.getConnection();
-        const { Espessura, MaterialSW, exibirConcluidos } = req.query;
-        const mostrarConcluidos = exibirConcluidos === 'true';
-        // Base: somente registros nÃ£o deletados
+        
+        // Frontend usa 'exibirTodos', backend usava 'exibirConcluidos'. Aceitamos ambos.
+        const { Espessura, MaterialSW, exibirConcluidos, exibirTodos } = req.query;
+        const mostrarConcluidos = exibirConcluidos === 'true' || exibirTodos === 'true';
+        
+        // Base: somente registros não deletados
         let where = "(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')";
+        
         if (!mostrarConcluidos) {
-            // PadrÃ£o: exclui concluÃ­dos (concluido='C') e enviados para corte (enviadocorte='S')
-            where += " AND (concluido IS NULL OR concluido = '') AND (enviadocorte IS NULL OR enviadocorte = '')";
+            // Padrão: exclui concluídos (concluido='C' ou 'S') e enviados para corte (enviadocorte='S')
+            // O Plano 1 é frequentemente um registro fixo/exemplo, incluímos na lógica se não for concluído.
+            where += " AND (concluido IS NULL OR concluido = '' OR concluido = 'N') AND (enviadocorte IS NULL OR enviadocorte = '' OR enviadocorte = 'N')";
         }
-        // Quando mostrarConcluidos=true: sem restriÃ§Ã£o adicional â€” exibe TODOS os registros
+        
+        // Quando mostrarConcluidos=true: sem restrição adicional — exibe TODOS os registros ativos
+
         const params = [];
         if (Espessura)  { where += ' AND Espessura LIKE ?';  params.push(`%${Espessura}%`); }
         if (MaterialSW) { where += ' AND MaterialSW LIKE ?'; params.push(`%${MaterialSW}%`); }
-        const [rows] = await connection.execute(`
-            SELECT IdPlanodecorte AS IdPlanodecorte, DescPlanodecorte AS DescPlanodecorte,
-                   Espessura AS Espessura, MaterialSW AS MaterialSW,
-                   DataCad AS DataCad, DataLimite AS DataLimite, CriadoPor AS CriadoPor,
-                   Enviadocorte AS Enviadocorte, Concluido AS Concluido,
-                   EnderecoCompletoPlanoCorte AS EnderecoCompletoPlanoCorte,
-                   DataLiberacao AS DataLiberacao, UsuarioLiberacao AS UsuarioLiberacao,
-                   DataInicial AS DataInicial, DataFinal AS DataFinal,
-                   QtdeTotalPecas AS QtdeTotalPecas, QtdeTotalPecasExecutadas AS QtdeTotalPecasExecutadas
-            FROM planodecorte WHERE ${where}
-            GROUP BY IdPlanodecorte ORDER BY IdPlanodecorte DESC
-        `, params);
+        
+        const sql = `
+            SELECT IdPlanodecorte, DescPlanodecorte, Espessura, MaterialSW,
+                   DataCad, DataLimite, CriadoPor, Enviadocorte, Concluido,
+                   EnderecoCompletoPlanoCorte, DataLiberacao, UsuarioLiberacao,
+                   DataInicial, DataFinal, QtdeTotalPecas, QtdeTotalPecasExecutadas
+            FROM planodecorte 
+            WHERE ${where}
+            GROUP BY IdPlanodecorte 
+            ORDER BY IdPlanodecorte DESC
+        `;
+
+        const [rows] = await connection.execute(sql, params);
+        
+        // Caso não tenha registro, retornamos sucesso com array vazio e mensagem (não erro)
+        if (rows.length === 0) {
+            return res.json({ 
+                success: true, 
+                data: [], 
+                total: 0, 
+                message: 'Nenhum plano de corte localizado para os filtros informados.' 
+            });
+        }
+        
         res.json({ success: true, data: rows, total: rows.length });
+
     } catch (err) {
         console.error('[PlanoCorte/Lista] Erro:', err.message);
-        res.status(500).json({ success: false, message: 'Erro: ' + err.message });
+        // Retornamos um objeto de erro controlado para o cliente
+        res.json({ 
+            success: false, 
+            data: [], 
+            message: 'Aviso: Não foi possível carregar a lista de planos de corte no momento.',
+            error: err.message 
+        });
     } finally {
         if (connection) connection.release();
     }

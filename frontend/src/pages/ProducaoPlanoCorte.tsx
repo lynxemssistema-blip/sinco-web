@@ -1,20 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Scissors, Loader2, Filter, Database, RefreshCw,
-    CheckCircle2, Clock, Search, X
+    CheckCircle2, Clock, Search, X, AlertCircle, ArrowRight
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface PlanoCorte {
     IdPlanodecorte: number;
     DescPlanodecorte: string;
     Espessura: string;
     MaterialSW: string;
-    DataCad: string | null;
-    DataLimite: string | null;
-    CriadoPor: string | null;
-    Enviadocorte: string | null;
-    Concluido: string | null;
-    EnderecoCompletoPlanoCorte: string | null;
     DataLiberacao: string | null;
     UsuarioLiberacao: string | null;
     DataInicial: string | null;
@@ -23,230 +19,366 @@ interface PlanoCorte {
     QtdeTotalPecasExecutadas: number | null;
 }
 
+interface ItemPlano {
+    CodMatFabricante: string;
+    IdPlanodeCorte: number;
+    IdOrdemServico: number;
+    IdOrdemServicoItem: number;
+    Espessura: string;
+    MaterialSW: string;
+    IdProjeto: number;
+    Projeto: string;
+    IdTag: number;
+    Tag: string;
+    Acabamento: string;
+    txtSoldagem: string;
+    ProdutoPrincipal: string;
+    QtdeTotal: number;
+    txtCorte: string;
+    CorteTotalExecutado: number;
+    CorteTotalExecutar: number;
+    Parcial: number;
+    OrdemServicoItemFinalizado: string;
+    DescResumo: string;
+    DescDetal: string;
+    EnderecoArquivo: string;
+    EnderecoArquivoItemOrdemServico: string;
+    qtde: number;
+    txtDobra: string;
+    txtSolda: string;
+    txtPintura: string;
+    txtMontagem: string;
+    sttxtCorte: string;
+    RealizadoInicioCorte: string;
+    RealizadoFinalCorte: string;
+    Liberado_Engenharia: string;
+}
+
 function fmt(val: string | null): string {
     if (!val) return '—';
     const s = String(val).trim();
-    const br = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-    if (br) return `${br[1]}/${br[2]}/${br[3]}`;
-    const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+    if (s.includes('T')) return new Date(s).toLocaleDateString('pt-BR');
     return s;
 }
 
 export default function ProducaoPlanoCorte() {
+    const { token } = useAuth();
+    const { addToast } = useToast();
+
+    // Estado Planos
     const [planos, setPlanos] = useState<PlanoCorte[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [exibirConcluidos, setExibirConcluidos] = useState(false);
+    const [loadingPlanos, setLoadingPlanos] = useState(false);
+    const [exibirTodosPlanos, setExibirTodosPlanos] = useState(false);
+    const [planoSel, setPlanoSel] = useState<PlanoCorte | null>(null);
 
-    // Filtros servidor
-    const [fEspessura, setFEspessura] = useState('');
-    const [fMaterial, setFMaterial] = useState('');
+    // Filtros Planos
+    const [fPDesc, setFPDesc] = useState('');
+    const [fPEsp, setFPEsp] = useState('');
+    const [fPMat, setFPMat] = useState('');
+    const [fPId, setFPId] = useState('');
 
-    // Filtro local rápido
-    const [fLocal, setFLocal] = useState('');
+    // Estado Itens
+    const [itens, setItens] = useState<ItemPlano[]>([]);
+    const [loadingItens, setLoadingItens] = useState(false);
+    const [exibirTodosItens, setExibirTodosItens] = useState(false);
 
-    const fetchPlanos = async () => {
-        setLoading(true); setError('');
+    // Filtros Itens
+    const [fIProj, setFIProj] = useState('');
+    const [fITag, setFITag] = useState('');
+    const [fIRes, setFIRes] = useState('');
+    const [fICod, setFICod] = useState('');
+
+    const fetchPlanos = useCallback(async () => {
+        setLoadingPlanos(true);
         try {
-            const params = new URLSearchParams({ exibirConcluidos: String(exibirConcluidos) });
-            if (fEspessura.trim()) params.set('Espessura', fEspessura.trim());
-            if (fMaterial.trim())  params.set('MaterialSW', fMaterial.trim());
-            const res = await fetch(`/api/plano-corte/lista?${params}`);
-            if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
+            const params = new URLSearchParams({ exibirTodos: String(exibirTodosPlanos) });
+            if (fPDesc.trim()) params.set('descplanodecorte', fPDesc.trim());
+            if (fPEsp.trim())  params.set('Espessura', fPEsp.trim());
+            if (fPMat.trim())  params.set('MaterialSW', fPMat.trim());
+            if (fPId.trim())   params.set('IdPlanodeCorte', fPId.trim());
+
+            const res = await fetch(`/api/producao-plano-corte/lista?${params}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const contentType = res.headers.get('content-type');
+            if (!res.ok) {
+                const errData = (contentType && contentType.includes('application/json')) ? await res.json() : null;
+                const msg = errData?.message || `Erro HTTP ${res.status}`;
+                throw new Error(msg);
+            }
+
+            if (contentType && !contentType.includes('application/json')) {
+                throw new Error('O servidor retornou um formato inesperado (HTML).');
+            }
+
             const result = await res.json();
-            if (result.success) setPlanos(result.data || []);
-            else setError(result.message || 'Erro ao buscar dados');
+            if (result.success) {
+                setPlanos(result.data || []);
+                // Se o backend enviar uma mensagem informativa (ex: "Nenhum plano localizado"), exibimos como 'info' em vez de 'error'
+                if (result.data.length === 0 && result.message) {
+                    addToast({ type: 'info', title: 'Busca Concluída', message: result.message });
+                }
+            } else {
+                addToast({ type: 'warning', title: 'Aviso', message: result.message || 'Houve um problema ao carregar os dados.' });
+            }
         } catch (e: any) {
-            setError(e.message);
-        } finally { setLoading(false); }
+            console.error('Erro fetchPlanos:', e);
+            addToast({ 
+                type: 'error', 
+                title: 'Erro ao Carregar', 
+                message: `Não foi possível listar os planos. Detalhe: ${e.message}` 
+            });
+        } finally { setLoadingPlanos(false); }
+    }, [exibirTodosPlanos, fPDesc, fPEsp, fPMat, fPId, token]);
+
+    const fetchItens = useCallback(async () => {
+        if (!planoSel) { setItens([]); return; }
+        setLoadingItens(true);
+        try {
+            const params = new URLSearchParams({ exibirTodos: String(exibirTodosItens) });
+            if (fIProj.trim()) params.set('Projeto', fIProj.trim());
+            if (fITag.trim())  params.set('Tag', fITag.trim());
+            if (fIRes.trim())  params.set('DescResumo', fIRes.trim());
+            if (fICod.trim())  params.set('CodMatFabricante', fICod.trim());
+
+            const res = await fetch(`/api/producao-plano-corte/itens/${planoSel.IdPlanodecorte}?${params}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const contentType = res.headers.get('content-type');
+            if (!res.ok || (contentType && !contentType.includes('application/json'))) {
+                throw new Error('O servidor não retornou dados válidos.');
+            }
+
+            const result = await res.json();
+            if (result.success) setItens(result.data || []);
+            else addToast({ type: 'error', title: 'Aviso', message: result.message || 'Nenhum item encontrado para este plano.' });
+        } catch (e: any) {
+            console.error('Erro fetchItens:', e);
+            addToast({ 
+                type: 'error', 
+                title: 'Erro de Leitura', 
+                message: 'Não conseguimos ler os detalhes dos itens. Tente atualizar a visão ou contate o suporte.' 
+            });
+        } finally { setLoadingItens(false); }
+    }, [planoSel, exibirTodosItens, fIProj, fITag, fIRes, fICod, token]);
+
+    useEffect(() => { fetchPlanos(); }, [exibirTodosPlanos]);
+    useEffect(() => { fetchItens(); }, [planoSel, exibirTodosItens]);
+
+    const limparFiltrosPlanos = () => {
+        setFPDesc(''); setFPEsp(''); setFPMat(''); setFPId(''); 
+        setExibirTodosPlanos(false);
+        setTimeout(fetchPlanos, 50);
     };
 
-    useEffect(() => { fetchPlanos(); }, [exibirConcluidos]);
-
-    const handleSearch = () => fetchPlanos();
-    const handleLimpar = () => { setFEspessura(''); setFMaterial(''); setFLocal(''); setTimeout(fetchPlanos, 50); };
-
-    const planosFiltrados = useMemo(() => {
-        if (!fLocal.trim()) return planos;
-        const q = fLocal.toLowerCase();
-        return planos.filter(p =>
-            String(p.IdPlanodecorte).includes(q) ||
-            (p.DescPlanodecorte || '').toLowerCase().includes(q) ||
-            (p.Espessura || '').toLowerCase().includes(q) ||
-            (p.MaterialSW || '').toLowerCase().includes(q) ||
-            (p.CriadoPor || '').toLowerCase().includes(q)
-        );
-    }, [planos, fLocal]);
+    const limparFiltrosItens = () => {
+        setFIProj(''); setFITag(''); setFIRes(''); setFICod('');
+        setExibirTodosItens(false);
+        setTimeout(fetchItens, 50);
+    };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-8rem)] bg-[#f8fafc] text-slate-800">
-
-            {/* Header */}
-            <div className="shrink-0 bg-white border-b border-slate-200 shadow-sm px-5 py-3">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shadow-sm shrink-0">
-                            <Scissors size={22} />
+        <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 p-3 gap-3 overflow-hidden">
+            
+            {/* PAINEL SUPERIOR: PLANOS DE CORTE */}
+            <div className={`flex flex-col bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ${planoSel ? 'h-1/3' : 'h-full'}`}>
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
+                    <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-sm">
+                            <Scissors size={18} />
                         </div>
                         <div>
-                            <h1 className="text-lg font-black text-slate-800 leading-none tracking-tight">Planos de Corte</h1>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Visualização e controle dos planos de corte</p>
+                            <h2 className="text-sm font-black text-slate-800 tracking-tight leading-none">Produção — Planos de Corte</h2>
+                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-0.5">Visão Execução Fábrica</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        {/* Contador */}
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-700 border border-blue-300">
-                            <Database size={13} />
-                            {loading ? '...' : `${planosFiltrados.length} planos`}
+
+                    <div className="flex items-center gap-2">
+                        {/* Filtros Planos */}
+                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner focus-within:border-blue-400">
+                            <Search size={12} className="text-slate-400" />
+                            <input type="text" placeholder="ID" value={fPId} onChange={e=>setFPId(e.target.value)} className="w-12 text-[10px] outline-none font-bold text-blue-700" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
+                            <input type="text" placeholder="Descrição..." value={fPDesc} onChange={e=>setFPDesc(e.target.value)} className="w-32 text-[10px] outline-none border-l border-slate-100 pl-1.5" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
+                            <input type="text" placeholder="Esp..." value={fPEsp} onChange={e=>setFPEsp(e.target.value)} className="w-16 text-[10px] outline-none border-l border-slate-100 pl-1.5" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
+                            {(fPId || fPDesc || fPEsp || fPMat) && (
+                                <button onClick={limparFiltrosPlanos} className="p-0.5 text-slate-300 hover:text-red-500 transition-colors"><X size={12}/></button>
+                            )}
                         </div>
-                        {/* Toggle Todos / Pendentes */}
-                        <button
-                            onClick={() => setExibirConcluidos(v => !v)}
-                            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition-all ${
-                                exibirConcluidos
-                                    ? 'bg-emerald-500 text-white border-emerald-600'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                            }`}
+                        
+                        <button onClick={fetchPlanos} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors"><RefreshCw size={14} className={loadingPlanos ? 'animate-spin':''}/></button>
+
+                        <button 
+                            onClick={()=>setExibirTodosPlanos(!exibirTodosPlanos)}
+                            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${exibirTodosPlanos ? 'bg-emerald-500 text-white border-emerald-600 shadow-inner' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
                         >
-                            {exibirConcluidos ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                            {exibirConcluidos ? 'Exibindo Todos' : 'Apenas Pendentes'}
-                        </button>
-                        <button onClick={fetchPlanos} className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors">
-                            <RefreshCw size={14} />
+                            {exibirTodosPlanos ? <CheckCircle2 size={12}/> : <Clock size={12}/>}
+                            {exibirTodosPlanos ? 'TODOS' : 'PENDENTES'}
                         </button>
                     </div>
                 </div>
-            </div>
 
-            {/* Filtros */}
-            <div className="shrink-0 bg-white border-b border-slate-200 mx-4 mt-3 rounded-xl shadow-sm px-4 py-2.5">
-                <div className="flex flex-wrap items-center gap-2">
-                    <Filter size={13} className="text-slate-400 shrink-0" />
-                    {/* Filtros servidor */}
-                    {[
-                        { label: 'Espessura', val: fEspessura, set: setFEspessura, w: 'w-28' },
-                        { label: 'Material SW', val: fMaterial, set: setFMaterial, w: 'w-36' },
-                    ].map(({ label, val, set, w }) => (
-                        <div key={label} className={`flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2.5 shadow-sm focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-200 ${w}`}>
-                            <input
-                                type="text" placeholder={label} value={val}
-                                onChange={e => set(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                                className="w-full text-xs py-1.5 outline-none bg-transparent font-medium text-slate-700 placeholder:text-slate-400"
-                            />
+                {/* Tabela Planos */}
+                <div className="flex-1 overflow-auto custom-scrollbar relative">
+                    {loadingPlanos && (
+                        <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
+                            <Loader2 className="animate-spin text-blue-600" size={24} />
                         </div>
-                    ))}
-                    <button onClick={handleSearch} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm">
-                        <Search size={13} />Pesquisar
-                    </button>
-                    <button onClick={handleLimpar} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs font-bold rounded-lg transition-colors">
-                        <X size={13} />Limpar
-                    </button>
-                    {/* Busca local rápida */}
-                    <div className="ml-auto flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2.5 shadow-sm focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-200 w-48">
-                        <Search size={11} className="text-slate-400 mr-1.5 shrink-0" />
-                        <input type="text" placeholder="Busca rápida..." value={fLocal}
-                            onChange={e => setFLocal(e.target.value)}
-                            className="w-full text-xs py-1.5 outline-none bg-transparent text-slate-700 placeholder:text-slate-400"
-                        />
-                    </div>
+                    )}
+                    <table className="w-full text-[11px] text-left border-separate border-spacing-0">
+                        <thead className="bg-slate-50 sticky top-0 z-10">
+                            <tr className="border-b border-slate-200">
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">ID</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Descrição</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Espessura</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Material SW</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Liberado em</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Por</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Exec.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {planos.map(p => (
+                                <tr 
+                                    key={p.IdPlanodecorte} 
+                                    onClick={()=>setPlanoSel(p)}
+                                    className={`group cursor-pointer transition-colors border-b border-slate-50 ${planoSel?.IdPlanodecorte === p.IdPlanodecorte ? 'bg-blue-50/80 ring-1 ring-inset ring-blue-100' : 'hover:bg-slate-50'}`}
+                                >
+                                    <td className="px-3 py-1.5 font-black text-blue-600">{p.IdPlanodecorte}</td>
+                                    <td className="px-3 py-1.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
+                                    <td className="px-3 py-1.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
+                                    <td className="px-3 py-1.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>
+                                    <td className="px-3 py-1.5 text-slate-500">{fmt(p.DataLiberacao)}</td>
+                                    <td className="px-3 py-1.5 text-slate-400 font-bold">{p.UsuarioLiberacao || '—'}</td>
+                                    <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataInicial)}</td>
+                                    <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataFinal)}</td>
+                                    <td className="px-3 py-1.5 text-center font-black text-indigo-600 bg-indigo-50/30">{p.QtdeTotalPecas ?? 0}</td>
+                                    <td className="px-3 py-1.5 text-center font-black text-emerald-600 bg-emerald-50/30">{p.QtdeTotalPecasExecutadas ?? 0}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            {/* Tabela */}
-            <div className="flex-1 overflow-hidden mx-4 my-3 relative">
-                {loading && (
-                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] z-20 flex items-center justify-center rounded-xl">
-                        <div className="flex items-center gap-2 text-blue-600 font-bold text-sm bg-white shadow-lg px-5 py-3 rounded-xl border border-blue-100">
-                            <Loader2 className="animate-spin" size={20} />Carregando planos...
+            {/* PAINEL INFERIOR: ITENS DO PLANO */}
+            {planoSel ? (
+                <div className="flex flex-col flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-2 bg-indigo-50/50 border-b border-indigo-100">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-sm">
+                                <Database size={18} />
+                            </div>
+                            <div>
+                                <h2 className="text-sm font-black text-indigo-900 tracking-tight leading-none">Itens do Plano #{planoSel.IdPlanodecorte}</h2>
+                                <p className="text-[10px] text-indigo-500 uppercase font-black tracking-widest mt-0.5">{planoSel.DescPlanodecorte}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {/* Filtros Itens */}
+                            <div className="flex items-center gap-1.5 bg-white border border-indigo-100 rounded-lg px-2 py-1 shadow-sm focus-within:border-indigo-400">
+                                <Search size={12} className="text-indigo-300" />
+                                <input type="text" placeholder="Projeto" value={fIProj} onChange={e=>setFIProj(e.target.value)} className="w-24 text-[10px] outline-none font-bold" onKeyDown={e=>e.key==='Enter'&&fetchItens()} />
+                                <input type="text" placeholder="Tag" value={fITag} onChange={e=>setFITag(e.target.value)} className="w-20 text-[10px] outline-none border-l border-indigo-50 pl-1.5" onKeyDown={e=>e.key==='Enter'&&fetchItens()} />
+                                <input type="text" placeholder="Fabricante..." value={fICod} onChange={e=>setFICod(e.target.value)} className="w-28 text-[10px] outline-none border-l border-indigo-50 pl-1.5 uppercase" onKeyDown={e=>e.key==='Enter'&&fetchItens()} />
+                                {(fIProj || fITag || fIRes || fICod) && (
+                                    <button onClick={limparFiltrosItens} className="p-0.5 text-indigo-200 hover:text-red-500 transition-colors"><X size={12}/></button>
+                                )}
+                            </div>
+
+                            <button onClick={fetchItens} className="p-1.5 text-indigo-400 hover:bg-white rounded-lg transition-colors"><RefreshCw size={14} className={loadingItens ? 'animate-spin':''}/></button>
+
+                            <button 
+                                onClick={()=>setExibirTodosItens(!exibirTodosItens)}
+                                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${exibirTodosItens ? 'bg-indigo-600 text-white border-indigo-700 shadow-inner' : 'bg-white text-indigo-500 border-indigo-200 hover:bg-indigo-50'}`}
+                            >
+                                {exibirTodosItens ? <CheckCircle2 size={12}/> : <Clock size={12}/>}
+                                {exibirTodosItens ? 'TODOS' : 'EM PRODUÇÃO'}
+                            </button>
                         </div>
                     </div>
-                )}
-                {error && (
-                    <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm font-bold border border-red-200 mb-3">⚠️ {error}</div>
-                )}
 
-                <div className="h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                    <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
-                        <table className="w-full text-xs text-left">
-                            <thead className="text-[10px] text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
+                    <div className="flex-1 overflow-auto custom-scrollbar relative">
+                        {loadingItens && (
+                            <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
+                                <Loader2 className="animate-spin text-indigo-600" size={32} />
+                            </div>
+                        )}
+                        <table className="w-full text-[10px] text-left border-separate border-spacing-0">
+                            <thead className="bg-indigo-50/30 sticky top-0 z-10 backdrop-blur-sm">
                                 <tr>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">ID Plano</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Descrição</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Espessura</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Material SW</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap text-center">Qtde Peças</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap text-center">Executadas</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Data Cad.</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Data Limite</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Data Inicial</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Data Final</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap">Criado Por</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap text-center">Enviado</th>
-                                    <th className="px-3 py-2 font-black whitespace-nowrap text-center">Concluído</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Projeto</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Tag</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Qtde</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Cortado</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Restante</th>
+                                    <th className="px-2 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Parcial</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Processos</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {planosFiltrados.length > 0 ? (
-                                    planosFiltrados.map((p, idx) => {
-                                        const concluido = p.Concluido === 'S' || p.Concluido === 'SIM';
-                                        const enviado   = p.Enviadocorte === 'S';
-                                        const pct = p.QtdeTotalPecas && p.QtdeTotalPecas > 0
-                                            ? Math.round(((p.QtdeTotalPecasExecutadas ?? 0) / p.QtdeTotalPecas) * 100)
-                                            : null;
-                                        return (
-                                            <tr key={`${p.IdPlanodecorte}-${idx}`}
-                                                className={`border-b border-slate-100 hover:bg-blue-50/40 transition-colors ${concluido ? 'opacity-60' : ''}`}>
-                                                <td className="px-3 py-1.5 font-bold text-blue-700 whitespace-nowrap">{p.IdPlanodecorte}</td>
-                                                <td className="px-3 py-1.5 max-w-[200px] truncate text-slate-700" title={p.DescPlanodecorte ?? ''}>{p.DescPlanodecorte || '—'}</td>
-                                                <td className="px-3 py-1.5 font-semibold text-slate-700 whitespace-nowrap">{p.Espessura || '—'}</td>
-                                                <td className="px-3 py-1.5 text-slate-600 whitespace-nowrap">{p.MaterialSW || '—'}</td>
-                                                <td className="px-3 py-1.5 text-center font-bold text-indigo-600 bg-indigo-50/60">{p.QtdeTotalPecas ?? '—'}</td>
-                                                <td className="px-3 py-1.5 text-center">
-                                                    {pct !== null ? (
-                                                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                                            pct >= 100 ? 'bg-emerald-100 text-emerald-700'
-                                                            : pct >= 50 ? 'bg-amber-100 text-amber-700'
-                                                            : 'bg-red-100 text-red-700'
-                                                        }`}>
-                                                            {p.QtdeTotalPecasExecutadas ?? 0} / {p.QtdeTotalPecas} ({pct}%)
-                                                        </span>
-                                                    ) : <span className="text-slate-400">—</span>}
-                                                </td>
-                                                <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap text-[10px]">{fmt(p.DataCad)}</td>
-                                                <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap text-[10px]">{fmt(p.DataLimite)}</td>
-                                                <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap text-[10px]">{fmt(p.DataInicial)}</td>
-                                                <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap text-[10px]">{fmt(p.DataFinal)}</td>
-                                                <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap text-[10px]">{p.CriadoPor || '—'}</td>
-                                                <td className="px-3 py-1.5 text-center">
-                                                    {enviado
-                                                        ? <span className="inline-flex items-center gap-0.5 bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 text-[9px] font-bold"><CheckCircle2 size={9} />SIM</span>
-                                                        : <span className="text-slate-300 text-[10px]">—</span>}
-                                                </td>
-                                                <td className="px-3 py-1.5 text-center">
-                                                    {concluido
-                                                        ? <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded px-1.5 py-0.5 text-[9px] font-bold"><CheckCircle2 size={9} />SIM</span>
-                                                        : <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 rounded px-1.5 py-0.5 text-[9px] font-bold"><Clock size={9} />Pend.</span>}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                ) : (
-                                    <tr>
-                                        <td colSpan={13} className="px-6 py-16 text-center">
-                                            <div className="flex flex-col items-center gap-2 text-slate-400">
-                                                <Scissors size={36} className="opacity-30" />
-                                                <span className="font-medium text-sm">{loading ? 'Carregando...' : 'Nenhum plano de corte encontrado'}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                {itens.length > 0 ? itens.map((it, idx) => {
+                                    const pct = Math.round(it.Parcial * 100);
+                                    return (
+                                        <tr key={`${it.IdOrdemServicoItem}-${idx}`} className="group hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                            <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
+                                            <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
+                                            <td className="px-3 py-2 font-black text-blue-600">{it.Tag}</td>
+                                            <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
+                                            <td className="px-3 py-2 text-center font-black text-indigo-600">{it.QtdeTotal}</td>
+                                            <td className="px-3 py-2 text-center font-black text-emerald-600">{it.CorteTotalExecutado}</td>
+                                            <td className="px-3 py-2 text-center font-black text-red-600">{it.CorteTotalExecutar}</td>
+                                            <td className="px-2 py-2">
+                                                <div className="flex flex-col gap-1 w-16 mx-auto">
+                                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                                                        <div className={`h-full transition-all ${pct >= 100 ? 'bg-emerald-500': pct > 0 ? 'bg-amber-400': 'bg-slate-200'}`} style={{width:`${pct}%`}}></div>
+                                                    </div>
+                                                    <span className="text-[8px] font-black text-center text-slate-400">{pct}%</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2">
+                                                <div className="flex items-center gap-1">
+                                                    {it.txtCorte === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Corte">C</span>}
+                                                    {it.txtDobra === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Dobra">D</span>}
+                                                    {it.txtSolda === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Solda">S</span>}
+                                                    {it.txtPintura === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Pintura">P</span>}
+                                                    {it.txtMontagem === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Montagem">M</span>}
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2">
+                                                {it.OrdemServicoItemFinalizado === 'S' || it.OrdemServicoItemFinalizado === 'SIM' ? (
+                                                    <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><CheckCircle2 size={8}/>FINALIZADO</span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><Clock size={8}/>PENDENTE</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                }) : (
+                                    <tr><td colSpan={10} className="py-20 text-center text-slate-400 font-black uppercase text-xs tracking-widest opacity-40">Nenhum item em produção neste plano</td></tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div className="flex-1 flex flex-col items-center justify-center bg-white border border-slate-200 border-dashed rounded-xl opacity-60">
+                    <div className="p-4 bg-slate-50 rounded-full mb-3 text-slate-300">
+                        <ArrowRight size={48} className="-rotate-45" />
+                    </div>
+                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Selecione um plano de corte acima para ver seus itens</p>
+                </div>
+            )}
         </div>
     );
 }

@@ -6,7 +6,7 @@ import {
     PlusCircle, AlertCircle, FolderOpen, Send, CheckCircle, RotateCcw, RefreshCcw,
     Lock, Unlock, Trash2, FileSpreadsheet,
     Box, FileText, Wrench, Flame, Paintbrush, Settings2,
-    ShieldAlert, User, CalendarDays, Edit3, Shield, ArrowRight
+    ShieldAlert, User, CalendarDays, Edit3, Shield, ArrowRight, ListFilter
 } from 'lucide-react';
 import { useAppConfig } from '../contexts/AppConfigContext';
 import { useToast } from '../contexts/ToastContext';
@@ -119,6 +119,37 @@ interface Rnc {
     DescTag?: string; 
 }
 
+interface PendenciaRnc {
+    IDRNC: number;
+    ST: string;
+    Estatus: string;
+    CodMatFabricante: string;
+    IdOrdemServico: number;
+    IdOrdemServicoItem: number;
+    Projeto: string;
+    Tag: string;
+    DescResumo: string;
+    DescDetal: string;
+    Espessura: string;
+    MaterialSW: string;
+    DescricaoPendencia: string;
+    RNC_Criada_Por: string;
+    CriadoPorSetor: string;
+    DataCriacao: string;
+    DataExecucao: string;
+    DescricaoFinalizacao: string;
+    UsuarioResponsavel: string;
+    SetorResponsavel: string;
+    TxtCorte: string;
+    TxtDobra: string;
+    TxtSolda: string;
+    TxtPintura: string;
+    TxtMontagem: string;
+    FinalizadoPorUsuarioSetor: string;
+    SetorResponsavelFinalizacao: string;
+    OrigemPendencia: string;
+}
+
 const SECTORS = [
     { k: 'Corte', c: 'bg-blue-600' }, 
     { k: 'Dobra', c: 'bg-indigo-600' },
@@ -137,7 +168,7 @@ function fmt(val: string | null): string {
     return s;
 }
 
-// ============================================================
+/// ============================================================
 // Painel Itens do Plano Selecionado
 // ============================================================
 function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarRnc, onItemRemoved }: { 
@@ -429,6 +460,333 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
 }
 
 // ============================================================
+// Painel Pendencias Plano de Corte (para item selecionado)
+// ============================================================
+function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refreshKey }: { 
+    codMatFabricante: string; 
+    usuarios?: any[]; 
+    setores?: string[];
+    refreshKey?: number;
+}) {
+    const { token } = useAuth();
+    const [pendencias, setPendencias] = useState<PendenciaRnc[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const [exibirFinalizadas, setExibirFinalizadas] = useState(false);
+    const [fDesc, setFDesc] = useState('');
+    // Finalizacao inline
+    const [finalizandoId, setFinalizandoId] = useState<number | null>(null);
+    const [finForm, setFinForm] = useState({
+        setorFinalizacao: '',
+        responsavelFinalizacao: '',
+        dataFinalizacao: new Date().toISOString().split('T')[0],
+        descricaoFinalizacao: '',
+    });
+
+    const setoresOpts = setores && setores.length > 0 ? setores : SECTORS.map(s => s.k);
+
+    const fetchPendencias = useCallback(async (fin = exibirFinalizadas, desc = fDesc) => {
+        if (!codMatFabricante) return;
+        setLoading(true); setError('');
+        try {
+            const params = new URLSearchParams({
+                codMatFabricante,
+                origemPendencia: 'PLANODECORTE',
+                exibirFinalizadas: String(fin),
+            });
+            if (desc.trim()) params.set('q1', desc.trim());
+            const res = await fetch(`/api/producao/pendencias/historico?${params}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const result = await res.json();
+            if (result.success) setPendencias(result.data || []);
+            else setError(result.message || 'Erro ao buscar pendencias');
+        } catch (e: any) { setError(e.message); }
+        finally { setLoading(false); }
+    }, [codMatFabricante, token, exibirFinalizadas, fDesc]);
+
+    useEffect(() => { fetchPendencias(); }, [codMatFabricante, exibirFinalizadas, refreshKey]);
+
+    const handleToggleFin = () => {
+        const novo = !exibirFinalizadas;
+        setExibirFinalizadas(novo);
+        fetchPendencias(novo, fDesc);
+    };
+
+    const abrirFinalizacao = (p: PendenciaRnc) => {
+        setFinalizandoId(p.IDRNC);
+        setFinForm({
+            setorFinalizacao: p.SetorResponsavel || '',
+            responsavelFinalizacao: p.UsuarioResponsavel || '',
+            dataFinalizacao: new Date().toISOString().split('T')[0],
+            descricaoFinalizacao: '',
+        });
+        setSuccessMsg('');
+        setError('');
+    };
+
+    const handleFinalizar = async (pend: PendenciaRnc) => {
+        if (!finForm.setorFinalizacao || !finForm.responsavelFinalizacao || !finForm.dataFinalizacao || !finForm.descricaoFinalizacao.trim()) {
+            setError('Preencha todos os campos de finalizacao antes de salvar.');
+            return;
+        }
+        setSaving(true); setError(''); setSuccessMsg('');
+        try {
+            const res = await fetch('/api/producao/pendencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    idOrdemServicoItemPendencia: pend.IDRNC,
+                    idOrdemServicoItem: pend.IdOrdemServicoItem,
+                    descricaoPendencia: pend.DescricaoPendencia,
+                    acao: 'FINALIZAR',
+                    setorResponsavelFinalizacao: finForm.setorFinalizacao,
+                    finalizadoPorUsuarioSetor: finForm.responsavelFinalizacao,
+                    dataFinalizacao: finForm.dataFinalizacao,
+                    descricaoFinalizacao: finForm.descricaoFinalizacao.toUpperCase(),
+                    dataExecucao: finForm.dataFinalizacao,
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                setSuccessMsg('Pendencia finalizada com sucesso!');
+                setFinalizandoId(null);
+                // Refresh exibindo somente pendentes
+                setExibirFinalizadas(false);
+                await fetchPendencias(false, fDesc);
+            } else {
+                setError(result.message || 'Erro ao finalizar');
+            }
+        } catch (e: any) { setError(e.message); }
+        finally { setSaving(false); }
+    };
+
+    const statusBadge = (st: string) => {
+        if (st === 'FINALIZADO' || st === 'FINALIZADA') {
+            return <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded px-1.5 py-0.5 text-[8px] font-black border border-emerald-200"><CheckCircle2 size={8} />FIN</span>;
+        }
+        return <span className="inline-flex items-center gap-0.5 bg-orange-100 text-orange-700 rounded px-1.5 py-0.5 text-[8px] font-black border border-orange-200"><Clock size={8} />PEND</span>;
+    };
+
+    const setorBadge = (setor: string) => {
+        const colors: Record<string, string> = {
+            Corte: 'bg-blue-100 text-blue-700 border-blue-200',
+            Dobra: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+            Solda: 'bg-red-100 text-red-700 border-red-200',
+            Pintura: 'bg-amber-100 text-amber-700 border-amber-200',
+            Montagem: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+        };
+        const cls = colors[setor] || 'bg-slate-100 text-slate-600 border-slate-200';
+        return <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black border ${cls}`}>{setor || '-'}</span>;
+    };
+
+    const gridCols = 14; // including action col
+
+    return (
+        <div className="shrink-0 bg-white border-t-2 border-orange-200 overflow-hidden" style={{ maxHeight: 360 }}>
+            {/* Header */}
+            <div className="flex items-center justify-between bg-orange-50 border-b border-orange-200 px-3 py-1.5">
+                <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 bg-orange-500 text-white rounded flex items-center justify-center shrink-0">
+                        <ShieldAlert size={10} />
+                    </div>
+                    <span className="text-[11px] font-black text-orange-800">Pendencias (RNC) — Plano de Corte</span>
+                    <span className="text-[10px] font-mono text-orange-500 bg-orange-100 px-1.5 py-0.5 rounded">{codMatFabricante}</span>
+                    {loading ? <Loader2 size={11} className="animate-spin text-orange-400" /> : (
+                        <span className="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">{pendencias.length} reg.</span>
+                    )}
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="flex items-center bg-white border border-orange-200 rounded px-1.5 focus-within:border-orange-400 w-32">
+                        <Search size={9} className="text-orange-300 mr-1 shrink-0" />
+                        <input
+                            type="text"
+                            placeholder="Filtrar descricao..."
+                            value={fDesc}
+                            onChange={e => setFDesc(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && fetchPendencias(exibirFinalizadas, fDesc)}
+                            className="w-full text-[10px] py-0.5 outline-none bg-transparent text-slate-700 placeholder:text-orange-300 uppercase"
+                        />
+                        {fDesc && (
+                            <button
+                                onClick={() => { setFDesc(''); fetchPendencias(exibirFinalizadas, ''); }}
+                                className="p-0.5 text-orange-400 hover:text-orange-600 rounded transition-colors"
+                                title="Limpar"
+                            >
+                                <X size={10} />
+                            </button>
+                        )}
+                    </div>
+                    <button onClick={() => fetchPendencias(exibirFinalizadas, fDesc)} className="p-1 rounded bg-orange-500 hover:bg-orange-600 text-white transition-colors" title="Buscar"><Search size={10} /></button>
+                    <button
+                        onClick={handleToggleFin}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${exibirFinalizadas ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-white text-slate-500 border-slate-300 hover:bg-slate-50'}`}
+                        title={exibirFinalizadas ? 'Exibindo todas — clique p/ so pendentes' : 'So pendentes — clique p/ incluir finalizadas'}
+                    >
+                        <ListFilter size={10} />{exibirFinalizadas ? 'Todas' : 'Pendentes'}
+                    </button>
+                    <button onClick={() => fetchPendencias()} className="p-1 rounded hover:bg-orange-100 text-orange-400" title="Atualizar"><RefreshCw size={10} /></button>
+                </div>
+            </div>
+
+            {error && <div className="bg-red-50 text-red-700 px-3 py-1 text-[10px] font-bold flex items-center gap-1 border-b border-red-100"><AlertCircle size={10} />{error}</div>}
+            {successMsg && <div className="bg-emerald-50 text-emerald-700 px-3 py-1 text-[10px] font-bold flex items-center gap-1 border-b border-emerald-100"><CheckCircle2 size={10} />{successMsg}</div>}
+
+            {/* Grid */}
+            <div className="overflow-auto relative" style={{ maxHeight: 280 }}>
+                {loading && (
+                    <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center">
+                        <Loader2 className="animate-spin text-orange-400" size={18} />
+                    </div>
+                )}
+                <table className="w-full text-left">
+                    <thead className="text-[8px] text-slate-500 uppercase bg-orange-50/80 sticky top-0 border-b border-orange-100">
+                        <tr>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Acao</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">ID RNC</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Status</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">OS/Item</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Projeto</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Tag</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Setor Resp.</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Responsavel</th>
+                            <th className="px-2 py-1.5 font-black">Descricao Pendencia</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Dt. Criacao</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Dt. Previsao</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Setor Fin.</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Finalizado Por</th>
+                            <th className="px-2 py-1.5 font-black whitespace-nowrap">Descricao Fin.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pendencias.length > 0 ? pendencias.map((p, i) => (
+                            <>
+                                <tr key={`row-${i}`} className={`border-b transition-colors text-[10px] ${
+                                    finalizandoId === p.IDRNC
+                                        ? 'bg-emerald-50 border-emerald-200'
+                                        : p.Estatus === 'FINALIZADO' || p.Estatus === 'FINALIZADA'
+                                            ? 'opacity-60 bg-slate-50 border-slate-100'
+                                            : 'hover:bg-orange-50/40 border-orange-50'
+                                }`}>
+                                    <td className="px-2 py-1 whitespace-nowrap">
+                                        {(p.Estatus === 'PENDENCIA' || p.Estatus === 'PENDENTE') && (
+                                            <button
+                                                onClick={() => finalizandoId === p.IDRNC ? setFinalizandoId(null) : abrirFinalizacao(p)}
+                                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black border transition-all ${finalizandoId === p.IDRNC ? 'bg-emerald-200 text-emerald-800 border-emerald-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}`}
+                                                title="Finalizar esta pendencia"
+                                            >
+                                                <CheckCircle size={9} />{finalizandoId === p.IDRNC ? 'Fechar' : 'Finalizar'}
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td className="px-2 py-1 font-black text-orange-700 whitespace-nowrap">#{p.IDRNC}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap">{statusBadge(p.Estatus)}</td>
+                                    <td className="px-2 py-1 font-mono text-slate-600 whitespace-nowrap">{p.IdOrdemServico}/{p.IdOrdemServicoItem}</td>
+                                    <td className="px-2 py-1 text-slate-600 max-w-[80px] truncate" title={p.Projeto}>{p.Projeto || '-'}</td>
+                                    <td className="px-2 py-1 font-bold text-indigo-700 whitespace-nowrap">{p.Tag || '-'}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap">{setorBadge(p.SetorResponsavel)}</td>
+                                    <td className="px-2 py-1 text-slate-600 whitespace-nowrap max-w-[80px] truncate" title={p.UsuarioResponsavel}>{p.UsuarioResponsavel || '-'}</td>
+                                    <td className="px-2 py-1 max-w-[160px] truncate text-slate-700" title={p.DescricaoPendencia}>{p.DescricaoPendencia || '-'}</td>
+                                    <td className="px-2 py-1 text-slate-400 whitespace-nowrap">{fmt(p.DataCriacao)}</td>
+                                    <td className="px-2 py-1 text-slate-400 whitespace-nowrap">{fmt(p.DataExecucao)}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap">{p.SetorResponsavelFinalizacao ? setorBadge(p.SetorResponsavelFinalizacao) : '-'}</td>
+                                    <td className="px-2 py-1 text-slate-400 whitespace-nowrap max-w-[80px] truncate" title={p.FinalizadoPorUsuarioSetor}>{p.FinalizadoPorUsuarioSetor || '-'}</td>
+                                    <td className="px-2 py-1 max-w-[120px] truncate text-slate-500" title={p.DescricaoFinalizacao}>{p.DescricaoFinalizacao || '-'}</td>
+                                </tr>
+                                {/* Painel de finalizacao inline (verde) */}
+                                {finalizandoId === p.IDRNC && (
+                                    <tr key={`fin-${i}`}>
+                                        <td colSpan={gridCols} className="p-0">
+                                            <div className="bg-emerald-50 border-b-2 border-emerald-300 px-4 py-3">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <div className="h-5 w-5 bg-emerald-500 text-white rounded flex items-center justify-center shrink-0"><CheckCircle size={10} /></div>
+                                                    <span className="text-[11px] font-black text-emerald-800">Finalizar Pendencia #{p.IDRNC}</span>
+                                                    <span className="text-[10px] text-emerald-600 truncate max-w-[200px]">{p.DescricaoPendencia}</span>
+                                                </div>
+                                                <div className="grid grid-cols-4 gap-3">
+                                                    {/* Setor Finalizacao */}
+                                                    <div>
+                                                        <label className="text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-1 block">Setor Finalizacao *</label>
+                                                        <select
+                                                            value={finForm.setorFinalizacao}
+                                                            onChange={e => setFinForm(f => ({...f, setorFinalizacao: e.target.value}))}
+                                                            className="w-full border-2 border-emerald-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 outline-none focus:border-emerald-400 bg-white"
+                                                        >
+                                                            <option value="">Selecione...</option>
+                                                            {setoresOpts.map(s => <option key={s} value={s}>{s}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    {/* Responsavel Finalizacao */}
+                                                    <div>
+                                                        <label className="text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-1 block">Responsavel Finalizacao *</label>
+                                                        <select
+                                                            value={finForm.responsavelFinalizacao}
+                                                            onChange={e => setFinForm(f => ({...f, responsavelFinalizacao: e.target.value}))}
+                                                            className="w-full border-2 border-emerald-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 outline-none focus:border-emerald-400 bg-white"
+                                                        >
+                                                            <option value="">Selecione...</option>
+                                                            {(usuarios || []).map(u => <option key={u.IdUsuario ?? u.id ?? u.NomeCompleto} value={u.NomeCompleto ?? u.label}>{u.NomeCompleto ?? u.label}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    {/* Data Finalizacao */}
+                                                    <div>
+                                                        <label className="text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-1 block">Data Finalizacao *</label>
+                                                        <input
+                                                            type="date"
+                                                            value={finForm.dataFinalizacao}
+                                                            onChange={e => setFinForm(f => ({...f, dataFinalizacao: e.target.value}))}
+                                                            className="w-full border-2 border-emerald-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 outline-none focus:border-emerald-400 bg-white"
+                                                        />
+                                                    </div>
+                                                    {/* Descricao Finalizacao */}
+                                                    <div>
+                                                        <label className="text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-1 block">Descricao Finalizacao *</label>
+                                                        <input
+                                                            type="text"
+                                                            value={finForm.descricaoFinalizacao}
+                                                            onChange={e => setFinForm(f => ({...f, descricaoFinalizacao: e.target.value.toUpperCase()}))}
+                                                            placeholder="Descreva como foi resolvido..."
+                                                            className="w-full border-2 border-emerald-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 outline-none focus:border-emerald-400 bg-white placeholder:text-emerald-300"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-end gap-2 mt-3">
+                                                    <button
+                                                        onClick={() => setFinalizandoId(null)}
+                                                        className="px-3 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-emerald-100 rounded-lg transition-all border border-emerald-200"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleFinalizar(p)}
+                                                        disabled={saving || !finForm.setorFinalizacao || !finForm.responsavelFinalizacao || !finForm.dataFinalizacao || !finForm.descricaoFinalizacao.trim()}
+                                                        className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black shadow-sm shadow-emerald-500/30 transition-all disabled:opacity-40 flex items-center gap-1.5"
+                                                    >
+                                                        {saving ? <Loader2 size={10} className="animate-spin" /> : <CheckCircle size={10} />}
+                                                        Confirmar Finalizacao
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </>
+                        )) : (
+                            <tr>
+                                <td colSpan={gridCols} className="px-4 py-5 text-center text-slate-400 text-xs">
+                                    {loading ? 'Carregando...' : 'Nenhuma pendencia (RNC) de Plano de Corte encontrada para este item.'}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
 // Painel Esquerdo: Itens de Ordem de Servico (com selecao)
 // ============================================================
 function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: { 
@@ -552,6 +910,8 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
 
     const todosSelec = filtered.length > 0 && selected.size === filtered.length;
     const parcialSelec = selected.size > 0 && selected.size < filtered.length;
+
+    // Pega o item focado completo para passar o CodMatFabricante ao painel de pendências
 
     return (
         <div className="flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -715,6 +1075,7 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
                     </tbody>
                 </table>
             </div>
+
         </div>
     );
 }
@@ -739,6 +1100,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
 
     // --- Estados RNC ---
     const [actionModal, setActionModal] = useState<null | 'addRnc'>(null);
+    const [rncRefreshKey, setRncRefreshKey] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
     const [msg, setMsg] = useState<{ t: 's' | 'e'; m: string } | null>(null);
     const [usuarios, setUsuarios] = useState<any[]>([]);
@@ -1015,8 +1377,15 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
             });
             const result = await res.json();
             if (result.success) {
-                setMsg({ t: 's', m: 'Pendência (RNC) gerada com sucesso!' });
-                setTimeout(() => setActionModal(null), 1500);
+                setMsg({ t: 's', m: 'Pendência (RNC) gerada com sucesso! Gerando nova pendência ou feche o painel.' });
+                // Limpar formulário para nova entrada, mantendo dados do item
+                setRncForm(f => ({
+                    ...f,
+                    titulo: '', subTitulo: '', descricao: '',
+                    chkCorte: false, chkDobra: false, chkSolda: false, chkPintura: false, chkMontagem: false,
+                }));
+                // Refresh grid: incrementa rncRefreshKey
+                setRncRefreshKey(k => k + 1);
             } else {
                 setMsg({ t: 'e', m: result.message || 'Erro ao salvar' });
             }
@@ -1445,78 +1814,86 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                     salvarNovaRnc={salvarNovaRnc} 
                     usuarios={usuarios} 
                     tipostarefa={tipostarefa} 
+                    codMatFabricante={rncForm.codMatFabricante}
+                    refreshKey={rncRefreshKey}
                 />
             )}
         </div>
     );
 }
 
-// ============================================================
-// MODAL RNC
+/// ============================================================
+// MODAL RNC — Design compacto, grid visivel sem scroll
 // ============================================================
 function ModalRnc({ 
-    rncForm, setRncForm, isSaving, msg, setActionModal, salvarNovaRnc, usuarios, tipostarefa 
+    rncForm, setRncForm, isSaving, msg, setActionModal, salvarNovaRnc, usuarios, tipostarefa, codMatFabricante, refreshKey
 }: { 
-    rncForm: RncFormData; setRncForm: any; isSaving: boolean; msg: any; setActionModal: any; salvarNovaRnc: any; usuarios: any[]; tipostarefa: any[]; 
+    rncForm: RncFormData; setRncForm: any; isSaving: boolean; msg: any; 
+    setActionModal: any; salvarNovaRnc: any; usuarios: any[]; tipostarefa: any[]; 
+    codMatFabricante?: string; refreshKey?: number;
 }) {
+    const labelCls = "text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block";
+    const inputCls = "w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/40";
+    const selectCls = "w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/40";
+
     return (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-orange-100 text-orange-600 rounded-xl shadow-sm"><ShieldAlert size={20} /></div>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 flex flex-col" style={{ maxHeight: '95vh' }}>
+                {/* ── Cabeçalho ── */}
+                <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white rounded-t-2xl shrink-0">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-orange-100 text-orange-600 rounded-xl shadow-sm"><ShieldAlert size={17} /></div>
                         <div>
-                            <h3 className="text-base font-black text-slate-800 leading-none">Gerar Pendência (RNC)</h3>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 tracking-wider">
-                                {rncForm.projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
+                            <h3 className="text-sm font-black text-slate-800 leading-none">Gerar Pendência (RNC)</h3>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">
+                                {rncForm.codMatFabricante && <span className="text-orange-500 mr-1">{rncForm.codMatFabricante}</span>}
+                                {rncForm.projeto}{rncForm.tag ? ` › Tag: ${rncForm.tag}` : ''}
                             </p>
                         </div>
                     </div>
-                    <button onClick={() => setActionModal(null)} className="p-2 text-slate-400 hover:bg-slate-100 rounded-xl transition-colors"><X size={20} /></button>
+                    <button onClick={() => setActionModal(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-xl transition-colors"><X size={18} /></button>
                 </div>
 
-                <div className="flex-1 overflow-auto p-6 space-y-5">
+                {/* ── Corpo scrollável ── */}
+                <div className="flex-1 overflow-auto px-5 py-3 space-y-3">
                     {msg && (
-                        <div className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 border animate-in slide-in-from-top duration-300 ${msg.t === 's' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                            {msg.t === 's' ? <CheckCircle size={16}/> : <AlertCircle size={16}/>}
+                        <div className={`px-3 py-2 rounded-lg text-[11px] font-bold flex items-center gap-2 border ${msg.t === 's' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                            {msg.t === 's' ? <CheckCircle size={13}/> : <AlertCircle size={13}/>}
                             {msg.m}
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2">
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Título da Pendência (Item)</label>
-                            <input 
-                                type="text"
-                                value={rncForm.titulo}
+                    {/* ── Linha 1: Título + Subtítulo ── */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className={labelCls}>Título da Pendência</label>
+                            <input type="text" value={rncForm.titulo}
                                 onChange={e => setRncForm((p: any) => ({...p, titulo: e.target.value.toUpperCase()}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/30"
-                            />
+                                className={inputCls} placeholder="Título..." />
                         </div>
-
-                        <div className="col-span-2">
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Subtítulo / Detalhe</label>
-                            <input 
-                                type="text"
-                                value={rncForm.subTitulo}
+                        <div>
+                            <label className={labelCls}>Subtítulo / Detalhe</label>
+                            <input type="text" value={rncForm.subTitulo}
                                 onChange={e => setRncForm((p: any) => ({...p, subTitulo: e.target.value.toUpperCase()}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 outline-none focus:border-orange-400 transition-all bg-slate-50/30"
-                            />
+                                className={inputCls} placeholder="Subtítulo..." />
                         </div>
+                    </div>
 
+                    {/* ── Linha 2: Descrição ── */}
+                    <div>
+                        <label className={labelCls}>Descrição da Não Conformidade *</label>
+                        <textarea value={rncForm.descricao}
+                            onChange={e => setRncForm((p: any) => ({...p, descricao: e.target.value.toUpperCase()}))}
+                            placeholder="Descreva o problema ou pendência..."
+                            className={`${inputCls} min-h-[52px] resize-none`} />
+                    </div>
+
+                    {/* ── Linha 3: Processos + Setor + Responsável + Tipo + Data ── */}
+                    <div className="grid grid-cols-5 gap-3 items-end">
+                        {/* Processos Afetados */}
                         <div className="col-span-2">
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Descrição da Não Conformidade</label>
-                            <textarea 
-                                value={rncForm.descricao} 
-                                onChange={e => setRncForm((p: any) => ({...p, descricao: e.target.value.toUpperCase()}))}
-                                placeholder="Descreva detalhadamente o problema ou a pendência..."
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-orange-400 min-h-[100px] transition-all bg-slate-50/30"
-                            />
-                        </div>
-
-                        <div className="col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                             <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-3 block text-center">Processos Afetados / Origem</label>
-                             <div className="flex flex-wrap justify-center gap-4">
+                            <label className={labelCls}>Processos Afetados</label>
+                            <div className="grid grid-cols-3 gap-1.5 w-fit">
                                 {[
                                     { label: 'Corte', key: 'chkCorte', icon: Scissors },
                                     { label: 'Dobra', key: 'chkDobra', icon: Wrench },
@@ -1524,89 +1901,79 @@ function ModalRnc({
                                     { label: 'Pintura', key: 'chkPintura', icon: Paintbrush },
                                     { label: 'Montagem', key: 'chkMontagem', icon: Settings2 }
                                 ].map(proc => (
-                                    <label key={proc.key} className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all cursor-pointer ${rncForm[proc.key as keyof RncFormData] ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
-                                        <input 
-                                            type="checkbox" 
-                                            className="hidden"
+                                    <label key={proc.key} className={`flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer transition-all text-[9px] font-black uppercase ${rncForm[proc.key as keyof RncFormData] ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'}`}>
+                                        <input type="checkbox" className="hidden"
                                             checked={!!rncForm[proc.key as keyof RncFormData]}
-                                            onChange={e => setRncForm((p: any) => ({...p, [proc.key]: e.target.checked}))}
-                                        />
-                                        <proc.icon size={14} />
-                                        <span className="text-[11px] font-black uppercase tracking-tight">{proc.label}</span>
+                                            onChange={e => setRncForm((p: any) => ({...p, [proc.key]: e.target.checked}))} />
+                                        <proc.icon size={9} />{proc.label}
                                     </label>
                                 ))}
-                             </div>
+                            </div>
                         </div>
-
+                        {/* Setor */}
                         <div>
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Setor Responsável pela Solução</label>
-                            <select 
-                                value={rncForm.setor} 
-                                onChange={e => setRncForm((p: any) => ({...p, setor: e.target.value}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/30 font-mono"
-                            >
+                            <label className={labelCls}>Setor Responsável *</label>
+                            <select value={rncForm.setor} onChange={e => setRncForm((p: any) => ({...p, setor: e.target.value}))} className={selectCls}>
                                 {SECTORS.map(s => <option key={s.k} value={s.k}>{s.k}</option>)}
                             </select>
                         </div>
-
+                        {/* Colaborador */}
                         <div>
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Colaborador / Responsável</label>
-                            <select 
-                                value={rncForm.usuario} 
-                                onChange={e => setRncForm((p: any) => ({...p, usuario: e.target.value}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/30 font-mono"
-                            >
+                            <label className={labelCls}>Colaborador *</label>
+                            <select value={rncForm.usuario} onChange={e => setRncForm((p: any) => ({...p, usuario: e.target.value}))} className={selectCls}>
                                 <option value="">Selecione...</option>
                                 {usuarios.map(u => <option key={u.IdUsuario ?? u.id ?? u.NomeCompleto} value={u.NomeCompleto ?? u.label}>{u.NomeCompleto ?? u.label}</option>)}
                             </select>
                         </div>
-
-                        <div>
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Tipo (RNC/Pendência)</label>
-                            <select 
-                                value={rncForm.tipoTarefa} 
-                                onChange={e => setRncForm((p: any) => ({...p, tipoTarefa: e.target.value}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/30 font-mono"
-                            >
-                                <option value="RNC">RNC</option>
-                                <option value="PENDENCIA">PENDENCIA</option>
-                                {tipostarefa.filter(t => (t.TipoTarefa ?? t.label) !== 'RNC' && (t.TipoTarefa ?? t.label) !== 'PENDENCIA').map(t => <option key={t.IdTipoTarefa ?? t.id} value={t.TipoTarefa ?? t.label}>{t.TipoTarefa ?? t.label}</option>)}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Previsão</label>
-                            <input 
-                                type="date" 
-                                value={rncForm.dataExec} 
-                                onChange={e => setRncForm((p: any) => ({...p, dataExec: e.target.value}))}
-                                className="w-full border-2 border-slate-100 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/30 font-mono"
-                            />
+                        {/* Tipo + Data lado a lado */}
+                        <div className="flex flex-col gap-1.5">
+                            <div>
+                                <label className={labelCls}>Tipo</label>
+                                <select value={rncForm.tipoTarefa} onChange={e => setRncForm((p: any) => ({...p, tipoTarefa: e.target.value}))} className={selectCls}>
+                                    <option value="">Selecione...</option>
+                                    {tipostarefa.map(t => <option key={t.IdTipoTarefa ?? t.id} value={t.TipoTarefa ?? t.label}>{t.TipoTarefa ?? t.label}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelCls}>Previsão</label>
+                                <input type="date" value={rncForm.dataExec}
+                                    onChange={e => setRncForm((p: any) => ({...p, dataExec: e.target.value}))}
+                                    className={inputCls} />
+                            </div>
                         </div>
                     </div>
+
+                    {/* ── Grid de Pendências existentes ── */}
+                    {codMatFabricante && (
+                        <PainelPendenciasPlanoCorte 
+                            codMatFabricante={codMatFabricante} 
+                            usuarios={usuarios} 
+                            setores={SECTORS.map(s => s.k)}
+                            refreshKey={refreshKey}
+                        />
+                    )}
                 </div>
 
-                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3 sticky bottom-0 z-10">
-                    <button 
-                        onClick={() => setActionModal(null)}
-                        className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-all"
-                    >
-                        Cancelar
-                    </button>
-                    <button 
-                        onClick={salvarNovaRnc}
-                        disabled={isSaving || !rncForm.descricao.trim()}
-                        className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-500/30 transition-all disabled:opacity-50 flex items-center gap-2 font-black text-sm"
-                    >
-                        {isSaving ? <Loader2 className="animate-spin" size={18} /> : <ShieldAlert size={18} />}
-                        Gerar RNC
-                    </button>
+                {/* ── Rodapé ── */}
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between rounded-b-2xl shrink-0">
+                    <p className="text-[9px] text-slate-400">* Após salvar, o formulário é limpo e o grid atualizado automaticamente.</p>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setActionModal(null)}
+                            className="px-4 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-all">
+                            Fechar
+                        </button>
+                        <button onClick={salvarNovaRnc}
+                            disabled={isSaving || !rncForm.descricao.trim()}
+                            className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-md shadow-orange-500/30 transition-all disabled:opacity-50 flex items-center gap-1.5 font-black text-[11px]">
+                            {isSaving ? <Loader2 className="animate-spin" size={14} /> : <ShieldAlert size={14} />}
+                            Gerar RNC
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
-
 // ============================================================
 // Pagina principal
 // ============================================================
@@ -1619,6 +1986,7 @@ export default function MontagemPlanoCortePage() {
 
     // --- Estados RNC elevados para o nivel da pagina ---
     const [pageActionModal, setPageActionModal] = useState<null | 'addRnc'>(null);
+    const [pageRncRefreshKey, setPageRncRefreshKey] = useState(0);
     const [pageItemSelecionado, setPageItemSelecionado] = useState<any>(null);
     const [pageIsSaving, setPageIsSaving] = useState(false);
     const [pageMsg, setPageMsg] = useState<{ t: 's' | 'e'; m: string } | null>(null);
@@ -1627,7 +1995,7 @@ export default function MontagemPlanoCortePage() {
     const [pageRncForm, setPageRncForm] = useState<RncFormData>({
         idRnc: 0, projeto: '', idProjeto: '', tag: '', idTag: '', descTag: '',
         cliente: '', codMatFabricante: '', descricao: '', setor: 'Corte', usuario: '',
-        tipoTarefa: 'RNC', dataExec: new Date().toISOString().split('T')[0],
+        tipoTarefa: '', dataExec: new Date().toISOString().split('T')[0],
         titulo: '', subTitulo: '', espessura: '', materialSW: '',
         chkCorte: false, chkDobra: false, chkSolda: false, chkPintura: false, chkMontagem: false
     });
@@ -1661,7 +2029,7 @@ export default function MontagemPlanoCortePage() {
             descricao: '',
             setor: 'Corte',
             usuario: '',
-            tipoTarefa: 'RNC',
+            tipoTarefa: '',
             dataExec: new Date().toISOString().split('T')[0],
             titulo: item.DescResumo || '',
             subTitulo: item.DescDetal || '',
@@ -1720,9 +2088,15 @@ export default function MontagemPlanoCortePage() {
             });
             const result = await res.json();
             if (result.success) {
-                setPageMsg({ t: 's', m: 'Pendência (RNC) gerada com sucesso!' });
+                setPageMsg({ t: 's', m: 'Pendência (RNC) gerada com sucesso! Gere outra ou feche o painel.' });
                 addToast({ type: 'success', title: 'RNC Gerada', message: 'Pendência registrada com sucesso!' });
-                setTimeout(() => setPageActionModal(null), 1500);
+                // Limpar campos de conteúdo, manter dados do item
+                setPageRncForm(f => ({
+                    ...f,
+                    titulo: '', subTitulo: '', descricao: '',
+                    chkCorte: false, chkDobra: false, chkSolda: false, chkPintura: false, chkMontagem: false,
+                }));
+                setPageRncRefreshKey(k => k + 1);
             } else {
                 setPageMsg({ t: 'e', m: result.message || 'Erro ao salvar' });
             }
@@ -1774,6 +2148,8 @@ export default function MontagemPlanoCortePage() {
                     salvarNovaRnc={handlePageSalvarRnc}
                     usuarios={pageUsuarios}
                     tipostarefa={pageTipostarefa}
+                    codMatFabricante={pageRncForm.codMatFabricante}
+                    refreshKey={pageRncRefreshKey}
                 />
             )}
         </div>
