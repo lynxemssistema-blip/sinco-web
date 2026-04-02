@@ -1618,9 +1618,9 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                             <>
                                 <button
                                     onClick={handleLiberarPlano}
-                                    disabled={loadingAcao}
-                                    className="p-2.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors shadow-sm disabled:opacity-50"
-                                    title={!planoSelecionado ? 'Selecione um plano na tabela para liberar' : 'Liberar arquivos para execução na fábrica'}
+                                    disabled={!planoSelecionado || loadingAcao}
+                                    className="p-2.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Liberar Plano de Corte"
                                 >
                                     {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                                 </button>

@@ -8262,25 +8262,6 @@ app.get('/api/teste-final-montagem/itens', async (req, res) => {
                 Tag,
                 DescTag,
                 Qtdetotal          AS QtdeTotal,
-                DescResumo,
-                DescDetal,
-                EnderecoArquivo,
-                IdEmpresa,
-                Peso,
-                DescEmpresa,
-                AreaPinturaUnitario,
-                PesoUnitario,
-                sttxtmontagem,
-                RealizadoInicioMontagem,
-                RealizadoFinalMontagem,
-                ProdutoPrincipal,
-                MontagemTotalExecutado,
-                MontagemTotalExecutar,
-                OrdemServicoItemFinalizado,
-                ParcialMontagem
-            FROM viewmapaproducaoapontamento01
-            WHERE ${whereClause}
-            ORDER BY Projeto ASC, Tag ASC
             LIMIT ${limite}
         `;
 
@@ -8449,13 +8430,12 @@ app.post('/api/teste-final-montagem/lancar', async (req, res) => {
                 novoExecutar: 0,
                 percentual: '100',
                 message: itemFinalizado
-                    ? (osFinalizada ? 'Item finalizado! Ordem de ServiÃƒÂ§o encerrada!' : 'Item finalizado com sucesso!')
-                    : 'Setor Montagem concluÃƒÂ­do!'
+                    ? (osFinalizada ? 'Item finalizado! Ordem de Servico encerrada!' : 'Item finalizado com sucesso!')
+                    : 'Setor Montagem concluido!'
             });
 
         } else {
-            // Ã¢â€â‚¬Ã¢â€â‚¬ PARCIAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-            // Preencher inÃƒÂ­cio se ainda vazio
+            // Parcial
             const inicioUpdate = !item.RealizadoInicioMontagem ? agora : item.RealizadoInicioMontagem;
 
             await connection.execute(
@@ -8475,7 +8455,7 @@ app.post('/api/teste-final-montagem/lancar', async (req, res) => {
                 novoExecutado,
                 novoExecutar,
                 percentual,
-                message: 'LanÃƒÂ§amento salvo com sucesso!'
+                message: 'Lancamento salvo com sucesso!'
             });
         }
 
@@ -8489,7 +8469,147 @@ app.post('/api/teste-final-montagem/lancar', async (req, res) => {
 });
 
 // ============================================================================
-// PLANO DE CORTE
+// PLANO DE CORTE — Lista para tela de MONTAGEM
+// GET /api/plano-corte/lista
+// ============================================================================
+app.get('/api/plano-corte/lista', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+
+        const { Espessura, MaterialSW, exibirConcluidos, IdPlanodecorte, descplanodecorte } = req.query;
+        const mostrarTodos = exibirConcluidos === 'true';
+
+        // ============================
+        // FILTROS — espelho do VB.NET (tela Montagem)
+        // ============================
+        const filtros = [];
+        const params = [];
+
+        if (IdPlanodecorte) {
+            filtros.push('IdPlanodecorte = ?');
+            params.push(Number(IdPlanodecorte));
+        }
+
+        // Sempre: não deletados
+        filtros.push("(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')");
+
+        if (!mostrarTodos) {
+            // PENDENTES (padrão): planos ainda não enviados para corte e não concluídos
+            // Equiv. VB: AND (concluido = '' OR concluido is null) AND (enviadocorte = '' or enviadocorte is null)
+            filtros.push("(Concluido = '' OR Concluido IS NULL)");
+            filtros.push("(EnviadoCorte = '' OR EnviadoCorte IS NULL)");
+        }
+        // chkTodos=true: sem restrição extra — mostra todos os planos ativos
+
+        if (descplanodecorte) { filtros.push('descplanodecorte LIKE ?'); params.push(`%${descplanodecorte}%`); }
+        if (Espessura)        { filtros.push('Espessura LIKE ?');        params.push(`%${Espessura}%`); }
+        if (MaterialSW)       { filtros.push('MaterialSW LIKE ?');       params.push(`%${MaterialSW}%`); }
+
+        const sql = `
+            SELECT IdPlanodecorte, DescPlanodecorte, Espessura, MaterialSW,
+                   DataCad, DataLimite, CriadoPor, EnviadoCorte AS Enviadocorte, Concluido,
+                   EnderecoCompletoPlanoCorte, DataLiberacao, UsuarioLiberacao,
+                   DataInicial, DataFinal, QtdeTotalPecas, QtdeTotalPecasExecutadas
+            FROM planodecorte
+            WHERE ${filtros.join(' AND ')}
+            GROUP BY IdPlanodecorte
+            ORDER BY IdPlanodecorte DESC
+        `;
+
+        const [rows] = await connection.execute(sql, params);
+
+        if (rows.length === 0) {
+            return res.json({ success: true, data: [], total: 0, message: 'Nenhum plano localizado.' });
+        }
+        res.json({ success: true, data: rows, total: rows.length });
+
+    } catch (err) {
+        console.error('[PlanoCorte/Lista-Montagem] Erro:', err.message);
+        res.json({ success: false, data: [], message: 'Erro ao carregar planos.', error: err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Lista para tela de PRODUÇÃO (execução fábrica)
+// GET /api/producao-plano-corte/lista
+//
+// Espelha VB.NET — tela de Produção Plano de Corte:
+//   SEMPRE filtra EnviadoCorte = 'S'
+//   exibirTodos=false (PENDENTES): exclui concluídos
+//   exibirTodos=true  (TODOS):     mostra todos enviados, concluídos ou não
+// ============================================================================
+app.get('/api/producao-plano-corte/lista', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+
+        const { Espessura, MaterialSW, exibirConcluidos, exibirTodos, IdPlanodecorte, descplanodecorte } = req.query;
+        const mostrarConcluidos = exibirConcluidos === 'true' || exibirTodos === 'true';
+
+        const filtros = [];
+        const params = [];
+
+        if (IdPlanodecorte) {
+            filtros.push('IdPlanodecorte = ?');
+            params.push(Number(IdPlanodecorte));
+        }
+
+        // Sempre: não deletados + SEMPRE enviados para corte
+        filtros.push("(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')");
+        filtros.push("(EnviadoCorte = 'S')");
+
+        // PENDENTES: também exclui concluídos
+        // Equiv. VB: filtros.Add("(Concluido = '' OR Concluido IS NULL)")
+        if (!mostrarConcluidos) {
+            filtros.push("(Concluido = '' OR Concluido IS NULL)");
+        }
+
+        if (descplanodecorte) { filtros.push('descplanodecorte LIKE ?'); params.push(`%${descplanodecorte}%`); }
+        if (Espessura)        { filtros.push('Espessura LIKE ?');        params.push(`%${Espessura}%`); }
+        if (MaterialSW)       { filtros.push('MaterialSW LIKE ?');       params.push(`%${MaterialSW}%`); }
+
+        const sql = `
+            SELECT IdPlanodecorte, DescPlanodecorte, Espessura, MaterialSW,
+                   DataCad, DataLimite, CriadoPor, EnviadoCorte AS Enviadocorte, Concluido,
+                   EnderecoCompletoPlanoCorte, DataLiberacao, UsuarioLiberacao,
+                   LiberacaoParaCorte, DataLiberacaoParaCorte, UsuarioLiberacaoParaCorte,
+                   DataInicial, DataFinal, QtdeTotalPecas, QtdeTotalPecasExecutadas,
+                   Percentual
+            FROM planodecorte
+            WHERE ${filtros.join(' AND ')}
+            ORDER BY IdPlanodecorte DESC
+        `;
+
+        const [rows] = await connection.execute(sql, params);
+
+        if (rows.length === 0) {
+            return res.json({
+                success: true, data: [], total: 0,
+                message: 'Nenhum plano de corte localizado para os filtros informados.'
+            });
+        }
+        res.json({ success: true, data: rows, total: rows.length });
+
+    } catch (err) {
+        console.error('[PlanoCorte/Lista-Producao] Erro:', err.message);
+        res.json({
+            success: false,
+            data: [],
+            message: 'Aviso: Não foi possível carregar a lista de planos de corte no momento.',
+            error: err.message
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// PLANO DE CORTE — Itens disponíveis para Montagem
 // ============================================================================
 app.get('/api/plano-corte/itens-disponiveis', async (req, res) => {
     let connection = null;
@@ -8572,146 +8692,209 @@ app.get(['/api/plano-corte/lista', '/api/producao-plano-corte/lista'], async (re
     try {
         const tenantPool = req.tenantDbPool || pool;
         connection = await tenantPool.getConnection();
-        
-        // Frontend usa 'exibirTodos', backend usava 'exibirConcluidos'. Aceitamos ambos.
-        const { Espessura, MaterialSW, exibirConcluidos, exibirTodos } = req.query;
-        const mostrarConcluidos = exibirConcluidos === 'true' || exibirTodos === 'true';
-        
-        // Base: somente registros não deletados
-        let where = "(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')";
-        
-        if (!mostrarConcluidos) {
-            // Padrão: exclui concluídos (concluido='C' ou 'S') e enviados para corte (enviadocorte='S')
-            // O Plano 1 é frequentemente um registro fixo/exemplo, incluímos na lógica se não for concluído.
-            where += " AND (concluido IS NULL OR concluido = '' OR concluido = 'N') AND (enviadocorte IS NULL OR enviadocorte = '' OR enviadocorte = 'N')";
-        }
-        
-        // Quando mostrarConcluidos=true: sem restrição adicional — exibe TODOS os registros ativos
 
+        // Parâmetros aceitos (frontend envia 'exibirTodos', mas aceitamos 'exibirConcluidos' também)
+        const { Espessura, MaterialSW, exibirConcluidos, exibirTodos, IdPlanodecorte, descplanodecorte } = req.query;
+        const mostrarConcluidos = exibirConcluidos === 'true' || exibirTodos === 'true';
+
+        // ============================
+        // FILTROS — espelho do VB.NET
+        // ============================
+        const filtros = [];
         const params = [];
-        if (Espessura)  { where += ' AND Espessura LIKE ?';  params.push(`%${Espessura}%`); }
-        if (MaterialSW) { where += ' AND MaterialSW LIKE ?'; params.push(`%${MaterialSW}%`); }
-        
+
+        // Filtro por ID específico (opcional)
+        if (IdPlanodecorte) {
+            filtros.push('IdPlanodecorte = ?');
+            params.push(Number(IdPlanodecorte));
+        }
+
+        // Sempre: não deletados + enviados para corte
+        filtros.push("(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')");
+        filtros.push("(EnviadoCorte = 'S')");
+
+        // Se não mostrar concluídos (chk não marcado): exclui com concluido preenchido
+        // Equiv. VB: filtros.Add("(Concluido = '' OR Concluido IS NULL)")
+        if (!mostrarConcluidos) {
+            filtros.push("(Concluido = '' OR Concluido IS NULL)");
+        }
+        // Todos (chk marcado): sem restrição extra — exibe todos os enviados, concluídos ou não
+
+        // Filtros textuais opcionais
+        if (descplanodecorte) { filtros.push('descplanodecorte LIKE ?'); params.push(`%${descplanodecorte}%`); }
+        if (Espessura)        { filtros.push('Espessura LIKE ?');        params.push(`%${Espessura}%`); }
+        if (MaterialSW)       { filtros.push('MaterialSW LIKE ?');       params.push(`%${MaterialSW}%`); }
+
+        // ============================
+        // MONTA E EXECUTA SQL
+        // ============================
         const sql = `
             SELECT IdPlanodecorte, DescPlanodecorte, Espessura, MaterialSW,
-                   DataCad, DataLimite, CriadoPor, Enviadocorte, Concluido,
+                   DataCad, DataLimite, CriadoPor, EnviadoCorte, Concluido,
                    EnderecoCompletoPlanoCorte, DataLiberacao, UsuarioLiberacao,
-                   DataInicial, DataFinal, QtdeTotalPecas, QtdeTotalPecasExecutadas
-            FROM planodecorte 
-            WHERE ${where}
-            GROUP BY IdPlanodecorte 
+                   DataInicial, DataFinal, QtdeTotalPecas, QtdeTotalPecasExecutadas,
+                   Percentual
+            FROM planodecorte
+            WHERE ${filtros.join(' AND ')}
             ORDER BY IdPlanodecorte DESC
         `;
 
         const [rows] = await connection.execute(sql, params);
-        
-        // Caso não tenha registro, retornamos sucesso com array vazio e mensagem (não erro)
+
         if (rows.length === 0) {
-            return res.json({ 
-                success: true, 
-                data: [], 
-                total: 0, 
-                message: 'Nenhum plano de corte localizado para os filtros informados.' 
+            return res.json({
+                success: true,
+                data: [],
+                total: 0,
+                message: 'Nenhum plano de corte localizado para os filtros informados.'
             });
         }
-        
+
         res.json({ success: true, data: rows, total: rows.length });
 
     } catch (err) {
         console.error('[PlanoCorte/Lista] Erro:', err.message);
-        // Retornamos um objeto de erro controlado para o cliente
-        res.json({ 
-            success: false, 
-            data: [], 
+        res.json({
+            success: false,
+            data: [],
             message: 'Aviso: Não foi possível carregar a lista de planos de corte no momento.',
-            error: err.message 
+            error: err.message
         });
     } finally {
         if (connection) connection.release();
     }
 });
 
+
 // ============================================================================
-// PLANO DE CORTE — Itens de um plano específico (aglutinado ou individual)
+// PLANO DE CORTE — Itens de um plano específico
+// Rotas: /api/plano-corte/itens/:idPlano  e  /api/producao-plano-corte/itens/:idPlano
+//
+// Query params:
+//   exibirTodos=true  → todos os itens do plano (incl. concluídos/cortados)
+//   exibirTodos=false → apenas pendentes: txtCorte='1' + sttxtCorte vazio + não finalizado
+//   Projeto, Tag, DescResumo, CodMatFabricante → filtros textuais
+//
+// Espelha exatamente a lógica VB.NET:
+//   Se NOT ChkConcluidos.Checked:
+//     filtros.Add("(txtCorte = '1' AND (sttxtCorte IS NULL OR sttxtCorte = ''))"
+//     filtros.Add("(ordemservicoitemfinalizado IS NULL OR ordemservicoitemfinalizado = '')"
 // ============================================================================
-app.get('/api/plano-corte/itens/:idPlano', async (req, res) => {
+async function _handlePlanoItens(req, res) {
     let connection = null;
     try {
         const tenantPool = req.tenantDbPool || pool;
         connection = await tenantPool.getConnection();
         const { idPlano } = req.params;
-        const { aglutinado, IdOrdemServicoItem } = req.query;
-        const isAglutinado = aglutinado !== 'false';
+        const { exibirTodos, Projeto, Tag, DescResumo, CodMatFabricante } = req.query;
+        const mostrarTodos = exibirTodos === 'true';
 
-        let rows;
-        if (isAglutinado) {
-            // Aglutinado: agrupa por Espessura + MaterialSW + CodMatFabricante com soma de QtdeTotal
-            const params = [idPlano, idPlano];
-            const filtroItem = IdOrdemServicoItem ? ` AND a.IdOrdemServicoItem = ?` : '';
-            if (IdOrdemServicoItem) params.push(IdOrdemServicoItem);
-            [rows] = await connection.execute(`
-                SELECT
-                    a.Espessura                                           AS Espessura,
-                    a.MaterialSW                                          AS MaterialSW,
-                    a.CodMatFabricante                                    AS CodMatFabricante,
-                    MIN(a.IdOrdemServicoItem)                             AS IdOrdemServicoItem,
-                    MIN(a.IdOrdemServico)                                 AS IdOrdemServico,
-                    RTRIM(UPPER(REPLACE(MIN(a.EnderecoArquivo),'##','\\\\'))) AS EnderecoArquivo,
-                    qt.QtdeTotal                                          AS QtdeTotal
-                FROM ordemservicoitem a
-                INNER JOIN (
-                    SELECT Espessura, MaterialSW, CodMatFabricante, SUM(QtdeTotal) AS QtdeTotal
-                    FROM ordemservicoitem
-                    WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')
-                      AND idplanodecorte = ?
-                    GROUP BY Espessura, MaterialSW, CodMatFabricante
-                ) qt ON qt.Espessura = a.Espessura
-                     AND qt.MaterialSW = a.MaterialSW
-                     AND qt.CodMatFabricante = a.CodMatFabricante
-                WHERE (a.d_e_l_e_t_e IS NULL OR a.d_e_l_e_t_e = '')
-                  AND a.idplanodecorte = ?
-                  ${filtroItem}
-                GROUP BY a.Espessura, a.MaterialSW, a.CodMatFabricante
-                ORDER BY a.Espessura, a.MaterialSW, a.CodMatFabricante
-            `, params);
-        } else {
-            // Sem aglutinar: lista individual de itens
-            const params = [idPlano];
-            let extraWhere = '';
-            if (IdOrdemServicoItem) { extraWhere += ' AND IdOrdemServicoItem = ?'; params.push(IdOrdemServicoItem); }
-            [rows] = await connection.execute(`
-                SELECT
-                    OrdemServicoItemFinalizado  AS OrdemServicoItemFinalizado,
-                    IdOrdemServico              AS IdOrdemServico,
-                    IdOrdemServicoItem          AS IdOrdemServicoItem,
-                    Espessura                   AS Espessura,
-                    MaterialSW                  AS MaterialSW,
-                    CodMatFabricante            AS CodMatFabricante,
-                    IdProjeto                   AS IdProjeto,
-                    Projeto                     AS Projeto,
-                    IdTag                       AS IdTag,
-                    Tag                         AS Tag,
-                    QtdeTotal                   AS QtdeTotal,
-                    Acabamento                  AS Acabamento,
-                    DescResumo                  AS DescResumo,
-                    DescDetal                   AS DescDetal,
-                    UPPER(REPLACE(EnderecoArquivo,'##','\\\\')) AS EnderecoArquivo,
-                    idplanodecorte              AS IdPlanodecorte
-                FROM ordemservicoitem
-                WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')
-                  AND idplanodecorte = ?
-                  ${extraWhere}
-                ORDER BY IdOrdemServico, IdOrdemServicoItem
-            `, params);
+        // ============================
+        // FILTROS — espelho do VB.NET
+        // ============================
+        const filtros = [];
+        const params = [];
+
+        // Sempre: não deletados
+        filtros.push("(d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')");
+
+        // Filtro por plano específico (ChkTodosPC NOT checked no VB)
+        filtros.push('idplanodecorte = ?');
+        params.push(idPlano);
+
+        if (!mostrarTodos) {
+            // PENDENTES: Equiv. VB quando ChkConcluidos NÃO marcado:
+            //   filtros.Add("(txtCorte = '1' AND (sttxtCorte IS NULL OR sttxtCorte = ''))"
+            //   filtros.Add("(ordemservicoitemfinalizado IS NULL OR ordemservicoitemfinalizado = '')"
+            filtros.push("(txtCorte = '1' AND (sttxtCorte IS NULL OR sttxtCorte = ''))");
+            filtros.push("(ordemservicoitemfinalizado IS NULL OR ordemservicoitemfinalizado = '')");
         }
-        res.json({ success: true, data: rows, total: rows.length, aglutinado: isAglutinado });
+        // TODOS (mostrarTodos=true): sem restrição extra — exibe tudo vinculado ao plano
+
+        // Filtros textuais opcionais
+        if (Projeto)          { filtros.push('Projeto LIKE ?');          params.push(`%${Projeto}%`); }
+        if (Tag)              { filtros.push('Tag LIKE ?');              params.push(`%${Tag}%`); }
+        if (DescResumo)       { filtros.push('DescResumo LIKE ?');       params.push(`%${DescResumo}%`); }
+        if (CodMatFabricante) { filtros.push('CodMatFabricante LIKE ?'); params.push(`%${CodMatFabricante}%`); }
+
+        // ============================
+        // SELECT — espelho do VB.NET
+        // ============================
+        const [rows] = await connection.execute(`
+            SELECT
+                CodMatFabricante, idplanodecorte AS IdPlanodecorte,
+                IdOrdemServico, IdOrdemServicoItem, Espessura, MaterialSW,
+                IdProjeto, Projeto, IdTag, Tag, Acabamento, txtSoldagem, ProdutoPrincipal,
+                QtdeTotal, txtCorte,
+                COALESCE(NULLIF(CorteTotalExecutado, ''), 0) AS CorteTotalExecutado,
+                COALESCE(NULLIF(CorteTotalExecutar,  ''), 0) AS CorteTotalExecutar,
+                CONCAT(COALESCE(NULLIF(CorteTotalExecutado,''),0), '/', QtdeTotal) AS Parcial,
+                OrdemServicoItemFinalizado, DescResumo, DescDetal,
+                EnderecoArquivo,
+                EnderecoArquivoItemOrdemServico,
+                qtde, txtDobra, txtSolda, txtPintura, txtMontagem, sttxtCorte,
+                RealizadoInicioCorte, RealizadoFinalCorte, Liberado_Engenharia
+            FROM ordemservicoitem
+            WHERE ${filtros.join(' AND ')}
+            ORDER BY IdOrdemServicoItem ASC
+        `, params);
+
+        res.json({ success: true, data: rows, total: rows.length, exibirTodos: mostrarTodos });
     } catch (err) {
         console.error('[PlanoCorte/Itens] Erro:', err.message);
         res.status(500).json({ success: false, message: 'Erro: ' + err.message });
     } finally {
         if (connection) connection.release();
     }
+}
+
+// Rotas (alias — frontend usa /api/producao-plano-corte/itens/:idPlano)
+app.get('/api/plano-corte/itens/:idPlano', _handlePlanoItens);
+
+// POST /api/producao-plano-corte/:id/liberar-producao
+// Espelha VB.NET: Liberar Plano de Corte para Produção
+// Atualiza LiberacaoParaCorte = 'S', DataLiberacaoParaCorte, UsuarioLiberacaoParaCorte
+app.post('/api/producao-plano-corte/:id/liberar-producao', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        const { id } = req.params;
+        const usuario = req.user?.NomeCompleto || req.user?.nome || 'Sistema';
+        const agora = new Date().toLocaleDateString('pt-BR');
+
+        // Verificar se já foi liberado
+        const [[plano]] = await connection.execute(
+            'SELECT LiberacaoParaCorte FROM planodecorte WHERE IdPlanodecorte = ?', [id]
+        );
+
+        if (!plano) {
+            return res.json({ success: false, message: 'Plano de corte não encontrado.' });
+        }
+
+        if (plano.LiberacaoParaCorte === 'S') {
+            return res.json({ success: false, message: 'Plano de corte já liberado para produção!' });
+        }
+
+        await connection.execute(
+            `UPDATE planodecorte SET
+                LiberacaoParaCorte = 'S',
+                DataLiberacaoParaCorte = ?,
+                UsuarioLiberacaoParaCorte = ?
+             WHERE IdPlanodecorte = ?`,
+            [agora, usuario, id]
+        );
+
+        res.json({ success: true, message: 'Plano #' + id + ' liberado para produção com sucesso.' });
+    } catch (err) {
+        console.error('[Producao/Liberar] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao liberar plano para produção.' });
+    } finally {
+        if (connection) connection.release();
+    }
 });
+
+app.get('/api/producao-plano-corte/itens/:idPlano', _handlePlanoItens);
 
 // ============================================================================
 // PLANO DE CORTE — Abrir Pasta no Servidor (Explorer)
@@ -8905,9 +9088,8 @@ app.post('/api/plano-corte/:id/liberar', async (req, res) => {
         await connection.execute(
             `UPDATE planodecorte 
              SET Enviadocorte = 'S', 
-                 LiberacaoParaCorte = 'S',
-                 DataLiberacaoParaCorte = ?, 
-                 UsuarioLiberacaoParaCorte = ?
+                 DataLiberacao = ?, 
+                 UsuarioLiberacao = ?
              WHERE IdPlanodecorte = ?`,
             [new Date().toLocaleDateString('pt-BR'), liberadoPor, id]
         );

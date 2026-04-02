@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     Scissors, Loader2, Filter, Database, RefreshCw,
-    CheckCircle2, Clock, Search, X, AlertCircle, ArrowRight
+    CheckCircle2, Clock, Search, X, AlertCircle, ArrowRight,
+    FolderOpen, Send, Flag
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -17,6 +18,10 @@ interface PlanoCorte {
     DataFinal: string | null;
     QtdeTotalPecas: number | null;
     QtdeTotalPecasExecutadas: number | null;
+    EnderecoCompletoPlanoCorte: string | null;
+    LiberacaoParaCorte: string | null;
+    DataLiberacaoParaCorte: string | null;
+    UsuarioLiberacaoParaCorte: string | null;
 }
 
 interface ItemPlano {
@@ -146,9 +151,14 @@ export default function ProducaoPlanoCorte() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            if (res.status === 401) {
+                addToast({ type: 'warning', title: 'Sessão Expirada', message: 'Faça login novamente para continuar.' });
+                return;
+            }
+
             const contentType = res.headers.get('content-type');
             if (!res.ok || (contentType && !contentType.includes('application/json'))) {
-                throw new Error('O servidor não retornou dados válidos.');
+                throw new Error(`Erro HTTP ${res.status}`);
             }
 
             const result = await res.json();
@@ -163,6 +173,61 @@ export default function ProducaoPlanoCorte() {
             });
         } finally { setLoadingItens(false); }
     }, [planoSel, exibirTodosItens, fIProj, fITag, fIRes, fICod, token]);
+
+    const [loadingAcao, setLoadingAcao] = useState(false);
+
+    // === Ação 1: Abrir Pasta do Plano de Corte ===
+    const handleAbrirPasta = async () => {
+        if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
+        const endereco = planoSel.EnderecoCompletoPlanoCorte;
+        if (!endereco) { addToast({ type: 'warning', title: 'Atenção', message: 'Este plano não possui pasta configurada.' }); return; }
+        try {
+            const res = await fetch('/api/system/open-folder', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: endereco })
+            });
+            const result = await res.json();
+            if (result.success) addToast({ type: 'success', title: 'Pasta Aberta', message: 'O Explorer foi aberto na pasta do plano.' });
+            else addToast({ type: 'error', title: 'Erro', message: result.message || 'Não foi possível abrir a pasta.' });
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha na comunicação: ' + e.message });
+        }
+    };
+
+    // === Ação 2: Liberar Plano para Produção ===
+    const handleLiberarProducao = async () => {
+        if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
+        if (planoSel.LiberacaoParaCorte === 'S') {
+            addToast({ type: 'warning', title: 'Atenção', message: 'Plano de corte já liberado para produção!' }); return;
+        }
+        if (!confirm(`Deseja Liberar o Plano de Corte - ${planoSel.IdPlanodecorte}, para produção?`)) return;
+        setLoadingAcao(true);
+        try {
+            const res = await fetch(`/api/producao-plano-corte/${planoSel.IdPlanodecorte}/liberar-producao`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            const result = await res.json();
+            if (result.success) {
+                addToast({ type: 'success', title: 'Liberado', message: result.message });
+                setPlanos(prev => prev.map(p =>
+                    p.IdPlanodecorte === planoSel.IdPlanodecorte ? { ...p, LiberacaoParaCorte: 'S' } : p
+                ));
+                setPlanoSel(prev => prev ? { ...prev, LiberacaoParaCorte: 'S' } : null);
+            } else {
+                addToast({ type: 'error', title: 'Erro', message: result.message || 'Falha ao liberar plano.' });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de comunicação: ' + e.message });
+        } finally { setLoadingAcao(false); }
+    };
+
+    // === Ação 3: Finalizar Plano de Corte (placeholder) ===
+    const handleFinalizarPlano = async () => {
+        if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
+        addToast({ type: 'info', title: 'Em Desenvolvimento', message: 'A funcionalidade de finalizar plano será implementada em breve.' });
+    };
 
     useEffect(() => { fetchPlanos(); }, [exibirTodosPlanos]);
     useEffect(() => { fetchItens(); }, [planoSel, exibirTodosItens]);
@@ -209,6 +274,38 @@ export default function ProducaoPlanoCorte() {
                         </div>
                         
                         <button onClick={fetchPlanos} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors"><RefreshCw size={14} className={loadingPlanos ? 'animate-spin':''}/></button>
+
+                        {/* Ações do Plano */}
+                        <div className="flex items-center gap-1 border-l border-slate-200 pl-2 ml-1">
+                            <button
+                                onClick={handleAbrirPasta}
+                                disabled={!planoSel}
+                                className="p-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Abrir Pasta Plano de Corte"
+                            >
+                                <FolderOpen size={16} />
+                            </button>
+                            <button
+                                onClick={handleLiberarProducao}
+                                disabled={!planoSel || planoSel.LiberacaoParaCorte === 'S' || loadingAcao}
+                                className={`p-2 border rounded-lg transition-colors shadow-sm disabled:cursor-not-allowed ${
+                                    planoSel?.LiberacaoParaCorte === 'S'
+                                        ? 'bg-gray-50 text-gray-400 border-gray-200 opacity-50'
+                                        : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 disabled:opacity-40'
+                                }`}
+                                title={planoSel?.LiberacaoParaCorte === 'S' ? 'Plano já liberado para produção' : 'Liberar Plano de Corte para Produção'}
+                            >
+                                {loadingAcao ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            </button>
+                            <button
+                                onClick={handleFinalizarPlano}
+                                disabled={!planoSel || loadingAcao}
+                                className="p-2 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Finalizar Plano de Corte"
+                            >
+                                <Flag size={16} />
+                            </button>
+                        </div>
 
                         <button 
                             onClick={()=>setExibirTodosPlanos(!exibirTodosPlanos)}
@@ -297,10 +394,10 @@ export default function ProducaoPlanoCorte() {
 
                             <button 
                                 onClick={()=>setExibirTodosItens(!exibirTodosItens)}
-                                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${exibirTodosItens ? 'bg-indigo-600 text-white border-indigo-700 shadow-inner' : 'bg-white text-indigo-500 border-indigo-200 hover:bg-indigo-50'}`}
+                                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${exibirTodosItens ? 'bg-emerald-600 text-white border-emerald-700 shadow-inner' : 'bg-white text-indigo-500 border-indigo-200 hover:bg-indigo-50'}`}
                             >
                                 {exibirTodosItens ? <CheckCircle2 size={12}/> : <Clock size={12}/>}
-                                {exibirTodosItens ? 'TODOS' : 'EM PRODUÇÃO'}
+                                {exibirTodosItens ? 'INCL. CONCLUÍDOS' : 'PENDENTES'}
                             </button>
                         </div>
                     </div>
@@ -320,44 +417,48 @@ export default function ProducaoPlanoCorte() {
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Qtde</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Cortado</th>
-                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Restante</th>
-                                    <th className="px-2 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Parcial</th>
-                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Processos</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">A Cortar</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center min-w-[100px]">Parcial</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Início Corte</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Final Corte</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {itens.length > 0 ? itens.map((it, idx) => {
-                                    const pct = Math.round(it.Parcial * 100);
+                                    const executado = Number(it.CorteTotalExecutado) || 0;
+                                    const qtde      = Number(it.QtdeTotal) || 0;
+                                    const executar  = Number(it.CorteTotalExecutar) || 0 || qtde;
+                                    const total     = executado + executar;
+                                    const pct       = total > 0 ? Math.min(100, Math.round((executado / total) * 100)) : 0;
+                                    const finalizado = it.OrdemServicoItemFinalizado === 'C' ||
+                                                       it.OrdemServicoItemFinalizado === 'S' ||
+                                                       it.OrdemServicoItemFinalizado === 'SIM';
                                     return (
-                                        <tr key={`${it.IdOrdemServicoItem}-${idx}`} className="group hover:bg-slate-50 transition-colors border-b border-slate-50">
+                                        <tr key={`${it.IdOrdemServicoItem}-${idx}`} className={`group hover:bg-slate-50 transition-colors border-b border-slate-50 ${finalizado ? 'opacity-60' : ''}`}>
                                             <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
                                             <td className="px-3 py-2 font-black text-blue-600">{it.Tag}</td>
                                             <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
                                             <td className="px-3 py-2 text-center font-black text-indigo-600">{it.QtdeTotal}</td>
-                                            <td className="px-3 py-2 text-center font-black text-emerald-600">{it.CorteTotalExecutado}</td>
-                                            <td className="px-3 py-2 text-center font-black text-red-600">{it.CorteTotalExecutar}</td>
+                                            <td className="px-3 py-2 text-center font-black text-emerald-600">{executado}</td>
+                                            <td className="px-3 py-2 text-center font-black text-orange-600">{executar}</td>
                                             <td className="px-2 py-2">
-                                                <div className="flex flex-col gap-1 w-16 mx-auto">
+                                                <div className="flex flex-col gap-0.5 w-full mx-auto">
+                                                    <span className="text-[10px] font-black text-center text-slate-700 tabular-nums">
+                                                        {executado}<span className="text-slate-300 mx-0.5">/</span>{executar}
+                                                    </span>
                                                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                                                         <div className={`h-full transition-all ${pct >= 100 ? 'bg-emerald-500': pct > 0 ? 'bg-amber-400': 'bg-slate-200'}`} style={{width:`${pct}%`}}></div>
                                                     </div>
                                                     <span className="text-[8px] font-black text-center text-slate-400">{pct}%</span>
                                                 </div>
                                             </td>
+                                            <td className="px-3 py-2 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoInicioCorte ? fmt(it.RealizadoInicioCorte) : '—'}</td>
+                                            <td className="px-3 py-2 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoFinalCorte ? fmt(it.RealizadoFinalCorte) : '—'}</td>
                                             <td className="px-3 py-2">
-                                                <div className="flex items-center gap-1">
-                                                    {it.txtCorte === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Corte">C</span>}
-                                                    {it.txtDobra === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Dobra">D</span>}
-                                                    {it.txtSolda === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Solda">S</span>}
-                                                    {it.txtPintura === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Pintura">P</span>}
-                                                    {it.txtMontagem === '1' && <span className="bg-slate-200 text-slate-700 rounded px-1 font-black text-[8px]" title="Montagem">M</span>}
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2">
-                                                {it.OrdemServicoItemFinalizado === 'S' || it.OrdemServicoItemFinalizado === 'SIM' ? (
-                                                    <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><CheckCircle2 size={8}/>FINALIZADO</span>
+                                                {finalizado ? (
+                                                    <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><CheckCircle2 size={8}/>CONCLUÍDO</span>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><Clock size={8}/>PENDENTE</span>
                                                 )}
@@ -365,7 +466,9 @@ export default function ProducaoPlanoCorte() {
                                         </tr>
                                     );
                                 }) : (
-                                    <tr><td colSpan={10} className="py-20 text-center text-slate-400 font-black uppercase text-xs tracking-widest opacity-40">Nenhum item em produção neste plano</td></tr>
+                                    <tr><td colSpan={11} className="py-20 text-center text-slate-400 font-black uppercase text-xs tracking-widest opacity-40">
+                                        {exibirTodosItens ? 'Nenhum item encontrado neste plano' : 'Nenhum item pendente — ative "Incl. Concluídos" para ver todos'}
+                                    </td></tr>
                                 )}
                             </tbody>
                         </table>
