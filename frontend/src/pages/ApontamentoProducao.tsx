@@ -791,18 +791,25 @@ export default function ApontamentoProducaoPage() {
         return groups;
     }, [itens, groupBy]);
 
-    const formatDate = (dateStr: string) => {
-        if (!dateStr) return '-';
-        // If it's already in dd/mm/yyyy format (from our new backend logic)
-        if (dateStr.includes('/') && dateStr.length >= 10) return dateStr;
-
-        try {
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return dateStr;
-            return date.toLocaleDateString('pt-BR');
-        } catch (e) {
-            return dateStr;
+    const formatDate = (val: string | null): string => {
+        if (!val) return '—';
+        const s = String(val).trim();
+        if (s === '0' || s === '0/0/0' || s === '00/00/0000') return '—';
+        
+        // Se já estiver no formato DD/MM/YYYY, retorna como está (pode ter hora)
+        if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s;
+        
+        // Se for ISO ou formato MySQL (YYYY-MM-DD), converte
+        if (s.includes('-')) {
+            try {
+                const d = new Date(s.replace(/-/g, '/')); // replace para Safari/Chrome stability
+                if (!isNaN(d.getTime())) return d.toLocaleDateString('pt-BR');
+            } catch(e) {}
         }
+        
+        if (s.includes('T')) return new Date(s).toLocaleDateString('pt-BR');
+        
+        return s;
     };
 
     const getProgressColor = (percent: number) => {

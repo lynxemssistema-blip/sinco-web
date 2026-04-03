@@ -15,6 +15,19 @@ const ExcelJS = require('exceljs');
 const { exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 
+// Helper para datas no formato brasileiro (DD/MM/YYYY)
+const formatBR = (date = new Date(), includeTime = false) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    if (!includeTime) return `${day}/${month}/${year}`;
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+};
+
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'SincoWebSecret2026!KeySecure';
 
@@ -124,10 +137,7 @@ app.delete('/api/reposicao/itens/:id', async (req, res) => {
                 UsuarioD_E_L_E_T_E = ? 
             WHERE IdOrdemServicoItem = ?
         `;
-        const d = new Date();
-        const dateBR = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-        
-        const [result] = await pool.query(query, [dateBR, 'Sistema', id]);
+        const [result] = await pool.query(query, [formatBR(new Date(), true), 'Sistema', id]);
         
         if (result.affectedRows > 0) {
             res.json({ success: true, message: 'Item excluÃƒÂ­do com sucesso (reposiÃƒÂ§ÃƒÂ£o).' });
@@ -4907,7 +4917,7 @@ app.post('/api/ordemservico/finalizar', tenantMiddleware, async (req, res) => {
             return res.status(400).json({ success: false, message: 'O.S. jÃƒÂ¡ Finalizada' });
         }
 
-        const dataatual = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const dataatual = formatBR(new Date(), true);
 
         // Update ordemservico
         await connection.query(`
@@ -5183,7 +5193,7 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
         }
 
         // Realiza o "Soft Delete" na tabela ordemservico
-        const dataatual = new Date().toISOString().slice(0, 19).replace('T', ' '); // Formato: YYYY-MM-DD HH:mm:ss
+        const dataatual = formatBR(new Date(), true);
         const executor = Usuario || 'Sistema'; // Fallback
 
         const [updateOS] = await connection.query(`
@@ -8833,7 +8843,8 @@ async function _handlePlanoItens(req, res) {
                 EnderecoArquivo,
                 EnderecoArquivoItemOrdemServico,
                 qtde, txtDobra, txtSolda, txtPintura, txtMontagem, sttxtCorte,
-                RealizadoInicioCorte, RealizadoFinalCorte, Liberado_Engenharia
+                RealizadoInicioCorte, RealizadoFinalCorte, Liberado_Engenharia,
+                COALESCE(QtdeReposicao, 0) AS QtdeReposicao
             FROM ordemservicoitem
             WHERE ${filtros.join(' AND ')}
             ORDER BY IdOrdemServicoItem ASC
@@ -8889,6 +8900,237 @@ app.post('/api/producao-plano-corte/:id/liberar-producao', async (req, res) => {
     } catch (err) {
         console.error('[Producao/Liberar] Erro:', err.message);
         res.status(500).json({ success: false, message: 'Erro ao liberar plano para produção.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// POST /api/producao-plano-corte/:id/finalizar
+// Espelha VB.NET: Finalizar Plano de Corte
+// 1. Marca plano como concluído
+// 2. Finaliza compulsoriamente itens pendentes
+app.post('/api/producao-plano-corte/:id/finalizar', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        await connection.beginTransaction();
+
+        const { id } = req.params;
+        const usuario = req.user?.NomeCompleto || req.user?.nome || 'Sistema';
+        const agora = new Date();
+        const agoraData = formatBR(agora);
+        const agoraFull = formatBR(agora, true);
+
+        // 1. Verifica se existe e se já não está concluído
+        const [[plano]] = await connection.execute(
+            'SELECT Concluido FROM planodecorte WHERE IdPlanodecorte = ?', [id]
+        );
+
+        if (!plano) {
+            await connection.rollback();
+            return res.json({ success: false, message: 'Plano de corte não encontrado.' });
+        }
+
+        if (plano.Concluido && plano.Concluido.trim() !== '') {
+            await connection.rollback();
+            return res.json({ success: false, message: 'Este plano já se encontra concluído.' });
+        }
+
+        // 2. Busca itens pendentes para finalizar (Corte pendente)
+        const [itensPendentes] = await connection.execute(
+            `SELECT IdOrdemServicoItem, QtdeTotal, TxtDobra, TxtSolda, TxtPintura, TxtMontagem 
+             FROM ordemservicoitem 
+             WHERE idplanodecorte = ? 
+               AND (sttxtcorte IS NULL OR sttxtcorte = '')
+               AND (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')`,
+            [id]
+        );
+
+        // 3. Finaliza os itens pendentes
+        for (const it of itensPendentes) {
+            // Atualiza o item de corte como concluído
+            await connection.execute(
+                `UPDATE ordemservicoitem SET
+                    CorteTotalExecutar = 0,
+                    CorteTotalExecutado = ?,
+                    sttxtcorte = 'C',
+                    RealizadoFinalCorte = ?,
+                    UsuarioRealizadoFinalCorte = ?
+                 WHERE IdOrdemServicoItem = ?`,
+                [it.QtdeTotal, agoraFull, usuario, it.IdOrdemServicoItem]
+            );
+
+            // Propaga quantidade para próximo setor (Dobra -> Solda -> Pintura -> Montagem)
+            let proximoSetorCol = null;
+            if (it.TxtDobra === '1') proximoSetorCol = 'DobraTotalExecutar';
+            else if (it.TxtSolda === '1') proximoSetorCol = 'SoldaTotalExecutar';
+            else if (it.TxtPintura === '1') proximoSetorCol = 'PinturaTotalExecutar';
+            else if (it.TxtMontagem === '1') proximoSetorCol = 'MontagemTotalExecutar';
+
+            if (proximoSetorCol) {
+                await connection.execute(
+                    `UPDATE ordemservicoitem SET ${proximoSetorCol} = ${proximoSetorCol} + ? WHERE IdOrdemServicoItem = ?`,
+                    [it.QtdeTotal, it.IdOrdemServicoItem]
+                );
+            }
+        }
+
+        // 4. Marca o plano de corte como concluído
+        await connection.execute(
+            `UPDATE planodecorte SET
+                QtdeTotalPecasExecutadas = QtdeTotalPecas,
+                Percentual = 100,
+                Concluido = 'C',
+                DataFinal = ?
+             WHERE IdPlanodecorte = ?`,
+            [agoraData, id]
+        );
+
+        await connection.commit();
+        res.json({ 
+            success: true, 
+            message: `Plano #${id} finalizado com sucesso. ${itensPendentes.length} itens concluídos.` 
+        });
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('[Producao/Finalizar] Erro:', err.message);
+        res.status(500).json({ success: false, message: 'Erro ao finalizar plano.' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// POST /api/producao-plano-corte/itens/:id/lancar-producao
+// Lançamento de produção manual para item individual (Ícone 5)
+app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+        await connection.beginTransaction();
+
+        const { id } = req.params;
+        const { entrada, idPlanodecorte, usuario } = req.body;
+        const qtd = parseFloat(entrada);
+
+        if (isNaN(qtd) || qtd <= 0) throw new Error('Quantidade informada inválida.');
+
+        // 1. Busca dados do item
+        const [[item]] = await connection.execute(
+            `SELECT IdOrdemServicoItem, IdOrdemServico, QtdeTotal, 
+                    CorteTotalExecutado, CorteTotalExecutar, sttxtcorte,
+                    txtDobra, txtSolda, txtPintura, txtMontagem, 
+                    RealizadoInicioCorte, COALESCE(QtdeReposicao, 0) AS QtdeReposicao
+             FROM ordemservicoitem WHERE IdOrdemServicoItem = ?`, [id]
+        );
+
+        if (!item) throw new Error('Item não encontrado.');
+        if (item.sttxtcorte === 'C') throw new Error('Item já finalizado.');
+
+        const qtdeTotal = parseFloat(item.QtdeTotal) || 0;
+        const reposicao = parseFloat(item.QtdeReposicao) || 0;
+        const qtdeEfetiva = qtdeTotal - reposicao;
+
+        const executadoAnterior = parseFloat(item.CorteTotalExecutado) || 0;
+        const saldoDisponivel = qtdeEfetiva - executadoAnterior;
+
+        if (qtd > saldoDisponivel) throw new Error(`A quantidade informada (${qtd}) ultrapassa o limite disponível (${saldoDisponivel}).`);
+
+        const novoExecutado = executadoAnterior + qtd;
+        const novoExecutar = Math.max(0, saldoDisponivel - qtd);
+        const agora = new Date();
+        const agoraData = formatBR(agora);
+        const agoraFull = formatBR(agora, true);
+
+        // 2. Atualiza item (Corte)
+        let setFields = `CorteTotalExecutado = ?, CorteTotalExecutar = ?, UsuarioRealizadoFinalCorte = ?`;
+        let params = [novoExecutado, novoExecutar, usuario];
+
+        if (novoExecutar <= 0) {
+            setFields += `, sttxtcorte = 'C', RealizadoFinalCorte = ?`;
+            params.push(agoraFull);
+        }
+        if (!item.RealizadoInicioCorte) {
+            setFields += `, RealizadoInicioCorte = ?`;
+            params.push(agoraFull);
+        }
+
+        params.push(id);
+        await connection.execute(`UPDATE ordemservicoitem SET ${setFields} WHERE IdOrdemServicoItem = ?`, params);
+
+        // 3. Registro de Auditoria (Histórico de Produção)
+        // Mapeamento conforme SalvarDados VB.NET:
+        // QtdeTotal, "", CorteTotalExecutado (QtdeProduzida), CorteTotalExecutar (QtdeFaltante), Login, DataCriacao, ...
+        await connection.execute(
+            `INSERT INTO ordemservicoitemcontrole (
+                IdOrdemServico, IdOrdemServicoItem, IdOSItemProcesso, Processo,
+                QtdeTotal, QtdeProduzida, QtdeFaltante, CriadoPor, DataCriacao, Situacao
+            ) VALUES (?, ?, 0, 'CORTE', ?, ?, ?, ?, ?, 'LANCAMENTO')`,
+            [item.IdOrdemServico, id, qtdeTotal, novoExecutado, novoExecutar, usuario, agoraFull]
+        );
+
+        // 4. Propaga para próximo setor
+        let proximoCol = null;
+        if (item.txtDobra === '1') proximoCol = 'DobraTotalExecutar';
+        else if (item.txtSolda === '1') proximoCol = 'SoldaTotalExecutar';
+        else if (item.txtPintura === '1') proximoCol = 'PinturaTotalExecutar';
+        else if (item.txtMontagem === '1') proximoCol = 'MontagemTotalExecutar';
+
+        if (proximoCol) {
+            await connection.execute(
+                `UPDATE ordemservicoitem SET ${proximoCol} = COALESCE(${proximoCol}, 0) + ? WHERE IdOrdemServicoItem = ?`,
+                [qtd, id]
+            );
+        }
+
+        // 5. Recalcula totais do plano
+        const [[totals]] = await connection.execute(
+            `SELECT sum(QtdeTotal) as total, sum(CorteTotalExecutado) as executado 
+             FROM ordemservicoitem WHERE idplanodecorte = ? AND (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '')`,
+            [idPlanodecorte]
+        );
+
+        const pcTotal = parseFloat(totals.total) || 0;
+        const pcExec = parseFloat(totals.executado) || 0;
+        const pcPerc = pcTotal > 0 ? (pcExec / pcTotal) * 100 : 0;
+        const pcConcluido = pcTotal > 0 && pcExec >= pcTotal ? 'C' : '';
+
+        await connection.execute(
+            `UPDATE planodecorte SET 
+                QtdeTotalPecasExecutadas = ?, 
+                Percentual = ?, 
+                Concluido = ?,
+                DataFinal = ?
+             WHERE IdPlanodecorte = ?`,
+            [pcExec, pcPerc.toFixed(2), pcConcluido, pcConcluido === 'C' ? agoraData : null, idPlanodecorte]
+        );
+
+        // 6. Recalcula totais da Ordem de Serviço (Mestre)
+        const [[osStats]] = await connection.execute(
+            `SELECT SUM(QtdeTotal) as total, SUM(CorteTotalExecutado) as exec 
+             FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR d_e_l_e_t_e = '')`, 
+            [item.IdOrdemServico]
+        );
+        const osTotal = parseFloat(osStats.total) || 1;
+        const osExec = parseFloat(osStats.exec) || 0;
+        const osPerc = (osExec / osTotal) * 100;
+
+        await connection.execute(
+            `UPDATE ordemservico SET 
+                QtdePecasExecutadas = ?, 
+                PercentualPecas = ?,
+                CortePercentual = ?
+             WHERE IdOrdemServico = ?`,
+            [osExec, osPerc.toFixed(2), osPerc.toFixed(2), item.IdOrdemServico]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: `Lançado ${qtd} peças com sucesso.` });
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('[Producao/LancarItem] Erro:', err.message);
+        res.status(500).json({ success: false, message: err.message });
     } finally {
         if (connection) connection.release();
     }

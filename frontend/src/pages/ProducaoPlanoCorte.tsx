@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-    Scissors, Loader2, Filter, Database, RefreshCw,
-    CheckCircle2, Clock, Search, X, AlertCircle, ArrowRight,
-    FolderOpen, Send, Flag
+    Scissors, Loader2, Database, RefreshCw,
+    CheckCircle2, Clock, Search, X, ArrowRight,
+    FolderOpen, Send, Flag, Box, FileText, Layers, FileCode,
+    ClipboardCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -22,6 +23,7 @@ interface PlanoCorte {
     LiberacaoParaCorte: string | null;
     DataLiberacaoParaCorte: string | null;
     UsuarioLiberacaoParaCorte: string | null;
+    Concluido: string | null;
 }
 
 interface ItemPlano {
@@ -62,12 +64,26 @@ interface ItemPlano {
 function fmt(val: string | null): string {
     if (!val) return '—';
     const s = String(val).trim();
+    if (s === '0' || s === '0/0/0' || s === '00/00/0000') return '—';
+    
+    // Se já estiver no formato DD/MM/YYYY, retorna como está (pode ter hora)
+    if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s;
+    
+    // Se for ISO ou formato MySQL (YYYY-MM-DD), converte
+    if (s.includes('-')) {
+        try {
+            const d = new Date(s.replace(/-/g, '/')); // replace para Safari/Chrome stability
+            if (!isNaN(d.getTime())) return d.toLocaleDateString('pt-BR');
+        } catch(e) {}
+    }
+    
     if (s.includes('T')) return new Date(s).toLocaleDateString('pt-BR');
+    
     return s;
 }
 
 export default function ProducaoPlanoCorte() {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const { addToast } = useToast();
 
     // Estado Planos
@@ -75,6 +91,7 @@ export default function ProducaoPlanoCorte() {
     const [loadingPlanos, setLoadingPlanos] = useState(false);
     const [exibirTodosPlanos, setExibirTodosPlanos] = useState(false);
     const [planoSel, setPlanoSel] = useState<PlanoCorte | null>(null);
+    const [itemSel, setItemSel] = useState<ItemPlano | null>(null);
 
     // Filtros Planos
     const [fPDesc, setFPDesc] = useState('');
@@ -120,7 +137,6 @@ export default function ProducaoPlanoCorte() {
             const result = await res.json();
             if (result.success) {
                 setPlanos(result.data || []);
-                // Se o backend enviar uma mensagem informativa (ex: "Nenhum plano localizado"), exibimos como 'info' em vez de 'error'
                 if (result.data.length === 0 && result.message) {
                     addToast({ type: 'info', title: 'Busca Concluída', message: result.message });
                 }
@@ -176,7 +192,6 @@ export default function ProducaoPlanoCorte() {
 
     const [loadingAcao, setLoadingAcao] = useState(false);
 
-    // === Ação 1: Abrir Pasta do Plano de Corte ===
     const handleAbrirPasta = async () => {
         if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
         const endereco = planoSel.EnderecoCompletoPlanoCorte;
@@ -195,7 +210,6 @@ export default function ProducaoPlanoCorte() {
         }
     };
 
-    // === Ação 2: Liberar Plano para Produção ===
     const handleLiberarProducao = async () => {
         if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
         if (planoSel.LiberacaoParaCorte === 'S') {
@@ -223,14 +237,145 @@ export default function ProducaoPlanoCorte() {
         } finally { setLoadingAcao(false); }
     };
 
-    // === Ação 3: Finalizar Plano de Corte (placeholder) ===
     const handleFinalizarPlano = async () => {
         if (!planoSel) { addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um plano de corte.' }); return; }
-        addToast({ type: 'info', title: 'Em Desenvolvimento', message: 'A funcionalidade de finalizar plano será implementada em breve.' });
+        
+        if (planoSel.Concluido && planoSel.Concluido.trim() !== '') {
+            addToast({ type: 'warning', title: 'Atenção', message: 'Este plano já está concluído!' });
+            return;
+        }
+
+        const itensPendentes = itens.filter(it => !it.sttxtCorte || it.sttxtCorte.trim() === '');
+        let confirmMsg = `Deseja Finalizar o PC - ${planoSel.IdPlanodecorte}?`;
+        
+        if (itensPendentes.length > 0) {
+            confirmMsg = `Existem ${itensPendentes.length} itens pendentes neste plano. Deseja Finalizar o Plano de Corte - ${planoSel.IdPlanodecorte} e concluir as peças automaticamente?`;
+        }
+
+        if (!confirm(confirmMsg)) return;
+
+        setLoadingAcao(true);
+        try {
+            const res = await fetch(`/api/producao-plano-corte/${planoSel.IdPlanodecorte}/finalizar`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await res.json();
+            if (result.success) {
+                addToast({ type: 'success', title: 'Plano Finalizado', message: result.message });
+                fetchPlanos();
+                setPlanoSel(null);
+            } else {
+                addToast({ type: 'error', title: 'Erro', message: result.message || 'Falha ao finalizar plano.' });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de comunicação: ' + e.message });
+        } finally {
+            setLoadingAcao(false);
+        }
+    };
+
+    const handleAbrirDesenho = async (it: ItemPlano, tipo: '3D' | 'PDF' | 'DXF' | 'PDF_ITEM') => {
+        let path = '';
+
+        switch (tipo) {
+            case '3D': path = it.EnderecoArquivo; break;
+            case 'PDF': path = it.EnderecoArquivo; break;
+            case 'PDF_ITEM': path = it.EnderecoArquivoItemOrdemServico; break;
+            case 'DXF': 
+                path = it.EnderecoArquivo; 
+                break;
+        }
+
+        if (!path) {
+            addToast({ type: 'warning', title: 'Aviso', message: 'Caminho do arquivo não localizado para este item.' });
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/plano-corte/abrir-desenho', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filePath: path, tipo, it })
+            });
+            const result = await res.json();
+            if (!result.success) {
+                addToast({ type: 'error', title: 'Erro ao Abrir', message: result.message });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha na rede: ' + e.message });
+        }
+    };
+
+    const handleLancarProducao = async (it: ItemPlano) => {
+        if (!planoSel) return;
+        if (!planoSel.LiberacaoParaCorte || planoSel.LiberacaoParaCorte.trim() === '') {
+            addToast({ type: 'warning', title: 'Atenção', message: 'Plano de corte não liberado para iniciar o corte.' });
+            return;
+        }
+
+        if (it.OrdemServicoItemFinalizado === 'C' || it.sttxtCorte === 'C') {
+            addToast({ type: 'info', title: 'Aviso', message: 'Item já finalizado!' });
+            return;
+        }
+
+        const qtde = Number(it.QtdeTotal) || 0;
+        const executar = Number(it.CorteTotalExecutar) || 0 || qtde;
+        const executado = Number(it.CorteTotalExecutado) || 0;
+        
+        // O limite agora é exatamente o que falta executar (A CORTAR)
+        const saldo = executar;
+        const msg = `Lançamento de Produção - Item ${it.CodMatFabricante}\n` +
+                    `Projeto: ${it.Projeto} - Tag: ${it.Tag}\n\n` +
+                    `Informe a quantidade produzida (Máx: ${saldo}):`;
+        
+        const resp = window.prompt(msg, `${saldo}`);
+        
+        if (resp === null) return;
+        
+        const entrada = parseFloat(resp.replace(',', '.'));
+        if (isNaN(entrada) || entrada <= 0 || entrada > saldo) {
+            addToast({ type: 'error', title: 'Valor Inválido', message: `Informe um valor entre 0 e ${saldo}.` });
+            return;
+        }
+
+        setLoadingAcao(true);
+        try {
+            const res = await fetch(`/api/producao-plano-corte/itens/${it.IdOrdemServicoItem}/lancar-producao`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    entrada,
+                    idPlanodecorte: planoSel.IdPlanodecorte,
+                    usuario: user?.NomeCompleto || user?.nome || 'Sistema'
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                addToast({ type: 'success', title: 'Sucesso', message: result.message });
+                fetchItens();
+                fetchPlanos(); 
+            } else {
+                addToast({ type: 'error', title: 'Erro no Lançamento', message: result.message });
+            }
+        } catch (e: any) {
+            addToast({ type: 'error', title: 'Erro de Comunicação', message: e.message });
+        } finally {
+            setLoadingAcao(false);
+        }
     };
 
     useEffect(() => { fetchPlanos(); }, [exibirTodosPlanos]);
-    useEffect(() => { fetchItens(); }, [planoSel, exibirTodosItens]);
+    useEffect(() => { 
+        setItemSel(null);
+        fetchItens(); 
+    }, [planoSel, exibirTodosItens]);
 
     const limparFiltrosPlanos = () => {
         setFPDesc(''); setFPEsp(''); setFPMat(''); setFPId(''); 
@@ -247,9 +392,7 @@ export default function ProducaoPlanoCorte() {
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 p-3 gap-3 overflow-hidden">
             
-            {/* PAINEL SUPERIOR: PLANOS DE CORTE */}
             <div className={`flex flex-col bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ${planoSel ? 'h-1/3' : 'h-full'}`}>
-                {/* Header */}
                 <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
                     <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-sm">
@@ -262,7 +405,6 @@ export default function ProducaoPlanoCorte() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* Filtros Planos */}
                         <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner focus-within:border-blue-400">
                             <Search size={12} className="text-slate-400" />
                             <input type="text" placeholder="ID" value={fPId} onChange={e=>setFPId(e.target.value)} className="w-12 text-[10px] outline-none font-bold text-blue-700" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
@@ -275,7 +417,6 @@ export default function ProducaoPlanoCorte() {
                         
                         <button onClick={fetchPlanos} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors"><RefreshCw size={14} className={loadingPlanos ? 'animate-spin':''}/></button>
 
-                        {/* Ações do Plano */}
                         <div className="flex items-center gap-1 border-l border-slate-200 pl-2 ml-1">
                             <button
                                 onClick={handleAbrirPasta}
@@ -317,7 +458,6 @@ export default function ProducaoPlanoCorte() {
                     </div>
                 </div>
 
-                {/* Tabela Planos */}
                 <div className="flex-1 overflow-auto custom-scrollbar relative">
                     {loadingPlanos && (
                         <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
@@ -331,8 +471,8 @@ export default function ProducaoPlanoCorte() {
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Descrição</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Espessura</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Material SW</th>
+                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 italic">Liberação Eng.</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Liberado em</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Por</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
@@ -350,8 +490,8 @@ export default function ProducaoPlanoCorte() {
                                     <td className="px-3 py-1.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
                                     <td className="px-3 py-1.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
                                     <td className="px-3 py-1.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>
-                                    <td className="px-3 py-1.5 text-slate-500">{fmt(p.DataLiberacao)}</td>
-                                    <td className="px-3 py-1.5 text-slate-400 font-bold">{p.UsuarioLiberacao || '—'}</td>
+                                    <td className="px-3 py-1.5 text-blue-500 italic font-medium">{fmt(p.DataLiberacao)}</td>
+                                    <td className="px-3 py-1.5 text-slate-500">{fmt(p.DataLiberacaoParaCorte)}</td>
                                     <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataInicial)}</td>
                                     <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataFinal)}</td>
                                     <td className="px-3 py-1.5 text-center font-black text-indigo-600 bg-indigo-50/30">{p.QtdeTotalPecas ?? 0}</td>
@@ -363,10 +503,8 @@ export default function ProducaoPlanoCorte() {
                 </div>
             </div>
 
-            {/* PAINEL INFERIOR: ITENS DO PLANO */}
             {planoSel ? (
                 <div className="flex flex-col flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2">
-                    {/* Header */}
                     <div className="flex items-center justify-between px-4 py-2 bg-indigo-50/50 border-b border-indigo-100">
                         <div className="flex items-center gap-2">
                             <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-sm">
@@ -379,7 +517,6 @@ export default function ProducaoPlanoCorte() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            {/* Filtros Itens */}
                             <div className="flex items-center gap-1.5 bg-white border border-indigo-100 rounded-lg px-2 py-1 shadow-sm focus-within:border-indigo-400">
                                 <Search size={12} className="text-indigo-300" />
                                 <input type="text" placeholder="Projeto" value={fIProj} onChange={e=>setFIProj(e.target.value)} className="w-24 text-[10px] outline-none font-bold" onKeyDown={e=>e.key==='Enter'&&fetchItens()} />
@@ -412,6 +549,7 @@ export default function ProducaoPlanoCorte() {
                             <thead className="bg-indigo-50/30 sticky top-0 z-10 backdrop-blur-sm">
                                 <tr>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Desenhos</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Projeto</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Tag</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
@@ -431,12 +569,25 @@ export default function ProducaoPlanoCorte() {
                                     const executar  = Number(it.CorteTotalExecutar) || 0 || qtde;
                                     const total     = executado + executar;
                                     const pct       = total > 0 ? Math.min(100, Math.round((executado / total) * 100)) : 0;
-                                    const finalizado = it.OrdemServicoItemFinalizado === 'C' ||
-                                                       it.OrdemServicoItemFinalizado === 'S' ||
-                                                       it.OrdemServicoItemFinalizado === 'SIM';
+                                    const finalizado = it.sttxtCorte === 'C';
+                                    const selecionado = itemSel?.IdOrdemServicoItem === it.IdOrdemServicoItem;
                                     return (
-                                        <tr key={`${it.IdOrdemServicoItem}-${idx}`} className={`group hover:bg-slate-50 transition-colors border-b border-slate-50 ${finalizado ? 'opacity-60' : ''}`}>
+                                        <tr 
+                                            key={`${it.IdOrdemServicoItem}-${idx}`} 
+                                            onClick={() => setItemSel(it)}
+                                            className={`group cursor-pointer transition-colors border-b border-slate-50 ${selecionado ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-100' : 'hover:bg-slate-50'} ${finalizado ? 'opacity-60' : ''}`}
+                                        >
                                             <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
+                                            <td className="px-3 py-2">
+                                                <div className={`flex items-center gap-1 transition-all duration-200 ${selecionado ? 'opacity-100' : 'opacity-30 pointer-events-none grayscale'}`}>
+                                                    <button onClick={() => handleAbrirDesenho(it, '3D')} className="p-1 hover:bg-blue-100 text-blue-600 rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
+                                                    <button onClick={() => handleAbrirDesenho(it, 'PDF')} className="p-1 hover:bg-red-100 text-red-600 rounded transition-colors" title="Abrir Desenho PDF"><FileText size={14}/></button>
+                                                    <button onClick={() => handleAbrirDesenho(it, 'DXF')} className="p-1 hover:bg-emerald-100 text-emerald-600 rounded transition-colors" title="Abrir Desenho DXF"><Layers size={14}/></button>
+                                                    <button onClick={() => handleAbrirDesenho(it, 'PDF_ITEM')} className="p-1 hover:bg-amber-100 text-amber-600 rounded transition-colors" title="Abrir PDF do Item"><FileCode size={14}/></button>
+                                                    <div className="w-px h-3 bg-slate-200 mx-1"></div>
+                                                    <button onClick={() => handleLancarProducao(it)} className="p-1 hover:bg-indigo-100 text-indigo-600 rounded transition-colors" title="Lançar Produção de Peças Cortadas"><ClipboardCheck size={14}/></button>
+                                                </div>
+                                            </td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
                                             <td className="px-3 py-2 font-black text-blue-600">{it.Tag}</td>
                                             <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
@@ -444,14 +595,14 @@ export default function ProducaoPlanoCorte() {
                                             <td className="px-3 py-2 text-center font-black text-emerald-600">{executado}</td>
                                             <td className="px-3 py-2 text-center font-black text-orange-600">{executar}</td>
                                             <td className="px-2 py-2">
-                                                <div className="flex flex-col gap-0.5 w-full mx-auto">
-                                                    <span className="text-[10px] font-black text-center text-slate-700 tabular-nums">
-                                                        {executado}<span className="text-slate-300 mx-0.5">/</span>{executar}
-                                                    </span>
+                                                <div className="flex flex-col gap-0.5 w-full min-w-[100px]">
+                                                    <div className="flex items-center justify-between px-1">
+                                                        <span className="text-[9px] font-black text-slate-700 tabular-nums">{executado}/{qtde}</span>
+                                                        <span className="text-[9px] font-black text-indigo-600">{pct}%</span>
+                                                    </div>
                                                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                                                         <div className={`h-full transition-all ${pct >= 100 ? 'bg-emerald-500': pct > 0 ? 'bg-amber-400': 'bg-slate-200'}`} style={{width:`${pct}%`}}></div>
                                                     </div>
-                                                    <span className="text-[8px] font-black text-center text-slate-400">{pct}%</span>
                                                 </div>
                                             </td>
                                             <td className="px-3 py-2 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoInicioCorte ? fmt(it.RealizadoInicioCorte) : '—'}</td>
