@@ -368,6 +368,7 @@ function AppContent() {
         return <UsuarioPage />;
       case 'cadastro-de-usuario':
       case 'cadastro-usuario':
+      case 'group_1775495483371':
         return <CadastroUsuarioPage />;
       case 'config':
         return <ConfiguracaoPage />;
