@@ -44,6 +44,14 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'cipa', icon: 'HardHat', label: 'CIPA - Segurança', href: '/cipa' },
     { id: 'sgq', icon: 'ClipboardCheck', label: 'SGQ - Qualidade', href: '/sgq' },
     { id: 'usuarios', icon: 'Users', label: 'Usuários', href: '/usuarios' },
+    {
+        id: 'cadastro-usuarios',
+        icon: 'Users',
+        label: 'Cadastro Usuarios',
+        children: [
+            { id: 'cadastro-de-usuario', icon: 'UserCheck', label: 'Cadastro de Usuario', href: '/cadastro-de-usuario' },
+        ]
+    },
     { id: 'config', icon: 'Settings', label: 'Configurações', href: '/config' },
     { id: 'config-sistema', icon: 'Database', label: 'Config. Sistema', href: '/config-sistema' },
     { id: 'superadmin', icon: 'ShieldAlert', label: 'Superadmin', href: '/superadmin' },

@@ -7088,9 +7088,35 @@ app.get('/api/usuario', async (req, res) => {
         res.json({ success: true, data: rows });
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.status(500).json({ success: false, message: 'Erro ao listar usuÃ¯Â¿Â½rios' });
+        res.status(500).json({ success: false, message: 'Erro ao listar usuários' });
     }
 });
+
+// ADMIN: LIST Users with filters (NomeCompleto, Setor) — tenant-aware
+app.get('/api/admin/usuarios', tenantMiddleware, async (req, res) => {
+    try {
+        const { NomeCompleto, Setor } = req.query;
+
+        const filtros = ["(D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')"];
+        const params = [];
+
+        if (NomeCompleto) { filtros.push('NomeCompleto LIKE ?'); params.push(`%${NomeCompleto}%`); }
+        if (Setor)        { filtros.push('Setor LIKE ?');        params.push(`%${Setor}%`); }
+
+        const [rows] = await pool.execute(`
+            SELECT idUsuario, NomeCompleto, Login, TipoUsuario, Setor, email, status
+            FROM usuario
+            WHERE ${filtros.join(' AND ')}
+            ORDER BY NomeCompleto ASC
+        `, params);
+
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('[Admin/Usuarios] Erro:', error.message);
+        res.status(500).json({ success: false, message: 'Erro ao listar usuários: ' + error.message });
+    }
+});
+
 
 // GET ONE User
 app.get('/api/usuario/:id', async (req, res) => {
@@ -9018,7 +9044,7 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
 
         // 1. Busca dados do item
         const [[item]] = await connection.execute(
-            `SELECT IdOrdemServicoItem, IdOrdemServico, QtdeTotal, 
+            `SELECT IdOrdemServicoItem, IdOrdemServico, IdProjeto, IdTag, QtdeTotal, 
                     CorteTotalExecutado, CorteTotalExecutar, sttxtcorte,
                     txtDobra, txtSolda, txtPintura, txtMontagem, 
                     RealizadoInicioCorte, COALESCE(QtdeReposicao, 0) AS QtdeReposicao
@@ -9058,6 +9084,43 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
 
         params.push(id);
         await connection.execute(`UPDATE ordemservicoitem SET ${setFields} WHERE IdOrdemServicoItem = ?`, params);
+
+        // PROPAGAÇÃO DA DATA DE INÍCIO DE CORTE (Requirement 2)
+        // Se o item não tinha início de corte registrado, propagamos para os níveis superiores
+        if (!item.RealizadoInicioCorte) {
+            // Ordem de Serviço
+            if (item.IdOrdemServico) {
+                await connection.execute(
+                    `UPDATE ordemservico SET RealizadoInicioCorte = ? 
+                     WHERE IdOrdemServico = ? AND (RealizadoInicioCorte IS NULL OR RealizadoInicioCorte = '')`,
+                    [agoraFull, item.IdOrdemServico]
+                );
+            }
+            // Projeto
+            if (item.IdProjeto) {
+                await connection.execute(
+                    `UPDATE projetos SET RealizadoInicioCorte = ? 
+                     WHERE IdProjeto = ? AND (RealizadoInicioCorte IS NULL OR RealizadoInicioCorte = '')`,
+                    [agoraFull, item.IdProjeto]
+                );
+            }
+            // Tag
+            if (item.IdTag) {
+                await connection.execute(
+                    `UPDATE tags SET RealizadoInicioCorte = ? 
+                     WHERE IdTag = ? AND (RealizadoInicioCorte IS NULL OR RealizadoInicioCorte = '')`,
+                    [agoraFull, item.IdTag]
+                );
+            }
+            // Plano de Corte (Data de Início)
+            if (idPlanodecorte) {
+                await connection.execute(
+                    `UPDATE planodecorte SET DataInicial = ? 
+                     WHERE IdPlanodecorte = ? AND (DataInicial IS NULL OR DataInicial = '')`,
+                    [agoraData, idPlanodecorte]
+                );
+            }
+        }
 
         // 3. Registro de Auditoria (Histórico de Produção)
         // Mapeamento conforme SalvarDados VB.NET:
@@ -9101,9 +9164,10 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
                 QtdeTotalPecasExecutadas = ?, 
                 Percentual = ?, 
                 Concluido = ?,
-                DataFinal = ?
+                DataFinal = ?,
+                UsuarioDataFinal = ?
              WHERE IdPlanodecorte = ?`,
-            [pcExec, pcPerc.toFixed(2), pcConcluido, pcConcluido === 'C' ? agoraData : null, idPlanodecorte]
+            [pcExec, pcPerc.toFixed(2), pcConcluido, pcConcluido === 'C' ? agoraData : null, pcConcluido === 'C' ? usuario : null, idPlanodecorte]
         );
 
         // 6. Recalcula totais da Ordem de Serviço (Mestre)

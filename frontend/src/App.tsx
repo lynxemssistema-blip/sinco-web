@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { MenuItem } from './utils/iconMap';
 import { defaultMenuItems } from './utils/constants'; // Import default structure
 import { AppLayout } from './layout/AppLayout';
@@ -36,11 +36,13 @@ import ListaReposicaoPage from './pages/ListaReposicao';
 import MontagemPlanoCortePage from './pages/MontagemPlanoCorte';
 import ProducaoPlanoCortePage from './pages/ProducaoPlanoCorte';
 import TesteFinalMontagemPage from './pages/TesteFinalMontagem';
+import CadastroUsuarioPage from './pages/CadastroUsuario';
 function AppContent() {
   const { user, logout } = useAuth();
   const [activePageId, setActivePageId] = useState('dashboard');
   const [menuItems, setMenuItems] = useState<MenuItem[]>(defaultMenuItems);
   const [selectedRncItem, setSelectedRncItem] = useState<number | null>(null);
+  const hasInitialized = useRef(false); // prevent URL mapping from running more than once
 
   useEffect(() => {
     if (!user) return; // Don't fetch if not logged in
@@ -196,7 +198,21 @@ function AppContent() {
             }
           }
 
+          // Force add 'cadastro-usuarios' group if missing
+          if (!savedMenu.find(item => item.id === 'cadastro-usuarios')) {
+            const cuItem = defaultMenuItems.find(item => item.id === 'cadastro-usuarios');
+            if (cuItem) {
+              const usrIdx = savedMenu.findIndex(item => item.id === 'usuarios');
+              if (usrIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, usrIdx + 1), cuItem, ...savedMenu.slice(usrIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, cuItem];
+              }
+            }
+          }
+
           setMenuItems(savedMenu);
+
         } else {
           // If no custom menu, use default.
           // Check if default needs filtering for non-admins?
@@ -226,11 +242,14 @@ function AppContent() {
         }
       });
 
-    // Handle initial URL mapping (simple version)
-    const path = window.location.pathname;
-    const foundItem = findItemByHref(defaultMenuItems, path); // Use default for initial load mapping
-    if (foundItem) {
-      setActivePageId(foundItem.id);
+    // Handle initial URL mapping — only once on first load
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      const path = window.location.pathname;
+      const foundItem = findItemByHref(defaultMenuItems, path);
+      if (foundItem) {
+        setActivePageId(foundItem.id);
+      }
     }
   }, [user]);
 
@@ -347,6 +366,9 @@ function AppContent() {
           return <SuperadminPage defaultTab="users" />;
         }
         return <UsuarioPage />;
+      case 'cadastro-de-usuario':
+      case 'cadastro-usuario':
+        return <CadastroUsuarioPage />;
       case 'config':
         return <ConfiguracaoPage />;
       case 'romaneio-envio':
