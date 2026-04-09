@@ -2154,130 +2154,144 @@ app.get('/api/usuario/:id', async (req, res) => {
 
 // CREATE User (with Central Sync)
 app.post('/api/usuario', async (req, res) => {
-    const { NomeCompleto, Login, Senha, TipoUsuario, email, status } = req.body;
+    const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
+            txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+            MapaProducao, Romaneio, OrdemServico, SolidWorks,
+            GerenciamentoProducao, VisaoGeralProducao,
+            Comercial, Financeiro, Teste, Expedicao } = req.body;
 
-    if (!NomeCompleto || !Login || !Senha) {
-        return res.status(400).json({ success: false, message: 'Nome, Login e Senha sÃ¯Â¿Â½o obrigatÃ¯Â¿Â½rios' });
+    if (!NomeCompleto || !Login || !Senha || !TipoUsuario) {
+        return res.status(400).json({ success: false, message: 'Nome, Login, Senha e Tipo são obrigatórios' });
     }
 
     try {
-        // Insert into local DB
+        // Check NomeCompleto duplicado
+        const [existingName] = await pool.execute(
+            "SELECT NomeCompleto FROM usuario WHERE NomeCompleto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')",
+            [NomeCompleto.trim()]
+        );
+        if (existingName.length > 0) {
+            return res.status(400).json({ success: false, message: 'Nome de Usuário já Cadastrado!' });
+        }
+
+        // Check Login duplicado
+        const [existingLogin] = await pool.execute(
+            "SELECT idUsuario FROM usuario WHERE Login = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')",
+            [Login.trim()]
+        );
+        if (existingLogin.length > 0) {
+            return res.status(400).json({ success: false, message: 'Nome de Login já Cadastrado, favor informar outro Login!' });
+        }
+
+        const now = getCurrentDateTimeBR();
         const [result] = await pool.execute(
-            `INSERT INTO usuario (NomeCompleto, Login, Senha, TipoUsuario, email, status, DataCriacao) 
-             VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-            [NomeCompleto, Login, Senha, TipoUsuario || 'C', email || null, status || 'A']
+            `INSERT INTO usuario (
+                NomeCompleto, Login, Senha, TipoUsuario, Setor, email,
+                Descricao, Sigla, DataCadastro, CriadoPor, status,
+                txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+                MapaProducao, Romaneio, OrdemServico, SolidWorks,
+                GerenciamentoProducao, VisaoGeralProducao,
+                Comercial, Financeiro, Teste, Expedicao
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                NomeCompleto.trim().toUpperCase(), Login.trim(), Senha, TipoUsuario,
+                Setor || '', email || '', Descricao || '', Sigla || '',
+                now, 'Sistema', 'A',
+                txtCorte || '', txtDobra || '', txtSolda || '', txtPintura || '',
+                txtMontagem || '', txtAlmoxarifado || '',
+                MapaProducao || '', Romaneio || '', OrdemServico || '', SolidWorks || '',
+                GerenciamentoProducao || '', VisaoGeralProducao || '',
+                Comercial || '', Financeiro || '', Teste || '', Expedicao || ''
+            ]
         );
 
         const newUserId = result.insertId;
 
         // Sync to Central DB (async, non-blocking)
-        const userData = {
-            idUsuario: newUserId,
-            Login,
-            Senha,
-            NomeCompleto
-        };
-
-        syncUserToCentral(userData).catch(err => {
+        syncUserToCentral({ idUsuario: newUserId, Login, Senha, NomeCompleto }).catch(err => {
             console.error('[SYNC] Failed to sync new user to central:', err);
         });
 
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio criado com sucesso', id: newUserId });
+        res.json({ success: true, message: 'Usuário criado com sucesso', id: newUserId });
     } catch (error) {
         console.error('Error creating usuario:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            res.status(400).json({ success: false, message: 'Login jÃ¯Â¿Â½ existe' });
-        } else {
-            res.status(500).json({ success: false, message: 'Erro ao criar usuÃ¯Â¿Â½rio' });
-        }
+        res.status(500).json({ success: false, message: 'Erro ao criar usuário: ' + error.message });
     }
 });
 
 // UPDATE User (with Central Sync)
 app.put('/api/usuario/:id', async (req, res) => {
-    const { NomeCompleto, Login, Senha, TipoUsuario, email, status } = req.body;
-    const userId = req.params.id;
+    const id = req.params.id;
+    const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
+            txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+            MapaProducao, Romaneio, OrdemServico, SolidWorks,
+            GerenciamentoProducao, VisaoGeralProducao,
+            Comercial, Financeiro, Teste, Expedicao } = req.body;
+
+    if (!NomeCompleto || !Login || !TipoUsuario) {
+        return res.status(400).json({ success: false, message: 'Nome, Login e Tipo são obrigatórios' });
+    }
 
     try {
-        // Build dynamic update
-        let updateFields = [];
-        let updateValues = [];
+        let sql = `UPDATE usuario SET
+            NomeCompleto = ?, Login = ?, TipoUsuario = ?,
+            Setor = ?, email = ?, Descricao = ?, Sigla = ?,
+            txtCorte = ?, txtDobra = ?, txtSolda = ?, txtPintura = ?,
+            txtMontagem = ?, txtAlmoxarifado = ?,
+            MapaProducao = ?, Romaneio = ?, OrdemServico = ?, SolidWorks = ?,
+            GerenciamentoProducao = ?, VisaoGeralProducao = ?,
+            Comercial = ?, Financeiro = ?, Teste = ?, Expedicao = ?`;
 
-        if (NomeCompleto) {
-            updateFields.push('NomeCompleto = ?');
-            updateValues.push(NomeCompleto);
-        }
-        if (Login) {
-            updateFields.push('Login = ?');
-            updateValues.push(Login);
-        }
-        if (Senha && Senha.trim() !== '') {
-            updateFields.push('Senha = ?');
-            updateValues.push(Senha);
-        }
-        if (TipoUsuario) {
-            updateFields.push('TipoUsuario = ?');
-            updateValues.push(TipoUsuario);
-        }
-        if (email !== undefined) {
-            updateFields.push('email = ?');
-            updateValues.push(email);
-        }
-        if (status) {
-            updateFields.push('status = ?');
-            updateValues.push(status);
+        const values = [
+            NomeCompleto.trim().toUpperCase(), Login.trim(), TipoUsuario,
+            Setor || '', email || '', Descricao || '', Sigla || '',
+            txtCorte || '', txtDobra || '', txtSolda || '', txtPintura || '',
+            txtMontagem || '', txtAlmoxarifado || '',
+            MapaProducao || '', Romaneio || '', OrdemServico || '', SolidWorks || '',
+            GerenciamentoProducao || '', VisaoGeralProducao || '',
+            Comercial || '', Financeiro || '', Teste || '', Expedicao || ''
+        ];
+
+        // Apenas atualiza senha se fornecida e não for placeholder
+        if (Senha && Senha.trim() !== '' && Senha !== '••••••••') {
+            sql += ', Senha = ?';
+            values.push(Senha);
         }
 
-        if (updateFields.length === 0) {
-            return res.status(400).json({ success: false, message: 'Nenhum campo para atualizar' });
-        }
+        sql += ' WHERE idUsuario = ?';
+        values.push(id);
 
-        updateValues.push(userId);
+        await pool.execute(sql, values);
 
-        await pool.execute(
-            `UPDATE usuario SET ${updateFields.join(', ')} WHERE idUsuario = ?`,
-            updateValues
-        );
-
-        // Fetch updated user for sync
+        // Sync to Central DB (async)
         const [userRows] = await pool.execute(
-            'SELECT idUsuario, Login, Senha, NomeCompleto FROM usuario WHERE idUsuario = ?',
-            [userId]
+            'SELECT idUsuario, Login, Senha, NomeCompleto FROM usuario WHERE idUsuario = ?', [id]
         );
-
         if (userRows.length > 0) {
-            // Sync to Central DB (async)
             syncUserToCentral(userRows[0]).catch(err => {
                 console.error('[SYNC] Failed to sync updated user to central:', err);
             });
         }
 
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio atualizado com sucesso' });
+        res.json({ success: true, message: 'Usuário atualizado com sucesso' });
     } catch (error) {
         console.error('Error updating usuario:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            res.status(400).json({ success: false, message: 'Login jÃ¯Â¿Â½ existe' });
-        } else {
-            res.status(500).json({ success: false, message: 'Erro ao atualizar usuÃ¯Â¿Â½rio' });
-        }
+        res.status(500).json({ success: false, message: 'Erro ao atualizar usuário: ' + error.message });
     }
 });
 
 // DELETE User (Soft Delete)
 app.delete('/api/usuario/:id', async (req, res) => {
     try {
+        const now = getCurrentDateTimeBR();
         await pool.execute(
-            `UPDATE usuario SET D_E_L_E_T_E = '*' WHERE idUsuario = ?`,
-            [req.params.id]
+            "UPDATE usuario SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = 'Sistema' WHERE idUsuario = ?",
+            [now, req.params.id]
         );
-
-        // Note: We don't delete from central DB, just mark as inactive locally
-        // The central DB will still have the user for historical login tracking
-
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio excluÃ¯Â¿Â½do com sucesso' });
+        res.json({ success: true, message: 'Usuário excluído com sucesso' });
     } catch (error) {
         console.error('Error deleting usuario:', error);
-        res.status(500).json({ success: false, message: 'Erro ao excluir usuÃ¯Â¿Â½rio' });
+        res.status(500).json({ success: false, message: 'Erro ao excluir usuário' });
     }
 });
 
@@ -3466,8 +3480,10 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
 
         const where = condicoes.join(' AND ');
 
+        const queryPool = req.tenantDbPool || pool;
+
         // Get projects with aggregated sector totals from their tags + RNC count
-        const [rows] = await pool.execute(`
+        const [rows] = await queryPool.execute(`
             SELECT
                 p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao,
                 p.Finalizado, p.liberado, p.StatusProj, p.DescStatus,
@@ -3477,6 +3493,11 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
                 COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas,
                 COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags,
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
+
+                /* ── OS Count ── */
+                COALESCE((SELECT COUNT(*) FROM ordemservico os 
+                           WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL))
+                             AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdeOS,
 
                 /* Ã¢â€â‚¬Ã¢â€â‚¬ RNC Ã¢â€â‚¬Ã¢â€â‚¬ */
                 COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
@@ -7104,7 +7125,12 @@ app.get('/api/admin/usuarios', tenantMiddleware, async (req, res) => {
         if (Setor)        { filtros.push('Setor LIKE ?');        params.push(`%${Setor}%`); }
 
         const [rows] = await pool.execute(`
-            SELECT idUsuario, NomeCompleto, Login, TipoUsuario, Setor, email, status
+            SELECT idUsuario, NomeCompleto, Login, Senha, TipoUsuario, Setor, email, status,
+                   Descricao, Sigla, EnderecoImagem,
+                   txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+                   MapaProducao, Romaneio, OrdemServico, SolidWorks,
+                   GerenciamentoProducao, VisaoGeralProducao,
+                   Comercial, Financeiro, Teste, Expedicao
             FROM usuario
             WHERE ${filtros.join(' AND ')}
             ORDER BY NomeCompleto ASC
@@ -7136,66 +7162,113 @@ app.get('/api/usuario/:id', async (req, res) => {
     }
 });
 
-// CREATE User
+// CREATE User (with Central Sync)
 app.post('/api/usuario', async (req, res) => {
-    const { NomeCompleto, Login, Senha, TipoUsuario } = req.body;
+    const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
+            txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+            MapaProducao, Romaneio, OrdemServico, SolidWorks,
+            GerenciamentoProducao, VisaoGeralProducao,
+            Comercial, Financeiro, Teste, Expedicao } = req.body;
 
     if (!NomeCompleto || !Login || !Senha || !TipoUsuario) {
-        return res.status(400).json({ success: false, message: 'Nome, Login, Senha e Tipo sÃ¯Â¿Â½o obrigatÃ¯Â¿Â½rios' });
+        return res.status(400).json({ success: false, message: 'Nome, Login, Senha e Tipo são obrigatórios' });
     }
 
     try {
-        // Check if login exists
-        const [existing] = await pool.execute('SELECT idUsuario FROM usuario WHERE Login = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = "")', [Login]);
-        if (existing.length > 0) {
-            return res.status(400).json({ success: false, message: 'Login jÃ¯Â¿Â½ existe' });
+        // Check if NomeCompleto already exists
+        const [existingName] = await pool.execute(
+            "SELECT NomeCompleto FROM usuario WHERE NomeCompleto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')",
+            [NomeCompleto.trim()]
+        );
+        if (existingName.length > 0) {
+            return res.status(400).json({ success: false, message: 'Nome de Usuário já Cadastrado!' });
+        }
+
+        // Check if Login already exists
+        const [existingLogin] = await pool.execute(
+            "SELECT idUsuario FROM usuario WHERE Login = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')",
+            [Login.trim()]
+        );
+        if (existingLogin.length > 0) {
+            return res.status(400).json({ success: false, message: 'Nome de Login já Cadastrado, favor informar outro Login!' });
         }
 
         const now = getCurrentDateTimeBR();
         const [result] = await pool.execute(
-            'INSERT INTO usuario (NomeCompleto, Login, Senha, TipoUsuario, DataCadastro, CriadoPor, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [NomeCompleto.trim(), Login.trim(), Senha, TipoUsuario, now, 'Sistema', 'A']
+            `INSERT INTO usuario (
+                NomeCompleto, Login, Senha, TipoUsuario, Setor, email,
+                Descricao, Sigla, DataCadastro, CriadoPor, status,
+                txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+                MapaProducao, Romaneio, OrdemServico, SolidWorks,
+                GerenciamentoProducao, VisaoGeralProducao,
+                Comercial, Financeiro, Teste, Expedicao
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                NomeCompleto.trim().toUpperCase(), Login.trim(), Senha, TipoUsuario,
+                Setor || '', email || '', Descricao || '', Sigla || '',
+                now, 'Sistema', 'A',
+                txtCorte || '', txtDobra || '', txtSolda || '', txtPintura || '',
+                txtMontagem || '', txtAlmoxarifado || '',
+                MapaProducao || '', Romaneio || '', OrdemServico || '', SolidWorks || '',
+                GerenciamentoProducao || '', VisaoGeralProducao || '',
+                Comercial || '', Financeiro || '', Teste || '', Expedicao || ''
+            ]
         );
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio cadastrado com sucesso', id: result.insertId });
+        res.json({ success: true, message: 'Usuário cadastrado com sucesso', id: result.insertId });
     } catch (error) {
-        console.error('Error creating user:', error);
-        res.status(500).json({ success: false, message: 'Erro ao cadastrar usuÃ¯Â¿Â½rio' });
+        console.error('Error creating usuario:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar usuário: ' + error.message });
     }
 });
-
-// UPDATE User
+// UPDATE User (with all permission fields)
 app.put('/api/usuario/:id', async (req, res) => {
     const id = req.params.id;
-    const { NomeCompleto, Login, Senha, TipoUsuario } = req.body;
+    const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
+            txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
+            MapaProducao, Romaneio, OrdemServico, SolidWorks,
+            GerenciamentoProducao, VisaoGeralProducao,
+            Comercial, Financeiro, Teste, Expedicao } = req.body;
 
     if (!NomeCompleto || !Login || !TipoUsuario) {
-        return res.status(400).json({ success: false, message: 'Nome, Login e Tipo sÃ¯Â¿Â½o obrigatÃ¯Â¿Â½rios' });
+        return res.status(400).json({ success: false, message: 'Nome, Login e Tipo são obrigatórios' });
     }
 
     try {
-        const updates = [
-            'NomeCompleto = ?',
-            'Login = ?',
-            'TipoUsuario = ?'
+        const now = getCurrentDateTimeBR();
+
+        let sql = `UPDATE usuario SET
+            NomeCompleto = ?, Login = ?, TipoUsuario = ?,
+            Setor = ?, email = ?, Descricao = ?, Sigla = ?,
+            txtCorte = ?, txtDobra = ?, txtSolda = ?, txtPintura = ?,
+            txtMontagem = ?, txtAlmoxarifado = ?,
+            MapaProducao = ?, Romaneio = ?, OrdemServico = ?, SolidWorks = ?,
+            GerenciamentoProducao = ?, VisaoGeralProducao = ?,
+            Comercial = ?, Financeiro = ?, Teste = ?, Expedicao = ?`;
+
+        const values = [
+            NomeCompleto.trim().toUpperCase(), Login.trim(), TipoUsuario,
+            Setor || '', email || '', Descricao || '', Sigla || '',
+            txtCorte || '', txtDobra || '', txtSolda || '', txtPintura || '',
+            txtMontagem || '', txtAlmoxarifado || '',
+            MapaProducao || '', Romaneio || '', OrdemServico || '', SolidWorks || '',
+            GerenciamentoProducao || '', VisaoGeralProducao || '',
+            Comercial || '', Financeiro || '', Teste || '', Expedicao || ''
         ];
-        const values = [NomeCompleto.trim(), Login.trim(), TipoUsuario];
 
         // Only update password if provided
-        if (Senha && Senha.trim() !== '') {
-            updates.push('Senha = ?');
+        if (Senha && Senha.trim() !== '' && Senha !== '••••••••') {
+            sql += ', Senha = ?';
             values.push(Senha);
         }
 
+        sql += ' WHERE idUsuario = ?';
         values.push(id);
 
-        await pool.execute(
-            `UPDATE usuario SET ${updates.join(', ')} WHERE idUsuario = ? `,
-            values
-        );
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio atualizado com sucesso' });
+        await pool.execute(sql, values);
+        res.json({ success: true, message: 'Usuário atualizado com sucesso' });
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ success: false, message: 'Erro ao atualizar usuÃ¯Â¿Â½rio' });
+        res.status(500).json({ success: false, message: 'Erro ao atualizar usuário: ' + error.message });
     }
 });
 
@@ -7226,6 +7299,73 @@ app.get('/api/rnc/sectors', async (req, res) => {
     } catch (error) {
         console.error('Error fetching RNC sectors:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar setores' });
+    }
+});
+
+// GET /api/processosfabricacao - Lista todos os processos de fabricação ativos
+// NOTA: não usar /api/usuario/processos pois conflita com /api/usuario/:id
+app.get('/api/processosfabricacao', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(
+            "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao"
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching processos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar processos de fabricação: ' + error.message });
+    }
+});
+
+// GET /api/processosfabricacao/usuario/:id - Lista processos vinculados ao usuário
+app.get('/api/processosfabricacao/usuario/:id', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(
+            "SELECT IdUsuarioprocessofabricacao, ProcessoFabricacao, IdProcessoFabricacao FROM usuarioprocessofabricacao WHERE IdUsuario = ? AND (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao",
+            [req.params.id]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching user processos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar processos do usuário: ' + error.message });
+    }
+});
+
+// POST /api/processosfabricacao/associar - Associa um processo a um usuário
+app.post('/api/processosfabricacao/associar', async (req, res) => {
+    const { IdUsuario, IdProcessoFabricacao, ProcessoFabricacao } = req.body;
+    if (!IdUsuario || !IdProcessoFabricacao) return res.status(400).json({ success: false, message: 'Faltam dados obrigatórios' });
+    try {
+        // Verificar se já existe
+        const [existing] = await pool.execute(
+            "SELECT 1 FROM usuarioprocessofabricacao WHERE IdUsuario = ? AND IdProcessoFabricacao = ? AND (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL)",
+            [IdUsuario, IdProcessoFabricacao]
+        );
+        if (existing.length > 0) return res.json({ success: false, message: 'Este processo já está associado a este usuário.' });
+
+        // Inserir
+        await pool.execute(
+            "INSERT INTO usuarioprocessofabricacao (IdUsuario, IdProcessoFabricacao, ProcessoFabricacao) VALUES (?, ?, ?)",
+            [IdUsuario, IdProcessoFabricacao, ProcessoFabricacao]
+        );
+        res.json({ success: true, message: 'Processo associado com sucesso!' });
+    } catch (error) {
+        console.error('Error associating processo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao associar processo: ' + error.message });
+    }
+});
+
+// DELETE /api/processosfabricacao/desvincular/:id - Remove associação (Desvincula)
+app.delete('/api/processosfabricacao/desvincular/:id', async (req, res) => {
+    try {
+        // Exclusão lógica padrão do sistema
+        await pool.execute(
+            "UPDATE usuarioprocessofabricacao SET D_E_L_E_T_E = '*' WHERE IdUsuarioprocessofabricacao = ?",
+            [req.params.id]
+        );
+        res.json({ success: true, message: 'Processo desvinculado com sucesso!' });
+    } catch (error) {
+        console.error('Error disassociating processo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao desvincular processo: ' + error.message });
     }
 });
 
@@ -9472,6 +9612,7 @@ app.post('/api/plano-corte/:id/bloquear', async (req, res) => {
         if (rows.length === 0) {
             return res.json({ success: false, message: 'Plano de corte não encontrado.' });
         }
+
 
         const plano = rows[0];
 

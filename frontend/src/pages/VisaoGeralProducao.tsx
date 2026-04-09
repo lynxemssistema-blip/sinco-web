@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List } from 'lucide-react';
+import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList } from 'lucide-react';
 
 const API_BASE = '/api';
 
 // ─── Interfaces ───
-interface Projeto { IdProjeto: number; Projeto: string; DescProjeto: string; DataPrevisao: string; DataCriacao: string; Finalizado: string; liberado: string; QtdeTags: number; QtdeTagsExecutadas: number; PercentualTags: number; QtdePecasTags: number; QtdePecasExecutadas: number; PercentualPecas: number; qtdetotalpecas: number; TotalRnc: number; qtdernc: number; qtderncPendente: number; qtderncFinalizada: number; ExecCorte: number; TotalCorte: number; ExecDobra: number; TotalDobra: number; ExecSolda: number; TotalSolda: number; ExecPintura: number; TotalPintura: number; ExecMontagem: number; TotalMontagem: number; }
+interface Projeto { IdProjeto: number; Projeto: string; DescProjeto: string; DataPrevisao: string; DataCriacao: string; Finalizado: string; liberado: string; QtdeTags: number; QtdeTagsExecutadas: number; PercentualTags: number; QtdePecasTags: number; QtdePecasExecutadas: number; PercentualPecas: number; qtdetotalpecas: number; TotalRnc: number; qtdernc: number; qtderncPendente: number; qtderncFinalizada: number; ExecCorte: number; TotalCorte: number; ExecDobra: number; TotalDobra: number; ExecSolda: number; TotalSolda: number; ExecPintura: number; TotalPintura: number; ExecMontagem: number; TotalMontagem: number; QtdeOS: number; }
 interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string; DataPrevisao: string; QtdeTag: string; QtdeLiberada: string; SaldoTag: string; ValorTag: string; StatusTag: string; QtdeOS: string; qtdetotal: string; Finalizado: string; qtdernc: number; 
     PlanejadoInicioCorte: string; PlanejadoFinalCorte: string; RealizadoInicioCorte: string; RealizadoFinalCorte: string; CorteTotalExecutado: string; CorteTotalExecutar: string; CortePercentual: string; 
     PlanejadoInicioDobra: string; PlanejadoFinalDobra: string; RealizadoInicioDobra: string; RealizadoFinalDobra: string; DobraTotalExecutado: string; DobraTotalExecutar: string; DobraPercentual: string; 
@@ -526,6 +526,7 @@ export default function VisaoGeralProducaoPage() {
                                             <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">Tags</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">OS</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">RNCs</th>
                                             <th className="px-4 py-3 border-r border-slate-100 w-32">Datas</th>
                                             <th className="px-3 py-3 text-center">Ações</th>
@@ -564,6 +565,13 @@ export default function VisaoGeralProducaoPage() {
                                                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</span>
                                                             <div className="text-sm font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-[10px] text-slate-400 font-medium">/{p.QtdeTags}</span></div>
                                                             <span className="text-[9px] font-bold text-blue-600">{p.PercentualTags}%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
+                                                        <div className="flex flex-col items-center justify-center text-center">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ClipboardList size={10}/> OS</span>
+                                                            <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
+                                                            <span className="text-[9px] font-bold text-slate-400">Total</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
@@ -668,6 +676,13 @@ export default function VisaoGeralProducaoPage() {
                                                             <span className="text-red-500 bg-red-50 border border-red-100 px-1 rounded">{p.qtderncPendente} Pend</span>
                                                             <span className="text-emerald-500 bg-emerald-50 border border-emerald-100 px-1 rounded">{p.qtderncFinalizada} Fin</span>
                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2 mt-[-12px]">
+                                                    <div className="bg-blue-50/50 border border-blue-100 rounded-xl py-2 px-3 flex items-center justify-between">
+                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1"><ClipboardList size={10} className="text-blue-500"/> Ordens de Serviço:</span>
+                                                        <span className="text-xs font-black text-blue-700">{p.QtdeOS || 0}</span>
                                                     </div>
                                                 </div>
 

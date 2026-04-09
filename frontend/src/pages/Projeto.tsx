@@ -989,74 +989,101 @@ export default function ProjetoPage() {
                                                 { icon: <Building2 size={14} />, label: 'Faturamento' },
                                                 { icon: <Truck size={14} />, label: 'Entrega / Cobrança' },
                                                 { icon: <Banknote size={14} />, label: 'Fornecimento' },
-                                            ] as { icon: React.ReactNode; label: string }[]).map((tab, i) => (
-                                                <button key={i} type="button"
-                                                    onClick={() => setActiveTab(i as 0 | 1 | 2 | 3)}
-                                                    className={`flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors ${activeTab === i ? 'border-[#32423D] text-[#32423D] bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-                                                    {tab.icon}{tab.label}
-                                                </button>
-                                            ))}
+                                            ] as { icon: React.ReactNode; label: string }[]).map((tab, i) => {
+                                                const isDisabled = i > 0;
+                                                return (
+                                                    <button 
+                                                        key={i} 
+                                                        type="button"
+                                                        disabled={isDisabled}
+                                                        onClick={() => !isDisabled && setActiveTab(i as 0 | 1 | 2 | 3)}
+                                                        className={`flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors 
+                                                            ${activeTab === i 
+                                                                ? 'border-[#32423D] text-[#32423D] bg-white' 
+                                                                : isDisabled 
+                                                                    ? 'border-transparent text-gray-300 cursor-not-allowed opacity-50' 
+                                                                    : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                                        title={isDisabled ? "Em breve" : ""}
+                                                    >
+                                                        {tab.icon}{tab.label}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                         <div className="p-6">
                                             {/* TAB 0 – PROJETO */}
                                             {activeTab === 0 && (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {isEditingProjeto && (
-                                                        <div>
-                                                            <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">ID</label>
-                                                            <input type="text" value={projetoFormData.IdProjeto || ''} readOnly className="w-full px-3 py-2 bg-gray-100 border border-gray-200 text-sm font-mono text-gray-400 cursor-not-allowed rounded-none" />
+                                                <div className="space-y-6">
+                                                    {/* Section: Identificação */}
+                                                    <div className="bg-gray-50/50 p-4 border border-gray-100 rounded-lg">
+                                                        <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4 flex items-center gap-2">
+                                                            <FolderKanban size={12} /> Identificação do Projeto
+                                                        </h3>
+                                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                                            {isEditingProjeto && (
+                                                                <div className="md:col-span-1">
+                                                                    <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">ID</label>
+                                                                    <input type="text" value={projetoFormData.IdProjeto || ''} readOnly className="w-full px-3 py-2 bg-gray-100 border border-gray-200 text-sm font-mono text-gray-400 cursor-not-allowed rounded" />
+                                                                </div>
+                                                            )}
+                                                            <div className={isEditingProjeto ? "md:col-span-5" : "md:col-span-6"}>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Nome Projeto <span className="text-red-500">*</span></label>
+                                                                <input type="text" name="Projeto" value={projetoFormData.Projeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" required />
+                                                            </div>
+                                                            <div className="md:col-span-6">
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Descrição Projeto</label>
+                                                                <textarea name="ObservacaoFinal" value={projetoFormData.ObservacaoFinal || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded shadow-sm" />
+                                                            </div>
                                                         </div>
-                                                    )}
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Nome Projeto <span className="text-red-500">*</span></label>
-                                                        <input type="text" name="Projeto" value={projetoFormData.Projeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded-none" required />
                                                     </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Cliente</label>
-                                                        <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
-                                                            <option value="">Selecione...</option>
-                                                            {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
-                                                        </select>
+
+                                                    {/* Section: Cliente & Responsáveis */}
+                                                    <div className="bg-gray-50/50 p-4 border border-gray-100 rounded-lg">
+                                                        <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4 flex items-center gap-2">
+                                                            <Plus size={12} /> Cliente e Responsáveis
+                                                        </h3>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="md:col-span-1">
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Cliente</label>
+                                                                <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded shadow-sm">
+                                                                    <option value="">Selecione...</option>
+                                                                    {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">CNPJ</label>
+                                                                <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} placeholder="00.000.000/0000-00" className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+                                                            </div>
+                                                            <div className="md:col-span-2">
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Responsável Técnico</label>
+                                                                <input type="text" name="Responsavel" value={projetoFormData.Responsavel || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">CNPJ</label>
-                                                        <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} placeholder="00.000.000/0000-00" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Segmento</label>
-                                                        <input type="text" name="Segmento" value={projetoFormData.Segmento || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Responsável Técnico</label>
-                                                        <input type="text" name="Responsavel" value={projetoFormData.Responsavel || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Gerente do Projeto</label>
-                                                        <input type="text" name="GerenteProjeto" value={projetoFormData.GerenteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Endereço do Cliente</label>
-                                                        <textarea name="EnderecoCliente" value={projetoFormData.EnderecoCliente || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Data Prev. Entrega</label>
-                                                        <input type="date" name="DataPrevisao" value={projetoFormData.DataPrevisao || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Entrada Pedido</label>
-                                                        <input type="date" name="DataEntradaPedido" value={projetoFormData.DataEntradaPedido || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Planejado Financeiro</label>
-                                                        <input type="date" name="PlanejadoFinanceiro" value={projetoFormData.PlanejadoFinanceiro || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Dias (Prazo)</label>
-                                                        <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
-                                                    </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Observações Finais</label>
-                                                        <textarea name="ObservacaoFinal" value={projetoFormData.ObservacaoFinal || ''} onChange={handleProjetoInputChange} rows={3} className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
+
+                                                    {/* Section: Cronograma */}
+                                                    <div className="bg-gray-50/50 p-4 border border-gray-100 rounded-lg">
+                                                        <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-4 flex items-center gap-2">
+                                                            <Calendar size={12} /> Cronograma e Datas
+                                                        </h3>
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                            <div>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Entrada Pedido</label>
+                                                                <input type="date" name="DataEntradaPedido" value={projetoFormData.DataEntradaPedido || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Planejado Financeiro</label>
+                                                                <input type="date" name="PlanejadoFinanceiro" value={projetoFormData.PlanejadoFinanceiro || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Data Prev. Entrega</label>
+                                                                <input type="date" name="DataPrevisao" value={projetoFormData.DataPrevisao || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Dias (Prazo)</label>
+                                                                <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm font-semibold text-[#32423D]" />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

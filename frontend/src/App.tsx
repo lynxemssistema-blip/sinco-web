@@ -211,35 +211,23 @@ function AppContent() {
             }
           }
 
-          setMenuItems(savedMenu);
-
+          const sortedMenu = savedMenu.sort((a, b) => a.label.localeCompare(b.label));
+          setMenuItems(sortedMenu);
         } else {
-          // If no custom menu, use default.
-          // Check if default needs filtering for non-admins?
-          // Currently default has superadmin.
-          if (!user.isSuperadmin) {
-            setMenuItems(defaultMenuItems.filter(item => 
-               !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
-            )); 
-          } else {
-            setMenuItems(defaultMenuItems.filter(item => 
-               !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
-            ));
-          }
+          const filtered = defaultMenuItems.filter(item => 
+             !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
+          );
+          setMenuItems(filtered.sort((a, b) => a.label.localeCompare(b.label)));
         }
       })
       .catch(err => {
         console.error("Failed to load custom menu, using default.", err);
-        if (!user.isSuperadmin) {
-          setMenuItems(defaultMenuItems.filter(item => 
-            item.id !== 'superadmin' && 
-            !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
-          ));
-        } else {
-          setMenuItems(defaultMenuItems.filter(item => 
-             !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
-          ));
-        }
+        const filtered = defaultMenuItems.filter(item => {
+          if (!user.isSuperadmin && item.id === 'superadmin') return false;
+          if (item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec') return false;
+          return true;
+        });
+        setMenuItems(filtered.sort((a, b) => a.label.localeCompare(b.label)));
       });
 
     // Handle initial URL mapping — only once on first load

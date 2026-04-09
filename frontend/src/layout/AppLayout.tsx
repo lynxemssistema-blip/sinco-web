@@ -21,6 +21,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isDark, setIsDark] = useState(false);
+    const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
 
     // Ref para o scroll container do sidebar desktop
     const sidebarScrollRef = useRef<HTMLDivElement>(null);
@@ -31,33 +32,51 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     };
 
     const toggleExpand = (id: string) => {
-        setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+        setExpandedItems(prev => {
+            const isExpanding = !prev[id];
+            if (isExpanding) {
+                setLastInteractedId(id);
+            }
+            return { ...prev, [id]: isExpanding };
+        });
     };
 
-    // Auto-expand parent if child is active
+    // Auto-expand parent(s) if child is active — recursive for any depth
     useEffect(() => {
-        menuItems.forEach(item => {
-            if (item.children) {
-                const hasActiveChild = item.children.some(c => c.id === activePageId);
-                if (hasActiveChild) {
-                    setExpandedItems(prev => ({ ...prev, [item.id]: true }));
+        const expandParentsOf = (items: MenuItem[], targetId: string): boolean => {
+            for (const item of items) {
+                if (item.children) {
+                    // Check if this item directly contains the target OR a nested child does
+                    const directChild = item.children.some(c => c.id === targetId);
+                    const deepChild = expandParentsOf(item.children, targetId);
+                    if (directChild || deepChild) {
+                        setExpandedItems(prev => ({ ...prev, [item.id]: true }));
+                        return true;
+                    }
                 }
             }
-        });
+            return false;
+        };
+        expandParentsOf(menuItems, activePageId);
     }, [activePageId, menuItems]);
 
-    // Scroll automático para centralizar o item ativo no sidebar
+    // Scroll automático para centralizar o item ativo ou o último interativo no sidebar
     useEffect(() => {
         if (!sidebarScrollRef.current) return;
-        // Aguarda um tick para garantir que o DOM foi atualizado
+        const targetId = lastInteractedId || activePageId;
+        if (!targetId) return;
+
+        // Aguarda um tick ligeiramente maior para garantir que o DOM e animações de expansão permitam o scroll
         const timer = setTimeout(() => {
-            const activeEl = sidebarScrollRef.current?.querySelector(`[data-menu-id="${activePageId}"]`) as HTMLElement | null;
-            if (activeEl) {
-                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const el = sidebarScrollRef.current?.querySelector(`[data-menu-id="${targetId}"]`) as HTMLElement | null;
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
             }
-        }, 80);
+            // Limpa o lastInteractedId após o scroll
+            if (lastInteractedId) setLastInteractedId(null);
+        }, 150); 
         return () => clearTimeout(timer);
-    }, [activePageId]);
+    }, [activePageId, lastInteractedId]);
 
     const renderMenuItem = (item: MenuItem, depth = 0, isMobile = false) => {
         const Icon = getIcon(item.icon);
@@ -114,7 +133,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         );
     };
 
-    const SidebarContent = ({ isMobile = false, scrollRef }: { isMobile?: boolean; scrollRef?: React.RefObject<HTMLDivElement> }) => (
+    const SidebarContent = ({ isMobile = false, scrollRef }: { isMobile?: boolean; scrollRef?: React.RefObject<HTMLDivElement | null> }) => (
         <div className="flex flex-col h-full">
             <div className="p-4 border-b border-primary/10 flex items-center gap-3">
                 <img src="/lynx-logo.png" alt="Lynx" className="w-8 h-8 rounded-lg object-contain" />
