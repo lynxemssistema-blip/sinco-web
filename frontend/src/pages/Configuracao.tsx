@@ -75,7 +75,7 @@ export default function ConfiguracaoPage() {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const savedMenu: MenuItem[] = data.menu || defaultMenuItems;
+                    const savedMenu: MenuItem[] = sortMenuRecursive(data.menu || defaultMenuItems);
                     setMenuItems(savedMenu);
                 }
             })
@@ -667,9 +667,17 @@ export default function ConfiguracaoPage() {
                             <Menu size={18} className="text-[#32423D]" />
                             Editor de Menu
                         </h2>
-                        <button onClick={handleAddGroup} className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-sm font-bold transition-colors">
-                            <FolderPlus size={16} /> Novo Grupo
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
+                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-bold transition-colors border border-blue-100"
+                            >
+                                <List size={16} /> Ordenar A-Z
+                            </button>
+                            <button onClick={handleAddGroup} className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-sm font-bold transition-colors">
+                                <FolderPlus size={16} /> Novo Grupo
+                            </button>
+                        </div>
                     </div>
 
                     <div className="p-6">
@@ -692,3 +700,12 @@ export default function ConfiguracaoPage() {
         </div>
     );
 }
+
+const sortMenuRecursive = (items: MenuItem[]): MenuItem[] => {
+    return [...items]
+        .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+        .map(item => ({
+            ...item,
+            children: item.children ? sortMenuRecursive(item.children) : undefined
+        }));
+};

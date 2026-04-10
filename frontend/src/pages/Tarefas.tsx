@@ -64,6 +64,7 @@ export default function TarefasPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [fromGlobal, setFromGlobal] = useState(false);
     const [openId, setOpenId] = useState<string | null>(null);
+    const [visibleSetores, setVisibleSetores] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -125,12 +126,18 @@ export default function TarefasPage() {
         const fetchConfig = async () => {
             const h = { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` };
             try {
-                const [r1, r2] = await Promise.all([
+                const [r1, r2, rConfig] = await Promise.all([
                     fetch(`${API_BASE}/config/usuarios`, { headers: h }).then(r=>r.json()),
-                    fetch(`${API_BASE}/config/tipostarefa`, { headers: h }).then(r=>r.json())
+                    fetch(`${API_BASE}/config/tipostarefa`, { headers: h }).then(r=>r.json()),
+                    fetch(`${API_BASE}/config`, { headers: h }).then(r=>r.json())
                 ]);
                 if(r1.success) setUsuarios(r1.usuarios);
                 if(r2.success) setTiposTarefa(r2.tipostarefa);
+                if(rConfig.success && rConfig.config.ProcessosVisiveis) {
+                    try {
+                        setVisibleSetores(JSON.parse(rConfig.config.ProcessosVisiveis));
+                    } catch(e) { /* fallback case */ }
+                }
             } catch(e) { console.error("Erro ao carregar configurações", e); }
         };
         fetchConfig();
@@ -350,7 +357,7 @@ export default function TarefasPage() {
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
                             <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
-                                {SECTORS.map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
+                                {SECTORS.filter(s => visibleSetores.includes(s.k.toLowerCase())).map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
                                 <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
                                 {rncForm.setor && !SECTORS.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
                             </select>
@@ -401,7 +408,7 @@ export default function TarefasPage() {
                             <div>
                                 <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Setor de Acerto</label>
                                 <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-3 py-2 text-sm font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75">
-                                    {SECTORS.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
+                                    {SECTORS.filter(s => visibleSetores.includes(s.k.toLowerCase())).map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
                                     <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
                                     {rncForm.setorFin && !SECTORS.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
                                 </select>

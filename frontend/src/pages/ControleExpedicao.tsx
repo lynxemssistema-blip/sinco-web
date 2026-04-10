@@ -82,6 +82,7 @@ export default function ControleExpedicaoPage() {
     const [filDataPrevisaoFim, setFilDataPrevisaoFim] = useState('');
     const [mostrarConcluidos, setMostrarConcluidos] = useState(false);
     const [fromGlobal, setFromGlobal] = useState(false);
+    const [visibleSetores, setVisibleSetores] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -93,6 +94,18 @@ export default function ControleExpedicaoPage() {
         const openProj = params.get('projeto');
         if (openTag) setFilTag(openTag);
         if (openProj) setFilProjeto(openProj);
+
+        // Fetch config
+        fetch(`${API_BASE}/config`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.config.ProcessosVisiveis) {
+                    try {
+                        setVisibleSetores(JSON.parse(data.config.ProcessosVisiveis));
+                    } catch (e) { /* fallback */ }
+                }
+            })
+            .catch(() => {});
     }, []);
 
     // Expanded row memory
@@ -360,7 +373,7 @@ export default function ControleExpedicaoPage() {
                                 <th className="px-2 py-1.5">Desc. Resumo</th>
                                 <th className="px-2 py-1.5">Produto Principal</th>
                                 <th className="px-2 py-1.5">Qtde Total</th>
-                                <th className="px-2 py-1.5">Montagem (Exec)</th>
+                                {visibleSetores.includes('montagem') && <th className="px-2 py-1.5">Montagem (Exec)</th>}
                                 <th className="px-2 py-1.5">Total Expedição</th>
                                 <th className="px-2 py-1.5">Peso Unit.</th>
                                 <th className="px-2 py-1.5">Comp x Prof x Larg</th>
@@ -400,7 +413,7 @@ export default function ControleExpedicaoPage() {
                                             <td className="px-2 py-1 text-[10px] text-slate-600 max-w-[150px] truncate" title={item.descresumo || item.DescResumo || ''}>{item.descresumo || item.DescResumo || '-'}</td>
                                             <td className="px-2 py-1 text-slate-600 truncate max-w-[120px]">{item.ProdutoPrincipal || '-'}</td>
                                             <td className="px-2 py-1 font-bold">{item.QTDETOTAL ?? item.QtdeTotal ?? 0}</td>
-                                            <td className="px-2 py-1 text-emerald-600 font-bold">{item.MontagemTotalExecutado || 0}</td>
+                                            {visibleSetores.includes('montagem') && <td className="px-2 py-1 text-emerald-600 font-bold">{item.MontagemTotalExecutado || 0}</td>}
                                             <td className="px-2 py-1 text-blue-600 font-bold">{item.TotalExpedicao || 0}</td>
                                             <td className="px-2 py-1">{Number(item.PesoUnitario || 0).toLocaleString('pt-BR')} kg</td>
                                             <td className="px-2 py-1 text-slate-500 text-[10px]">

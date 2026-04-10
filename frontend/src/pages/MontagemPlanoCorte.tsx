@@ -186,11 +186,12 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
     const [error, setError] = useState('');
     const [fItem, setFItem] = useState('');
     const [itemInternoSelecionadoId, setItemInternoSelecionadoId] = useState<number | null>(null);
+    const [exibirTodos, setExibirTodos] = useState(false);
 
-    const fetchItens = async (agl: boolean = aglutinado, item: string = fItem) => {
+    const fetchItens = async (agl: boolean = aglutinado, item: string = fItem, todos: boolean = exibirTodos) => {
         setLoading(true); setError('');
         try {
-            const params = new URLSearchParams({ aglutinado: String(agl) });
+            const params = new URLSearchParams({ aglutinado: String(agl), exibirTodos: String(todos) });
             if (item.trim()) params.set('IdOrdemServicoItem', item.trim());
             const res = await fetch(`/api/plano-corte/itens/${plano.IdPlanodecorte}?${params}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -205,7 +206,8 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
 
     useEffect(() => { fetchItens(); }, [plano.IdPlanodecorte]);
 
-    const handleToggle = () => { const novo = !aglutinado; setAglutinado(novo); fetchItens(novo, fItem); };
+    const handleToggle = () => { const novo = !aglutinado; setAglutinado(novo); fetchItens(novo, fItem, exibirTodos); };
+    const handleToggleTodos = () => { const novo = !exibirTodos; setExibirTodos(novo); fetchItens(aglutinado, fItem, novo); };
 
     // Estados para persistir quais itens foram "abertos" (cor azul claro como no VB)
     const [itensAbertos, setItensAbertos] = useState<Set<number>>(new Set());
@@ -283,6 +285,14 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                     <button onClick={() => fetchItens(aglutinado, fItem)} className="p-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"><Search size={10} /></button>
                     <button onClick={handleToggle} className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${aglutinado ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300'}`}>
                         {aglutinado ? 'Aglutinado' : 'Individual'}
+                    </button>
+                    <button
+                        onClick={handleToggleTodos}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all flex items-center gap-1 ${exibirTodos ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white text-slate-500 border-slate-300 hover:bg-slate-50'}`}
+                        title={exibirTodos ? 'Exibindo todos os itens — clique para ver apenas pendentes' : 'Exibindo apenas pendentes — clique para incluir concluídos'}
+                    >
+                        {exibirTodos ? <CheckCircle2 size={10} /> : <Clock size={10} />}
+                        {exibirTodos ? 'Todos' : 'Pendentes'}
                     </button>
                     <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{loading ? '...' : `${itens.length} itens`}</span>
                     <button onClick={onFechar} className="p-1 rounded hover:bg-indigo-100 text-indigo-400" title="Fechar"><X size={13} /></button>
@@ -485,7 +495,8 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
         descricaoFinalizacao: '',
     });
 
-    const setoresOpts = setores && setores.length > 0 ? setores : SECTORS.map(s => s.k);
+    const { processosVisiveis } = useAppConfig();
+    const setoresOpts = setores && setores.length > 0 ? setores : SECTORS.filter(s => processosVisiveis.includes(s.k.toLowerCase())).map(s => s.k);
 
     const fetchPendencias = useCallback(async (fin = exibirFinalizadas, desc = fDesc) => {
         if (!codMatFabricante) return;
@@ -1832,6 +1843,7 @@ function ModalRnc({
     setActionModal: any; salvarNovaRnc: any; usuarios: any[]; tipostarefa: any[]; 
     codMatFabricante?: string; refreshKey?: number;
 }) {
+    const { processosVisiveis } = useAppConfig();
     const labelCls = "text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block";
     const inputCls = "w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/40";
     const selectCls = "w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-orange-400 transition-all bg-slate-50/40";
@@ -1893,28 +1905,28 @@ function ModalRnc({
                         {/* Processos Afetados */}
                         <div className="col-span-2">
                             <label className={labelCls}>Processos Afetados</label>
-                            <div className="grid grid-cols-3 gap-1.5 w-fit">
-                                {[
-                                    { label: 'Corte', key: 'chkCorte', icon: Scissors },
-                                    { label: 'Dobra', key: 'chkDobra', icon: Wrench },
-                                    { label: 'Solda', key: 'chkSolda', icon: Flame },
-                                    { label: 'Pintura', key: 'chkPintura', icon: Paintbrush },
-                                    { label: 'Montagem', key: 'chkMontagem', icon: Settings2 }
-                                ].map(proc => (
-                                    <label key={proc.key} className={`flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer transition-all text-[9px] font-black uppercase ${rncForm[proc.key as keyof RncFormData] ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'}`}>
-                                        <input type="checkbox" className="hidden"
-                                            checked={!!rncForm[proc.key as keyof RncFormData]}
-                                            onChange={e => setRncForm((p: any) => ({...p, [proc.key]: e.target.checked}))} />
-                                        <proc.icon size={9} />{proc.label}
-                                    </label>
-                                ))}
-                            </div>
+                             <div className="grid grid-cols-3 gap-1.5 w-fit">
+                                 {[
+                                     { label: 'Corte', key: 'chkCorte', icon: Scissors },
+                                     { label: 'Dobra', key: 'chkDobra', icon: Wrench },
+                                     { label: 'Solda', key: 'chkSolda', icon: Flame },
+                                     { label: 'Pintura', key: 'chkPintura', icon: Paintbrush },
+                                     { label: 'Montagem', key: 'chkMontagem', icon: Settings2 }
+                                 ].filter(proc => processosVisiveis.includes(proc.label.toLowerCase())).map(proc => (
+                                     <label key={proc.key} className={`flex items-center gap-1 px-2 py-1 rounded-lg border cursor-pointer transition-all text-[9px] font-black uppercase ${rncForm[proc.key as keyof RncFormData] ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'}`}>
+                                         <input type="checkbox" className="hidden"
+                                             checked={!!rncForm[proc.key as keyof RncFormData]}
+                                             onChange={e => setRncForm((p: any) => ({...p, [proc.key]: e.target.checked}))} />
+                                         <proc.icon size={9} />{proc.label}
+                                     </label>
+                                 ))}
+                             </div>
                         </div>
                         {/* Setor */}
                         <div>
                             <label className={labelCls}>Setor Responsável *</label>
                             <select value={rncForm.setor} onChange={e => setRncForm((p: any) => ({...p, setor: e.target.value}))} className={selectCls}>
-                                {SECTORS.map(s => <option key={s.k} value={s.k}>{s.k}</option>)}
+                                {SECTORS.filter(s => processosVisiveis.includes(s.k.toLowerCase())).map(s => <option key={s.k} value={s.k}>{s.k}</option>)}
                             </select>
                         </div>
                         {/* Colaborador */}
@@ -1948,7 +1960,7 @@ function ModalRnc({
                         <PainelPendenciasPlanoCorte 
                             codMatFabricante={codMatFabricante} 
                             usuarios={usuarios} 
-                            setores={SECTORS.map(s => s.k)}
+                            setores={SECTORS.filter(s => processosVisiveis.includes(s.k.toLowerCase())).map(s => s.k)}
                             refreshKey={refreshKey}
                         />
                     )}

@@ -26,9 +26,12 @@ interface OrdemServico {
     CriadoPor?: string;
     Liberado_Engenharia?: string;
     Data_Liberacao_Engenharia?: string;
-    QtdeTotalItens?: string;
-    QtdeItensExecutados?: string;
-    PercentualItens?: string;
+    QtdeTotalItens?: string | number;
+    QtdeItensExecutados?: string | number;
+    QtdeTotalItensCalc?: number;
+    QtdeItensExecutadosCalc?: number;
+    PercentualItensCalc?: number;
+    PercentualItens?: string | number;
     QtdeTotalPecas?: string;
     QtdePecasExecutadas?: string;
     PercentualPecas?: string;
@@ -210,6 +213,29 @@ function OrdemServicoContent() {
     const [usuariosRncConfig, setUsuariosRncConfig] = useState<{ IdUsuario: number, NomeCompleto: string }[]>([]);
     const [espessurasRncConfig, setEspessurasRncConfig] = useState<{ idEspessura: number, Espessura: string }[]>([]);
     const [materiaisSWRncConfig, setMateriaisSWRncConfig] = useState<{ idMaterialSw: number, MaterialSw: string }[]>([]);
+    
+    // Filtros de Data Independentes
+    const [dataCriacaoInicio, setDataCriacaoInicio] = useState('');
+    const [dataCriacaoFim, setDataCriacaoFim] = useState('');
+    const [dataPrevisaoInicio, setDataPrevisaoInicio] = useState('');
+    const [dataPrevisaoFim, setDataPrevisaoFim] = useState('');
+    const [dataLiberacaoInicio, setDataLiberacaoInicio] = useState('');
+    const [dataLiberacaoFim, setDataLiberacaoFim] = useState('');
+
+    const formatDateBR = (dateStr?: string) => {
+        if (!dateStr || dateStr === '-') return '-';
+        try {
+            if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) return dateStr.split(' ')[0];
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        } catch {
+            return dateStr;
+        }
+    };
 
     const handleOpenFile = async (e: React.MouseEvent, path: string, type: 'pdf' | 'dxf' | 'sldprt') => {
         e.stopPropagation();
@@ -400,6 +426,19 @@ function OrdemServicoContent() {
             if (projetoFilter) params.set('projeto', projetoFilter);
             if (tagFilter) params.set('tag', tagFilter);
             if (searchTerm && searchMode === 'os') params.set('search', searchTerm);
+            
+            if (dataCriacaoInicio && dataCriacaoFim) {
+                params.set('dataCriacaoInicio', dataCriacaoInicio);
+                params.set('dataCriacaoFim', dataCriacaoFim);
+            }
+            if (dataPrevisaoInicio && dataPrevisaoFim) {
+                params.set('dataPrevisaoInicio', dataPrevisaoInicio);
+                params.set('dataPrevisaoFim', dataPrevisaoFim);
+            }
+            if (dataLiberacaoInicio && dataLiberacaoFim) {
+                params.set('dataLiberacaoInicio', dataLiberacaoInicio);
+                params.set('dataLiberacaoFim', dataLiberacaoFim);
+            }
 
             const res = await fetch(`${API_BASE}/ordemservico?${params}`);
             const json = await res.json();
@@ -457,7 +496,7 @@ function OrdemServicoContent() {
     // Initial load and filter changes
     useEffect(() => {
         fetchOrdens(1);
-    }, [projetoFilter, tagFilter, mostrarTodos]);
+    }, [projetoFilter, tagFilter, mostrarTodos, dataCriacaoInicio, dataCriacaoFim, dataPrevisaoInicio, dataPrevisaoFim, dataLiberacaoInicio, dataLiberacaoFim]);
 
     const fetchItens = useCallback(async (osId: number) => {
         setLoadingItens(prev => new Set(prev).add(osId));
@@ -498,6 +537,12 @@ function OrdemServicoContent() {
         setGroupBy('none');
         setSearchMode('os');
         setItemSearchResults([]);
+        setDataCriacaoInicio('');
+        setDataCriacaoFim('');
+        setDataPrevisaoInicio('');
+        setDataPrevisaoFim('');
+        setDataLiberacaoInicio('');
+        setDataLiberacaoFim('');
     }, []);
 
     // Group orders by projeto or tag
@@ -1221,11 +1266,11 @@ function OrdemServicoContent() {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Data Criação:</span>
-                                                <span className="text-gray-600">{os.DataCriacao || '-'}</span>
+                                                <span className="text-gray-600 font-medium">{formatDateBR(os.DataCriacao)}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Data Previsão:</span>
-                                                <span className="text-gray-600">{os.DataPrevisao || '-'}</span>
+                                                <span className="text-gray-600 font-medium">{formatDateBR(os.DataPrevisao)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1244,7 +1289,7 @@ function OrdemServicoContent() {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Data Liberação:</span>
-                                                <span className="text-gray-600 font-medium">{os.Data_Liberacao_Engenharia || '-'}</span>
+                                                <span className="text-gray-800 font-bold">{formatDateBR(os.Data_Liberacao_Engenharia)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1265,7 +1310,10 @@ function OrdemServicoContent() {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Peças:</span>
-                                                <span className="text-gray-600">{os.QtdePecasExecutadas || 0}/{os.QtdeTotalPecas || 0}</span>
+                                                <span className="text-gray-600">
+                                                    {Number(os.QtdePecasExecutadasCalc ?? os.QtdePecasExecutadas) || 0}/
+                                                    {Number(os.QtdeTotalPecasCalc ?? os.QtdeTotalPecas) || 0}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -1345,11 +1393,11 @@ function OrdemServicoContent() {
                                             {/* Peso Skeleton */}
                                             <div className="w-10 h-4 rounded bg-gray-100 mx-2" />
                                             {/* Progress Skeletons */}
-                                            <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />
-                                            <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />
-                                            <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />
-                                            <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />
-                                            <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />
+                                            {visibleSetores.includes('corte') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
+                                            {visibleSetores.includes('dobra') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
+                                            {visibleSetores.includes('solda') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
+                                            {visibleSetores.includes('pintura') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
+                                            {visibleSetores.includes('montagem') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
                                         </div>
                                     ))}
 
@@ -1370,21 +1418,23 @@ function OrdemServicoContent() {
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 pl-6 py-1 text-[10px] font-medium text-gray-400 uppercase">
-                                            <span className="w-8" title="PDF do Item">PDF</span>
-                                            <span className="w-8">DXF</span>
-                                            <span className="w-8">3D</span>
-                                            <span className="w-8 text-center" title="PDF da OS">OS</span>
-                                            <span className="w-8 text-center" title="Conjunto Principal">★</span>
+                                            <div className="flex gap-1 shrink-0" style={{ width: '11.5rem' }}>
+                                                <span className="w-8 text-center" title="PDF do Item">PDF</span>
+                                                <span className="w-8 text-center">DXF</span>
+                                                <span className="w-8 text-center">3D</span>
+                                                <span className="w-8 text-center" title="PDF da O.S.">OS</span>
+                                                <span className="w-8 text-center" title="Conjunto Principal">★</span>
+                                            </div>
                                             <span className="w-32">Código Desenho</span>
                                             <span className="flex-1">Descrição</span>
                                             <span className="w-12 text-center" title="Fator Multiplicador">Fator</span>
                                             <span className="w-12 text-center">Qtde</span>
                                             <span className="w-14 text-center">Peso</span>
-                                            <span className="w-16 hidden lg:block text-center">Corte</span>
-                                            <span className="w-16 hidden lg:block text-center">Dobra</span>
-                                            <span className="w-16 hidden lg:block text-center">Solda</span>
-                                            <span className="w-16 hidden lg:block text-center">Pintura</span>
-                                            <span className="w-16 hidden lg:block text-center">Mont.</span>
+                                            {visibleSetores.includes('corte') && <span className="w-16 hidden lg:block text-center">Corte</span>}
+                                            {visibleSetores.includes('dobra') && <span className="w-16 hidden lg:block text-center">Dobra</span>}
+                                            {visibleSetores.includes('solda') && <span className="w-16 hidden lg:block text-center">Solda</span>}
+                                            {visibleSetores.includes('pintura') && <span className="w-16 hidden lg:block text-center">Pintura</span>}
+                                            {visibleSetores.includes('montagem') && <span className="w-16 hidden lg:block text-center">Mont.</span>}
                                         </div>
 
                                         {itens.map((item) => (
@@ -1589,16 +1639,18 @@ function OrdemServicoContent() {
                     </div>
 
                     <div className="hidden md:flex flex-col items-center text-center w-16">
-                        <span className="text-sm font-medium text-gray-900">{os.QtdeItensExecutados || 0}/{os.QtdeTotalItens || 0}</span>
+                        <span className="text-sm font-medium text-gray-900">
+                            {Number(os.QtdeItensExecutadosCalc ?? os.QtdeItensExecutados) || 0}/{Number(os.QtdeTotalItensCalc ?? os.QtdeTotalItens) || 0}
+                        </span>
                         <span className="text-[10px] text-gray-400">Itens</span>
                     </div>
 
                     <div className="hidden md:flex flex-col items-center w-20">
-                        <span className="text-sm font-medium text-gray-900">{os.PercentualItens || 0}%</span>
+                        <span className="text-sm font-medium text-gray-900">{Number(os.PercentualItensCalc ?? os.PercentualItens) || 0}%</span>
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-0.5">
                             <div
-                                className={`h-full rounded-full transition-all ${getProgressColor(Number(os.PercentualItens))}`}
-                                style={{ width: `${Math.min(Number(os.PercentualItens) || 0, 100)}%` }}
+                                className={`h-full rounded-full transition-all ${getProgressColor(Number(os.PercentualItensCalc ?? os.PercentualItens))}`}
+                                style={{ width: `${Math.min(Number(os.PercentualItensCalc ?? os.PercentualItens) || 0, 100)}%` }}
                             />
                         </div>
                     </div>
@@ -1607,12 +1659,11 @@ function OrdemServicoContent() {
                         {os.OrdemServicoFinalizado === 'C' ? 'Finalizado' : 'Em Andamento'}
                     </span>
 
-                    {ordensItens[os.IdOrdemServico] && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-accent/20 text-primary">
-                            <Box size={12} />
-                            {itens.length}
-                        </span>
-                    )}
+                    {/* Badge de Total de Itens - Sempre Visível */}
+                    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-accent/20 text-primary" title="Total de Itens">
+                        <Box size={12} />
+                        {Number(os.QtdeTotalItensCalc ?? os.QtdeTotalItens) || 0}
+                    </span>
 
                     <button
                         onClick={(e) => { e.stopPropagation(); toggleOS(os.IdOrdemServico); }}
@@ -1786,7 +1837,6 @@ function OrdemServicoContent() {
                         </select>
                     </div>
 
-                    {/* Mostrar Todos */}
                     <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 bg-white">
                         <input
                             type="checkbox"
@@ -1797,6 +1847,45 @@ function OrdemServicoContent() {
                         <span className="text-sm text-gray-700 cursor-pointer select-none" onClick={() => setMostrarTodos(!mostrarTodos)}>
                             Exibir Não Liberados / Finalizados
                         </span>
+                    </div>
+
+                    {/* Date Filters Row */}
+                    <div className="flex flex-wrap items-center gap-2 w-full mt-2">
+                        {/* Data Criação */}
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50/30">
+                            <Calendar size={12} className="text-gray-400" />
+                            <span className="text-[9px] uppercase font-bold text-gray-400 mr-1">Criação</span>
+                            <input type="date" value={dataCriacaoInicio} onChange={(e) => setDataCriacaoInicio(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            <span className="text-[9px] text-gray-300 mx-0.5">-</span>
+                            <input type="date" value={dataCriacaoFim} onChange={(e) => setDataCriacaoFim(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            {(dataCriacaoInicio || dataCriacaoFim) && (
+                                <button onClick={() => { setDataCriacaoInicio(''); setDataCriacaoFim(''); }} className="ml-1 text-gray-300 hover:text-red-400"><X size={10} /></button>
+                            )}
+                        </div>
+
+                        {/* Data Previsão */}
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50/30">
+                            <Calendar size={12} className="text-gray-400" />
+                            <span className="text-[9px] uppercase font-bold text-gray-400 mr-1">Previsão</span>
+                            <input type="date" value={dataPrevisaoInicio} onChange={(e) => setDataPrevisaoInicio(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            <span className="text-[9px] text-gray-300 mx-0.5">-</span>
+                            <input type="date" value={dataPrevisaoFim} onChange={(e) => setDataPrevisaoFim(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            {(dataPrevisaoInicio || dataPrevisaoFim) && (
+                                <button onClick={() => { setDataPrevisaoInicio(''); setDataPrevisaoFim(''); }} className="ml-1 text-gray-300 hover:text-red-400"><X size={10} /></button>
+                            )}
+                        </div>
+
+                        {/* Data Liberação */}
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-100 bg-gray-50/30">
+                            <Calendar size={12} className="text-gray-400" />
+                            <span className="text-[9px] uppercase font-bold text-gray-400 mr-1">Liberação</span>
+                            <input type="date" value={dataLiberacaoInicio} onChange={(e) => setDataLiberacaoInicio(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            <span className="text-[9px] text-gray-300 mx-0.5">-</span>
+                            <input type="date" value={dataLiberacaoFim} onChange={(e) => setDataLiberacaoFim(e.target.value)} className="bg-transparent border-none p-0 text-[10px] text-gray-600 focus:ring-0 w-24" />
+                            {(dataLiberacaoInicio || dataLiberacaoFim) && (
+                                <button onClick={() => { setDataLiberacaoInicio(''); setDataLiberacaoFim(''); }} className="ml-1 text-gray-300 hover:text-red-400"><X size={10} /></button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Clear Filters */}
@@ -2230,7 +2319,14 @@ function OrdemServicoContent() {
                                         <select value={setorResponsavel} onChange={e => setSetorResponsavel(e.target.value)}
                                             className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500">
                                             <option value="">Selecione...</option>
-                                            {setoresRncConfig.map((s, i) => <option key={i} value={s}>{s}</option>)}
+                                            {setoresRncConfig.filter(s => {
+                                                const lower = s.toLowerCase();
+                                                const productionSectors = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+                                                if (productionSectors.includes(lower)) {
+                                                    return visibleSetores.includes(lower);
+                                                }
+                                                return true;
+                                            }).map((s, i) => <option key={i} value={s}>{s}</option>)}
                                         </select>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -2282,26 +2378,36 @@ function OrdemServicoContent() {
 
                                 {/* Processos */}
                                 <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap gap-6 justify-center">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkCorteRnc} onChange={e => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? 'text-blue-700' : 'text-blue-500'} /> Corte</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkDobraRnc} onChange={e => setChkDobraRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkDobraRnc ? 'text-purple-700 font-bold bg-purple-100' : 'text-gray-700 font-semibold'}`}><Wrench size={14} className={chkDobraRnc ? 'text-purple-700' : 'text-purple-500'} /> Dobra</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkSoldaRnc} onChange={e => setChkSoldaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkSoldaRnc ? 'text-orange-700 font-bold bg-orange-100' : 'text-gray-700 font-semibold'}`}><Flame size={14} className={chkSoldaRnc ? 'text-orange-700' : 'text-orange-500'} /> Solda</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkPinturaRnc} onChange={e => setChkPinturaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkPinturaRnc ? 'text-green-700 font-bold bg-green-100' : 'text-gray-700 font-semibold'}`}><Paintbrush size={14} className={chkPinturaRnc ? 'text-green-700' : 'text-green-500'} /> Acabamento</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkMontagemRnc} onChange={e => setChkMontagemRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkMontagemRnc ? 'text-red-700 font-bold bg-red-100' : 'text-gray-700 font-semibold'}`}><Settings2 size={14} className={chkMontagemRnc ? 'text-red-700' : 'text-red-500'} /> Montagem</span>
-                                    </label>
+                                    {visibleSetores.includes('corte') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkCorteRnc} onChange={e => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? 'text-blue-700' : 'text-blue-500'} /> Corte</span>
+                                        </label>
+                                    )}
+                                    {visibleSetores.includes('dobra') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkDobraRnc} onChange={e => setChkDobraRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkDobraRnc ? 'text-purple-700 font-bold bg-purple-100' : 'text-gray-700 font-semibold'}`}><Wrench size={14} className={chkDobraRnc ? 'text-purple-700' : 'text-purple-500'} /> Dobra</span>
+                                        </label>
+                                    )}
+                                    {visibleSetores.includes('solda') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkSoldaRnc} onChange={e => setChkSoldaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkSoldaRnc ? 'text-orange-700 font-bold bg-orange-100' : 'text-gray-700 font-semibold'}`}><Flame size={14} className={chkSoldaRnc ? 'text-orange-700' : 'text-orange-500'} /> Solda</span>
+                                        </label>
+                                    )}
+                                    {visibleSetores.includes('pintura') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkPinturaRnc} onChange={e => setChkPinturaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkPinturaRnc ? 'text-green-700 font-bold bg-green-100' : 'text-gray-700 font-semibold'}`}><Paintbrush size={14} className={chkPinturaRnc ? 'text-green-700' : 'text-green-500'} /> Acabamento</span>
+                                        </label>
+                                    )}
+                                    {visibleSetores.includes('montagem') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkMontagemRnc} onChange={e => setChkMontagemRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkMontagemRnc ? 'text-red-700 font-bold bg-red-100' : 'text-gray-700 font-semibold'}`}><Settings2 size={14} className={chkMontagemRnc ? 'text-red-700' : 'text-red-500'} /> Montagem</span>
+                                        </label>
+                                    )}
                                 </div>
 
                                 {/* Seção Finalização - só exibida em edição */}

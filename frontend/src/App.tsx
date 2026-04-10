@@ -198,8 +198,13 @@ function AppContent() {
             }
           }
 
-          // Force add 'cadastro-usuarios' group if missing
-          if (!savedMenu.find(item => item.id === 'cadastro-usuarios')) {
+          // Force add 'cadastro-usuarios' group if missing (Check by ID and label to avoid duplicates)
+          const hasCadastro = savedMenu.some(item => 
+            item.id === 'cadastro-usuarios' || 
+            item.label.toLowerCase() === 'cadastro usuarios'
+          );
+
+          if (!hasCadastro) {
             const cuItem = defaultMenuItems.find(item => item.id === 'cadastro-usuarios');
             if (cuItem) {
               const usrIdx = savedMenu.findIndex(item => item.id === 'usuarios');
@@ -211,13 +216,12 @@ function AppContent() {
             }
           }
 
-          const sortedMenu = savedMenu.sort((a, b) => a.label.localeCompare(b.label));
-          setMenuItems(sortedMenu);
+          setMenuItems(sortMenuRecursive(savedMenu));
         } else {
           const filtered = defaultMenuItems.filter(item => 
              !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
           );
-          setMenuItems(filtered.sort((a, b) => a.label.localeCompare(b.label)));
+          setMenuItems(sortMenuRecursive(filtered));
         }
       })
       .catch(err => {
@@ -227,7 +231,7 @@ function AppContent() {
           if (item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec') return false;
           return true;
         });
-        setMenuItems(filtered.sort((a, b) => a.label.localeCompare(b.label)));
+        setMenuItems(sortMenuRecursive(filtered));
       });
 
     // Handle initial URL mapping — only once on first load
@@ -430,4 +434,13 @@ const findItemById = (items: MenuItem[], id: string): MenuItem | undefined => {
     }
   }
   return undefined;
+};
+
+const sortMenuRecursive = (items: MenuItem[]): MenuItem[] => {
+  return [...items]
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+    .map(item => ({
+      ...item,
+      children: item.children ? sortMenuRecursive(item.children) : undefined
+    }));
 };

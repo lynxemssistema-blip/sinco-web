@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X, ArrowLeft,
@@ -113,6 +113,7 @@ export default function ApontamentoProducaoPage() {
     const filteredSetores = setores.filter(s => s.id === 'mapa' || s.id === 'mapaproducao' || processosVisiveis.includes(s.id));
     const [setorAtivo, setSetorAtivo] = useState<Setor>('corte');
     const [itens, setItens] = useState<ApontamentoItem[]>([]);
+    const abortControllerRef = useRef<AbortController | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
@@ -380,6 +381,15 @@ export default function ApontamentoProducaoPage() {
 
     // Fetch itens for setor
     const fetchItens = useCallback(async () => {
+        // Abort previous request if any
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        // Create new controller for this request
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         setLoading(true);
         setError(null);
         setSelectedItem(null);
@@ -398,7 +408,7 @@ export default function ApontamentoProducaoPage() {
                 ? `${API_BASE}/apontamento/mapa/producao?${params}`
                 : `${API_BASE}/apontamento/${setorAtivo}?${params}`;
 
-            const res = await fetch(url);
+            const res = await fetch(url, { signal: controller.signal });
             const json = await res.json();
 
             if (json.success) {
@@ -406,16 +416,36 @@ export default function ApontamentoProducaoPage() {
             } else {
                 setError(json.message || 'Erro ao carregar itens');
             }
-        } catch (err) {
-            setError('Erro de conexï¿½o com o servidor');
+        } catch (err: any) {
+            if (err.name === 'AbortError') {
+                console.log('Fetch aborted');
+                return;
+            }
+            setError('Erro de conexão com o servidor');
         } finally {
-            setLoading(false);
+            if (abortControllerRef.current === controller) {
+                setLoading(false);
+            }
         }
     }, [setorAtivo, projetoFilter, tagFilter, osFilter, searchTerm, statusFilter, itemFilter, clienteFilter]);
 
+    const handleCancelLoad = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+        setLoading(false);
+        setError('O carregamento foi cancelado pelo usuário.');
+    };
+
     useEffect(() => {
         const timer = setTimeout(() => fetchItens(), 300);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
     }, [fetchItens]);
 
     // Clear all filters
@@ -1099,9 +1129,19 @@ export default function ApontamentoProducaoPage() {
             {/* Content */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {loading ? (
-                    <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
-                        <Loader2 size={32} className="animate-spin" />
-                        <p className="text-sm">Carregando itens do setor {setorInfo.label}...</p>
+                    <div className="p-12 flex flex-col items-center justify-center gap-4 text-gray-400">
+                        <Loader2 size={32} className="animate-spin text-blue-500" />
+                        <div className="text-center">
+                            <p className="text-sm font-medium text-gray-600">Carregando itens do setor {setorInfo.label}...</p>
+                            <p className="text-[10px] text-gray-400 mt-1">Aguarde enquanto processamos os dados...</p>
+                        </div>
+                        <button 
+                            onClick={handleCancelLoad}
+                            className="mt-2 px-4 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                            <X size={14} />
+                            Cancelar Busca
+                        </button>
                     </div>
                 ) : itens.length === 0 ? (
                     <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
@@ -1588,11 +1628,11 @@ export default function ApontamentoProducaoPage() {
                                                     <th className="px-2 py-2 text-center">Qt. T.</th>
                                                     <th className="px-2 py-2 text-center">Qt. P.</th>
                                                     <th className="px-2 py-2 text-center">Qt. F.</th>
-                                                    <th className="px-2 py-2 text-center" title="Corte">Cor.</th>
-                                                    <th className="px-2 py-2 text-center" title="Dobra">Dob.</th>
-                                                    <th className="px-2 py-2 text-center" title="Solda">Sol.</th>
-                                                    <th className="px-2 py-2 text-center" title="Pintura">Pin.</th>
-                                                    <th className="px-2 py-2 text-center" title="Montagem">Mon.</th>
+                                                    {processosVisiveis.includes('corte') && <th className="px-2 py-2 text-center" title="Corte">Cor.</th>}
+                                                    {processosVisiveis.includes('dobra') && <th className="px-2 py-2 text-center" title="Dobra">Dob.</th>}
+                                                    {processosVisiveis.includes('solda') && <th className="px-2 py-2 text-center" title="Solda">Sol.</th>}
+                                                    {processosVisiveis.includes('pintura') && <th className="px-2 py-2 text-center" title="Pintura">Pin.</th>}
+                                                    {processosVisiveis.includes('montagem') && <th className="px-2 py-2 text-center" title="Montagem">Mon.</th>}
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
@@ -1605,11 +1645,11 @@ export default function ApontamentoProducaoPage() {
                                                         <td className="px-2 py-2 text-[10px] font-bold text-[#32423D] text-center">{h.QtdeTotal}</td>
                                                         <td className="px-2 py-2 text-[10px] font-bold text-blue-600 text-center">{h.QtdeProduzida}</td>
                                                         <td className="px-2 py-2 text-[10px] font-bold text-red-600 text-center">{h.QtdeFaltante}</td>
-                                                        <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtCorte || ''}</td>
-                                                        <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtDobra || ''}</td>
-                                                        <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtSolda || ''}</td>
-                                                        <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtPintura || ''}</td>
-                                                        <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtMontagem || ''}</td>
+                                                        {processosVisiveis.includes('corte') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtCorte || ''}</td>}
+                                                        {processosVisiveis.includes('dobra') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtDobra || ''}</td>}
+                                                        {processosVisiveis.includes('solda') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtSolda || ''}</td>}
+                                                        {processosVisiveis.includes('pintura') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtPintura || ''}</td>}
+                                                        {processosVisiveis.includes('montagem') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtMontagem || ''}</td>}
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -2265,7 +2305,14 @@ export default function ApontamentoProducaoPage() {
                                             className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500"
                                         >
                                             <option value="">Selecione...</option>
-                                            {setoresConfig.map((s, i) => (
+                                            {setoresConfig.filter(s => {
+                                                const lower = s.toLowerCase();
+                                                const productionSectors = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+                                                if (productionSectors.includes(lower)) {
+                                                    return processosVisiveis.includes(lower);
+                                                }
+                                                return true;
+                                            }).map((s, i) => (
                                                 <option key={i} value={s}>{s}</option>
                                             ))}
                                         </select>
@@ -2351,26 +2398,36 @@ export default function ApontamentoProducaoPage() {
 
                                 {/* Processos */}
                                 <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap gap-6 justify-center">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkCorteRnc} onChange={(e) => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? "text-blue-700" : "text-blue-500"} /> Corte</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkDobraRnc} onChange={(e) => setChkDobraRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkDobraRnc ? 'text-purple-700 font-bold bg-purple-100' : 'text-gray-700 font-semibold'}`}><Wrench size={14} className={chkDobraRnc ? "text-purple-700" : "text-purple-500"} /> Dobra</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkSoldaRnc} onChange={(e) => setChkSoldaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkSoldaRnc ? 'text-orange-700 font-bold bg-orange-100' : 'text-gray-700 font-semibold'}`}><Flame size={14} className={chkSoldaRnc ? "text-orange-700" : "text-orange-500"} /> Solda</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkPinturaRnc} onChange={(e) => setChkPinturaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkPinturaRnc ? 'text-green-700 font-bold bg-green-100' : 'text-gray-700 font-semibold'}`}><Paintbrush size={14} className={chkPinturaRnc ? "text-green-700" : "text-green-500"} /> Acabamento</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={chkMontagemRnc} onChange={(e) => setChkMontagemRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                        <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkMontagemRnc ? 'text-red-700 font-bold bg-red-100' : 'text-gray-700 font-semibold'}`}><Settings2 size={14} className={chkMontagemRnc ? "text-red-700" : "text-red-500"} /> Montagem</span>
-                                    </label>
+                                    {processosVisiveis.includes('corte') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkCorteRnc} onChange={(e) => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? "text-blue-700" : "text-blue-500"} /> Corte</span>
+                                        </label>
+                                    )}
+                                    {processosVisiveis.includes('dobra') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkDobraRnc} onChange={(e) => setChkDobraRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkDobraRnc ? 'text-purple-700 font-bold bg-purple-100' : 'text-gray-700 font-semibold'}`}><Wrench size={14} className={chkDobraRnc ? "text-purple-700" : "text-purple-500"} /> Dobra</span>
+                                        </label>
+                                    )}
+                                    {processosVisiveis.includes('solda') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkSoldaRnc} onChange={(e) => setChkSoldaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkSoldaRnc ? 'text-orange-700 font-bold bg-orange-100' : 'text-gray-700 font-semibold'}`}><Flame size={14} className={chkSoldaRnc ? "text-orange-700" : "text-orange-500"} /> Solda</span>
+                                        </label>
+                                    )}
+                                    {processosVisiveis.includes('pintura') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkPinturaRnc} onChange={(e) => setChkPinturaRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkPinturaRnc ? 'text-green-700 font-bold bg-green-100' : 'text-gray-700 font-semibold'}`}><Paintbrush size={14} className={chkPinturaRnc ? "text-green-700" : "text-green-500"} /> Acabamento</span>
+                                        </label>
+                                    )}
+                                    {processosVisiveis.includes('montagem') && (
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={chkMontagemRnc} onChange={(e) => setChkMontagemRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkMontagemRnc ? 'text-red-700 font-bold bg-red-100' : 'text-gray-700 font-semibold'}`}><Settings2 size={14} className={chkMontagemRnc ? "text-red-700" : "text-red-500"} /> Montagem</span>
+                                        </label>
+                                    )}
                                 </div>
 
                                 {/* Seï¿½ï¿½o de Finalização (Sï¿½ exibida em ediï¿½ï¿½o) */}
@@ -2398,7 +2455,14 @@ export default function ApontamentoProducaoPage() {
                                                             <label className="text-xs font-bold text-green-800">Setor Finalização *</label>
                                                             <select value={setorFinalizacao} onChange={e => setSetorFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
                                                                 <option value="">Selecione...</option>
-                                                                {setoresConfig.map(s => <option key={s} value={s}>{s}</option>)}
+                                                                {setoresConfig.filter(s => {
+                                                                    const lower = s.toLowerCase();
+                                                                    const productionSectors = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+                                                                    if (productionSectors.includes(lower)) {
+                                                                        return processosVisiveis.includes(lower);
+                                                                    }
+                                                                    return true;
+                                                                }).map(s => <option key={s} value={s}>{s}</option>)}
                                                             </select>
                                                         </div>
                                                         <div className="flex flex-col gap-1">

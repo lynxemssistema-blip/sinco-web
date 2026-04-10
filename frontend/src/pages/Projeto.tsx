@@ -154,8 +154,10 @@ export default function ProjetoPage() {
         projeto: '',
         descProjeto: '',
         cliente: '',
-        dataInicio: '',
-        dataFim: ''
+        criacaoInicio: '',
+        criacaoFim: '',
+        previsaoInicio: '',
+        previsaoFim: ''
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -193,14 +195,21 @@ export default function ProjetoPage() {
             if (activeFilters.projeto) params.append('projeto', activeFilters.projeto);
             if (activeFilters.descProjeto) params.append('descProjeto', activeFilters.descProjeto);
             if (activeFilters.cliente) params.append('descEmpresa', activeFilters.cliente); // Enviamos descEmpresa para buscar
-            if (activeFilters.dataInicio) {
-                // Formato de HTML input date é YYYY-MM-DD. Precisamos converter para DD/MM/YYYY
-                const [y, m, d] = activeFilters.dataInicio.split('-');
-                params.append('dataInicio', `${d}/${m}/${y}`);
+            if (activeFilters.previsaoInicio) {
+                const [y, m, d] = activeFilters.previsaoInicio.split('-');
+                params.append('previsaoInicio', `${d}/${m}/${y}`);
             }
-            if (activeFilters.dataFim) {
-                const [y, m, d] = activeFilters.dataFim.split('-');
-                params.append('dataFim', `${d}/${m}/${y}`);
+            if (activeFilters.previsaoFim) {
+                const [y, m, d] = activeFilters.previsaoFim.split('-');
+                params.append('previsaoFim', `${d}/${m}/${y}`);
+            }
+            if (activeFilters.criacaoInicio) {
+                const [y, m, d] = activeFilters.criacaoInicio.split('-');
+                params.append('criacaoInicio', `${d}/${m}/${y}`);
+            }
+            if (activeFilters.criacaoFim) {
+                const [y, m, d] = activeFilters.criacaoFim.split('-');
+                params.append('criacaoFim', `${d}/${m}/${y}`);
             }
 
             const qs = params.toString();
@@ -644,54 +653,78 @@ export default function ProjetoPage() {
                         <div className="flex-[1] hidden md:block"></div>
                     </div>
 
-                    {/* Linha 3: Dt Prev. Intervalo de */}
-                    <div className="flex flex-col md:flex-row gap-4 items-end">
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <div>
+                    {/* Linha 3: Intervalos de Data (Previsão e Criação) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
+                        {/* Data Previsão */}
+                        <div className="flex items-center gap-3 w-full">
+                            <div className="flex-1">
                                 <label className="block text-[11px] font-semibold text-gray-600 mb-1">Dt Prev. Intervalo de:</label>
                                 <input
                                     type="date"
-                                    value={searchFilters.dataInicio}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, dataInicio: e.target.value }))}
-                                    className="w-full md:w-40 px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
+                                    value={searchFilters.previsaoInicio}
+                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoInicio: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
                                 />
                             </div>
-                            <span className="text-gray-400 font-medium pb-2 text-sm italic mr-1 self-end mb-1 md:mb-0">a</span>
-                            <div>
+                            <span className="text-gray-400 font-medium pb-2 text-sm italic self-end mb-1">a</span>
+                            <div className="flex-1">
                                 <label className="block text-[11px] font-semibold text-gray-600 mb-1 invisible">Fim</label>
                                 <input
                                     type="date"
-                                    value={searchFilters.dataFim}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, dataFim: e.target.value }))}
-                                    className="w-full md:w-40 px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
+                                    value={searchFilters.previsaoFim}
+                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoFim: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
                                 />
                             </div>
                         </div>
 
-                        {/* Botões de Pesquisar e Limpar */}
-                        <div className="ml-auto mt-2 md:mt-0 flex items-center gap-2">
-                            {(searchFilters.projeto || searchFilters.descProjeto || searchFilters.cliente || searchFilters.dataInicio || searchFilters.dataFim) && (
-                                <button
-                                    onClick={() => {
-                                        const emptyFilters = { projeto: '', descProjeto: '', cliente: '', dataInicio: '', dataFim: '' };
-                                        setSearchFilters(emptyFilters);
-                                        fetchProjetos(emptyFilters);
-                                    }}
-                                    className="px-4 py-2 text-red-600 font-bold text-sm tracking-wide rounded hover:bg-red-50 transition-colors flex items-center gap-2 border border-transparent hover:border-red-200"
-                                >
-                                    <X size={16} />
-                                    Limpar
-                                </button>
-                            )}
-                            <button
-                                onClick={() => fetchProjetos()}
-                                disabled={loading}
-                                className="px-6 py-2 bg-[#E0E800]/20 border border-[#32423D]/20 text-[#32423D] font-bold text-sm tracking-wide rounded hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2"
-                            >
-                                <Search size={16} />
-                                {loading ? 'Buscando...' : 'Pesquisar'}
-                            </button>
+                        {/* Data Criação */}
+                        <div className="flex items-center gap-3 w-full">
+                            <div className="flex-1">
+                                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Dt Criação Intervalo de:</label>
+                                <input
+                                    type="date"
+                                    value={searchFilters.criacaoInicio}
+                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoInicio: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
+                                />
+                            </div>
+                            <span className="text-gray-400 font-medium pb-2 text-sm italic self-end mb-1">a</span>
+                            <div className="flex-1">
+                                <label className="block text-[11px] font-semibold text-gray-600 mb-1 invisible">Fim</label>
+                                <input
+                                    type="date"
+                                    value={searchFilters.criacaoFim}
+                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoFim: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
+                                />
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Botões de Pesquisar e Limpar */}
+                    <div className="flex justify-end gap-2 mt-2">
+                        {(searchFilters.projeto || searchFilters.descProjeto || searchFilters.cliente || searchFilters.previsaoInicio || searchFilters.previsaoFim || searchFilters.criacaoInicio || searchFilters.criacaoFim) && (
+                            <button
+                                onClick={() => {
+                                    const emptyFilters = { projeto: '', descProjeto: '', cliente: '', previsaoInicio: '', previsaoFim: '', criacaoInicio: '', criacaoFim: '' };
+                                    setSearchFilters(emptyFilters);
+                                    fetchProjetos(emptyFilters);
+                                }}
+                                className="px-4 py-2 text-red-600 font-bold text-sm tracking-wide rounded hover:bg-red-50 transition-colors flex items-center gap-2 border border-transparent hover:border-red-200"
+                            >
+                                <X size={16} />
+                                Limpar
+                            </button>
+                        )}
+                        <button
+                            onClick={() => fetchProjetos()}
+                            disabled={loading}
+                            className="px-6 py-2 bg-[#E0E800]/20 border border-[#32423D]/20 text-[#32423D] font-bold text-sm tracking-wide rounded hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2"
+                        >
+                            <Search size={16} />
+                            {loading ? 'Buscando...' : 'Pesquisar'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1032,7 +1065,7 @@ export default function ProjetoPage() {
                                                             </div>
                                                             <div className="md:col-span-6">
                                                                 <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Descrição Projeto</label>
-                                                                <textarea name="ObservacaoFinal" value={projetoFormData.ObservacaoFinal || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded shadow-sm" />
+                                                                <textarea name="DescProjeto" value={projetoFormData.DescProjeto || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded shadow-sm" />
                                                             </div>
                                                         </div>
                                                     </div>

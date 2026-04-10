@@ -4823,8 +4823,13 @@ app.get('/api/ordemservico', async (req, res) => {
         const tag = req.query.tag;
         const search = req.query.search;
         const filter = req.query.filter || 'liberados';
+        const { 
+            dataCriacaoInicio, dataCriacaoFim,
+            dataPrevisaoInicio, dataPrevisaoFim,
+            dataLiberacaoInicio, dataLiberacaoFim
+        } = req.query;
 
-        // Construir WHERE dinÃ¯Â¿Â½mico
+        // Construir WHERE dinÃ¢mico
         let whereClause = "(D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')";
         const params = [];
 
@@ -4845,6 +4850,21 @@ app.get('/api/ordemservico', async (req, res) => {
             params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
         }
 
+        // Adicionar filtros de data independentes
+        const addDateFilter = (field, start, end) => {
+            if (start && end) {
+                whereClause += ` AND (
+                    (${field} BETWEEN ? AND ?) OR 
+                    (STR_TO_DATE(${field}, '%d/%m/%Y') BETWEEN ? AND ?)
+                )`;
+                params.push(`${start} 00:00:00`, `${end} 23:59:59`, start, end);
+            }
+        };
+
+        addDateFilter('DataCriacao', dataCriacaoInicio, dataCriacaoFim);
+        addDateFilter('DataPrevisao', dataPrevisaoInicio, dataPrevisaoFim);
+        addDateFilter('Data_Liberacao_Engenharia', dataLiberacaoInicio, dataLiberacaoFim);
+
         // Count total
         const [countResult] = await pool.execute(
             `SELECT COUNT(*) as total FROM ordemservico WHERE ${whereClause}`,
@@ -4852,30 +4872,75 @@ app.get('/api/ordemservico', async (req, res) => {
         );
         const total = countResult[0].total;
 
-        // Query com paginaÃ¯Â¿Â½Ã¯Â¿Â½o
+        // Query com paginaÃ§Ã£o e calculo dinÃ¢mico de itens e percentuais
         const [rows] = await pool.execute(`
             SELECT 
-                IdOrdemServico, Projeto, Tag, DescTag, Descricao,
-                Estatus, DataPrevisao, DataCriacao, CriadoPor,
-                Liberado_Engenharia, Data_Liberacao_Engenharia,
-                QtdeTotalItens, QtdeItensExecutados, PercentualItens,
-                QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas,
-                PesoTotal, AreaPinturaTotal,
-                OrdemServicoFinalizado, DataFinalizado,
-                IdProjeto, IdTag, DescEmpresa,
-                PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
-                PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra,
-                PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda,
-                PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura,
-                PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem,
-                PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA,
-                PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO,
-                EnderecoOrdemServico, NumeroOPOmie
-            FROM ordemservico 
+                os.IdOrdemServico, os.Projeto, os.Tag, os.DescTag, os.Descricao,
+                os.Estatus, os.DataPrevisao, os.DataCriacao, os.CriadoPor,
+                os.Liberado_Engenharia, os.Data_Liberacao_Engenharia,
+                os.IdOrdemServico, os.Projeto, os.Tag, os.DescTag, os.Descricao,
+                os.Estatus, os.DataPrevisao, os.DataCriacao, os.CriadoPor,
+                os.Liberado_Engenharia, os.Data_Liberacao_Engenharia,
+                os.QtdeTotalItens, os.QtdeItensExecutados, os.PercentualItens,
+                os.QtdeTotalPecas, os.QtdePecasExecutadas, os.PercentualPecas,
+                os.PesoTotal, os.AreaPinturaTotal,
+                os.OrdemServicoFinalizado, os.DataFinalizado,
+                os.IdProjeto, os.IdTag, os.DescEmpresa,
+                os.PlanejadoInicioCorte, os.PlanejadoFinalCorte, os.RealizadoInicioCorte, os.RealizadoFinalCorte,
+                os.PlanejadoInicioDobra, os.PlanejadoFinalDobra, os.RealizadoInicioDobra, os.RealizadoFinalDobra,
+                os.PlanejadoInicioSolda, os.PlanejadoFinalSolda, os.RealizadoInicioSolda, os.RealizadoFinalSolda,
+                os.PlanejadoInicioPintura, os.PlanejadoFinalPintura, os.RealizadoInicioPintura, os.RealizadoFinalPintura,
+                os.PlanejadoInicioMontagem, os.PlanejadoFinalMontagem, os.RealizadoInicioMontagem, os.RealizadoFinalMontagem,
+                os.PlanejadoInicioENGENHARIA, os.PlanejadoFinalENGENHARIA, os.RealizadoInicioENGENHARIA, os.RealizadoFinalENGENHARIA,
+                os.PlanejadoInicioACABAMENTO, os.PlanejadoFinalACABAMENTO, os.RealizadoInicioACABAMENTO, os.RealizadoFinalACABAMENTO,
+                os.EnderecoOrdemServico, os.NumeroOPOmie
+            FROM ordemservico os
             WHERE ${whereClause}
-            ORDER BY IdOrdemServico DESC
+            ORDER BY os.IdOrdemServico DESC
             LIMIT ? OFFSET ?
         `, [...params, limit, offset]);
+
+        // --- CONTEXT-SAFE SEQUENTIAL STRATEGY (Final Reliability Fix) ---
+        if (rows.length > 0) {
+            for (const os of rows) {
+                try {
+                    // Sequential loop ensures AsyncLocalStorage context is preserved for each tenant query
+                    const [stats] = await pool.execute(`
+                        SELECT 
+                            COUNT(*) as itTotal,
+                            COUNT(CASE WHEN OrdemServicoItemFinalizado = 'C' THEN 1 END) as itExec,
+                            COALESCE(SUM(QtdeTotal), 0) as pTotal,
+                            COALESCE(SUM(CASE WHEN OrdemServicoItemFinalizado = 'C' THEN QtdeTotal ELSE 0 END), 0) as pExec
+                        FROM ordemservicoitem
+                        WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+                    `, [String(os.IdOrdemServico)]);
+
+                    if (stats && stats.length > 0) {
+                        const s = stats[0];
+                        os.QtdeTotalItensCalc = s.itTotal || 0;
+                        os.QtdeItensExecutadosCalc = s.itExec || 0;
+                        os.PercentualItensCalc = os.QtdeTotalItensCalc > 0 
+                            ? Number((os.QtdeItensExecutadosCalc / os.QtdeTotalItensCalc * 100).toFixed(2)) 
+                            : 0;
+                        os.QtdeTotalPecasCalc = s.pTotal || 0;
+                        os.QtdePecasExecutadasCalc = s.pExec || 0;
+                    } else {
+                        os.QtdeTotalItensCalc = 0;
+                        os.QtdeItensExecutadosCalc = 0;
+                        os.PercentualItensCalc = 0;
+                        os.QtdeTotalPecasCalc = 0;
+                        os.QtdePecasExecutadasCalc = 0;
+                    }
+                } catch (err) {
+                    console.error(`Error fetching context-safe stats for OS ${os.IdOrdemServico}:`, err);
+                    os.QtdeTotalItensCalc = 0;
+                    os.QtdeItensExecutadosCalc = 0;
+                    os.PercentualItensCalc = 0;
+                    os.QtdeTotalPecasCalc = 0;
+                    os.QtdePecasExecutadasCalc = 0;
+                }
+            }
+        }
 
         res.json({
             success: true,
@@ -4897,12 +4962,37 @@ app.get('/api/ordemservico', async (req, res) => {
 // GET ONE Ordem de ServiÃ¯Â¿Â½o
 app.get('/api/ordemservico/:id', async (req, res) => {
     try {
-        const [rows] = await pool.execute(
-            'SELECT * FROM ordemservico WHERE IdOrdemServico = ?',
-            [req.params.id]
-        );
+        const [rows] = await pool.execute(`
+            SELECT 
+                os.*
+            FROM ordemservico os
+            WHERE os.IdOrdemServico = ?
+        `, [req.params.id]);
+
         if (rows.length > 0) {
-            res.json({ success: true, data: rows[0] });
+            const os = rows[0];
+            const [itemStats] = await pool.execute(`
+                SELECT 
+                    COUNT(*) as itTotal,
+                    COUNT(CASE WHEN OrdemServicoItemFinalizado = 'C' THEN 1 END) as itExec,
+                    COALESCE(SUM(QtdeTotal), 0) as pTotal,
+                    COALESCE(SUM(CASE WHEN OrdemServicoItemFinalizado = 'C' THEN QtdeTotal ELSE 0 END), 0) as pExec
+                FROM ordemservicoitem
+                WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `, [String(os.IdOrdemServico)]);
+
+            if (itemStats.length > 0) {
+                const stats = itemStats[0];
+                os.QtdeTotalItensCalc = stats.itTotal;
+                os.QtdeItensExecutadosCalc = stats.itExec;
+                os.PercentualItensCalc = os.QtdeTotalItensCalc > 0 
+                    ? Number((os.QtdeItensExecutadosCalc / os.QtdeTotalItensCalc * 100).toFixed(2)) 
+                    : 0;
+                os.QtdeTotalPecasCalc = stats.pTotal;
+                os.QtdePecasExecutadasCalc = stats.pExec;
+            }
+
+            res.json({ success: true, data: os });
         } else {
             res.status(404).json({ success: false, message: 'OS nÃ¯Â¿Â½o encontrada' });
         }

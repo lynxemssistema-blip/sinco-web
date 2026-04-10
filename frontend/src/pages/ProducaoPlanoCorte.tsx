@@ -225,10 +225,8 @@ export default function ProducaoPlanoCorte() {
             const result = await res.json();
             if (result.success) {
                 addToast({ type: 'success', title: 'Liberado', message: result.message });
-                setPlanos(prev => prev.map(p =>
-                    p.IdPlanodecorte === planoSel.IdPlanodecorte ? { ...p, LiberacaoParaCorte: 'S' } : p
-                ));
-                setPlanoSel(prev => prev ? { ...prev, LiberacaoParaCorte: 'S' } : null);
+                fetchPlanos();
+                setPlanoSel(null); // Limpa seleção para forçar recarregamento se necessário
             } else {
                 addToast({ type: 'error', title: 'Erro', message: result.message || 'Falha ao liberar plano.' });
             }
@@ -548,8 +546,8 @@ export default function ProducaoPlanoCorte() {
                         <table className="w-full text-[10px] text-left border-separate border-spacing-0">
                             <thead className="bg-indigo-50/30 sticky top-0 z-10 backdrop-blur-sm">
                                 <tr>
+                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Ações</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>
-                                    <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Desenhos</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Projeto</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Tag</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
@@ -577,7 +575,6 @@ export default function ProducaoPlanoCorte() {
                                             onClick={() => setItemSel(it)}
                                             className={`group cursor-pointer transition-colors border-b border-slate-50 ${selecionado ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-100' : 'hover:bg-slate-50'} ${finalizado ? 'opacity-60' : ''}`}
                                         >
-                                            <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
                                             <td className="px-3 py-2">
                                                 <div className={`flex items-center gap-1 transition-all duration-200 ${selecionado ? 'opacity-100' : 'opacity-30 pointer-events-none grayscale'}`}>
                                                     <button onClick={() => handleAbrirDesenho(it, '3D')} className="p-1 hover:bg-blue-100 text-blue-600 rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
@@ -588,6 +585,7 @@ export default function ProducaoPlanoCorte() {
                                                     <button onClick={() => handleLancarProducao(it)} className="p-1 hover:bg-indigo-100 text-indigo-600 rounded transition-colors" title="Lançar Produção de Peças Cortadas"><ClipboardCheck size={14}/></button>
                                                 </div>
                                             </td>
+                                            <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
                                             <td className="px-3 py-2 font-black text-blue-600">{it.Tag}</td>
                                             <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>

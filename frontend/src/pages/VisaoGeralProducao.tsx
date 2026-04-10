@@ -79,6 +79,8 @@ export default function VisaoGeralProducaoPage() {
     const [rncPanel, setRncPanel] = useState(false); const [fTag, setFTag] = useState('');
     const [fDataEntradaIni, setFDataEntradaIni] = useState(''); const [fDataEntradaFim, setFDataEntradaFim] = useState('');
     const [fDataPrevIni, setFDataPrevIni] = useState(''); const [fDataPrevFim, setFDataPrevFim] = useState('');
+    const [fProjCriacaoIni, setFProjCriacaoIni] = useState(''); const [fProjCriacaoFim, setFProjCriacaoFim] = useState('');
+    const [fProjPrevIni, setFProjPrevIni] = useState(''); const [fProjPrevFim, setFProjPrevFim] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
 
@@ -136,6 +138,13 @@ export default function VisaoGeralProducaoPage() {
     
     // Estado para editar datas de setor da Tag
     const [tagSectorDates, setTagSectorDates] = useState<{ [key: string]: string }>({});
+
+    // Configuração de Setores Visíveis
+    const [visibleProcesses, setVisibleProcesses] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
+
+    // Filtrar setores dinamicamente
+    const filteredSectors = SECTORS.filter(s => visibleProcesses.includes(s.k.toLowerCase()));
+    const filteredTagSectors = TAG_SECTORS.filter(s => visibleProcesses.includes(s.k.toLowerCase()));
 
     // Qdo as rncs carregarem e tiver openRnc na url, abrir diretamente
     useEffect(() => {
@@ -222,12 +231,20 @@ export default function VisaoGeralProducaoPage() {
 
     const fetchProj = useCallback(async (fin = filFin, lib = filLib) => {
         setLoad(true); setError(null); try {
-            const qs = new URLSearchParams(); if (fin) qs.set('finalizados', '1'); if (lib) qs.set('liberados', '1');
+            const qs = new URLSearchParams(); 
+            if (fin) qs.set('finalizados', '1'); 
+            if (lib) qs.set('liberados', '1');
+            
+            if (fProjPrevIni) qs.set('previsaoInicio', isoToBr(fProjPrevIni));
+            if (fProjPrevFim) qs.set('previsaoFim', isoToBr(fProjPrevFim));
+            if (fProjCriacaoIni) qs.set('criacaoInicio', isoToBr(fProjCriacaoIni));
+            if (fProjCriacaoFim) qs.set('criacaoFim', isoToBr(fProjCriacaoFim));
+
             const res = await (await fetch(`${API_BASE}/visao-geral/projetos${qs.toString() ? '?' + qs : ''}`)).json();
             if (res.success) setProjetos(res.data);
             else setError(res.message || 'Erro ao carregar projetos do servidor');
         } catch (e: any) { console.error(e); setError(e.message || 'Erro de rede ao buscar projetos'); } finally { setLoad(false); }
-    }, [filFin, filLib]);
+    }, [filFin, filLib, fProjCriacaoIni, fProjCriacaoFim, fProjPrevIni, fProjPrevFim]);
 
     const fetchTags = async (id: number) => { setLoadTags(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/tags/${id}`)).json(); if (r.success) setTags(r.data); } catch (e) { } finally { setLoadTags(false); } };
     const fetchRncs = async (id: number, origem = 'VISAOGERALPROJ') => { setLoadRncs(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${id}?origem=${origem}`)).json(); if (r.success) setRncs(r.data); } catch (e) { } finally { setLoadRncs(false); } };
@@ -241,6 +258,15 @@ export default function VisaoGeralProducaoPage() {
                 if (resUsr.success) setUsuarios(resUsr.usuarios);
                 const resTipos = await (await fetch(`${API_BASE}/config/tipostarefa`)).json();
                 if (resTipos.success) setTipostarefa(resTipos.tipostarefa);
+                
+                // Carregar processos visíveis
+                const resCfg = await (await fetch(`${API_BASE}/config`)).json();
+                if (resCfg.success && resCfg.config?.ProcessosVisiveis) {
+                    try {
+                        const processes = JSON.parse(resCfg.config.ProcessosVisiveis);
+                        if (Array.isArray(processes)) setVisibleProcesses(processes);
+                    } catch (e) { console.error('Erro ao processar ProcessosVisiveis:', e); }
+                }
             } catch (e) { console.error(e); }
         };
         fetchConfig();
@@ -491,21 +517,57 @@ export default function VisaoGeralProducaoPage() {
             {!fromGlobal ? (
                 <>
                     {/* Top Bar */}
-                    <div className="bg-white border-b px-6 py-4 flex flex-col md:flex-row items-center gap-4 shrink-0 shadow-sm z-10 w-full">
-                        <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500/30 transition-shadow">
-                            <Search className="text-slate-400" size={16} />
-                            <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-sm text-slate-700" />
+                    {/* Top Bar */}
+                    <div className="bg-white border-b px-6 py-3 flex flex-col gap-3 shrink-0 shadow-sm z-10 w-full">
+                        {/* Linha 1: Pesquisa Texto e Checkboxes */}
+                        <div className="flex flex-col md:flex-row items-center gap-3 w-full">
+                            <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-1.5 focus-within:ring-2 focus-within:ring-blue-500/30 transition-shadow">
+                                <Search className="text-slate-400" size={14} />
+                                <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-xs text-slate-700" />
+                            </div>
+                            <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                                <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={12} /> Finalizados</button>
+                                <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={12} /> Liberados</button>
+                                <button onClick={() => { 
+                                    setFilFin(false); setFilLib(false); setFProj(''); 
+                                    setFProjCriacaoIni(''); setFProjCriacaoFim('');
+                                    setFProjPrevIni(''); setFProjPrevFim('');
+                                    fetchProj(false, false);
+                                }} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={12} /> Limpar</button>
+                                <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner ml-1">
+                                    <button onClick={() => setViewMode('card')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid size={12} /> Cards</button>
+                                    <button onClick={() => setViewMode('list')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><List size={12} /> Lista</button>
+                                </div>
+                                <button onClick={() => fetchProj()} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-[10px] hover:bg-blue-700 transition shadow-sm"><Search size={12} /> Pesquisar</button>
+                            </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                            <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={14} /> Mostrar Finalizados</button>
-                            <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={14} /> Mostrar Liberados</button>
-                            <button onClick={() => { setFilFin(false); setFilLib(false); setFProj(''); }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold text-xs transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={14} /> Limpar</button>
-                            <div className="hidden md:flex bg-slate-100 p-1 rounded-xl items-center shadow-inner ml-2">
-                                <button onClick={() => setViewMode('card')} className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`} title="Visão em Cards"><LayoutGrid size={14} /> Cards</button>
-                                <button onClick={() => setViewMode('list')} className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`} title="Visão em Lista"><List size={14} /> Lista</button>
+
+                        {/* Linha 2: Filtros de Data do Projeto */}
+                        <div className="flex flex-col lg:flex-row items-center gap-4 w-full p-2 bg-slate-50/50 rounded-xl border border-slate-100">
+                            {/* Data Criação */}
+                            <div className="flex items-center gap-2 w-full lg:w-auto">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Criação:</span>
+                                <div className="flex items-center gap-1 flex-1 lg:flex-none">
+                                    <input type="date" value={fProjCriacaoIni} onChange={e => setFProjCriacaoIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <span className="text-slate-400 text-[10px]">até</span>
+                                    <input type="date" value={fProjCriacaoFim} onChange={e => setFProjCriacaoFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                </div>
+                            </div>
+                            
+                            <div className="hidden lg:block w-px h-4 bg-slate-200"></div>
+
+                            {/* Data Previsão */}
+                            <div className="flex items-center gap-2 w-full lg:w-auto">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Previsão:</span>
+                                <div className="flex items-center gap-1 flex-1 lg:flex-none">
+                                    <input type="date" value={fProjPrevIni} onChange={e => setFProjPrevIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <span className="text-slate-400 text-[10px]">até</span>
+                                    <input type="date" value={fProjPrevFim} onChange={e => setFProjPrevFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                </div>
                             </div>
                         </div>
                     </div>
+
 
                     {/* Grid Area */}
                     <div className="flex-1 overflow-auto p-4 md:p-6 pb-20 scrollbar-thumb-slate-300 scrollbar-track-transparent">
@@ -687,8 +749,8 @@ export default function VisaoGeralProducaoPage() {
                                                 </div>
 
                                                 {/* Barras de Setor */}
-                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-y-3 gap-x-2 w-full pt-1">
-                                                    {SECTORS.map((s) => {
+                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-y-3 gap-x-2 w-full pt-1" style={{ gridTemplateColumns: `repeat(${Math.min(filteredSectors.length, 5)}, minmax(0, 1fr))` }}>
+                                                    {filteredSectors.map((s) => {
                                                         const e = toNum(p[s.ex as keyof Projeto]), t = toNum(p[s.t as keyof Projeto]);
                                                         const pct = safePct(e, t);
                                                         return (
@@ -825,9 +887,9 @@ export default function VisaoGeralProducaoPage() {
                                         <tr>
                                             {/* Columns Fixed visually by background */}
                                             <th className="px-4 py-3 border-r border-slate-200 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
-                                            <th className="px-3 py-3 border-r border-slate-200 text-center">Datas Gerais</th>
+                                            <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Cronograma</th>
                                             <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Detalhes</th>
-                                            {TAG_SECTORS.map(s => <th key={s.k} className="px-3 py-3 border-r border-slate-200 text-center min-w-[280px]">Setor: {s.k}</th>)}
+                                            {filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-slate-200 text-center min-w-[280px]">Setor: {s.k}</th>)}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -897,12 +959,16 @@ export default function VisaoGeralProducaoPage() {
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. Peças</span><span className="font-black text-slate-700">{t.qtdetotal || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Liberada</span><span className="font-bold text-emerald-600">{t.QtdeLiberada || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Saldo</span><span className="font-bold text-orange-600">{t.SaldoTag || '0'}</span></div>
+                                                            <div className="flex flex-col col-span-2 mt-0.5 pt-1.5 border-t border-slate-100">
+                                                                <span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Multiplicador Tag</span>
+                                                                <span className="font-bold text-blue-700">{t.QtdeTag || '1'} <span className="text-[8px] font-normal text-slate-400 lowercase">(x a produzir)</span></span>
+                                                            </div>
                                                             {t.ValorTag && <div className="flex flex-col col-span-2 mt-1"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] flex items-center gap-0.5"><DollarSign size={8}/> Valor</span><span className="font-bold text-slate-700">R$ {parseFloat(t.ValorTag).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></div>}
                                                         </div>
                                                     </td>
 
                                                     {/* SETORES */}
-                                                    {TAG_SECTORS.map(s => {
+                                                    {filteredTagSectors.map(s => {
                                                         const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
                                                         const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
                                                         const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
@@ -1006,8 +1072,8 @@ export default function VisaoGeralProducaoPage() {
                         </div>
                         
                         <div className="p-6 overflow-auto bg-white flex-1 relative">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                {TAG_SECTORS.map(s => (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(filteredTagSectors.length, 3)}, minmax(0, 1fr))` }}>
+                                {filteredTagSectors.map(s => (
                                     <div key={s.k} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                                         <div className="font-black text-slate-700 uppercase tracking-widest text-xs mb-4 pb-2 border-b border-slate-200 border-dashed flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${s.c}`}></div> Setor: {s.k}</div>
                                         <div className="flex flex-col gap-3">
@@ -1250,9 +1316,9 @@ export default function VisaoGeralProducaoPage() {
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
                                     <select value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-red-400">
-                                        {SECTORS.map(s => <option key={s.k} value={s.k}>{s.k}</option>)}
+                                        {filteredSectors.map(s => <option key={s.k} value={s.k}>{s.k}</option>)}
                                         <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
-                                        {rncForm.setor && !SECTORS.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
+                                        {rncForm.setor && !filteredSectors.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
                                     </select>
                                 </div>
                                 <div>
@@ -1290,9 +1356,9 @@ export default function VisaoGeralProducaoPage() {
                                     <div>
                                         <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Setor</label>
                                         <select disabled={rncForm.estatus === 'FINALIZADO'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-400 disabled:opacity-75">
-                                            {SECTORS.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
+                                            {filteredSectors.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
                                             <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
-                                            {rncForm.setorFin && !SECTORS.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
+                                            {rncForm.setorFin && !filteredSectors.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
                                         </select>
                                     </div>
                                 </div>
@@ -1339,7 +1405,7 @@ export default function VisaoGeralProducaoPage() {
                                             {filteredRncs.map((r, idx) => {
                                                 // Adjust string cases since grid data might come slightly different
                                                 const rawSetor = (r.SetorResponsavel || '').trim();
-                                                const mappedSetor = SECTORS.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
+                                                const mappedSetor = filteredSectors.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
                                                 
                                                 const rawTipoTarefa = (r.TipoTarefa || '').trim();
                                                 const mappedTipoTarefa = tipostarefa.find(t => t.TipoTarefa.toLowerCase() === rawTipoTarefa.toLowerCase())?.TipoTarefa || rawTipoTarefa;
@@ -1438,9 +1504,9 @@ export default function VisaoGeralProducaoPage() {
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
                                     <select value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
-                                        {SECTORS.map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
+                                        {filteredSectors.map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
                                         <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
-                                        {rncForm.setor && !SECTORS.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
+                                        {rncForm.setor && !filteredSectors.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
                                     </select>
                                 </div>
                                 <div>
@@ -1478,9 +1544,9 @@ export default function VisaoGeralProducaoPage() {
                                     <div>
                                         <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Setor</label>
                                         <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-400 disabled:opacity-75">
-                                            {SECTORS.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
+                                            {filteredSectors.map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
                                             <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
-                                            {rncForm.setorFin && !SECTORS.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
+                                            {rncForm.setorFin && !filteredSectors.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
                                         </select>
                                     </div>
                                 </div>
@@ -1530,7 +1596,7 @@ export default function VisaoGeralProducaoPage() {
                                         <tbody className="divide-y divide-slate-100">
                                             {filteredRncs.map((r, idx) => {
                                                 const rawSetor = (r.SetorResponsavel || '').trim();
-                                                const mappedSetor = SECTORS.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
+                                                const mappedSetor = filteredSectors.find(s => s.k.toLowerCase() === rawSetor.toLowerCase())?.k || (['Medição', 'Medicao'].includes(rawSetor) ? 'Medição' : (['Isométrico', 'Isometrico'].includes(rawSetor) ? 'Isométrico' : rawSetor)) || 'Corte';
                                                 
                                                 const rawTipoTarefa = (r.TipoTarefa || '').trim();
                                                 const mappedTipoTarefa = tipostarefa.find(t => t.TipoTarefa.toLowerCase() === rawTipoTarefa.toLowerCase())?.TipoTarefa || rawTipoTarefa;
