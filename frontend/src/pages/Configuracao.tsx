@@ -182,10 +182,15 @@ export default function ConfiguracaoPage() {
     };
 
     const handleSaveRegras = async () => {
-        // 1. Salva preferências situacionais no localStorage (sem banco)
-        saveLocalPrefs({ planoCorteFiltroDC, maxRegistros });
+        // 1. Salva preferências no localStorage (sempre, como fallback robusto)
+        saveLocalPrefs({ 
+            planoCorteFiltroDC, 
+            maxRegistros,
+            processosVisiveis,
+            restringirApontamento
+        });
 
-        // 2. Salva regras de negócio na API (banco de dados)
+        // 2. Tenta salvar na API (banco de dados)
         try {
             const res = await fetch(`${API_BASE}/config`, {
                 method: 'PUT',
@@ -193,6 +198,7 @@ export default function ConfiguracaoPage() {
                 body: JSON.stringify({
                     restringirApontamento,
                     processosVisiveis: JSON.stringify(processosVisiveis),
+                    maxRegistros
                 })
             });
             const data = await res.json();

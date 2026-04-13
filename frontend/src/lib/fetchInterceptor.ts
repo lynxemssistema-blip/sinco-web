@@ -34,6 +34,16 @@ window.fetch = async (...args) => {
         }
     }
 
+    // Add global record limit (MaxRegistros) to all GET requests to /api/
+    if ((typeof resource === 'string' && resource.includes('/api/') && (!config || !config.method || config.method.toUpperCase() === 'GET'))) {
+        const urlObj = new URL(resource, window.location.origin);
+        if (!urlObj.searchParams.has('limit')) {
+            const maxReg = localStorage.getItem('sinco_maxRegistros') || '500';
+            urlObj.searchParams.set('limit', maxReg);
+            resource = urlObj.pathname + urlObj.search;
+        }
+    }
+
     // Call original fetch with updated config
     return originalFetch(resource, config);
 };

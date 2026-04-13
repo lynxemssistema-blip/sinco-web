@@ -30,6 +30,18 @@ const tenantMiddleware = async (req, res, next) => {
             return res.status(403).json({ success: false, message: 'Contexto de banco de dados não encontrado no token' });
         }
 
+        // 2.5 Global Write Protection (Only whitelisted DBs or Superadmin can mutate)
+        const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+        const ALLOWED_MUTATION_DB = ['lynxlocal', 'alfatec2'];
+        
+        if (isMutation && !ALLOWED_MUTATION_DB.includes(tenantDbName) && decoded.superadmin !== 'S') {
+            console.warn(`[Tenant] Write attempt blocked for database: ${tenantDbName} (User: ${decoded.login || 'unknown'})`);
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Este banco de dados está configurado como apenas leitura. Alterações não são permitidas.' 
+            });
+        }
+
         // 3. Check if we already have a pool for this tenant
         if (!db.hasPool(tenantDbName)) {
             const [rows] = await db.executeOnDefault(

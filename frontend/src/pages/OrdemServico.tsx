@@ -4,7 +4,7 @@ import {
     Search, ChevronRight, ChevronDown, ClipboardList, Eye,
     Loader2, RefreshCw, Box, CheckCircle, Clock, XCircle, User, Calendar, Settings2, FileText, FolderOpen,
     Filter, Layers, X, ArrowLeft, Trash2, Flag, RotateCcw, Hash, Copy, FileSpreadsheet, PenTool, AlertTriangle, Star,
-    ShieldAlert, Scissors, Wrench, Flame, Paintbrush
+    ShieldAlert, Scissors, Wrench, Flame, Paintbrush, PackagePlus
 } from 'lucide-react';
 import { ProgressBar } from '../components/ordem-servico/ProgressBar';
 import { SetorDatas } from '../components/ordem-servico/SetorDatas';
@@ -173,6 +173,14 @@ function OrdemServicoContent() {
     const [cloneFator, setCloneFator] = useState(1);
     const [cloneProjetoId, setCloneProjetoId] = useState<number | string>('');
     const [cloneTagId, setCloneTagId] = useState<number | string>('');
+
+    // Modal Incluir Itens na OS
+    const [showModalIncluirItens, setShowModalIncluirItens] = useState<OrdemServico | null>(null);
+    const [itensDisponiveis, setItensDisponiveis] = useState<OrdemServicoItem[]>([]);
+    const [loadingItensDisp, setLoadingItensDisp] = useState(false);
+    const [searchItensDisp, setSearchItensDisp] = useState('');
+    const [itensSelecionados, setItensSelecionados] = useState<Set<number>>(new Set());
+    const [salvandoItens, setSalvandoItens] = useState(false);
     const [cloneTags, setCloneTags] = useState<DropdownOption[]>([]);
     const [mostrarTodos, setMostrarTodos] = useState(false);
     const { addToast } = useToast();
@@ -1088,6 +1096,65 @@ function OrdemServicoContent() {
         setShowModalClonar(os);
     };
 
+    // ── Incluir Itens ────────────────────────────────────────────────────────
+    const fetchItensDisponiveis = async (os: OrdemServico, search = '') => {
+        setLoadingItensDisp(true);
+        try {
+            const params = new URLSearchParams();
+            if (search) params.set('search', search);
+            const res = await fetch(`${API_BASE}/ordemservico/${os.IdOrdemServico}/itens-disponiveis?${params}`);
+            const json = await res.json();
+            if (json.success) setItensDisponiveis(json.data);
+            else addToast({ type: 'error', title: 'Erro', message: json.message });
+        } catch {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha ao buscar itens disponíveis.' });
+        } finally {
+            setLoadingItensDisp(false);
+        }
+    };
+
+    const handleOpenIncluirItens = (os: OrdemServico) => {
+        if (os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM') {
+            addToast({ type: 'warning', title: 'Atenção', message: 'OS liberada para engenharia não aceita novos itens.' });
+            return;
+        }
+        setItensSelecionados(new Set());
+        setSearchItensDisp('');
+        setShowModalIncluirItens(os);
+        fetchItensDisponiveis(os);
+    };
+
+    const handleConfirmarInclusao = async () => {
+        if (!showModalIncluirItens || itensSelecionados.size === 0) return;
+        setSalvandoItens(true);
+        try {
+            const res = await fetch(`${API_BASE}/ordemservico/${showModalIncluirItens.IdOrdemServico}/incluir-itens`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itensSelecionados: Array.from(itensSelecionados) }),
+            });
+            const json = await res.json();
+            if (json.success || json.adicionados > 0) {
+                addToast({ type: 'success', title: 'Sucesso', message: json.message });
+                setShowModalIncluirItens(null);
+                // Recarregar itens da OS
+                const osId = showModalIncluirItens.IdOrdemServico;
+                setOrdensItens(prev => { const n = { ...prev }; delete n[osId]; return n; });
+                setLoadingItens(prev => { const n = new Set(prev); n.add(osId); return n; });
+                const r = await fetch(`${API_BASE}/ordemservico/${osId}/itens`);
+                const d = await r.json();
+                if (d.success) setOrdensItens(prev => ({ ...prev, [osId]: d.data }));
+                setLoadingItens(prev => { const n = new Set(prev); n.delete(osId); return n; });
+            } else {
+                addToast({ type: 'warning', title: 'Atenção', message: json.message });
+            }
+        } catch {
+            addToast({ type: 'error', title: 'Erro', message: 'Falha ao incluir itens.' });
+        } finally {
+            setSalvandoItens(false);
+        }
+    };
+
     const executeClone = async (os: OrdemServico) => {
         if (!cloneProjetoId || !cloneTagId) {
             addToast({ type: 'warning', title: 'Atenção', message: 'Selecione um Projeto e uma Tag destino!' });
@@ -1147,6 +1214,18 @@ function OrdemServicoContent() {
                             <div className="text-lg font-bold text-primary">OS {os.IdOrdemServico}</div>
                         </div>
                         <div className="flex items-center gap-2">
+                            {/* Botão Incluir Itens — apenas se não liberada */}
+                            {os.Liberado_Engenharia !== 'S' && os.OrdemServicoFinalizado !== 'C' && (
+                                <button
+                                    onClick={() => handleOpenIncluirItens(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico}
+                                    className="p-2.5 bg-teal-50 text-teal-600 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors shadow-sm disabled:opacity-50"
+                                    title="Incluir Itens na Ordem de Serviço"
+                                >
+                                    <PackagePlus size={18} />
+                                </button>
+                            )}
+
                             <button 
                                 onClick={() => handleAtualizarArquivos(os)}
                                 disabled={liberandoOS === os.IdOrdemServico}
@@ -2163,6 +2242,187 @@ function OrdemServicoContent() {
                                         <><Copy size={16} /> Confirmar Clonagem</>
                                     )}
                                 </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── Modal Incluir Itens na OS ─────────────────────────────── */}
+            <AnimatePresence>
+                {showModalIncluirItens && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden"
+                            style={{ maxHeight: '90vh' }}
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-teal-50/60">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center shadow">
+                                        <PackagePlus size={18} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-gray-800">Incluir Itens na OS {showModalIncluirItens.IdOrdemServico}</h3>
+                                        <p className="text-xs text-gray-500">Selecione os itens a adicionar. Itens já presentes são excluídos da lista.</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowModalIncluirItens(null)}
+                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            {/* Search + select-all bar */}
+                            <div className="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-3 flex-wrap">
+                                <div className="relative flex-1" style={{ minWidth: 200 }}>
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                    <input
+                                        type="text"
+                                        value={searchItensDisp}
+                                        onChange={e => {
+                                            setSearchItensDisp(e.target.value);
+                                        }}
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter') fetchItensDisponiveis(showModalIncluirItens, searchItensDisp);
+                                        }}
+                                        placeholder="Buscar código, descrição, projeto, tag..."
+                                        className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-400"
+                                    />
+                                </div>
+                                <button
+                                    onClick={() => fetchItensDisponiveis(showModalIncluirItens, searchItensDisp)}
+                                    className="px-3 py-2 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
+                                >
+                                    <Search size={13} /> Buscar
+                                </button>
+                                <label className="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer select-none ml-auto">
+                                    <input
+                                        type="checkbox"
+                                        checked={itensDisponiveis.length > 0 && itensSelecionados.size === itensDisponiveis.length}
+                                        onChange={e => {
+                                            if (e.target.checked) {
+                                                setItensSelecionados(new Set(itensDisponiveis.map(i => i.IdOrdemServicoItem)));
+                                            } else {
+                                                setItensSelecionados(new Set());
+                                            }
+                                        }}
+                                        className="w-4 h-4 accent-teal-600"
+                                    />
+                                    Selecionar todos
+                                </label>
+                                <span className="text-xs text-gray-400">{itensSelecionados.size} selecionado(s)</span>
+                            </div>
+
+                            {/* Table */}
+                            <div className="flex-1 overflow-y-auto">
+                                {loadingItensDisp ? (
+                                    <div className="flex items-center justify-center py-16 text-gray-400">
+                                        <Loader2 size={24} className="animate-spin mr-2" /> Buscando itens...
+                                    </div>
+                                ) : itensDisponiveis.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                                        <Box size={40} className="mb-2 opacity-20" />
+                                        <p className="text-sm">Nenhum item disponível para inclusão.</p>
+                                        <p className="text-xs mt-1 text-gray-300">Todos os itens já estão incluídos nesta OS ou não há itens cadastrados.</p>
+                                    </div>
+                                ) : (
+                                    <table className="w-full text-xs">
+                                        <thead className="sticky top-0 bg-gray-50 z-10">
+                                            <tr className="border-b border-gray-200">
+                                                <th className="w-10 px-4 py-2 text-center text-gray-400"></th>
+                                                <th className="px-3 py-2 text-left font-semibold text-gray-500">Código</th>
+                                                <th className="px-3 py-2 text-left font-semibold text-gray-500">Descrição</th>
+                                                <th className="px-3 py-2 text-left font-semibold text-gray-500 hidden md:table-cell">Projeto / Tag</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-gray-500 hidden lg:table-cell">Espessura</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-gray-500 hidden lg:table-cell">Material</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-gray-500">Peso (kg)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {itensDisponiveis.map(item => {
+                                                const sel = itensSelecionados.has(item.IdOrdemServicoItem);
+                                                return (
+                                                    <tr
+                                                        key={item.IdOrdemServicoItem}
+                                                        onClick={() => {
+                                                            setItensSelecionados(prev => {
+                                                                const n = new Set(prev);
+                                                                sel ? n.delete(item.IdOrdemServicoItem) : n.add(item.IdOrdemServicoItem);
+                                                                return n;
+                                                            });
+                                                        }}
+                                                        className={`border-b border-gray-100 cursor-pointer transition-colors ${sel ? 'bg-teal-50 hover:bg-teal-100/70' : 'hover:bg-gray-50'}`}
+                                                    >
+                                                        <td className="px-4 py-2 text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={sel}
+                                                                readOnly
+                                                                className="w-4 h-4 accent-teal-600 cursor-pointer"
+                                                            />
+                                                        </td>
+                                                        <td className="px-3 py-2">
+                                                            <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded text-[11px]">
+                                                                {item.CodMatFabricante || '-'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-3 py-2 text-gray-700 max-w-xs">
+                                                            <div className="truncate" title={item.DescDetal || item.DescResumo}>
+                                                                {item.DescResumo || '-'}
+                                                            </div>
+                                                            {item.DescDetal && item.DescDetal !== item.DescResumo && (
+                                                                <div className="text-gray-400 truncate text-[10px]">{item.DescDetal}</div>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-gray-500 hidden md:table-cell">
+                                                            <div className="font-medium">{item.Projeto || '-'}</div>
+                                                            {item.Tag && <div className="text-[10px] text-gray-400">{item.Tag}</div>}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-center text-gray-600 hidden lg:table-cell">
+                                                            {item.Espessura || '-'}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-center text-gray-600 hidden lg:table-cell">
+                                                            {item.MaterialSW || '-'}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-center text-gray-600 font-medium">
+                                                            {item.Peso ? `${item.Peso}` : '-'}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
+                                <span className="text-xs text-gray-500">
+                                    {itensDisponiveis.length} item(ns) disponível(-eis) · {itensSelecionados.size} selecionado(s)
+                                </span>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setShowModalIncluirItens(null)}
+                                        className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleConfirmarInclusao}
+                                        disabled={itensSelecionados.size === 0 || salvandoItens}
+                                        className="px-6 py-2 bg-teal-600 text-white text-sm font-bold rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+                                    >
+                                        {salvandoItens ? (
+                                            <><Loader2 size={15} className="animate-spin" /> Incluindo...</>
+                                        ) : (
+                                            <><PackagePlus size={15} /> Incluir {itensSelecionados.size > 0 ? `(${itensSelecionados.size})` : ''} Itens</>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </div>

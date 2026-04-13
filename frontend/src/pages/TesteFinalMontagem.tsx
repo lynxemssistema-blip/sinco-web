@@ -426,6 +426,15 @@ export default function TesteFinalMontagemPage() {
                 )}
 
                 <div className="h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    {!loading && !error && itensFiltrados.length === 0 && (
+                        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center gap-3 text-amber-800 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <AlertTriangle size={18} className="text-amber-500" />
+                            <div>
+                                <p className="text-sm font-black">Nenhum registro encontrado</p>
+                                <p className="text-[11px] opacity-80">A pesquisa foi concluída, mas não há itens {modo === 'concluidos' ? 'concluídos' : 'pendentes'} para os filtros aplicados.</p>
+                            </div>
+                        </div>
+                    )}
                     <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
                         <table className="w-full text-xs text-left">
                             <thead className="text-[10px] text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">

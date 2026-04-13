@@ -9,13 +9,14 @@ const dbConfig = {
   password: process.env.CENTRAL_DB_PASS || 'lynx@2022',
   database: process.env.CENTRAL_DB_NAME || 'lynxlocal',
   port: 3306,
+  charset: 'utf8mb4',
   waitForConnections: true,
-  connectionLimit: 10,          // T7: reduced from 50 - more appropriate for shared remote MySQL
-  queueLimit: 30,               // T7: limit queued requests to prevent memory buildup
+  connectionLimit: 20,           // PERF: aumentado de 10→20 para suportar usuários simultâneos
+  queueLimit: 100,               // PERF: fila ampliada para absorver picos de requisição
   enableKeepAlive: true,
-  keepAliveInitialDelay: 30000, // T8: 30s delay before first keepalive ping
-  connectTimeout: 10000,        // T8: reduced from 20s - fail faster on dead connections
-  idleTimeout: 60000            // T8: release idle connections after 60s
+  keepAliveInitialDelay: 10000,  // PERF: ping keepalive mais frequente para conexão remota
+  connectTimeout: 15000,         // 15s timeout de conexão (rede remota pode ser lenta)
+  idleTimeout: 120000            // 2 min — evita fechamento prematuro em workloads intermitentes
 };
 
 const { AsyncLocalStorage } = require('async_hooks');
@@ -79,15 +80,10 @@ const execute = async (sql, params) => {
     throw new Error('Database pool not initialized.');
   }
 
-  // Debug logging & Performance tracking
+  // PERF: Slow query logging — só loga queries acima do threshold (padrão 200ms)
+  // Configurável via variável: SLOW_QUERY_MS=200 no .env
+  const SLOW_QUERY_MS = parseInt(process.env.SLOW_QUERY_MS) || 200;
   const cleanSql = sql.replace(/\s+/g, ' ').trim();
-  // Only log in development or if it takes too long
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`\n[DB] 🟡 EXEC: ${cleanSql}`);
-    if (params && params.length > 0) {
-      console.log(`[DB]    PARAMS: ${JSON.stringify(params)}`);
-    }
-  }
 
   try {
     const start = Date.now();
@@ -98,7 +94,12 @@ const execute = async (sql, params) => {
     const store = asyncLocalStorage.getStore();
     const dbLabel = store?.dbName ? `[${store.dbName}]` : '[DEFAULT]';
 
-    console.log(`[DB] ${dbLabel} 🟢 OK (${duration}ms) - Rows/Affected: ${rowCount}`);
+    // Só loga se for slow query (acima do threshold) ou em modo dev explícito
+    if (duration >= SLOW_QUERY_MS) {
+      console.warn(`[DB] ${dbLabel} ⚠️  SLOW QUERY (${duration}ms | rows:${rowCount}): ${cleanSql.substring(0, 300)}`);
+    } else if (process.env.DB_VERBOSE === 'true') {
+      console.log(`[DB] ${dbLabel} 🟢 OK (${duration}ms) - Rows: ${rowCount}`);
+    }
     return result;
   } catch (err) {
     console.error(`[DB] 🔴 ERROR: ${err.message}`);

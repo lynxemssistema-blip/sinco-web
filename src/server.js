@@ -28,6 +28,13 @@ const formatBR = (date = new Date(), includeTime = false) => {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
+const NULLIF_TRIM = (val) => {
+    if (val === null || val === undefined) return '';
+    const s = String(val).trim();
+    return s === '' ? '' : s;
+};
+
+
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'SincoWebSecret2026!KeySecure';
 
@@ -4771,7 +4778,7 @@ app.get('/api/ordemservico/tags', async (req, res) => {
 // OPTIONS: Lista de Projetos para Clonagem
 app.get('/api/ordemservico/projetos-clonagem', async (req, res) => {
     try {
-        const [rows] = await pool.execute("SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto");
+        const [rows] = await pool.execute("SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (liberado IS NULL OR liberado <> 'S') AND (Finalizado IS NULL OR Finalizado <> 'C') ORDER BY Projeto");
         res.json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false }); }
 });
@@ -5848,7 +5855,7 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
     try {
         let whereClause = `
             (osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*')
-            AND osi.Liberado_engenharia = 'S'
+            AND osi.Liberado_Engenharia = 'S'
             AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
             AND (
                 NULLIF(TRIM(osi.txtCorte), '') = '1' OR 
@@ -5931,6 +5938,22 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
                 CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.SoldaTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END as SoldaPercentual,
                 CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.PinturaTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END as PinturaPercentual,
                 CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.MontagemTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END as MontagemPercentual,
+                CASE 
+                    WHEN COALESCE(osi.MontagemTotalExecutado, 0) > 0 THEN osi.MontagemTotalExecutado
+                    WHEN COALESCE(osi.PinturaTotalExecutado, 0) > 0 THEN osi.PinturaTotalExecutado
+                    WHEN COALESCE(osi.SoldaTotalExecutado, 0) > 0 THEN osi.SoldaTotalExecutado
+                    WHEN COALESCE(osi.DobraTotalExecutado, 0) > 0 THEN osi.DobraTotalExecutado
+                    WHEN COALESCE(osi.CorteTotalExecutado, 0) > 0 THEN osi.CorteTotalExecutado
+                    ELSE 0
+                END as QtdeProduzidaSetor,
+                CASE 
+                    WHEN COALESCE(osi.MontagemTotalExecutado, 0) > 0 THEN CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.MontagemTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END
+                    WHEN COALESCE(osi.PinturaTotalExecutado, 0) > 0 THEN CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.PinturaTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END
+                    WHEN COALESCE(osi.SoldaTotalExecutado, 0) > 0 THEN CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.SoldaTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END
+                    WHEN COALESCE(osi.DobraTotalExecutado, 0) > 0 THEN CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.DobraTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END
+                    WHEN COALESCE(osi.CorteTotalExecutado, 0) > 0 THEN CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE(osi.CorteTotalExecutado, 0) / osi.QtdeTotal) * 100) ELSE 0 END
+                    ELSE 0
+                END as PercentualSetor,
                 osi.CorteTotalExecutado,
                 osi.DobraTotalExecutado,
                 osi.SoldaTotalExecutado,
@@ -5955,7 +5978,7 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
         res.json({ success: true, data: rows });
     } catch (error) {
         console.error('Error fetching mapa producao:', error);
-        res.status(500).json({ success: false, message: 'Erro ao carregar mapa de produÃ¯Â¿Â½Ã¯Â¿Â½o' });
+        res.status(500).json({ success: false, message: 'Erro ao carregar mapa de produção', error: error.message });
     }
 });
 
@@ -6335,6 +6358,8 @@ osi.*,
         let lastNovoPercentual = 0;
         let lastFinalizado = false;
 
+        const sequence = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+        
         for (const sName of setoresParaProcessar) {
             const sConfig = setorColumns[sName];
             const totalExecutadoDb = parseFloat(item[sConfig.total]) || 0;
@@ -6353,9 +6378,10 @@ osi.*,
                 : parseFloat(item[sConfig.executar]);
 
             if (!isMapa) {
+                // 1. Validação de Saldo a Executar Normal
                 if (totalExecutarLimit <= 0) {
                     await conn.rollback();
-                    return res.status(400).json({ success: false, message: `NÃ¯Â¿Â½o hÃ¯Â¿Â½ saldo a executar para o setor ${sName}.` });
+                    return res.status(400).json({ success: false, message: `Não há saldo a executar para o setor ${sName}.` });
                 }
 
                 if (currentInputQty > totalExecutarLimit) {
@@ -6364,6 +6390,33 @@ osi.*,
                         success: false,
                         message: `Quantidade informada(${currentInputQty}) excede o saldo a executar(${totalExecutarLimit}) no setor ${sName} !`
                     });
+                }
+
+                // 2. Validação de Sequência (Saldo Anterior)
+                const currentIndex = sequence.indexOf(sName);
+                if (currentIndex > 0) {
+                    let prevSectorName = null;
+                    // Procurar o setor anterior que é ativado para este item
+                    for (let i = currentIndex - 1; i >= 0; i--) {
+                        const checkSName = sequence[i];
+                        const checkConfig = setorColumns[checkSName];
+                        if (NULLIF_TRIM(item[checkConfig.txt]) === '1') {
+                            prevSectorName = checkSName;
+                            break;
+                        }
+                    }
+
+                    if (prevSectorName) {
+                        const prevConfig = setorColumns[prevSectorName];
+                        const prevTotalExecutado = parseFloat(item[prevConfig.total]) || 0;
+                        const novoTotalTentativa = totalExecutadoDb + currentInputQty;
+
+                        if (novoTotalTentativa > prevTotalExecutado) {
+                            await conn.rollback();
+                            const msg = `Não é aceito apontar produção no setor '${sName.charAt(0).toUpperCase() + sName.slice(1)}' pois o setor anterior '${prevSectorName.charAt(0).toUpperCase() + prevSectorName.slice(1)}' possui apenas ${prevTotalExecutado} unidades concluídas.`;
+                            return res.status(400).json({ success: false, message: msg });
+                        }
+                    }
                 }
             }
 
@@ -6405,7 +6458,7 @@ osi.*,
             updateItemParams.push(IdOrdemServicoItem);
             await conn.execute(updateItemQuery, updateItemParams);
 
-            // 6. Cascading Totals (only if there was an actual increase)
+            // 6. Cascading Totals (HIERARQUIA: Item -> OS -> Tag -> Projeto)
             if (currentInputQty > 0) {
                 await conn.execute(`UPDATE ordemservico SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdOrdemServico = ? `, [currentInputQty, item.IdOrdemServico]);
                 if (item.IdTag) await conn.execute(`UPDATE tags SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdTag = ? `, [currentInputQty, item.IdTag]);
@@ -6648,18 +6701,41 @@ app.get('/test-db', async (req, res) => {
 // ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o - GET
 app.get('/api/config', async (req, res) => {
     try {
-        // Tentar buscar colunas do SincoWeb. Se nÃƒÂ£o existirem (banco legado), retornar padrÃƒÂ£o.
-        const [rows] = await pool.execute(
-            'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1'
-        );
-        if (rows.length > 0) {
-            res.json({ success: true, config: rows[0] });
-        } else {
-            res.json({ success: true, config: {
-                RestringirApontamentoSemSaldoAnterior: 'NÃƒÂ£o',
-                ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]'
-            }});
+        // PERF: Checking column names dynamically to avoid 500 error on legacy/missing schemas
+        const [cols] = await pool.execute(`
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'configuracaosistema'
+        `);
+        const colNames = cols.map(c => c.COLUMN_NAME);
+        
+        const availableCols = [
+            'RestringirApontamentoSemSaldoAnterior',
+            'ProcessosVisiveis',
+            'PlanoCorteFiltroDC',
+            'MaxRegistros',
+            'MenuStructure'
+        ].filter(c => colNames.includes(c));
+
+        const query = availableCols.length > 0 
+            ? `SELECT ${availableCols.join(', ')} FROM configuracaosistema LIMIT 1`
+            : null;
+
+        if (query) {
+            const [rows] = await pool.execute(query);
+            if (rows.length > 0) {
+                return res.json({ success: true, config: rows[0] });
+            }
         }
+
+        // Default config if table empty or no columns found
+        res.json({ success: true, config: {
+            RestringirApontamentoSemSaldoAnterior: 'Não',
+            ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]',
+            PlanoCorteFiltroDC: 'corte',
+            MaxRegistros: 300
+        }});
     } catch (error) {
         // Banco legado (ex: alfatec2) nÃƒÂ£o tem essas colunas Ã¢â‚¬â€ retorna config padrÃƒÂ£o sem erro
         if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
@@ -6670,7 +6746,7 @@ app.get('/api/config', async (req, res) => {
             }, _legacyDb: true });
         }
         console.error('Config error:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar configuraÃƒÂ§ÃƒÂµes' });
+        res.status(500).json({ success: false, message: 'Erro ao buscar configurações' });
     }
 });
 

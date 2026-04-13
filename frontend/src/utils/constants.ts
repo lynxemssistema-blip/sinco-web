@@ -2,6 +2,7 @@ import type { MenuItem } from './iconMap';
 
 export const defaultMenuItems: MenuItem[] = [
     { id: 'acabamento', icon: 'Paintbrush', label: 'Acabamento', href: '/acabamento' },
+    { id: 'acompanhamento-geral', icon: 'MonitorPlay', label: 'Acompanhamento Geral', href: '/acompanhamento-geral' },
     { id: 'apontamento', icon: 'Factory', label: 'Apontamento Produção', href: '/apontamento' },
     {
         id: 'cadastro-usuarios',

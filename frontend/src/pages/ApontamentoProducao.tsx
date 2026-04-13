@@ -101,12 +101,12 @@ const setores: { id: Setor; label: string; icon: typeof Scissors; color: string 
     { id: 'solda', label: 'Solda', icon: Flame, color: 'bg-orange-500' },
     { id: 'pintura', label: 'Pintura', icon: Paintbrush, color: 'bg-green-500' },
     { id: 'montagem', label: 'Montagem', icon: Settings2, color: 'bg-red-500' },
-    { id: 'mapaproducao', label: 'Mapa Produï¿½ï¿½o', icon: Map, color: 'bg-indigo-600' },
+    { id: 'mapaproducao', label: 'Mapa Produção', icon: Map, color: 'bg-indigo-600' },
 ];
 
 export default function ApontamentoProducaoPage() {
     const { addToast } = useToast();
-    const { processosVisiveis } = useAppConfig();
+    const { processosVisiveis, maxRegistros } = useAppConfig();
     // visibleSetores is derived from the global config (replaces per-component state)
     const visibleSetores: string[] = processosVisiveis;
     // filteredSetores: the tabs to show (always include 'mapa' + 'mapaproducao', filter sectors by config)
@@ -517,7 +517,7 @@ export default function ApontamentoProducaoPage() {
         const qProduzir = parseInt(qtdeApontar);
 
         if (!qtdeApontar || qProduzir <= 0) {
-            addToast({ type: 'error', title: 'Atenção', message: 'Informe uma quantidade vï¿½lida!' });
+            addToast({ type: 'error', title: 'Atenção', message: 'Informe uma quantidade válida!' });
             return;
         }
 
@@ -525,7 +525,7 @@ export default function ApontamentoProducaoPage() {
             addToast({
                 type: 'error',
                 title: 'Atenção',
-                message: `A quantidade informada (${qProduzir}) nï¿½o poderï¿½ ser maior que o saldo a produzir (${itemDetails.qtdeFaltante})!`,
+                message: `A quantidade informada (${qProduzir}) não poderá ser maior que o saldo a produzir (${itemDetails.qtdeFaltante})!`,
                 duration: 5000
             });
             return;
@@ -567,7 +567,7 @@ export default function ApontamentoProducaoPage() {
                 });
             }
         } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexï¿½o com o servidor' });
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão com o servidor' });
         } finally {
             setSubmitting(false);
         }
@@ -579,7 +579,7 @@ export default function ApontamentoProducaoPage() {
 
         const qtde = parseInt(qtdeReposicao);
         if (!qtde || qtde <= 0) {
-            addToast({ type: 'error', title: 'Atenção', message: 'Informe a quantidade vï¿½lida para reposiï¿½ï¿½o!' });
+            addToast({ type: 'error', title: 'Atenção', message: 'Informe a quantidade válida para reposição!' });
             return;
         }
 
@@ -592,7 +592,7 @@ export default function ApontamentoProducaoPage() {
                     idOrdemServicoItem: selectedItem.IdOrdemServicoItem,
                     qtdeReposicao: qtde,
                     motivo: motivoReposicao,
-                    usuario: 'Sistema' // Em produï¿½ï¿½o pegar do contexto de auth
+                    usuario: 'Sistema' // Em produção pegar do contexto de auth
                 })
             });
 
@@ -604,10 +604,10 @@ export default function ApontamentoProducaoPage() {
                 fetchItens();
                 addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Reposição gerada com sucesso!' });
             } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar reposiï¿½ï¿½o' });
+                addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar reposição' });
             }
         } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexï¿½o com o servidor' });
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão com o servidor' });
         } finally {
             setSubmittingReposicao(false);
         }
@@ -617,16 +617,16 @@ export default function ApontamentoProducaoPage() {
         if (!selectedItem) return;
 
         if (!setorResponsavel || !usuarioResponsavel || !descricaoPendencia) {
-            addToast({ type: 'error', title: 'Campos Obrigatï¿½rios', message: 'Setor, Colaborador e Descrição sï¿½o preenchimentos obrigatï¿½rios.' });
+            addToast({ type: 'error', title: 'Campos Obrigatórios', message: 'Setor, Colaborador e Descrição são preenchimentos obrigatórios.' });
             return;
         }
 
         if (finalizandoRnc) {
             if (!setorFinalizacao || !colaboradorFinalizacao || !dataFinalizacao || !descricaoFinalizacao) {
-                addToast({ type: 'error', title: 'Campos de Finalização', message: 'Para concluir a RNC, preencha todos os campos de finalizaï¿½ï¿½o habilitados.' });
+                addToast({ type: 'error', title: 'Campos de Finalização', message: 'Para concluir a RNC, preencha todos os campos de finalização habilitados.' });
                 return;
             }
-            if (!window.confirm('Deseja realmente confirmar a finalizaï¿½ï¿½o desta RNC? Esta aï¿½ï¿½o registrarï¿½ o item como resolvido.')) {
+            if (!window.confirm('Deseja realmente confirmar a finalização desta RNC? Esta ação registrará o item como resolvido.')) {
                 return;
             }
         }
@@ -686,8 +686,8 @@ export default function ApontamentoProducaoPage() {
 
                 // Removed handleNovaPendencia to keep user on the same screen (Rule 4)
                 if (!idRncEdicao) {
-                    // Se for insert, apenas atualize para o ID novo (simulaï¿½ï¿½o ou apenas permita novo insert mantendo tela)
-                    // Na verdade, ao invï¿½s de limpar tudo, ele continua na tela. 
+                    // Se for insert, apenas atualize para o ID novo (simulação ou apenas permita novo insert mantendo tela)
+                    // Na verdade, ao invés de limpar tudo, ele continua na tela. 
                 }
                 fetchItens();
                 addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Operação realizada com sucesso.' });
@@ -695,7 +695,7 @@ export default function ApontamentoProducaoPage() {
                 addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar pendência.' });
             }
         } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexï¿½o.' });
+            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão.' });
         } finally {
             setSubmittingPendencia(false);
         }
@@ -789,7 +789,7 @@ export default function ApontamentoProducaoPage() {
             setDescricaoFinalizacao('');
         }
 
-        addToast({ type: 'info', title: 'Ediï¿½ï¿½o Ativada', message: `Carregando Pendï¿½ncia #${p.IDRNC}` });
+        addToast({ type: 'info', title: 'Edição Ativada', message: `Carregando Pendência #${p.IDRNC}` });
     };
 
     // Group itens logic
@@ -898,6 +898,10 @@ export default function ApontamentoProducaoPage() {
                             <span className="w-2 h-2 rounded-full bg-[#E0E800]" />
                         )}
                     </motion.button>
+                    <div className="flex flex-col items-end mr-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Limite de Leitura</span>
+                        <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 shadow-sm">{maxRegistros || 300} itens</span>
+                    </div>
                     <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -963,7 +967,7 @@ export default function ApontamentoProducaoPage() {
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                                         <input
                                             type="text"
-                                            placeholder="OS, cï¿½digo, plano corte, descriï¿½ï¿½o, espessura, material..."
+                                            placeholder="OS, código, plano corte, descrição, espessura, material..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
@@ -1009,7 +1013,7 @@ export default function ApontamentoProducaoPage() {
 
                             {/* OS Filter */}
                             <div className="min-w-[150px]">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Ordem de Serviï¿½o</label>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Ordem de Serviço</label>
                                 <select
                                     value={osFilter}
                                     onChange={(e) => setOsFilter(e.target.value)}
@@ -1057,7 +1061,7 @@ export default function ApontamentoProducaoPage() {
                                     onChange={(e) => setGroupBy(e.target.value as any)}
                                     className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-blue-700 bg-blue-50 border-blue-200"
                                 >
-                                    <option value="os">Ordem Serviï¿½o</option>
+                                    <option value="os">Ordem Serviço</option>
                                     <option value="projeto">Projeto</option>
                                     <option value="tag">Tag</option>
                                     <option value="cliente">Cliente</option>
@@ -1075,7 +1079,7 @@ export default function ApontamentoProducaoPage() {
                                 >
                                     <option value="todos">Todos</option>
                                     <option value="pendente">Pendentes</option>
-                                    <option value="concluido">Concluï¿½dos</option>
+                                    <option value="concluido">Concluídos</option>
                                 </select>
                             </div>
 
@@ -1149,7 +1153,7 @@ export default function ApontamentoProducaoPage() {
                         <p className="text-sm">Nenhum item encontrado para o setor {setorInfo.label}</p>
                     </div>
                 ) : setorAtivo === 'mapa' ? (
-                    /* Mapa da Produï¿½ï¿½o View */
+                    /* Mapa da Produção View */
                     <div>
                         {/* Mapa Header */}
                         <div className="bg-gray-100 px-4 py-2 flex items-center gap-2 text-xs font-medium text-gray-500 uppercase sticky top-0">
@@ -1353,7 +1357,7 @@ export default function ApontamentoProducaoPage() {
                                                     )}
                                                 </div>
 
-                                                {/* PDF / Arquivos (Indicador estï¿½tico) */}
+                                                {/* PDF / Arquivos (Indicador estático) */}
                                                 <div className="w-8 flex-shrink-0">
                                                     {item.EnderecoArquivo ? (
                                                         <div className="w-7 h-7 rounded flex items-center justify-center bg-blue-50 text-blue-600 cursor-default" title="Clique na linha para acessar os arquivos (PDF/DXF/3D)">
@@ -1614,7 +1618,7 @@ export default function ApontamentoProducaoPage() {
                                 {loadingDetails ? (
                                     <div className="flex flex-col items-center justify-center py-12 gap-3">
                                         <Loader2 size={32} className="animate-spin text-blue-600" />
-                                        <p className="text-xs text-gray-400 animate-pulse font-medium">Carregando histï¿½rico completo...</p>
+                                        <p className="text-xs text-gray-400 animate-pulse font-medium">Carregando histórico completo...</p>
                                     </div>
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
                                     <div className="overflow-x-auto rounded-lg border border-gray-100 shadow-inner max-h-[400px]">
@@ -1741,7 +1745,7 @@ export default function ApontamentoProducaoPage() {
                                     <div className="space-y-4">
                                         {/* Item Info */}
                                         <div className="bg-gray-50 rounded-lg p-4">
-                                            <h3 className="text-sm font-semibold text-[#32423D] mb-2">Informaï¿½ï¿½es do Item</h3>
+                                            <h3 className="text-sm font-semibold text-[#32423D] mb-2">Informações do Item</h3>
                                             <div className="grid grid-cols-2 gap-2 text-sm">
                                                 <div>
                                                     <span className="text-gray-400">Código:</span>
@@ -1886,12 +1890,12 @@ export default function ApontamentoProducaoPage() {
 
                                                 <div className="bg-white/60 rounded-md p-3 mb-4">
                                                     <p className="text-xs text-blue-800 font-medium mb-2">
-                                                        Aï¿½ï¿½es automï¿½ticas:
+                                                        Ações automáticas:
                                                     </p>
                                                     <ul className="text-[11px] text-blue-700 space-y-1 ml-4 list-disc">
                                                         <li>Aplica <strong>{itemDetails.item.QtdeTotal}</strong> em todos os setores</li>
                                                         <li>Zera o "Saldo a Executar" geral</li>
-                                                        <li>Marca o Item como <strong>CONCLUï¿½DO (C)</strong></li>
+                                                        <li>Marca o Item como <strong>CONCLUÍDO (C)</strong></li>
                                                     </ul>
                                                 </div>
 
@@ -2025,7 +2029,7 @@ export default function ApontamentoProducaoPage() {
                                         <History size={20} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-[#32423D]">Histórico de Movimentaï¿½ï¿½o</h3>
+                                        <h3 className="text-lg font-bold text-[#32423D]">Histórico de Movimentação</h3>
                                         <p className="text-xs text-gray-500">Item #{selectedItem.IdOrdemServicoItem} - OS {selectedItem.IdOrdemServico}</p>
                                     </div>
                                 </div>
@@ -2042,7 +2046,7 @@ export default function ApontamentoProducaoPage() {
                                 {loadingDetails ? (
                                     <div className="flex flex-col items-center justify-center py-12 gap-4">
                                         <Loader2 size={40} className="animate-spin text-blue-600" />
-                                        <p className="text-gray-500 animate-pulse">Carregando histï¿½rico...</p>
+                                        <p className="text-gray-500 animate-pulse">Carregando histórico...</p>
                                     </div>
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
                                     <div className="overflow-hidden border border-gray-100 rounded-xl">
@@ -2052,7 +2056,7 @@ export default function ApontamentoProducaoPage() {
                                                     <th className="px-4 py-3 border-b border-gray-100">Data</th>
                                                     <th className="px-4 py-3 border-b border-gray-100">Setor</th>
                                                     <th className="px-4 py-3 border-b border-gray-100">Qtd</th>
-                                                    <th className="px-4 py-3 border-b border-gray-100">Usuï¿½rio</th>
+                                                    <th className="px-4 py-3 border-b border-gray-100">Usuário</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
@@ -2081,7 +2085,7 @@ export default function ApontamentoProducaoPage() {
                                             <AlertCircle size={32} className="text-gray-300" />
                                         </div>
                                         <p className="text-gray-500 font-medium">Nenhum apontamento registrado.</p>
-                                        <p className="text-xs text-gray-400">Os registros de movimentaï¿½ï¿½o aparecerï¿½o aqui.</p>
+                                        <p className="text-xs text-gray-400">Os registros de movimentação aparecerão aqui.</p>
                                     </div>
                                 )}
                             </div>
@@ -2138,7 +2142,7 @@ export default function ApontamentoProducaoPage() {
                             {/* Body */}
                             <div className="p-6 space-y-4">
                                 <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 text-sm text-amber-800">
-                                    Esta aï¿½ï¿½o irï¿½ criar um novo item de reposiï¿½ï¿½o idï¿½ntico a este, incluindo todos os sub-itens caso seja uma montagem, com a quantidade desejada.
+                                    Esta ação irá criar um novo item de reposição idêntico a este, incluindo todos os sub-itens caso seja uma montagem, com a quantidade desejada.
                                 </div>
 
                                 <div>
@@ -2164,7 +2168,7 @@ export default function ApontamentoProducaoPage() {
                                         value={motivoReposicao}
                                         onChange={(e) => setMotivoReposicao(e.target.value)}
                                         className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                                        placeholder="Ex: Peï¿½a danificada..."
+                                        placeholder="Ex: Peça danificada..."
                                         rows={2}
                                     />
                                 </div>
@@ -2232,7 +2236,7 @@ export default function ApontamentoProducaoPage() {
 
                             {/* Body - Scrollable */}
                             <div className="p-6 overflow-y-auto space-y-6 w-full max-w-[1920px] mx-auto pb-20">
-                                {/* Informaï¿½ï¿½es do Item (Read-only) grid */}
+                                {/* Informações do Item (Read-only) grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
                                     <div>
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">ID RNC</label>
@@ -2430,7 +2434,7 @@ export default function ApontamentoProducaoPage() {
                                     )}
                                 </div>
 
-                                {/* Seï¿½ï¿½o de Finalização (Sï¿½ exibida em ediï¿½ï¿½o) */}
+                                {/* Seção de Finalização (Só exibida em edição) */}
                                 {idRncEdicao && (
                                     <div className="mt-4 border border-green-200 rounded-lg overflow-hidden bg-green-50/30">
                                         <div

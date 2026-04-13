@@ -125,7 +125,7 @@ export default function VisaoGeralProducaoPage() {
 
 
     // Modais e Ações
-    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'addTask' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | null>(null);
+    const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'addTask' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | 'bulkDateTags' | null>(null);
     const [rncForm, setRncForm] = useState<{idRnc?: number, idTag?: number, tag?: string, estatus?: string, descricao: string, setor: string, usuario: string, tipoTarefa: string, dataExec: string, usuarioFin?: string, dataFin?: string, setorFin?: string, descFin?: string, wantsToFinalize?: boolean}>({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
     const [planejarProjetistaForm, setPlanejarProjetistaForm] = useState<{ projetistaPlanejado: string, planejadoInicioEngenharia: string, planejadoFinalEngenharia: string }>({ projetistaPlanejado: '', planejadoInicioEngenharia: '', planejadoFinalEngenharia: '' });
     const [qtdeLiberadaForm, setQtdeLiberadaForm] = useState<{ qtdeLiberada: string }>({ qtdeLiberada: '' });
@@ -138,6 +138,9 @@ export default function VisaoGeralProducaoPage() {
     
     // Estado para editar datas de setor da Tag
     const [tagSectorDates, setTagSectorDates] = useState<{ [key: string]: string }>({});
+
+    // Estado para Planejamento em Lote (Muitos Setores)
+    const [bulkSectorDates, setBulkSectorDates] = useState<{ [key: string]: string }>({});
 
     // Configuração de Setores Visíveis
     const [visibleProcesses, setVisibleProcesses] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
@@ -338,6 +341,48 @@ export default function VisaoGeralProducaoPage() {
             if (selProj) fetchTags(selProj.IdProjeto);
             setMsg({ ok: true, t: 'Datas atualizadas!' }); setTimeout(() => setActionModal(null), 1500);
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
+    const salvarDatasBulkTags = async () => {
+        if (!selProj) return;
+        setIsSaving(true); setMsg(null);
+        try {
+            // Collect updates from bulkSectorDates
+            const updates: any[] = [];
+            
+            // Loop through TAG_SECTORS to check for filled fields
+            TAG_SECTORS.forEach(s => {
+                const piVal = bulkSectorDates[s.fields.pi];
+                const pfVal = bulkSectorDates[s.fields.pf];
+                
+                if (piVal || pfVal) {
+                    updates.push({
+                        sectorKey: s.k,
+                        dataInicio: isoToBr(piVal || ''),
+                        dataFim: isoToBr(pfVal || '')
+                    });
+                }
+            });
+
+            if (updates.length === 0) {
+                setMsg({ ok: false, t: 'Preencha ao menos uma data de planejamento.' });
+                return;
+            }
+
+            const resp = await fetch(`${API_BASE}/visao-geral/projeto/${selProj.IdProjeto}/bulk-update-planning`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ updates })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.message);
+            
+            setMsg({ ok: true, t: data.message });
+            fetchTags(selProj.IdProjeto);
+            setTimeout(() => setActionModal(null), 2000);
+        } catch (error: any) {
+            setMsg({ ok: false, t: error.message || 'Erro ao processar lote.' });
+        } finally { setIsSaving(false); }
     };
 
     const salvarPlanejamentoProjetista = async () => {
@@ -587,8 +632,8 @@ export default function VisaoGeralProducaoPage() {
                                         <tr>
                                             <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
-                                            <th className="px-3 py-3 border-r border-slate-100 text-center">Tags</th>
-                                            <th className="px-3 py-3 border-r border-slate-100 text-center">OS</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">TAGS / Qtde</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">OS / Itens</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">RNCs</th>
                                             <th className="px-4 py-3 border-r border-slate-100 w-32">Datas</th>
                                             <th className="px-3 py-3 text-center">Ações</th>
@@ -596,8 +641,8 @@ export default function VisaoGeralProducaoPage() {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {filteredProj.map((p, idx) => {
-                                            const isFin = p.Finalizado?.trim() !== ''; 
-                                            const isLib = p.liberado === 'S';
+                                            const isFin = p.Finalizado?.trim() === 'C'; 
+                                            const isLib = p.liberado?.trim() === 'S';
                                             return (
                                                 <tr key={p.IdProjeto} className={`group hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
                                                     <td className="px-4 py-3 align-top max-w-[280px] border-r border-slate-100 whitespace-normal">
@@ -623,19 +668,23 @@ export default function VisaoGeralProducaoPage() {
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
-                                                        <div className="flex flex-col items-center justify-center text-center">
-                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</span>
-                                                            <div className="text-sm font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-[10px] text-slate-400 font-medium">/{p.QtdeTags}</span></div>
-                                                            <span className="text-[9px] font-bold text-blue-600">{p.PercentualTags}%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
-                                                        <div className="flex flex-col items-center justify-center text-center">
-                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ClipboardList size={10}/> OS</span>
-                                                            <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
-                                                            <span className="text-[9px] font-bold text-slate-400">Total</span>
-                                                        </div>
-                                                    </td>
+                                                         <div className="flex flex-col items-center justify-center text-center gap-0.5">
+                                                             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</div>
+                                                             <div className="text-sm font-black text-slate-800">{p.QtdeTags || 0}</div>
+                                                             <div className="flex gap-1 mt-0.5 font-bold text-[8px] uppercase flex-col w-full">
+                                                                 <span className="text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded w-full text-center">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
+                                                                 <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded w-full text-center">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
+                                                                 <span className="text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded w-full text-center">Saldo: {Number(p.SumSaldoTag || 0).toFixed(0)}</span>
+                                                             </div>
+                                                         </div>
+                                                     </td>
+                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
+                                                         <div className="flex flex-col items-center justify-center text-center gap-0.5">
+                                                             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ClipboardList size={10}/> OS</div>
+                                                             <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
+                                                             <span className="text-[8px] font-medium text-slate-400 uppercase">Total OS</span>
+                                                         </div>
+                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
                                                         <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg group/rnc transition-colors mx-auto w-24 border border-transparent hover:border-slate-200">
                                                             <div className="text-sm font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors flex items-center gap-1"><ShieldAlert size={12}/> {p.qtdernc} Tot</div>
@@ -691,8 +740,8 @@ export default function VisaoGeralProducaoPage() {
                         ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                                 {filteredProj.map(p => {
-                                    const isFin = p.Finalizado?.trim() !== ''; 
-                                    const isLib = p.liberado === 'S';
+                                    const isFin = p.Finalizado?.trim() === 'C'; 
+                                    const isLib = p.liberado?.trim() === 'S';
 
                                     return (
                                         <div key={p.IdProjeto} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col relative overflow-hidden group">
@@ -717,21 +766,25 @@ export default function VisaoGeralProducaoPage() {
                                             <div className="p-5 flex-1 flex flex-col gap-5">
                                                 
                                                 {/* Quadro de KPIs */}
-                                                <div className="grid grid-cols-3 gap-2">
-                                                    {/* Tags */}
-                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-blue-200 transition-colors">
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><TagIcon size={10}/> Tags</span>
-                                                        <div className="text-base font-black text-slate-800">{p.QtdeTagsExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.QtdeTags}</span></div>
-                                                        <span className="text-[9px] font-bold text-blue-600 mt-1">{p.PercentualTags}%</span>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {/* Tags + Qtde */}
+                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex flex-col justify-center text-center hover:border-blue-200 transition-colors">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1 justify-center"><TagIcon size={10}/> Tags</span>
+                                                        <div className="text-sm font-black text-slate-800">{p.QtdeTags}</div>
+                                                        <div className="flex flex-col gap-0.5 mt-1">
+                                                            <span className="text-[8px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-1 py-0.5 rounded">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
+                                                            <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
+                                                            <span className="text-[8px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-1 py-0.5 rounded">Saldo: {Number(p.SumSaldoTag || 0).toFixed(0)}</span>
+                                                        </div>
                                                     </div>
-                                                    {/* Pecas */}
-                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-emerald-200 transition-colors">
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><LayoutGrid size={10}/> Peças</span>
-                                                        <div className="text-base font-black text-slate-800">{p.QtdePecasExecutadas}<span className="text-xs text-slate-400 font-medium">/{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</span></div>
-                                                        <span className="text-[9px] font-bold text-emerald-600 mt-1">{p.PercentualPecas}%</span>
+                                                    {/* OS total (fonte: campo QtdeOS da tag) */}
+                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex flex-col justify-center text-center hover:border-indigo-200 transition-colors">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1 justify-center"><ClipboardList size={10}/> OS</span>
+                                                        <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
+                                                        <span className="text-[8px] text-slate-400 font-medium mt-0.5">Total OS</span>
                                                     </div>
-                                                    {/* RNCs */}
-                                                    <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col justify-center items-center text-center hover:border-red-200 transition-colors cursor-pointer group/rnc">
+                                                    {/* RNCs - full width */}
+                                                    <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex flex-col justify-center items-center text-center hover:border-red-200 transition-colors cursor-pointer group/rnc col-span-2">
                                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1"><ShieldAlert size={10}/> RNCs</span>
                                                         <div className="text-base font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors">{p.qtdernc} Total</div>
                                                         <div className="flex gap-1 mt-1 font-bold text-[8px] uppercase">
@@ -868,6 +921,13 @@ export default function VisaoGeralProducaoPage() {
                                     </button>
                                 )}
                                 <div className="h-6 w-px bg-slate-300 mx-1 hidden sm:block"></div>
+                                <button 
+                                    onClick={() => { setBulkSectorDates({}); setMsg(null); setActionModal('bulkDateTags'); }} 
+                                    className="bg-indigo-600 hover:bg-indigo-700 p-2 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2 font-bold text-xs"
+                                    title="Planejar datas para TODAS as tags deste projeto (que ainda não possuem data)"
+                                >
+                                    <CalendarDays size={16} /> <span className="hidden lg:inline">Plan. em Lote</span>
+                                </button>
                                 <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-slate-100 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs">
                                     <X size={16} /> Fechar
                                 </button>
@@ -1100,6 +1160,62 @@ export default function VisaoGeralProducaoPage() {
                                 <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
                                 <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
                                     {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Todos os Setores'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Planejamento em Lote */}
+            {actionModal === 'bulkDateTags' && selProj && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[95vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
+                            <div>
+                                <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={20} className="text-indigo-600" /> Planejamento em Lote (Projeto)</h3>
+                                <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Projeto: {selProj.Projeto}</p>
+                            </div>
+                            <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
+                        </div>
+
+                        <div className="bg-amber-50 border-b border-amber-200 p-4 shrink-0">
+                            <p className="text-xs text-amber-800 font-medium leading-relaxed flex items-center gap-2">
+                                <ShieldAlert size={16} /> Esta ação aplicará as datas nos setores preenchidos para <strong>TODAS as TAGS</strong> deste projeto que ainda não possuem planejamento.
+                            </p>
+                        </div>
+
+                        <div className="p-6 overflow-auto bg-white flex-1 relative">
+                            {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-20 flex items-center justify-center"><Loader className="animate-spin text-indigo-600" size={42} /></div>}
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                {filteredTagSectors.map(s => (
+                                    <div key={`bulk_${s.k}`} className="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                                        <div className="font-black text-slate-700 uppercase tracking-widest text-xs mb-4 pb-2 border-b border-slate-200 border-dashed flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${s.c}`}></div> Setor: {s.k}</div>
+                                        <div className="flex flex-col gap-3">
+                                            <div>
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Inicial</label>
+                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
+                                                    value={bulkSectorDates[s.fields.pi] || ''} onChange={(e) => setBulkSectorDates(prev => ({...prev, [s.fields.pi]: e.target.value}))}/>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Final</label>
+                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
+                                                    value={bulkSectorDates[s.fields.pf] || ''} onChange={(e) => setBulkSectorDates(prev => ({...prev, [s.fields.pf]: e.target.value}))}/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="p-5 border-t border-slate-200 bg-white rounded-b-2xl shrink-0 flex items-center justify-between">
+                            <span className="text-xs font-medium text-slate-500">Apenas os setores com data preenchida serão afetados.</span>
+                            <div className="flex gap-3 items-center">
+                                {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+                                <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+                                <button onClick={salvarDatasBulkTags} disabled={isSaving} className="px-6 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+                                    <CheckCircle size={18}/> Aplicar Planejamento em Lote
                                 </button>
                             </div>
                         </div>

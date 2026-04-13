@@ -27,6 +27,7 @@ import RomaneioPage from './pages/Romaneio';
 import PendenciaRomaneioPage from './pages/PendenciaRomaneio';
 import RomaneioRetornoPage from './pages/RomaneioRetorno';
 import VisaoGeralProducaoPage from './pages/VisaoGeralProducao';
+import AcompanhamentoGeralPage from './pages/AcompanhamentoGeral';
 import VisaoGeralEngenhariaPage from './pages/VisaoGeralEngenharia';
 import ControleExpedicaoPage from './pages/ControleExpedicao';
 import PesquisarDesenhoPage from './pages/PesquisarDesenho';
@@ -83,6 +84,19 @@ function AppContent() {
             }
           }
 
+          // Force add 'acompanhamento-geral' if missing
+          if (!savedMenu.find(item => item.id === 'acompanhamento-geral')) {
+            const agItem = defaultMenuItems.find(item => item.id === 'acompanhamento-geral');
+            if (agItem) {
+              const vgIdx = savedMenu.findIndex(item => item.id === 'visao-geral-producao');
+              if (vgIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, vgIdx + 1), agItem, ...savedMenu.slice(vgIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, agItem];
+              }
+            }
+          }
+
           // Force add 'visao-geral-engenharia' if missing
           if (!savedMenu.find(item => item.id === 'visao-geral-engenharia')) {
             const veItem = defaultMenuItems.find(item => item.id === 'visao-geral-engenharia');
@@ -110,7 +124,7 @@ function AppContent() {
           }
 
           // Force add 'controle-expedicao' if it belongs to lynxlocal or alfatec
-          if (user.dbName === 'lynxlocal' || user.dbName === 'alfatec') {
+          if (user.dbName === 'lynxlocal' || user.dbName === 'alfatec2') {
             if (!savedMenu.find(item => item.id === 'controle-expedicao')) {
               const ceItem = defaultMenuItems.find(item => item.id === 'controle-expedicao');
               if (ceItem) {
@@ -219,7 +233,7 @@ function AppContent() {
           setMenuItems(sortMenuRecursive(savedMenu));
         } else {
           const filtered = defaultMenuItems.filter(item => 
-             !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec')
+             !(item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec2')
           );
           setMenuItems(sortMenuRecursive(filtered));
         }
@@ -228,7 +242,7 @@ function AppContent() {
         console.error("Failed to load custom menu, using default.", err);
         const filtered = defaultMenuItems.filter(item => {
           if (!user.isSuperadmin && item.id === 'superadmin') return false;
-          if (item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec') return false;
+          if (item.id === 'controle-expedicao' && user.dbName !== 'lynxlocal' && user.dbName !== 'alfatec2') return false;
           return true;
         });
         setMenuItems(sortMenuRecursive(filtered));
@@ -327,12 +341,14 @@ function AppContent() {
         return <ProducaoPlanoCortePage />;
       case 'apontamento':
         return <ApontamentoProducaoPage />;
+      case 'acompanhamento-geral':
+        return <AcompanhamentoGeralPage />;
       case 'visao-geral-producao':
         return <VisaoGeralProducaoPage />;
       case 'visao-geral-engenharia':
         return <VisaoGeralEngenhariaPage />;
       case 'controle-expedicao':
-        if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;
+        if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec2') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;
         return <ControleExpedicaoPage />;
       case 'teste-final-montagem':
         if (user?.dbName !== 'lynxlocal' && user?.dbName !== 'alfatec2') return <div className="p-8 text-center text-red-500 font-bold">Acesso Negado</div>;

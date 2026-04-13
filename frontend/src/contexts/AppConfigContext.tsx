@@ -3,6 +3,8 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 // Chaves do localStorage para preferências situacionais
 const LS_FILTRO = 'sinco_planoCorteFiltroDC';
 const LS_MAX_REG = 'sinco_maxRegistros';
+const LS_PROCESSOS = 'sinco_processosVisiveis';
+const LS_RESTRINGIR = 'sinco_restringirApontamento';
 
 interface AppConfig {
     // Da API (regras de negócio persistidas no banco)
@@ -41,13 +43,23 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
         const maxReg = parseInt(localStorage.getItem(LS_MAX_REG) || '500') || 500;
         const planoCorteFiltroDC: 'corte' | 'chaparia' = filtro === 'chaparia' ? 'chaparia' : 'corte';
 
-        // 2. Regras de negócio: busca da API
+        // 2. Regras de negócio: busca da API com fallback para localStorage
         fetch('/api/config')
             .then(res => res.json())
             .then(data => {
+                let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+                let restringirApontamento = false;
+
+                // Tenta ler local primeiro caso seja banco legado ou falha na API
+                const localProcessos = localStorage.getItem(LS_PROCESSOS);
+                if (localProcessos) {
+                    try { processosVisiveis = JSON.parse(localProcessos); } catch (_) {}
+                }
+                const localRestringir = localStorage.getItem(LS_RESTRINGIR);
+                if (localRestringir) restringirApontamento = localRestringir === 'Sim';
+
                 if (data.success && data.config) {
                     const cfg = data.config;
-                    let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
                     try {
                         if (cfg.ProcessosVisiveis) {
                             processosVisiveis = JSON.parse(cfg.ProcessosVisiveis);
@@ -62,11 +74,32 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
                         loaded: true,
                     });
                 } else {
-                    setConfig(prev => ({ ...prev, planoCorteFiltroDC, maxRegistros: maxReg, loaded: true }));
+                    setConfig({
+                        processosVisiveis,
+                        restringirApontamento,
+                        planoCorteFiltroDC,
+                        maxRegistros: maxReg,
+                        loaded: true
+                    });
                 }
             })
             .catch(() => {
-                setConfig(prev => ({ ...prev, planoCorteFiltroDC, maxRegistros: maxReg, loaded: true }));
+                // Fallback total se API offline
+                const localProcessos = localStorage.getItem(LS_PROCESSOS);
+                let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+                if (localProcessos) {
+                    try { processosVisiveis = JSON.parse(localProcessos); } catch (_) {}
+                }
+                const localRestringir = localStorage.getItem(LS_RESTRINGIR);
+                const restringirApontamento = localRestringir === 'Sim';
+
+                setConfig({
+                    processosVisiveis,
+                    restringirApontamento,
+                    planoCorteFiltroDC,
+                    maxRegistros: maxReg,
+                    loaded: true,
+                });
             });
     }, []);
 
@@ -90,12 +123,23 @@ export function useAppConfig(): AppConfigContextValue {
 }
 
 /** Utilitário: salva preferências situacionais no localStorage */
-export function saveLocalPrefs(prefs: { planoCorteFiltroDC?: string; maxRegistros?: number }) {
+export function saveLocalPrefs(prefs: { 
+    planoCorteFiltroDC?: string; 
+    maxRegistros?: number;
+    processosVisiveis?: string[];
+    restringirApontamento?: string;
+}) {
     if (prefs.planoCorteFiltroDC !== undefined) {
         localStorage.setItem(LS_FILTRO, prefs.planoCorteFiltroDC);
     }
     if (prefs.maxRegistros !== undefined) {
         localStorage.setItem(LS_MAX_REG, String(prefs.maxRegistros));
+    }
+    if (prefs.processosVisiveis !== undefined) {
+        localStorage.setItem(LS_PROCESSOS, JSON.stringify(prefs.processosVisiveis));
+    }
+    if (prefs.restringirApontamento !== undefined) {
+        localStorage.setItem(LS_RESTRINGIR, prefs.restringirApontamento);
     }
 }
 

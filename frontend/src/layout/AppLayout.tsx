@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon } from 'lucide-react';
+import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon, Search } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { getIcon } from '../utils/iconMap';
 import type { MenuItem } from '../utils/iconMap';
@@ -22,6 +22,8 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isDark, setIsDark] = useState(false);
     const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
+    const [sidebarSearch, setSidebarSearch] = useState('');
+    const [appliedSearch, setAppliedSearch] = useState('');
 
     // Ref para o scroll container do sidebar desktop
     const sidebarScrollRef = useRef<HTMLDivElement>(null);
@@ -77,6 +79,27 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         }, 150); 
         return () => clearTimeout(timer);
     }, [activePageId, lastInteractedId]);
+
+    // Filter menu items recursively by search term
+    const filterMenuItems = (items: MenuItem[], term: string): MenuItem[] => {
+        if (!term.trim()) return items;
+        const lower = term.toLowerCase();
+        return items.reduce<MenuItem[]>((acc, item) => {
+            const labelMatch = item.label.toLowerCase().includes(lower);
+            const filteredChildren = item.children ? filterMenuItems(item.children, term) : [];
+            if (labelMatch) {
+                acc.push(item);
+            } else if (filteredChildren.length > 0) {
+                acc.push({ ...item, children: filteredChildren });
+            }
+            return acc;
+        }, []);
+    };
+
+    const filteredMenuItems = useMemo(
+        () => filterMenuItems(menuItems, appliedSearch),
+        [menuItems, appliedSearch]
+    );
 
     const renderMenuItem = (item: MenuItem, depth = 0, isMobile = false) => {
         const Icon = getIcon(item.icon);
@@ -143,10 +166,42 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 </div>
             </div>
 
+            {/* Search Box */}
+            <div className="px-3 pt-3 pb-1">
+                <div className="relative flex gap-1">
+                    <div className="relative flex-1">
+                        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-primary/40" />
+                        <input
+                            type="text"
+                            placeholder="Pesquisar menu..."
+                            value={sidebarSearch}
+                            onChange={e => setSidebarSearch(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') setAppliedSearch(sidebarSearch); }}
+                            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-primary/5 border border-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-primary/30 text-primary"
+                        />
+                        {sidebarSearch && (
+                            <button onClick={() => { setSidebarSearch(''); setAppliedSearch(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary/70">
+                                <X size={12} />
+                            </button>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setAppliedSearch(sidebarSearch)}
+                        className="px-2.5 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shrink-0"
+                        title="Pesquisar"
+                    >
+                        <Search size={12} />
+                    </button>
+                </div>
+            </div>
+
             <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar">
                 <ul>
-                    {menuItems.map(item => renderMenuItem(item, 0, isMobile))}
+                    {filteredMenuItems.map(item => renderMenuItem(item, 0, isMobile))}
                 </ul>
+                {appliedSearch && filteredMenuItems.length === 0 && (
+                    <p className="text-xs text-center text-primary/40 mt-4">Nenhum item encontrado</p>
+                )}
             </div>
 
             <div className="p-4 border-t border-primary/10 space-y-2">
@@ -175,7 +230,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 "hidden md:flex bg-[#F9F8F3] text-primary fixed inset-y-0 left-0 z-30 shadow-xl flex-col border-r border-primary/10 transition-transform duration-300 w-72 h-full",
                 isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"
             )}>
-                <SidebarContent scrollRef={sidebarScrollRef} />
+                {SidebarContent({ scrollRef: sidebarScrollRef })}
             </aside>
 
             {/* Mobile Header */}
@@ -209,7 +264,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
                             className="fixed inset-y-0 left-0 w-[80%] max-w-[300px] bg-[#F9F8F3] text-primary z-50 md:hidden shadow-2xl border-r border-primary/10 h-full"
                         >
-                            <SidebarContent isMobile={true} />
+                            {SidebarContent({ isMobile: true })}
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="absolute top-4 right-4 p-2 bg-primary/10 rounded-full text-primary"
