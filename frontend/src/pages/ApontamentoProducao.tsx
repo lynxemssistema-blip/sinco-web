@@ -129,11 +129,42 @@ export default function ApontamentoProducaoPage() {
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('todos');
     const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
 
-    // Dropdown options
-    const [projetos, setProjetos] = useState<SelectOption[]>([]);
-    const [tags, setTags] = useState<SelectOption[]>([]);
-    const [ordens, setOrdens] = useState<SelectOption[]>([]);
-    const [clientes, setClientes] = useState<SelectOption[]>([]);
+    const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
+        if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
+
+        const sequence: Setor[] = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
+        const currentIndex = sequence.indexOf(currentSetor);
+        
+        if (currentIndex <= 0) return { allowed: true }; // Primeiro setor ou não mapeado
+
+        // Buscar o predecessor ativo mais próximo
+        for (let i = currentIndex - 1; i >= 0; i--) {
+            const pred = sequence[i];
+            const isActive = 
+                (pred === 'corte' && item.txtCorte === '1') ||
+                (pred === 'dobra' && item.txtDobra === '1') ||
+                (pred === 'solda' && item.txtSolda === '1') ||
+                (pred === 'pintura' && item.txtPintura === '1') ||
+                (pred === 'montagem' && item.TxtMontagem === '1');
+
+            if (isActive) {
+                const totalExec = 
+                    (pred === 'corte' && (item.CorteTotalExecutado || 0)) ||
+                    (pred === 'dobra' && (item.DobraTotalExecutado || 0)) ||
+                    (pred === 'solda' && (item.SoldaTotalExecutado || 0)) ||
+                    (pred === 'pintura' && (item.PinturaTotalExecutado || 0)) ||
+                    (pred === 'montagem' && (item.MontagemTotalExecutado || 0)) || 0;
+
+                return { 
+                    allowed: totalExec > 0, 
+                    predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
+                };
+            }
+        }
+
+        return { allowed: true };
+    };
+
     const [showFilters, setShowFilters] = useState(false);
 
     // Modal
@@ -226,44 +257,6 @@ export default function ApontamentoProducaoPage() {
             .catch(console.error);
     }, []);
 
-    // Fetch projetos for dropdown
-    useEffect(() => {
-        fetch(`${API_BASE}/apontamento/projetos/options`)
-            .then(res => res.json())
-            .then(json => { if (json.success) setProjetos(json.data); })
-            .catch(console.error);
-    }, []);
-
-    // Fetch tags when projeto changes
-    useEffect(() => {
-        const params = new URLSearchParams();
-        if (projetoFilter) params.set('projeto', projetoFilter);
-
-        fetch(`${API_BASE}/apontamento/tags/options?${params}`)
-            .then(res => res.json())
-            .then(json => { if (json.success) setTags(json.data); })
-            .catch(console.error);
-    }, [projetoFilter]);
-
-    // Fetch ordens when projeto/tag changes
-    useEffect(() => {
-        const params = new URLSearchParams();
-        if (projetoFilter) params.set('projeto', projetoFilter);
-        if (tagFilter) params.set('tag', tagFilter);
-
-        fetch(`${API_BASE}/apontamento/os/options?${params}`)
-            .then(res => res.json())
-            .then(json => { if (json.success) setOrdens(json.data); })
-            .catch(console.error);
-    }, [projetoFilter, tagFilter]);
-
-    // Fetch clientes options
-    useEffect(() => {
-        fetch(`${API_BASE}/apontamento/clientes/options`)
-            .then(res => res.json())
-            .then(json => { if (json.success) setClientes(json.data); })
-            .catch(console.error);
-    }, []);
 
     // Fetch setores config para pendencias
     useEffect(() => {
@@ -984,46 +977,37 @@ export default function ApontamentoProducaoPage() {
                             {/* Projeto Filter */}
                             <div className="min-w-[150px]">
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Projeto</label>
-                                <select
+                                <input
+                                    type="text"
+                                    placeholder="Digite o projeto..."
                                     value={projetoFilter}
                                     onChange={(e) => { setProjetoFilter(e.target.value); setTagFilter(''); setOsFilter(''); }}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
-                                >
-                                    <option value="">Todos</option>
-                                    {projetos.map(p => (
-                                        <option key={p.value} value={p.value}>{p.label}</option>
-                                    ))}
-                                </select>
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                />
                             </div>
 
                             {/* Tag Filter */}
                             <div className="min-w-[150px]">
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Tag</label>
-                                <select
+                                <input
+                                    type="text"
+                                    placeholder="Digite a tag..."
                                     value={tagFilter}
                                     onChange={(e) => { setTagFilter(e.target.value); setOsFilter(''); }}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
-                                >
-                                    <option value="">Todas</option>
-                                    {tags.map(t => (
-                                        <option key={t.value} value={t.value}>{t.label}</option>
-                                    ))}
-                                </select>
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                />
                             </div>
 
                             {/* OS Filter */}
                             <div className="min-w-[150px]">
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Ordem de Serviço</label>
-                                <select
+                                <input
+                                    type="text"
+                                    placeholder="Digite a OS..."
                                     value={osFilter}
                                     onChange={(e) => setOsFilter(e.target.value)}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
-                                >
-                                    <option value="">Todas</option>
-                                    {ordens.map(o => (
-                                        <option key={o.value} value={o.value}>{o.label}</option>
-                                    ))}
-                                </select>
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                />
                             </div>
 
                             {/* Item Filter */}
@@ -1041,16 +1025,13 @@ export default function ApontamentoProducaoPage() {
                             {/* Cliente Filter */}
                             <div className="min-w-[150px]">
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Cliente</label>
-                                <select
+                                <input
+                                    type="text"
+                                    placeholder="Digite o cliente..."
                                     value={clienteFilter}
                                     onChange={(e) => setClienteFilter(e.target.value)}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"
-                                >
-                                    <option value="">Todos</option>
-                                    {clientes.map(c => (
-                                        <option key={c.value} value={c.value}>{c.label}</option>
-                                    ))}
-                                </select>
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                />
                             </div>
 
                             {/* Group By */}
@@ -1126,7 +1107,7 @@ export default function ApontamentoProducaoPage() {
                     <span className="w-12 text-center">Qtde</span>
                     <span className="w-16 text-center">Produz.</span>
                     <span className="w-16 text-center">%</span>
-                    <span className="w-20"></span>
+                    <span className="w-64 text-right pr-4">Ação</span>
                 </div>
             )}
 
@@ -1148,9 +1129,23 @@ export default function ApontamentoProducaoPage() {
                         </button>
                     </div>
                 ) : itens.length === 0 ? (
-                    <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
-                        <setorInfo.icon size={40} strokeWidth={1.5} />
-                        <p className="text-sm">Nenhum item encontrado para o setor {setorInfo.label}</p>
+                    <div className="p-16 flex flex-col items-center justify-center gap-4 text-gray-400">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center border-4 border-gray-100 shadow-inner"
+                        >
+                            <CheckCircle size={40} className="text-gray-300" />
+                        </motion.div>
+                        <div className="text-center max-w-sm">
+                            <h3 className="text-lg font-bold text-gray-700 mb-2">Nada a Executar</h3>
+                            <p className="text-sm text-gray-500">
+                                Não há itens pendentes para o setor <span className="font-bold text-[#32423D]">{setorInfo.label}</span>.
+                            </p>
+                            <p className="text-xs text-gray-400 mt-3 bg-blue-50 p-3 rounded-lg border border-blue-100 italic">
+                                Certifique-se de que os filtros estão corretos ou se as etapas anteriores da produção já foram concluídas para liberar saldo para este setor.
+                            </p>
+                        </div>
                     </div>
                 ) : setorAtivo === 'mapa' ? (
                     /* Mapa da Produção View */
@@ -1441,7 +1436,7 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* Actions */}
-                                                <div className="flex gap-1 items-center justify-end flex-1">
+                                                <div className="flex gap-1 items-center justify-end w-64 pr-2">
                                                     {/* File Icons on Selected Line */}
                                                     {selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem && (
                                                         <div className="flex gap-1 mr-2">
@@ -1558,25 +1553,43 @@ export default function ApontamentoProducaoPage() {
                                                         <History size={16} />
                                                     </motion.button>
 
-                                                    {concluido ? (
-                                                        <div className="w-20 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold transition-colors bg-green-50 text-green-600 border border-green-200">
-                                                            <CheckCircle size={12} />
-                                                            OK
-                                                        </div>
-                                                    ) : (
-                                                        <motion.button
-                                                            whileHover={{ scale: 1.05 }}
-                                                            whileTap={{ scale: 0.95 }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                openModal(item, setorAtivo as any);
-                                                            }}
-                                                            className={`w-20 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${setorInfo.color} text-white hover:opacity-90 ml-1`}
-                                                        >
-                                                            <Plus size={12} />
-                                                            Apontar
-                                                        </motion.button>
-                                                    )}
+                                                    {(() => {
+                                                        const { allowed, predecessor } = checkPredecessorStatus(item, setorAtivo as Setor);
+                                                        return concluido ? (
+                                                            <div className="w-20 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold transition-colors bg-green-50 text-green-600 border border-green-200">
+                                                                <CheckCircle size={12} />
+                                                                OK
+                                                            </div>
+                                                        ) : (
+                                                            <motion.button
+                                                                whileHover={allowed ? { scale: 1.05 } : {}}
+                                                                whileTap={allowed ? { scale: 0.95 } : {}}
+                                                                disabled={!allowed}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openModal(item, setorAtivo as any);
+                                                                }}
+                                                                className={`w-20 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors shadow-sm ml-1 ${
+                                                                    !allowed 
+                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                                                                        : `${setorInfo.color} text-white hover:opacity-90`
+                                                                }`}
+                                                                title={!allowed ? `Aguardando produção do setor anterior (${predecessor})` : 'Registrar apontamento'}
+                                                            >
+                                                                {!allowed ? (
+                                                                    <>
+                                                                        <Clock size={12} />
+                                                                        Bloq.
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Plus size={12} />
+                                                                        Apontar
+                                                                    </>
+                                                                )}
+                                                            </motion.button>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </motion.div>
                                         );

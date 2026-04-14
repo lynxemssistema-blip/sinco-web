@@ -182,6 +182,8 @@ function OrdemServicoContent() {
     const [itensSelecionados, setItensSelecionados] = useState<Set<number>>(new Set());
     const [salvandoItens, setSalvandoItens] = useState(false);
     const [cloneTags, setCloneTags] = useState<DropdownOption[]>([]);
+    const [loadingCloneTags, setLoadingCloneTags] = useState(false);
+    const [cloneTagsEmpty, setCloneTagsEmpty] = useState(false);
     const [mostrarTodos, setMostrarTodos] = useState(false);
     const { addToast } = useToast();
 
@@ -409,12 +411,19 @@ function OrdemServicoContent() {
 
     // Update clone tags when clone project changes
     useEffect(() => {
+        setCloneTagId('');       // sempre reseta a tag ao trocar projeto
+        setCloneTagsEmpty(false);
         if (cloneProjetoId) {
+            setLoadingCloneTags(true);
             fetch(`${API_BASE}/ordemservico/tags-clonagem?projetoId=${encodeURIComponent(cloneProjetoId)}`)
                 .then(res => res.json())
                 .then(json => {
-                    if (json.success) setCloneTags(json.data);
-                });
+                    if (json.success) {
+                        setCloneTags(json.data);
+                        setCloneTagsEmpty(json.data.length === 0);
+                    }
+                })
+                .finally(() => setLoadingCloneTags(false));
         } else {
             setCloneTags([]);
         }
@@ -1878,29 +1887,47 @@ function OrdemServicoContent() {
                         )}
                     </div>
 
-                    {/* Projeto Filter */}
-                    <select
-                        value={projetoFilter}
-                        onChange={(e) => { setProjetoFilter(e.target.value); setTagFilter(''); }}
-                        className="px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
-                    >
-                        <option value="">Todos Projetos</option>
-                        {projetos.map(p => (
-                            <option key={p.value} value={p.value}>{p.label}</option>
-                        ))}
-                    </select>
+                    {/* Projeto Filter - texto livre */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Projeto..."
+                            value={projetoFilter}
+                            onChange={(e) => { setProjetoFilter(e.target.value); setTagFilter(''); }}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchOrdens(1)}
+                            className="pl-3 pr-7 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 w-40"
+                        />
+                        {projetoFilter && (
+                            <button
+                                onClick={() => { setProjetoFilter(''); setTagFilter(''); }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 transition-colors"
+                                title="Limpar projeto"
+                            >
+                                <X size={13} />
+                            </button>
+                        )}
+                    </div>
 
-                    {/* Tag Filter */}
-                    <select
-                        value={tagFilter}
-                        onChange={(e) => setTagFilter(e.target.value)}
-                        className="px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
-                    >
-                        <option value="">Todas Tags</option>
-                        {tags.map(t => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
-                        ))}
-                    </select>
+                    {/* Tag Filter - texto livre */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Tag..."
+                            value={tagFilter}
+                            onChange={(e) => setTagFilter(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchOrdens(1)}
+                            className="pl-3 pr-7 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 w-36"
+                        />
+                        {tagFilter && (
+                            <button
+                                onClick={() => setTagFilter('')}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 transition-colors"
+                                title="Limpar tag"
+                            >
+                                <X size={13} />
+                            </button>
+                        )}
+                    </div>
 
                     {/* Group By */}
                     <div className="flex items-center gap-2">
@@ -2167,6 +2194,7 @@ function OrdemServicoContent() {
                                         value={cloneProjetoId}
                                         onChange={(e) => {
                                             setCloneProjetoId(e.target.value);
+                                            setCloneTagId(''); // reset tag ao trocar projeto
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
                                         required
@@ -2182,17 +2210,30 @@ function OrdemServicoContent() {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Nova Tag Destino *
                                     </label>
-                                    <select
-                                        value={cloneTagId}
-                                        onChange={(e) => setCloneTagId(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
-                                        required
-                                    >
-                                        <option value="">Selecione a Tag...</option>
-                                        {cloneTags.map(t => (
-                                            <option key={t.value} value={t.value}>{t.label}</option>
-                                        ))}
-                                    </select>
+                                    {loadingCloneTags ? (
+                                        <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-400">
+                                            <Loader2 size={14} className="animate-spin" />
+                                            Carregando tags...
+                                        </div>
+                                    ) : cloneTagsEmpty ? (
+                                        <div className="flex items-center gap-2 px-3 py-2 border border-amber-200 rounded-lg bg-amber-50 text-sm text-amber-700">
+                                            <span className="text-base">⚠️</span>
+                                            <span>Este projeto não possui tags cadastradas. Selecione outro projeto para continuar.</span>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            value={cloneTagId}
+                                            onChange={(e) => setCloneTagId(e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                            required
+                                            disabled={!cloneProjetoId}
+                                        >
+                                            <option value="">Selecione a Tag...</option>
+                                            {cloneTags.map(t => (
+                                                <option key={t.value} value={t.value}>{t.label}</option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
 
                                 <div>

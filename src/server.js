@@ -3181,19 +3181,53 @@ app.delete('/api/material/:id', async (req, res) => {
 // LIST (Read All) 
 app.get('/api/projeto', async (req, res) => {
     try {
-        const { dataInicio, dataFim, projeto, descProjeto, descEmpresa } = req.query;
+        const {
+            dataInicio, dataFim, projeto, descProjeto, descEmpresa,
+            previsaoInicio, previsaoFim, criacaoInicio, criacaoFim,
+            finalizado
+        } = req.query;
 
         let queryParams = [];
-        let whereClause = "WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (Finalizado = '' OR Finalizado IS NULL)";
 
-        if (dataInicio) {
+        // Filtro base: excluir deletados
+        let whereClause = "WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')";
+
+        // Filtro de finalizado:
+        //   undefined  → param não enviado → padrão: apenas não finalizados
+        //   'N'        → apenas não finalizados
+        //   'C'        → apenas finalizados
+        //   ''         → todos (sem filtro de finalizado)
+        if (finalizado === 'C') {
+            whereClause += " AND Finalizado = 'C'";
+        } else if (finalizado === '') {
+            // Todos: sem restrição de finalizado
+        } else {
+            // 'N' ou não enviado: apenas não finalizados
+            whereClause += " AND (Finalizado IS NULL OR Finalizado = '' OR COALESCE(Finalizado,'') != 'C')";
+        }
+
+        // Data previsão (aceita tanto previsaoInicio quanto dataInicio por compatibilidade)
+        const prevIni = previsaoInicio || dataInicio;
+        const prevFim = previsaoFim || dataFim;
+        if (prevIni) {
             whereClause += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')";
-            queryParams.push(dataInicio);
+            queryParams.push(prevIni);
         }
-        if (dataFim) {
+        if (prevFim) {
             whereClause += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')";
-            queryParams.push(dataFim);
+            queryParams.push(prevFim);
         }
+
+        // Data criação
+        if (criacaoInicio) {
+            whereClause += " AND STR_TO_DATE(DataCriacao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')";
+            queryParams.push(criacaoInicio);
+        }
+        if (criacaoFim) {
+            whereClause += " AND STR_TO_DATE(DataCriacao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')";
+            queryParams.push(criacaoFim);
+        }
+
         if (projeto) {
             whereClause += " AND Projeto LIKE ?";
             queryParams.push(`%${projeto}%`);
@@ -3212,7 +3246,7 @@ app.get('/api/projeto', async (req, res) => {
             FROM projetos 
             ${whereClause}
             ORDER BY IdProjeto DESC
-            LIMIT 200
+            LIMIT 300
         `;
 
         const [rows] = await pool.execute(sql, queryParams);
@@ -3460,8 +3494,10 @@ app.delete('/api/projeto/:id', async (req, res) => {
 // VISÃƒÆ’O GERAL PRODUÃƒâ€¡ÃƒÆ’O
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
+// ─── ACOMPANHAMENTO GERAL (VISÃO GERAL PRODUÇÃO) ───
+
 // GET projetos for production overview
-app.get('/api/visao-geral/projetos', async (req, res) => {
+app.get('/api/acompanhamento/projetos', async (req, res) => {
     try {
         const mostrarFinalizados = req.query.finalizados === '1';
         const mostrarLiberados = req.query.liberados === '1';
@@ -3584,7 +3620,7 @@ app.get('/api/visao-geral/projetos', async (req, res) => {
 });
 
 // GET tags for a project in production overview
-app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
+app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
     try {
         const [rows] = await pool.execute(`
             SELECT
@@ -3615,7 +3651,7 @@ app.get('/api/visao-geral/tags/:projetoId', async (req, res) => {
 });
 
 // PUT planejar-projetista for a tag
-app.put('/api/visao-geral/tags/:idTag/planejar-projetista', async (req, res) => {
+app.put('/api/acompanhamento/tags/:idTag/planejar-projetista', async (req, res) => {
     try {
         const { projetistaPlanejado, planejadoInicioEngenharia, planejadoFinalEngenharia, usuario } = req.body;
         
@@ -3642,8 +3678,30 @@ app.put('/api/visao-geral/tags/:idTag/planejar-projetista', async (req, res) => 
     }
 });
 
+// PUT observacao for a project
+app.put('/api/acompanhamento/projeto/:id/observacao', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { observacao } = req.body;
+
+        const [result] = await pool.execute(
+            "UPDATE projetos SET Observacao = ? WHERE IdProjeto = ?",
+            [observacao || '', id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Projeto nÃƒÂ£o encontrado.' });
+        }
+
+        res.json({ success: true, message: 'ObservaÃƒÂ§ÃƒÂ£o atualizada com sucesso.' });
+    } catch (error) {
+        console.error('Error updating project observation:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar observaÃƒÂ§ÃƒÂ£o: ' + error.message });
+    }
+});
+
 // PUT alterar qtde liberada for a tag
-app.put('/api/visao-geral/tags/:idTag/qtde', async (req, res) => {
+app.put('/api/acompanhamento/tags/:idTag/qtde', async (req, res) => {
     try {
         const { qtdeLiberada, usuario } = req.body;
         
@@ -3681,7 +3739,7 @@ app.put('/api/visao-geral/tags/:idTag/qtde', async (req, res) => {
 });
 
 // PUT finalizar tag(s)
-app.put('/api/visao-geral/tags/finalizar', async (req, res) => {
+app.put('/api/acompanhamento/tags/finalizar', async (req, res) => {
     try {
         const { idProjeto, idTag, finalizarTodas, usuario } = req.body;
         
@@ -4845,8 +4903,8 @@ app.get('/api/ordemservico', async (req, res) => {
         }
 
         if (projeto) {
-            whereClause += " AND Projeto = ?";
-            params.push(projeto);
+            whereClause += " AND Projeto LIKE ?";
+            params.push(`%${projeto}%`);
         }
         if (tag) {
             whereClause += " AND Tag LIKE ?";
@@ -5234,7 +5292,20 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
             fator, fator, fator, criador, dataCriacaoFormatada, fator, prevUsada, os.IdEmpresa, os.DescEmpresa, IdOrdemServico
         ]);
 
-        return res.json({ success: true, message: 'Nova CÃƒÂ³pia da Ordem de ServiÃƒÂ§o inserida!', novoId });
+        // Inicializar TotalExecutar do primeiro setor para todos os itens clonados
+        // Usa CASE WHEN para selecionar Corte → Dobra → Solda → Pintura → Montagem
+        await connection.query(`
+            UPDATE ordemservicoitem SET
+                CorteTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   = '1' THEN QtdeTotal ELSE CorteTotalExecutar   END,
+                DobraTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   = '1' THEN QtdeTotal ELSE DobraTotalExecutar   END,
+                SoldaTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   = '1' THEN QtdeTotal ELSE SoldaTotalExecutar   END,
+                PinturaTotalExecutar = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   = '1' THEN QtdeTotal ELSE PinturaTotalExecutar END,
+                MontagemTotalExecutar= CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   != '1' AND TRIM(COALESCE(TxtMontagem,'')) = '1' THEN QtdeTotal ELSE MontagemTotalExecutar END
+            WHERE IdOrdemServico = ?
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+        `, [novoId]);
+
+        return res.json({ success: true, message: 'Nova Cópia da Ordem de Serviço inserida!', novoId });
 
     } catch (e) {
         console.error("Erro ao clonar O.S (Inter-Projetos):", e);
@@ -5848,6 +5919,49 @@ const setorColumns = {
     mapa: { txt: 'txtCorte', percentual: 'CortePercentual', status: 'sttxtCorte', total: 'CorteTotalExecutado', executar: 'CorteTotalExecutar' }
 };
 
+/**
+ * Após inserir um ordemservicoitem, atualiza o campo TotalExecutar
+ * do PRIMEIRO setor que tiver processo (txt* = '1') com o valor de QtdeTotal.
+ * Ordem de verificação: Corte → Dobra → Solda → Pintura → Montagem
+ *
+ * @param {object} conn  - conexão ativa (pool ou connection)
+ * @param {number} id    - IdOrdemServicoItem recém-inserido
+ */
+async function inicializarPrimeiroSetor(conn, id) {
+    try {
+        const [rows] = await conn.execute(
+            `SELECT QtdeTotal, txtCorte, txtDobra, txtSolda, txtPintura, TxtMontagem
+             FROM ordemservicoitem WHERE IdOrdemServicoItem = ? LIMIT 1`,
+            [id]
+        );
+        if (!rows || rows.length === 0) return;
+
+        const item = rows[0];
+        const qtde = parseFloat(item.QtdeTotal) || 0;
+        if (qtde <= 0) return;
+
+        // Ordem de prioridade dos setores
+        const ordem = [
+            { campo: 'CorteTotalExecutar',     flag: item.txtCorte     },
+            { campo: 'DobraTotalExecutar',     flag: item.txtDobra     },
+            { campo: 'SoldaTotalExecutar',     flag: item.txtSolda     },
+            { campo: 'PinturaTotalExecutar',   flag: item.txtPintura   },
+            { campo: 'MontagemTotalExecutar',  flag: item.TxtMontagem  },
+        ];
+
+        const primeiro = ordem.find(s => String(s.flag).trim() === '1');
+        if (!primeiro) return; // nenhum setor com processo
+
+        await conn.execute(
+            `UPDATE ordemservicoitem SET \`${primeiro.campo}\` = ? WHERE IdOrdemServicoItem = ?`,
+            [qtde, id]
+        );
+        console.log(`[inicializarPrimeiroSetor] Item ${id}: ${primeiro.campo} = ${qtde}`);
+    } catch (err) {
+        console.error(`[inicializarPrimeiroSetor] Erro ao inicializar item ${id}:`, err.message);
+    }
+}
+
 // GET: Mapa da ProduÃ¯Â¿Â½Ã¯Â¿Â½o - visÃ¯Â¿Â½o geral de todos os processos
 app.get('/api/apontamento/mapa/producao', async (req, res) => {
     const { projeto, tag, os, item, search, status } = req.query;
@@ -6153,7 +6267,7 @@ AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '')
     }
 });
 
-// GET: Ordens de ServiÃ¯Â¿Â½o para dropdown de apontamento
+// GET: Ordens de Serviço para dropdown de apontamento
 app.get('/api/apontamento/os/options', async (req, res) => {
     try {
         let query = `
@@ -6205,7 +6319,7 @@ AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*')
     }
 });
 
-// GET: Detalhes de um item + histÃ¯Â¿Â½rico de apontamentos
+// GET: Detalhes de um item + histórico de apontamentos
 app.get('/api/apontamento/item/:id/:processo', async (req, res) => {
     const { id, processo } = req.params;
     const isAll = processo.toLowerCase() === 'all';
@@ -6249,7 +6363,7 @@ WHERE osi.IdOrdemServicoItem = ?
 
         const item = itemRows[0];
 
-        // Buscar histÃ¯Â¿Â½rico de apontamentos baseando-se na viewordemservicoitemcontrole conforme sistema legado (VB.NET)
+        // Buscar histórico de apontamentos baseando-se na viewordemservicoitemcontrole conforme sistema legado (VB.NET)
         // Ignoramos a filtragem por processo aqui para manter a compatibilidade com a visualizaÃ¯Â¿Â½Ã¯Â¿Â½o completa
         const historicoQuery = `
             SELECT
@@ -6295,14 +6409,14 @@ WHERE osi.IdOrdemServicoItem = ?
     }
 });
 
-// POST: Registrar apontamento de produÃ¯Â¿Â½Ã¯Â¿Â½o
+// POST: Registrar apontamento de produção
 app.post('/api/apontamento', async (req, res) => {
     const { IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, CriadoPor } = req.body;
 
     if (!IdOrdemServicoItem || !Processo || !QtdeProduzida) {
         return res.status(400).json({
             success: false,
-            message: 'IdOrdemServicoItem, Processo e QtdeProduzida sÃ¯Â¿Â½o obrigatÃ¯Â¿Â½rios'
+            message: 'IdOrdemServicoItem, Processo e QtdeProduzida são obrigatórios'
         });
     }
 
@@ -6315,7 +6429,7 @@ app.post('/api/apontamento', async (req, res) => {
     const setorAtivo = !isMapa ? Processo.toLowerCase() : null;
 
     if (!isMapa && !setorColumns[setorAtivo]) {
-        return res.status(400).json({ success: false, message: 'Processo invÃ¯Â¿Â½lido' });
+        return res.status(400).json({ success: false, message: 'Processo inválido' });
     }
 
     const conn = await pool.getConnection();
@@ -6337,7 +6451,7 @@ osi.*,
 
         if (itemRows.length === 0) {
             await conn.rollback();
-            return res.status(404).json({ success: false, message: 'Item nÃ¯Â¿Â½o encontrado' });
+            return res.status(404).json({ success: false, message: 'Item não encontrado' });
         }
 
         const item = itemRows[0];
@@ -6373,9 +6487,21 @@ osi.*,
             // If not Mapa and no quantity to process, skip
             if (!isMapa && currentInputQty <= 0) continue;
 
-            const totalExecutarLimit = (parseFloat(item[sConfig.executar]) === 0 || item[sConfig.executar] === null)
+            // Determinar se este é o primeiro setor ativo do item na cadeia produtiva
+            let isFirstActiveSector = true;
+            const currentIndexInSequence = sequence.indexOf(sName);
+            for (let i = 0; i < currentIndexInSequence; i++) {
+                const checkSName = sequence[i];
+                const checkConfig = setorColumns[checkSName];
+                if (NULLIF_TRIM(item[checkConfig.txt]) === '1') {
+                    isFirstActiveSector = false;
+                    break;
+                }
+            }
+
+            const totalExecutarLimit = isFirstActiveSector
                 ? qtdeTotal - totalExecutadoDb
-                : parseFloat(item[sConfig.executar]);
+                : (parseFloat(item[sConfig.executar]) || 0);
 
             if (!isMapa) {
                 // 1. Validação de Saldo a Executar Normal
@@ -6487,6 +6613,18 @@ osi.*,
                 } else {
                     await conn.execute(`INSERT INTO tagcontrole(IdTag, Tag, IdProjeto, Projeto, ${dateCol}, ${userCol}, DataControle) VALUES(?, ?, ?, ?, ?, ?, ?)`,
                         [item.IdTag, item.Tag, item.IdProjeto, item.Projeto, dateNow, CriadoPor || 'Sistema', dateNow]);
+                }
+            }
+
+            // 8.5 Incrementar saldo a executar do próximo setor (Fluxo de Produção Push)
+            if (currentInputQty > 0) {
+                const currentIndex = sequence.indexOf(sName);
+                if (currentIndex < sequence.length - 1) {
+                    const nextSectorName = (currentIndex < sequence.length - 1) ? sequence[currentIndex + 1] : null;
+                    if (nextSectorName) {
+                        const nextConfig = setorColumns[nextSectorName];
+                        await conn.execute(`UPDATE ordemservicoitem SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServicoItem = ?`, [currentInputQty, IdOrdemServicoItem]);
+                    }
                 }
             }
         }
@@ -7146,6 +7284,9 @@ app.post('/api/producao/reposicao', async (req, res) => {
         const [resultInsertPai] = await conn.execute(sqlInsertPai, paramsInsertPai);
         const novoIdPai = resultInsertPai.insertId;
 
+        // Inicializar TotalExecutar do primeiro setor com processo
+        await inicializarPrimeiroSetor(conn, novoIdPai);
+
         console.log(`[Reposicao] Cadastrado Novo Item Pai ${novoIdPai} para OS ${itemPai.IdOrdemServico}`);
 
         // 4. Se for conjunto (ex: .SLDASM), processar os itens filhos a partir de viewmontapeca
@@ -7192,7 +7333,9 @@ app.post('/api/producao/reposicao', async (req, res) => {
                         itemPai.IdEmpresa, itemPai.DescEmpresa, itemPai.NumeroOpOmie
                     ].map(p => p === undefined ? '' : p);
 
-                    await conn.execute(sqlInsertFilho, paramsFilho);
+                    const [resFilho] = await conn.execute(sqlInsertFilho, paramsFilho);
+                    // Inicializar TotalExecutar do primeiro setor do item filho
+                    if (resFilho.insertId) await inicializarPrimeiroSetor(conn, resFilho.insertId);
                 }
             }
         }
@@ -10461,7 +10604,7 @@ app.post('/api/plano-corte/:id/atualizar-arquivos', async (req, res) => {
     }
 });
 
-// Static files and SPA Catch-all (Must be last)
+
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 app.use('/css', express.static(path.join(__dirname, '../public/css')));

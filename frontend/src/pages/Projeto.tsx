@@ -157,7 +157,8 @@ export default function ProjetoPage() {
         criacaoInicio: '',
         criacaoFim: '',
         previsaoInicio: '',
-        previsaoFim: ''
+        previsaoFim: '',
+        finalizado: 'N'
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -194,7 +195,7 @@ export default function ProjetoPage() {
             const params = new URLSearchParams();
             if (activeFilters.projeto) params.append('projeto', activeFilters.projeto);
             if (activeFilters.descProjeto) params.append('descProjeto', activeFilters.descProjeto);
-            if (activeFilters.cliente) params.append('descEmpresa', activeFilters.cliente); // Enviamos descEmpresa para buscar
+            if (activeFilters.cliente) params.append('descEmpresa', activeFilters.cliente);
             if (activeFilters.previsaoInicio) {
                 const [y, m, d] = activeFilters.previsaoInicio.split('-');
                 params.append('previsaoInicio', `${d}/${m}/${y}`);
@@ -211,6 +212,8 @@ export default function ProjetoPage() {
                 const [y, m, d] = activeFilters.criacaoFim.split('-');
                 params.append('criacaoFim', `${d}/${m}/${y}`);
             }
+            // Sempre envia finalizado: '' = todos, 'N' = não finalizados, 'C' = finalizados
+            params.append('finalizado', activeFilters.finalizado ?? 'N');
 
             const qs = params.toString();
             const res = await fetch(`${API_BASE}/projeto${qs ? `?${qs}` : ''}`);
@@ -605,127 +608,131 @@ export default function ProjetoPage() {
                 </div>
             </div>
 
-            {/* Search Filters Section (VB.NET Style) */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-2">
-                <h3 className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-                    <Search size={14} /> Dados para Pesquisa
+            {/* Search Filters Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 mb-2">
+                <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
+                    <Search size={12} /> Dados para Pesquisa
                 </h3>
 
-                <div className="flex flex-col gap-4">
-                    {/* Linha 1: Projeto e Descrição */}
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-[1]">
-                            <label className="block text-[11px] font-semibold text-gray-600 mb-1">Projeto:</label>
-                            <input
-                                type="text"
-                                value={searchFilters.projeto}
-                                onChange={(e) => setSearchFilters(prev => ({ ...prev, projeto: e.target.value.toUpperCase() }))}
-                                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none shrink-0"
-                                placeholder="PROJETOS-00X"
-                            />
-                        </div>
-                        <div className="flex-[2]">
-                            <label className="block text-[11px] font-semibold text-gray-600 mb-1">Descrição Projeto:</label>
-                            <input
-                                type="text"
-                                value={searchFilters.descProjeto}
-                                onChange={(e) => setSearchFilters(prev => ({ ...prev, descProjeto: e.target.value.toUpperCase() }))}
-                                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                placeholder="Detalhes textuais..."
-                            />
-                        </div>
+                {/* Linha 1: Projeto | Descrição | Cliente | Finalizado */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-2 mb-2">
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Projeto:</label>
+                        <input
+                            type="text"
+                            value={searchFilters.projeto}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, projeto: e.target.value.toUpperCase() }))}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            placeholder="PROJ-00X"
+                        />
                     </div>
-
-                    {/* Linha 2: Cliente */}
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-[2]">
-                            <label className="block text-[11px] font-semibold text-gray-600 mb-1">Cliente:</label>
-                            <input
-                                type="text"
-                                value={searchFilters.cliente}
-                                onChange={(e) => setSearchFilters(prev => ({ ...prev, cliente: e.target.value.toUpperCase() }))}
-                                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                placeholder="ALFATEC, SIEMENS, ETC..."
-                            />
-                        </div>
-
-                        {/* Empty spacer para manter o grid layout similar ao VB.NET */}
-                        <div className="flex-[1] hidden md:block"></div>
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Descrição:</label>
+                        <input
+                            type="text"
+                            value={searchFilters.descProjeto}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, descProjeto: e.target.value.toUpperCase() }))}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            placeholder="Detalhes..."
+                        />
                     </div>
-
-                    {/* Linha 3: Intervalos de Data (Previsão e Criação) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-end">
-                        {/* Data Previsão */}
-                        <div className="flex items-center gap-3 w-full">
-                            <div className="flex-1">
-                                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Dt Prev. Intervalo de:</label>
-                                <input
-                                    type="date"
-                                    value={searchFilters.previsaoInicio}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoInicio: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                />
-                            </div>
-                            <span className="text-gray-400 font-medium pb-2 text-sm italic self-end mb-1">a</span>
-                            <div className="flex-1">
-                                <label className="block text-[11px] font-semibold text-gray-600 mb-1 invisible">Fim</label>
-                                <input
-                                    type="date"
-                                    value={searchFilters.previsaoFim}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoFim: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Data Criação */}
-                        <div className="flex items-center gap-3 w-full">
-                            <div className="flex-1">
-                                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Dt Criação Intervalo de:</label>
-                                <input
-                                    type="date"
-                                    value={searchFilters.criacaoInicio}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoInicio: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                />
-                            </div>
-                            <span className="text-gray-400 font-medium pb-2 text-sm italic self-end mb-1">a</span>
-                            <div className="flex-1">
-                                <label className="block text-[11px] font-semibold text-gray-600 mb-1 invisible">Fim</label>
-                                <input
-                                    type="date"
-                                    value={searchFilters.criacaoFim}
-                                    onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoFim: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#32423D] rounded-none"
-                                />
-                            </div>
-                        </div>
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Cliente:</label>
+                        <input
+                            type="text"
+                            value={searchFilters.cliente}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, cliente: e.target.value.toUpperCase() }))}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            placeholder="ALFATEC, SIEMENS..."
+                        />
                     </div>
-
-                    {/* Botões de Pesquisar e Limpar */}
-                    <div className="flex justify-end gap-2 mt-2">
-                        {(searchFilters.projeto || searchFilters.descProjeto || searchFilters.cliente || searchFilters.previsaoInicio || searchFilters.previsaoFim || searchFilters.criacaoInicio || searchFilters.criacaoFim) && (
-                            <button
-                                onClick={() => {
-                                    const emptyFilters = { projeto: '', descProjeto: '', cliente: '', previsaoInicio: '', previsaoFim: '', criacaoInicio: '', criacaoFim: '' };
-                                    setSearchFilters(emptyFilters);
-                                    fetchProjetos(emptyFilters);
-                                }}
-                                className="px-4 py-2 text-red-600 font-bold text-sm tracking-wide rounded hover:bg-red-50 transition-colors flex items-center gap-2 border border-transparent hover:border-red-200"
-                            >
-                                <X size={16} />
-                                Limpar
-                            </button>
-                        )}
-                        <button
-                            onClick={() => fetchProjetos()}
-                            disabled={loading}
-                            className="px-6 py-2 bg-[#E0E800]/20 border border-[#32423D]/20 text-[#32423D] font-bold text-sm tracking-wide rounded hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2"
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Finalizado:</label>
+                        <select
+                            value={searchFilters.finalizado}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, finalizado: e.target.value }))}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm appearance-none"
                         >
-                            <Search size={16} />
-                            {loading ? 'Buscando...' : 'Pesquisar'}
-                        </button>
+                            <option value="">— Todos —</option>
+                            <option value="N">Não Finalizados</option>
+                            <option value="C">Finalizados</option>
+                        </select>
                     </div>
+                </div>
+
+                {/* Linha 2: Datas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-2 mb-3">
+                    {/* Data Previsão */}
+                    <div className="flex items-center gap-1.5">
+                        <div className="flex-1">
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Dt Prev. de:</label>
+                            <input
+                                type="date"
+                                value={searchFilters.previsaoInicio}
+                                onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoInicio: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            />
+                        </div>
+                        <span className="text-gray-400 text-xs italic pt-4">a</span>
+                        <div className="flex-1">
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 invisible">até</label>
+                            <input
+                                type="date"
+                                value={searchFilters.previsaoFim}
+                                onChange={(e) => setSearchFilters(prev => ({ ...prev, previsaoFim: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Data Criação */}
+                    <div className="flex items-center gap-1.5">
+                        <div className="flex-1">
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Dt Criação de:</label>
+                            <input
+                                type="date"
+                                value={searchFilters.criacaoInicio}
+                                onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoInicio: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            />
+                        </div>
+                        <span className="text-gray-400 text-xs italic pt-4">a</span>
+                        <div className="flex-1">
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 invisible">até</label>
+                            <input
+                                type="date"
+                                value={searchFilters.criacaoFim}
+                                onChange={(e) => setSearchFilters(prev => ({ ...prev, criacaoFim: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Botões de ação */}
+                <div className="flex justify-end gap-2">
+                    <button
+                        onClick={() => {
+                            const emptyFilters = { projeto: '', descProjeto: '', cliente: '', previsaoInicio: '', previsaoFim: '', criacaoInicio: '', criacaoFim: '', finalizado: '' };
+                            setSearchFilters(emptyFilters);
+                            fetchProjetos(emptyFilters);
+                        }}
+                        className="px-3 py-1.5 text-gray-500 font-semibold text-xs tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5"
+                    >
+                        <X size={13} />
+                        Limpar
+                    </button>
+                    <button
+                        onClick={() => fetchProjetos()}
+                        disabled={loading}
+                        className="px-5 py-1.5 bg-[#E0E800]/20 border border-[#32423D]/20 text-[#32423D] font-bold text-xs tracking-wide rounded hover:bg-[#E0E800]/40 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                        <Search size={13} />
+                        {loading ? 'Buscando...' : 'Pesquisar'}
+                    </button>
                 </div>
             </div>
 
