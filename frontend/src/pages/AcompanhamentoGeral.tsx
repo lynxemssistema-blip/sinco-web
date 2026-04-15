@@ -4,7 +4,7 @@ import {
     AlertTriangle, Calendar, Building2, MapPin, FileText, Eye,
     CheckCircle2, Clock, TrendingUp, BarChart3, Scissors, Wrench,
     Flame, Paintbrush, HardHat, Package, ChevronDown, ChevronUp,
-    GanttChartSquare, List
+    GanttChartSquare, List, LayoutList
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -34,6 +34,17 @@ interface ProjetoAcomp {
     TotalSolda: number; ExecSolda: number; PctSolda: number;
     TotalPintura: number; ExecPintura: number; PctPintura: number;
     TotalMontagem: number; ExecMontagem: number; PctMontagem: number;
+    // Setor Dates (Aggregated from tags)
+    PlanejadoInicioCorte: string | null; PlanejadoFinalCorte: string | null;
+    RealizadoInicioCorte: string | null; RealizadoFinalCorte: string | null;
+    PlanejadoInicioDobra: string | null; PlanejadoFinalDobra: string | null;
+    RealizadoInicioDobra: string | null; RealizadoFinalDobra: string | null;
+    PlanejadoInicioSolda: string | null; PlanejadoFinalSolda: string | null;
+    RealizadoInicioSolda: string | null; RealizadoFinalSolda: string | null;
+    PlanejadoInicioPintura: string | null; PlanejadoFinalPintura: string | null;
+    RealizadoInicioPintura: string | null; RealizadoFinalPintura: string | null;
+    PlanejadoInicioMontagem: string | null; PlanejadoFinalMontagem: string | null;
+    RealizadoInicioMontagem: string | null; RealizadoFinalMontagem: string | null;
     QtdeTags: number;
     SumQtdeTag: number;
 }
@@ -73,10 +84,11 @@ const SETORES = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const parseDate = (d: string | null): Date | null => {
+const parseDate = (d: string | Date | null): Date | null => {
     if (!d) return null;
+    if (d instanceof Date) return isNaN(d.getTime()) ? null : d;
     // Handle dd/mm/yyyy
-    if (d.includes('/')) {
+    if (typeof d === 'string' && d.includes('/')) {
         const [day, month, year] = d.split('/');
         const dt = new Date(Number(year), Number(month) - 1, Number(day));
         return isNaN(dt.getTime()) ? null : dt;
@@ -100,7 +112,7 @@ const fmtDateShort = (dt: Date | null) => {
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 const StatusBadge = ({ status, desc, finalizado }: { status: string; desc: string | null; finalizado?: string | null }) => {
-    if (finalizado === 'C') {
+    if (finalizado && finalizado.trim().toUpperCase() === 'C') {
         return (
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase bg-slate-100 border-slate-300 text-slate-600">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
@@ -132,23 +144,29 @@ const MiniBar = ({ pct, color }: { pct: number; color: string }) => (
 const SetorCell = ({ total, exec, pct, color }: { total: number; exec: number; pct: number; color: string }) => {
     const active = total > 0;
     return (
-        <div className={`flex flex-col gap-0.5 px-1 ${!active ? 'opacity-30' : ''}`} style={{ minWidth: 68 }}>
-            <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold" style={{ color }}>{exec}</span>
-                <span className="text-[10px] text-slate-400">/{total}</span>
+        <div className={`flex flex-col gap-0.5 px-0.5 ${!active ? 'opacity-30' : ''}`} style={{ minWidth: 60 }}>
+            <div className="flex flex-col">
+                <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100 mb-0.5">
+                    <span className="text-[7.5px] font-bold text-slate-400 uppercase">Exec:</span>
+                    <span className="text-[9px] font-black" style={{ color }}>{exec}</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100">
+                    <span className="text-[7.5px] font-bold text-slate-400 uppercase">Sal:</span>
+                    <span className="text-[9px] font-bold text-slate-500">{total}</span>
+                </div>
             </div>
-            <MiniBar pct={pct} color={color} />
-            <span className="text-[9px] text-slate-500 text-center">{pct}%</span>
+            <div className="mt-1">
+                <MiniBar pct={pct} color={color} />
+                <span className="text-[8px] text-slate-500 font-bold block text-center mt-0.5">{pct}%</span>
+            </div>
         </div>
     );
 };
 
-// ─── GANTT CHART ─────────────────────────────────────────────────────────────
-
 interface GanttRow {
-    tagId: number;
-    tagLabel: string;
-    tagDesc: string | null;
+    id: number;
+    label: string;
+    desc: string | null;
     finalizado: boolean;
     bars: {
         setor: string;
@@ -162,21 +180,27 @@ interface GanttRow {
         total: number;
         exec: number;
         active: boolean;
+        show: boolean; // Control visibility of row
     }[];
 }
 
-function GanttChart({ tags }: { tags: TagDetalhe[] }) {
+interface GanttChartProps {
+    data: any[]; // Can be TagDetalhe[] or ProjetoAcomp[]
+    mode: 'tag' | 'projeto';
+}
+
+function GanttChart({ data, mode }: GanttChartProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Compute global date range from all tags
+    // Compute global date range
     const allDates: Date[] = [];
-    tags.forEach(tag => {
+    data.forEach(item => {
         SETORES.forEach(s => {
-            const pIni = parseDate((tag as any)[`PlanejadoInicio${s.key}`]);
-            const pFin = parseDate((tag as any)[`PlanejadoFinal${s.key}`]);
-            const rIni = parseDate((tag as any)[`RealizadoInicio${s.key}`]);
-            const rFin = parseDate((tag as any)[`RealizadoFinal${s.key}`]);
+            const pIni = parseDate(item[`PlanejadoInicio${s.key}`]);
+            const pFin = parseDate(item[`PlanejadoFinal${s.key}`]);
+            const rIni = parseDate(item[`RealizadoInicio${s.key}`]);
+            const rFin = parseDate(item[`RealizadoFinal${s.key}`]);
             if (pIni) allDates.push(pIni);
             if (pFin) allDates.push(pFin);
             if (rIni) allDates.push(rIni);
@@ -216,24 +240,31 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
     };
 
     // Build gantt rows
-    const rows: GanttRow[] = tags.map(tag => ({
-        tagId: tag.IdTag,
-        tagLabel: tag.Tag,
-        tagDesc: tag.DescTag,
-        finalizado: tag.Finalizado === 'C',
-        bars: SETORES.map(s => ({
-            setor: s.label,
-            color: s.color,
-            solidColor: s.solid,
-            planStart: parseDate((tag as any)[`PlanejadoInicio${s.key}`]),
-            planEnd: parseDate((tag as any)[`PlanejadoFinal${s.key}`]),
-            realStart: parseDate((tag as any)[`RealizadoInicio${s.key}`]),
-            realEnd: parseDate((tag as any)[`RealizadoFinal${s.key}`]),
-            pct: Number((tag as any)[`${s.key}Percentual`]) || 0,
-            total: Number((tag as any)[`${s.key}TotalExecutar`]) || 0,
-            exec: Number((tag as any)[`${s.key}TotalExecutado`]) || 0,
-            active: (Number((tag as any)[`${s.key}TotalExecutar`]) || 0) > 0,
-        }))
+    const rows: GanttRow[] = data.map(item => ({
+        id: mode === 'tag' ? item.IdTag : item.IdProjeto,
+        label: mode === 'tag' ? item.Tag : item.Projeto,
+        desc: mode === 'tag' ? item.DescTag : item.DescProjeto,
+        finalizado: item.Finalizado === 'C',
+        bars: SETORES.map(s => {
+            const total = Number(mode === 'tag' ? item[`${s.key}TotalExecutar`] : item[`Total${s.key}`]) || 0;
+            const exec = Number(mode === 'tag' ? item[`${s.key}TotalExecutado`] : item[`Exec${s.key}`]) || 0;
+            const pct = Number(mode === 'tag' ? item[`${s.key}Percentual`] : item[`Pct${s.key}`]) || 0;
+            
+            return {
+                setor: s.label,
+                color: s.color,
+                solidColor: s.solid,
+                planStart: parseDate(item[`PlanejadoInicio${s.key}`]),
+                planEnd: parseDate(item[`PlanejadoFinal${s.key}`]),
+                realStart: parseDate(item[`RealizadoInicio${s.key}`]),
+                realEnd: parseDate(item[`RealizadoFinal${s.key}`]),
+                pct,
+                total,
+                exec,
+                active: total > 0 || exec > 0,
+                show: true // Always show per user request
+            };
+        })
     }));
 
     // Generate month tick marks
@@ -254,8 +285,8 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
     // Today line
     const todayPct = dayPct(today);
 
-    const ROW_HEIGHT = 36; // px per setor row
-    const LABEL_WIDTH = 160; // px
+    const ROW_HEIGHT = 28; // px per setor row (reduced)
+    const LABEL_WIDTH = 200; // px (expanded)
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -282,10 +313,10 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
             </div>
 
             <div className="flex-1 overflow-auto custom-scrollbar">
-                <div style={{ minWidth: LABEL_WIDTH + 800 }}>
+                <div style={{ minWidth: LABEL_WIDTH + 600 }}>
                     {/* Header: month ticks */}
                     <div className="flex sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-                        <div className="shrink-0 bg-slate-100 border-r border-slate-200 flex items-center px-3" style={{ width: LABEL_WIDTH }}>
+                        <div className="sticky left-0 z-20 bg-white border-r shadow-sm flex items-center px-3" style={{ width: LABEL_WIDTH }}>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Tag / Setor</span>
                         </div>
                         <div className="flex-1 relative h-8">
@@ -306,27 +337,25 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
 
                     {/* Rows */}
                     {rows.map((row) => {
-                        const activeSetores = row.bars.filter(b => b.active);
                         return (
-                            <div key={row.tagId} className={`border-b ${row.finalizado ? 'border-emerald-100 bg-emerald-50/20' : 'border-slate-100'}`}>
-                                {/* Tag label row */}
+                            <div key={row.id} className={`border-b ${row.finalizado ? 'border-emerald-100 bg-emerald-50/20' : 'border-slate-100'}`}>
+                                {/* Row label row */}
                                 <div className="flex items-stretch" style={{ minHeight: 28 }}>
                                     <div
-                                        className={`shrink-0 flex items-center gap-2 px-3 border-r ${row.finalizado ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-slate-50'}`}
+                                        className={`sticky left-0 z-10 shrink-0 flex items-center gap-2 px-2 border-r ${row.finalizado ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'}`}
                                         style={{ width: LABEL_WIDTH }}
                                     >
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${row.finalizado ? 'bg-emerald-600' : 'bg-slate-700'}`}>
-                                            <Package size={10} className="text-white" />
+                                        <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${row.finalizado ? 'bg-emerald-600' : (mode === 'tag' ? 'bg-slate-700' : 'bg-indigo-700')}`}>
+                                            {mode === 'tag' ? <Package size={8} className="text-white" /> : <Layers size={8} className="text-white" />}
                                         </div>
-                                        <div className="min-w-0">
-                                            <div className="text-[11px] font-black text-slate-800 truncate leading-tight">{row.tagLabel}</div>
-                                            {row.tagDesc && <div className="text-[9px] text-slate-400 truncate leading-tight">{row.tagDesc}</div>}
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[10px] font-black text-slate-800 truncate leading-tight uppercase">{row.label}</div>
                                         </div>
                                         {row.finalizado && (
-                                            <CheckCircle2 size={10} className="text-emerald-500 shrink-0 ml-auto" />
+                                            <CheckCircle2 size={10} className="text-emerald-500 shrink-0" />
                                         )}
                                     </div>
-                                    {/* No chart line at tag level - just filler */}
+                                    {/* No chart line at top level - just filler */}
                                     <div className="flex-1 relative bg-white/50">
                                         {/* Grid lines */}
                                         {months.map((m, i) => (
@@ -339,7 +368,7 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
                                 </div>
 
                                 {/* Setor bars */}
-                                {activeSetores.map((bar) => {
+                                {row.bars.map((bar) => {
                                     const hasPlan = bar.planStart && bar.planEnd;
                                     const hasReal = bar.realStart;
                                     const realEnd = bar.realEnd || (hasReal ? today : null);
@@ -348,12 +377,20 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
                                         <div key={bar.setor} className="flex items-stretch" style={{ height: ROW_HEIGHT }}>
                                             {/* Setor label */}
                                             <div
-                                                className="shrink-0 flex items-center gap-1.5 px-3 border-r border-slate-200 pl-8"
+                                                className="sticky left-0 z-10 shrink-0 flex items-center gap-2 px-2 border-r border-slate-200"
                                                 style={{ width: LABEL_WIDTH, backgroundColor: `${bar.color}10` }}
                                             >
                                                 <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: bar.color }} />
-                                                <span className="text-[9px] font-bold" style={{ color: bar.color }}>{bar.setor}</span>
-                                                <span className="text-[9px] text-slate-400 ml-auto">{bar.exec}/{bar.total}</span>
+                                                <div className="flex-1 min-w-0 flex flex-col">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[9px] font-black uppercase truncate" style={{ color: bar.color }}>{bar.setor}</span>
+                                                        <span className="text-[9px] font-black text-slate-500 tabular-nums">Exec: {bar.exec} / Sal: {bar.total}</span>
+                                                    </div>
+                                                    <div className="flex gap-2 text-[8.5px] font-bold text-slate-400">
+                                                        {bar.realStart && <span>RI: {fmtDateShort(bar.realStart)}</span>}
+                                                        {bar.realEnd && <span>RF: {fmtDateShort(bar.realEnd)}</span>}
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {/* Bar area */}
@@ -374,17 +411,12 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
                                                         style={{
                                                             left: `${dayPct(bar.planStart!)}%`,
                                                             width: `${spanPct(bar.planStart!, bar.planEnd!)}%`,
-                                                            height: 14,
-                                                            backgroundColor: `${bar.color}25`,
-                                                            border: `1.5px dashed ${bar.color}80`,
+                                                            height: 12,
+                                                            backgroundColor: `${bar.color}20`,
+                                                            border: `1px dashed ${bar.color}60`,
                                                             zIndex: 3,
                                                         }}
-                                                        title={`Planejado: ${fmtDate((bar.planStart!).toISOString())} → ${fmtDate((bar.planEnd!).toISOString())}`}
-                                                    >
-                                                        <span className="px-1 text-[8px] font-bold truncate" style={{ color: bar.solidColor }}>
-                                                            {fmtDateShort(bar.planStart)} → {fmtDateShort(bar.planEnd)}
-                                                        </span>
-                                                    </div>
+                                                    />
                                                 )}
 
                                                 {/* Realized bar */}
@@ -394,12 +426,11 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
                                                         style={{
                                                             left: `${dayPct(bar.realStart!)}%`,
                                                             width: `${spanPct(bar.realStart!, realEnd)}%`,
-                                                            height: 20,
+                                                            height: 16,
                                                             zIndex: 4,
                                                             backgroundColor: `${bar.color}30`,
-                                                            border: `1.5px solid ${bar.color}`,
+                                                            border: `1px solid ${bar.color}`,
                                                         }}
-                                                        title={`Realizado: ${fmtDate((bar.realStart!).toISOString())} → ${bar.realEnd ? fmtDate((bar.realEnd).toISOString()) : 'Em andamento'} (${bar.pct}%)`}
                                                     >
                                                         {/* Progress fill */}
                                                         <div
@@ -407,20 +438,15 @@ function GanttChart({ tags }: { tags: TagDetalhe[] }) {
                                                             style={{
                                                                 width: `${bar.pct}%`,
                                                                 backgroundColor: bar.color,
-                                                                opacity: 0.85,
+                                                                opacity: 0.8,
                                                             }}
                                                         />
-                                                        <span className="relative z-10 px-1.5 text-[9px] font-black text-white truncate leading-none drop-shadow">
-                                                            {bar.pct}% · {bar.exec}/{bar.total}
+                                                        <span className="relative z-10 px-1 text-[8px] font-black text-slate-800 truncate leading-none">
+                                                            {bar.realStart && `RI: ${fmtDateShort(bar.realStart)}`}
+                                                            {bar.realEnd && ` · RF: ${fmtDateShort(bar.realEnd)}`}
+                                                            { (bar.realStart || bar.realEnd) && ` · ` }
+                                                            {bar.pct}%
                                                         </span>
-                                                    </div>
-                                                )}
-
-                                                {/* No dates fallback: just a progress indicator */}
-                                                {!hasPlan && !hasReal && bar.pct > 0 && (
-                                                    <div className="absolute top-1/2 -translate-y-1/2 left-2 right-2 h-4 rounded overflow-hidden bg-slate-100 border border-slate-200" style={{ zIndex: 3 }}>
-                                                        <div className="h-full transition-all" style={{ width: `${bar.pct}%`, backgroundColor: bar.color, opacity: 0.7 }} />
-                                                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-slate-600">{bar.pct}% (sem datas)</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -447,21 +473,21 @@ function TagDetailSection({ tag }: { tag: TagDetalhe }) {
             {/* Tag Header Row */}
             <button
                 onClick={() => setExpanded(v => !v)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50/80 transition-colors text-left"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50/80 transition-colors text-left"
             >
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
-                    <Package size={14} className="text-white" />
+                <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center">
+                    <Package size={12} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-black text-slate-800">{tag.Tag}</span>
+                        <span className="text-xs font-black text-slate-800">{tag.Tag}</span>
                         {isFinished && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[8px] font-bold border border-emerald-200">
                                 <CheckCircle2 size={8} /> FINALIZADA
                             </span>
                         )}
                     </div>
-                    {tag.DescTag && <p className="text-xs text-slate-500 truncate">{tag.DescTag}</p>}
+                    {tag.DescTag && <p className="text-[10px] text-slate-500 truncate">{tag.DescTag}</p>}
                 </div>
                 <div className="flex items-center gap-4 flex-shrink-0">
                     {/* Mini setor bars inline */}
@@ -602,7 +628,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                                             <Building2 size={10} /> {projeto.DescEmpresa}
                                         </span>
                                     )}
-                                    <StatusBadge status={projeto.StatusProj} desc={projeto.DescStatus} />
+                                    <StatusBadge status={projeto.StatusProj} desc={projeto.DescStatus} finalizado={projeto.Finalizado} />
                                     <span className="text-xs text-slate-400">#{projeto.IdProjeto}</span>
                                 </div>
                             </div>
@@ -654,9 +680,15 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                                     <span className="text-xs font-black" style={{ color: s.color }}>{pct}%</span>
                                 </div>
                                 <MiniBar pct={pct} color={s.color} />
-                                <div className="flex items-center gap-1">
-                                    <span className="text-xs font-black text-slate-700">{tot[1]}</span>
-                                    <span className="text-[10px] text-slate-400">/ {tot[0]}</span>
+                                <div className="flex flex-col gap-0.5 mt-1">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Executado:</span>
+                                        <span className="text-xs font-black" style={{ color: s.color }}>{tot[1]}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Saldo:</span>
+                                        <span className="text-[11px] font-bold text-slate-600">{tot[0]}</span>
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -694,7 +726,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                         )}
                         {viewMode === 'gantt' && (
                             <div className="h-full flex flex-col">
-                                <GanttChart tags={tags} />
+                                <GanttChart data={tags} mode="tag" />
                             </div>
                         )}
                     </>
@@ -712,6 +744,7 @@ export default function AcompanhamentoGeralPage() {
     const [error, setError] = useState<string | null>(null);
     const [selected, setSelected] = useState<ProjetoAcomp | null>(null);
     const [detalhe, setDetalhe] = useState<ProjetoAcomp | null>(null);
+    const [mainViewMode, setMainViewMode] = useState<'lista' | 'gantt'>('lista');
 
     const [fSearch, setFSearch] = useState('');
     const [fSearchInput, setFSearchInput] = useState('');
@@ -785,8 +818,8 @@ export default function AcompanhamentoGeralPage() {
     return (
         <div className="flex flex-col h-full bg-slate-50/50 font-sans overflow-hidden">
 
-            {/* ── Header ── */}
-            <div className="shrink-0 bg-white border-b border-slate-200 px-5 py-3 shadow-sm">
+            {/* ── Header (Sticky) ── */}
+            <div className="sticky top-[-2rem] z-30 bg-white border-b border-slate-200 px-5 py-3 shadow-sm">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
@@ -794,24 +827,41 @@ export default function AcompanhamentoGeralPage() {
                         </div>
                         <div>
                             <h1 className="text-base font-black text-slate-800 leading-tight">Acompanhamento Geral</h1>
-                            <p className="text-[11px] text-slate-500">Visão consolidada por projeto · Gantt por Tag</p>
+                            <p className="text-[11px] text-slate-500">Visão consolidada por projeto · Gantt consolidado</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {/* View Switcher */}
+                        <div className="flex bg-slate-100 p-1 rounded-xl mr-2">
+                            <button
+                                onClick={() => setMainViewMode('lista')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                <LayoutList size={14} />
+                                Lista
+                            </button>
+                            <button
+                                onClick={() => setMainViewMode('gantt')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                <GanttChartSquare size={14} />
+                                Ver Gantt Geral
+                            </button>
+                        </div>
+
                         {selected && (
                             <button
                                 id="btn-detalhar-projeto"
                                 onClick={() => setDetalhe(selected)}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-bold rounded-xl shadow-md hover:shadow-lg hover:opacity-90 transition-all"
                             >
-                                <GanttChartSquare size={15} />
-                                Ver Gantt
                                 <ChevronRight size={14} />
+                                Detalhar Tags
                             </button>
                         )}
-                        <div className="text-right">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Projetos</div>
-                            <div className="text-sm font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{projetos.length}</div>
+                        <div className="text-right ml-2 border-l pl-3 border-slate-200">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-1">Total Projetos</div>
+                            <div className="text-sm font-black text-blue-700">{projetos.length}</div>
                         </div>
                     </div>
                 </div>
@@ -922,7 +972,7 @@ export default function AcompanhamentoGeralPage() {
             )}
 
             {/* ── Table ── */}
-            <div className="flex-1 overflow-auto custom-scrollbar">
+            <div className="flex-1 overflow-auto custom-scrollbar relative">
                 {error && (
                     <div className="m-4 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 flex items-center gap-2 text-sm">
                         <AlertTriangle size={16} /> {error}
@@ -937,164 +987,75 @@ export default function AcompanhamentoGeralPage() {
                 )}
 
                 {projetos.length > 0 && (
-                    <table className="w-full text-xs border-collapse" style={{ minWidth: 1200 }}>
-                        <thead>
-                            <tr className="bg-slate-100 sticky top-0 z-10">
-                                {/* Identificação */}
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">ID</th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">Projeto</th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">
-                                    <span className="flex items-center gap-1"><Building2 size={10} />Cliente</span>
-                                </th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">
-                                    <span className="flex items-center gap-1"><MapPin size={10} />Estado</span>
-                                </th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">
-                                    <span className="flex items-center gap-1"><FileText size={10} />Observação</span>
-                                </th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">Situação</th>
-                                <th className="px-3 py-2.5 text-left font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">
-                                    <span className="flex items-center gap-1"><Calendar size={10} />Data Final</span>
-                                </th>
-                                {/* Aprovação */}
-                                <th className="px-2 py-2.5 text-center font-black text-violet-600 border-b border-slate-200 bg-violet-50 whitespace-nowrap" colSpan={4}>
-                                    Aprovação
-                                </th>
-                                {/* Setores */}
-                                {SETORES.map(s => (
-                                    <th key={s.key} className="px-2 py-2.5 text-center font-black border-b border-slate-200 whitespace-nowrap" style={{ color: s.color, backgroundColor: s.bg }}>
-                                        {s.label}
-                                    </th>
-                                ))}
-                                {/* Expedição */}
-                                <th className="px-2 py-2.5 text-center font-black text-teal-600 border-b border-slate-200 bg-teal-50 whitespace-nowrap" colSpan={2}>
-                                    Expedição (Realizado)
-                                </th>
-                            </tr>
-                            <tr className="bg-slate-50 sticky top-[37px] z-10 border-b border-slate-200">
-                                <th colSpan={7} className="px-3 py-1" />
-                                {/* Approval sub-headers */}
-                                <th className="px-2 py-1 text-[9px] font-semibold text-violet-500 bg-violet-50 whitespace-nowrap">Pl. Início</th>
-                                <th className="px-2 py-1 text-[9px] font-semibold text-violet-500 bg-violet-50 whitespace-nowrap">Pl. Final</th>
-                                <th className="px-2 py-1 text-[9px] font-semibold text-violet-700 bg-violet-50 whitespace-nowrap">Re. Início</th>
-                                <th className="px-2 py-1 text-[9px] font-semibold text-violet-700 bg-violet-50 whitespace-nowrap">Re. Final</th>
-                                {SETORES.map(s => <th key={s.key} className="px-2 py-1 text-[9px] font-semibold text-center" style={{ color: s.color, backgroundColor: s.bg }}>Exec/Total</th>)}
-                                {/* Expedition sub-headers */}
-                                <th className="px-2 py-1 text-[9px] font-semibold text-teal-600 bg-teal-50 whitespace-nowrap">Re. Início</th>
-                                <th className="px-2 py-1 text-[9px] font-semibold text-teal-600 bg-teal-50 whitespace-nowrap">Re. Final</th>
-                                <th className="px-3 py-1" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {projetos.map(p => {
-                                const isSelected = selected?.IdProjeto === p.IdProjeto;
-                                return (
-                                    <tr
-                                        key={p.IdProjeto}
-                                        id={`row-projeto-${p.IdProjeto}`}
-                                        onClick={() => setSelected(isSelected ? null : p)}
-                                        className={`cursor-pointer border-b transition-all ${
-                                            isSelected
-                                                ? 'bg-indigo-50 border-indigo-200 shadow-inner'
-                                                : 'border-slate-100 hover:bg-blue-50/40'
-                                        }`}
-                                    >
-                                        {/* ID */}
-                                        <td className="px-3 py-2.5">
-                                            <span className="font-black text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">#{p.IdProjeto}</span>
-                                        </td>
-                                        {/* Projeto */}
-                                        <td className="px-3 py-2.5">
-                                            <div className="font-black text-slate-800">{p.Projeto}</div>
-                                            {p.DescProjeto && <div className="text-[10px] text-slate-500 truncate max-w-[180px]">{p.DescProjeto}</div>}
-                                        </td>
-                                        {/* Cliente */}
-                                        <td className="px-3 py-2.5 text-slate-600 whitespace-nowrap">{p.DescEmpresa || '—'}</td>
-                                        {/* Estado */}
-                                        <td className="px-3 py-2.5">
-                                            {p.Estado
-                                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-bold">{p.Estado}</span>
-                                                : <span className="text-slate-300">—</span>}
-                                        </td>
-                                        {/* Observação — inline editável */}
-                                        <td
-                                            className="px-2 py-1.5"
-                                            onClick={e => e.stopPropagation()}
-                                            style={{ minWidth: 160, maxWidth: 220 }}
+                    mainViewMode === 'lista' ? (
+                        <table className="w-full text-[11px] border-collapse" style={{ minWidth: 1000 }}>
+                            <thead className="sticky top-[64px] z-20 shadow-sm">
+                                <tr className="bg-slate-100 border-b border-slate-200">
+                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider" style={{ width: 60 }}>ID</th>
+                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Projeto / Cliente</th>
+                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Data Final</th>
+                                    {SETORES.map(s => (
+                                        <th key={s.key} className="px-1 py-2 text-center font-black text-slate-500 uppercase tracking-wider" style={{ width: 65 }}>
+                                            {s.label}
+                                        </th>
+                                    ))}
+                                    <th className="px-2 py-2 text-right font-black text-slate-500 uppercase tracking-wider w-20">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 bg-white">
+                                {projetos.map(p => {
+                                    const isSelected = selected?.IdProjeto === p.IdProjeto;
+                                    return (
+                                        <tr
+                                            key={p.IdProjeto}
+                                            onClick={() => setSelected(isSelected ? null : p)}
+                                            className={`cursor-pointer transition-all ${
+                                                isSelected ? 'bg-indigo-50/50' : 'hover:bg-slate-50/50'
+                                            }`}
                                         >
-                                            {obsEdit?.id === p.IdProjeto ? (
-                                                <input
-                                                    ref={obsInputRef}
-                                                    autoFocus
-                                                    type="text"
-                                                    value={obsEdit.value}
-                                                    onChange={e => setObsEdit({ id: p.IdProjeto, value: e.target.value })}
-                                                    onBlur={() => saveObservacao(p.IdProjeto, obsEdit.value)}
-                                                    onKeyDown={e => {
-                                                        if (e.key === 'Enter') saveObservacao(p.IdProjeto, obsEdit.value);
-                                                        if (e.key === 'Escape') setObsEdit(null);
-                                                    }}
-                                                    className="w-full px-2 py-1 text-xs border-2 border-blue-400 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 bg-white text-slate-800 shadow-sm"
-                                                    placeholder="Digite a observação..."
-                                                />
-                                            ) : (
-                                                <button
-                                                    onClick={e => {
-                                                        e.stopPropagation();
-                                                        setObsEdit({ id: p.IdProjeto, value: p.Observacao ?? '' });
-                                                    }}
-                                                    title={p.Observacao ? `Clique para editar: ${p.Observacao}` : 'Clique para adicionar observação'}
-                                                    className={`w-full text-left px-2 py-1 rounded-lg border text-xs transition-all hover:border-blue-300 hover:bg-blue-50 ${
-                                                        p.Observacao
-                                                            ? 'border-slate-200 bg-slate-50 text-slate-700'
-                                                            : 'border-dashed border-slate-200 text-slate-300 hover:text-slate-400'
-                                                    }`}
-                                                >
-                                                    <span className="block truncate">
-                                                        {p.Observacao || '+ Adicionar...'}
-                                                    </span>
-                                                </button>
-                                            )}
-                                        </td>
-                                        {/* Situação */}
-                                        <td className="px-3 py-2.5">
-                                            <StatusBadge status={p.StatusProj} desc={p.DescStatus} finalizado={p.Finalizado} />
-                                        </td>
-                                        {/* Data Final */}
-                                        <td className="px-3 py-2.5 whitespace-nowrap">
-                                            <span className={`font-semibold ${p.DataPrevisao ? 'text-slate-700' : 'text-slate-300'}`}>
-                                                {fmtDate(p.DataPrevisao)}
-                                            </span>
-                                        </td>
-                                        {/* Aprovação */}
-                                        <td className="px-2 py-2.5 text-slate-500 bg-violet-50/30 whitespace-nowrap">{fmtDate(p.PlanejadoInicioAPROVACAO)}</td>
-                                        <td className="px-2 py-2.5 text-slate-500 bg-violet-50/30 whitespace-nowrap">{fmtDate(p.PlanejadoFinalAPROVACAO)}</td>
-                                        <td className="px-2 py-2.5 font-semibold text-violet-700 bg-violet-50/30 whitespace-nowrap">{fmtDate(p.RealizadoInicioAPROVACAO)}</td>
-                                        <td className="px-2 py-2.5 font-semibold text-violet-700 bg-violet-50/30 whitespace-nowrap">{fmtDate(p.RealizadoFinalAPROVACAO)}</td>
-                                        {/* Setores */}
-                                        {SETORES.map(s => (
-                                            <td key={s.key} className="px-2 py-2.5" style={{ backgroundColor: `${s.bg}50` }}>
-                                                <SetorCell
-                                                    total={Number((p as any)[`Total${s.key}`]) || 0}
-                                                    exec={Number((p as any)[`Exec${s.key}`]) || 0}
-                                                    pct={Number((p as any)[`Pct${s.key}`]) || 0}
-                                                    color={s.color}
-                                                />
+                                            <td className="px-2 py-1.5 font-bold text-slate-400">#{p.IdProjeto}</td>
+                                            <td className="px-2 py-1.5">
+                                                <div className="font-black text-slate-800 leading-tight">{p.Projeto}</div>
+                                                <div className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.DescEmpresa || 'Sem Cliente'}</div>
                                             </td>
-                                        ))}
-                                        {/* Expedição */}
-                                        <td className="px-2 py-2.5 font-semibold text-teal-700 bg-teal-50/30 whitespace-nowrap">{fmtDate(p.RealizadoInicioExpedicao)}</td>
-                                        <td className="px-2 py-2.5 font-semibold text-teal-700 bg-teal-50/30 whitespace-nowrap">{fmtDate(p.RealizadoFinalExpedicao)}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                            <td className="px-2 py-1.5">
+                                                <StatusBadge status={p.StatusProj} desc={p.DescStatus} finalizado={p.Finalizado} />
+                                            </td>
+                                            <td className="px-2 py-1.5 font-bold text-slate-600 whitespace-nowrap">
+                                                {fmtDate(p.DataPrevisao)}
+                                            </td>
+                                            {SETORES.map(s => (
+                                                <td key={s.key} className="px-1 py-1.5">
+                                                    <SetorCell
+                                                        total={Number((p as any)[`Total${s.key}`]) || 0}
+                                                        exec={Number((p as any)[`Exec${s.key}`]) || 0}
+                                                        pct={Number((p as any)[`Pct${s.key}`]) || 0}
+                                                        color={s.color}
+                                                    />
+                                                </td>
+                                            ))}
+                                            <td className="px-2 py-1.5 text-right">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setDetalhe(p); }}
+                                                    className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-[10px] font-bold border border-blue-100"
+                                                >
+                                                    Tags
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <GanttChart data={projetos} mode="projeto" />
+                    )
                 )}
 
                 {loading && (
                     <div className="flex justify-center p-10">
-                        <Loader className="animate-spin text-blue-500" size={26} />
+                        <Loader className="animate-spin text-blue-500" size={24} />
                     </div>
                 )}
             </div>

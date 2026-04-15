@@ -3523,26 +3523,29 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
 
         const where = condicoes.join(' AND ');
 
+        console.log(`[API] Acompanhamento Projetos Request - Finalizados: ${mostrarFinalizados}, Liberados: ${mostrarLiberados}`);
+
+
         const queryPool = req.tenantDbPool || pool;
 
         // Get projects with aggregated sector totals from their tags + RNC count
         const [rows] = await queryPool.execute(`
             SELECT
                 p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao,
-                p.Finalizado, p.liberado, p.StatusProj, p.DescStatus,
+                TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.DescStatus,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Tags / Pecas nativos da tabela Projetos -- */
                 COUNT(t.IdTag) AS QtdeTags,
                 COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas,
                 COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags,
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
 
-                /* ── OS Count ── */
+                /* -- OS Count -- */
                 COALESCE((SELECT COUNT(*) FROM ordemservico os 
                            WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL))
                              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdeOS,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ RNC Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- RNC -- */
                 COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
                            WHERE r.IdProjeto = p.IdProjeto
                              AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
@@ -3562,28 +3565,38 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                              AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
                              AND (r.Estatus LIKE '%FIN%' OR r.Estatus = 'FINALIZADA')), 0) AS qtderncFinalizada,
                              
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Novas req Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Novas req -- */
                 COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Setor Corte Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Setor Corte -- */
                 COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalCorte,
                 COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecCorte,
+                MIN(t.PlanejadoInicioCorte) as PlanejadoInicioCorte, MAX(t.PlanejadoFinalCorte) as PlanejadoFinalCorte,
+                MIN(t.RealizadoInicioCorte) as RealizadoInicioCorte, MAX(t.RealizadoFinalCorte) as RealizadoFinalCorte,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Setor Dobra Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Setor Dobra -- */
                 COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalDobra,
                 COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecDobra,
+                MIN(t.PlanejadoInicioDobra) as PlanejadoInicioDobra, MAX(t.PlanejadoFinalDobra) as PlanejadoFinalDobra,
+                MIN(t.RealizadoInicioDobra) as RealizadoInicioDobra, MAX(t.RealizadoFinalDobra) as RealizadoFinalDobra,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Setor Solda Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Setor Solda -- */
                 COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0)   AS TotalSolda,
                 COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0)  AS ExecSolda,
+                MIN(t.PlanejadoInicioSolda) as PlanejadoInicioSolda, MAX(t.PlanejadoFinalSolda) as PlanejadoFinalSolda,
+                MIN(t.RealizadoInicioSolda) as RealizadoInicioSolda, MAX(t.RealizadoFinalSolda) as RealizadoFinalSolda,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Setor Pintura Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Setor Pintura -- */
                 COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0)  AS TotalPintura,
                 COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecPintura,
+                MIN(t.PlanejadoInicioPintura) as PlanejadoInicioPintura, MAX(t.PlanejadoFinalPintura) as PlanejadoFinalPintura,
+                MIN(t.RealizadoInicioPintura) as RealizadoInicioPintura, MAX(t.RealizadoFinalPintura) as RealizadoFinalPintura,
 
-                /* Ã¢â€â‚¬Ã¢â€â‚¬ Setor Montagem Ã¢â€â‚¬Ã¢â€â‚¬ */
+                /* -- Setor Montagem -- */
                 COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0)  AS TotalMontagem,
-                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecMontagem
+                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecMontagem,
+                MIN(t.PlanejadoInicioMontagem) as PlanejadoInicioMontagem, MAX(t.PlanejadoFinalMontagem) as PlanejadoFinalMontagem,
+                MIN(t.RealizadoInicioMontagem) as RealizadoInicioMontagem, MAX(t.RealizadoFinalMontagem) as RealizadoFinalMontagem
 
             FROM projetos p
             LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto
@@ -6186,6 +6199,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
                 END as PercentualSetor,
             osi.${setorConfig.status} as Status,
             osi.${setorConfig.total} as QtdeProduzidaSetor,
+            osi.${setorConfig.executar} as TotalExecutar,
             os.Projeto,
             os.IdProjeto,
             p.DescProjeto,
@@ -6586,9 +6600,19 @@ osi.*,
 
             // 6. Cascading Totals (HIERARQUIA: Item -> OS -> Tag -> Projeto)
             if (currentInputQty > 0) {
-                await conn.execute(`UPDATE ordemservico SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdOrdemServico = ? `, [currentInputQty, item.IdOrdemServico]);
-                if (item.IdTag) await conn.execute(`UPDATE tags SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdTag = ? `, [currentInputQty, item.IdTag]);
-                if (item.IdProjeto) await conn.execute(`UPDATE projetos SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ? WHERE IdProjeto = ? `, [currentInputQty, item.IdProjeto]);
+                // Função auxiliar para atualização hierárquica (Adiciona ao Executado, Subtrai do Saldo)
+                const updateHierarchy = async (table, idField, idValue) => {
+                    await conn.execute(`
+                        UPDATE ${table} 
+                        SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ?,
+                            ${sConfig.executar} = GREATEST(0, COALESCE(${sConfig.executar}, 0) - ?)
+                        WHERE ${idField} = ?
+                    `, [currentInputQty, currentInputQty, idValue]);
+                };
+
+                await updateHierarchy('ordemservico', 'IdOrdemServico', item.IdOrdemServico);
+                if (item.IdTag) await updateHierarchy('tags', 'IdTag', item.IdTag);
+                if (item.IdProjeto) await updateHierarchy('projetos', 'IdProjeto', item.IdProjeto);
             }
 
             // 7. Success log
@@ -6620,10 +6644,27 @@ osi.*,
             if (currentInputQty > 0) {
                 const currentIndex = sequence.indexOf(sName);
                 if (currentIndex < sequence.length - 1) {
-                    const nextSectorName = (currentIndex < sequence.length - 1) ? sequence[currentIndex + 1] : null;
+                    let nextSectorName = null;
+                    // Procurar o PRÓXIMO setor ATIVO na cadeia produtiva para este item
+                    for (let i = currentIndex + 1; i < sequence.length; i++) {
+                        const checkSName = sequence[i];
+                        const checkConfig = setorColumns[checkSName];
+                        if (NULLIF_TRIM(item[checkConfig.txt]) === '1') {
+                            nextSectorName = checkSName;
+                            break;
+                        }
+                    }
+
                     if (nextSectorName) {
                         const nextConfig = setorColumns[nextSectorName];
+                        
+                        // 1. Update item balance
                         await conn.execute(`UPDATE ordemservicoitem SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServicoItem = ?`, [currentInputQty, IdOrdemServicoItem]);
+                        
+                        // 2. Propagate balance increment to higher levels
+                        await conn.execute(`UPDATE ordemservico SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServico = ?`, [currentInputQty, item.IdOrdemServico]);
+                        if (item.IdTag) await conn.execute(`UPDATE tags SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdTag = ?`, [currentInputQty, item.IdTag]);
+                        if (item.IdProjeto) await conn.execute(`UPDATE projetos SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdProjeto = ?`, [currentInputQty, item.IdProjeto]);
                     }
                 }
             }
