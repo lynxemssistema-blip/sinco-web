@@ -1907,14 +1907,13 @@ app.get('/api/admin/databases', authenticateAdmin, async (req, res) => {
 
 // Add/Update Tenant Database
 app.post('/api/admin/databases', authenticateAdmin, async (req, res) => {
-    const { nome_cliente, db_host, db_user, db_pass, db_name, db_port } = req.body;
+    const { nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados } = req.body;
     let connection;
     try {
         connection = await mysql.createConnection(CENTRAL_DB_CONFIG);
         await connection.execute(
-            `INSERT INTO conexoes_bancos (nome_cliente, db_host, db_user, db_pass, db_name, db_port) 
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [nome_cliente, db_host, db_user, db_pass, db_name, db_port || 3306]
+            'INSERT INTO conexoes_bancos (nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [nome_cliente, db_host, db_user, db_pass, db_name, db_port || 3306, copia_banco_dados || null]
         );
         res.json({ success: true, message: 'Banco cadastrado com sucesso' });
     } catch (error) {
@@ -1924,7 +1923,6 @@ app.post('/api/admin/databases', authenticateAdmin, async (req, res) => {
     }
 });
 
-// Sync Users from a Tenant Database
 app.post('/api/admin/sync-users/:dbId', authenticateAdmin, async (req, res) => {
     const dbId = req.params.dbId;
     let centralConn;

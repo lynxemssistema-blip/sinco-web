@@ -26,7 +26,7 @@ export default function SuperadminPage({ defaultTab = 'matrizes' }: SuperadminPa
     // Tenant Management State
     const [tenants, setTenants] = useState<any[]>([]);
     const [newTenant, setNewTenant] = useState({
-        nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306
+        nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: ''
     });
 
     // Schema Compare State
@@ -169,7 +169,7 @@ export default function SuperadminPage({ defaultTab = 'matrizes' }: SuperadminPa
             const data = await res.json();
             if (data.success) {
                 addToast({ type: 'success', message: 'Banco cadastrado com sucesso' });
-                setNewTenant({ nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306 });
+                setNewTenant({ nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: '' });
                 fetchTenants(token);
             } else {
                 addToast({ type: 'error', message: data.message });
@@ -475,7 +475,8 @@ export default function SuperadminPage({ defaultTab = 'matrizes' }: SuperadminPa
                             <input placeholder="Banco" className="border p-2 rounded" value={newTenant.db_name} onChange={e => setNewTenant({ ...newTenant, db_name: e.target.value })} />
                             <input placeholder="Usuário" className="border p-2 rounded" value={newTenant.db_user} onChange={e => setNewTenant({ ...newTenant, db_user: e.target.value })} />
                             <input placeholder="Senha" type="password" className="border p-2 rounded" value={newTenant.db_pass} onChange={e => setNewTenant({ ...newTenant, db_pass: e.target.value })} />
-                            <button onClick={handleAddTenant} disabled={loading} className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2"><Save size={16} /> Cadastrar</button>
+                            <input placeholder="Cópia Banco Dados (Backup)" className="border p-2 rounded" value={newTenant.copia_banco_dados} onChange={e => setNewTenant({ ...newTenant, copia_banco_dados: e.target.value })} />
+                            <button onClick={handleAddTenant} disabled={loading} className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={16} /> Cadastrar</button>
                         </div>
                     </div>
                     {/* Tenant List */}
@@ -487,7 +488,12 @@ export default function SuperadminPage({ defaultTab = 'matrizes' }: SuperadminPa
                                     <span className={`px-2 py-1 text-xs font-bold rounded-full ${tenant.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{tenant.ativo ? 'ATIVO' : 'INATIVO'}</span>
                                 </div>
                                 <h4 className="font-bold text-lg text-gray-800">{tenant.nome_cliente}</h4>
-                                <p className="text-gray-500 text-sm mb-4">{tenant.db_host} / {tenant.db_name}</p>
+                                <p className="text-gray-500 text-xs mb-1 font-mono">{tenant.db_host} / {tenant.db_name}</p>
+                                {tenant.copia_banco_dados && (
+                                    <p className="text-blue-500 text-[10px] italic truncate mb-4" title={tenant.copia_banco_dados}>
+                                        Backup: {tenant.copia_banco_dados}
+                                    </p>
+                                )}
                                 <div className="space-y-2 mt-4">
                                     <button onClick={() => handleAccessTenant(tenant)} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm"><ArrowRight size={16} /> Acessar Banco</button>
                                     <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 flex items-center justify-center gap-2 transition-colors"><Users size={16} /> {loading ? 'Sincronizando...' : 'Sincronizar Usuários'}</button>

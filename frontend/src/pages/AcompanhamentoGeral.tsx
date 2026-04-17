@@ -87,13 +87,25 @@ const SETORES = [
 const parseDate = (d: string | Date | null): Date | null => {
     if (!d) return null;
     if (d instanceof Date) return isNaN(d.getTime()) ? null : d;
-    // Handle dd/mm/yyyy
+    
+    // Tratamento para strings (ex: "18/12/2025 14:59:21" ou "18/12/2025")
     if (typeof d === 'string' && d.includes('/')) {
-        const [day, month, year] = d.split('/');
-        const dt = new Date(Number(year), Number(month) - 1, Number(day));
+        // Pega apenas a parte da data (antes do espaço do horário)
+        const datePart = d.split(' ')[0];
+        const [day, month, year] = datePart.split('/');
+        
+        // Garante que temos valores numéricos válidos
+        const dayNum = Number(day);
+        const monthNum = Number(month);
+        const yearNum = Number(year);
+        
+        if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) return null;
+        
+        const dt = new Date(yearNum, monthNum - 1, dayNum);
         return isNaN(dt.getTime()) ? null : dt;
     }
-    // ISO or other
+    
+    // ISO ou outros formatos
     const dt = new Date(d);
     return isNaN(dt.getTime()) ? null : dt;
 };
@@ -285,8 +297,8 @@ function GanttChart({ data, mode }: GanttChartProps) {
     // Today line
     const todayPct = dayPct(today);
 
-    const ROW_HEIGHT = 28; // px per setor row (reduced)
-    const LABEL_WIDTH = 200; // px (expanded)
+    const ROW_HEIGHT = 42; // Increased to accommodate multi-column labels
+    const LABEL_WIDTH = 360; // px (expanded for RI/RF pillars)
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -315,11 +327,11 @@ function GanttChart({ data, mode }: GanttChartProps) {
             <div className="flex-1 overflow-auto custom-scrollbar">
                 <div style={{ minWidth: LABEL_WIDTH + 600 }}>
                     {/* Header: month ticks */}
-                    <div className="flex sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-                        <div className="sticky left-0 z-20 bg-white border-r shadow-sm flex items-center px-3" style={{ width: LABEL_WIDTH }}>
+                    <div className="flex sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+                        <div className="sticky left-0 z-30 bg-white border-r shadow-sm flex items-center px-3" style={{ width: LABEL_WIDTH }}>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Tag / Setor</span>
                         </div>
-                        <div className="flex-1 relative h-8">
+                        <div className="flex-1 relative h-10">
                             {months.map((m, i) => (
                                 <div key={i} className="absolute top-0 h-full flex items-center" style={{ left: `${m.leftPct}%` }}>
                                     <div className="absolute top-0 h-full w-px bg-slate-200" />
@@ -380,15 +392,37 @@ function GanttChart({ data, mode }: GanttChartProps) {
                                                 className="sticky left-0 z-10 shrink-0 flex items-center gap-2 px-2 border-r border-slate-200"
                                                 style={{ width: LABEL_WIDTH, backgroundColor: `${bar.color}10` }}
                                             >
-                                                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: bar.color }} />
-                                                <div className="flex-1 min-w-0 flex flex-col">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[9px] font-black uppercase truncate" style={{ color: bar.color }}>{bar.setor}</span>
-                                                        <span className="text-[9px] font-black text-slate-500 tabular-nums">Exec: {bar.exec} / Sal: {bar.total}</span>
+                                                <div className="flex-1 min-w-0 grid grid-cols-[110px_75px_75px_1fr] items-center gap-2">
+                                                    {/* Col 1: Name */}
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: bar.color }} />
+                                                        <span className="text-[10px] font-bold uppercase truncate" style={{ color: bar.color }}>{bar.setor}</span>
                                                     </div>
-                                                    <div className="flex gap-2 text-[8.5px] font-bold text-slate-400">
-                                                        {bar.realStart && <span>RI: {fmtDateShort(bar.realStart)}</span>}
-                                                        {bar.realEnd && <span>RF: {fmtDateShort(bar.realEnd)}</span>}
+
+                                                    {/* Col 2: RI */}
+                                                    <div className="text-center">
+                                                        {bar.realStart ? (
+                                                            <div className="flex flex-col items-center">
+                                                                <span className="text-[7px] text-slate-400 font-bold leading-none mb-0.5">RI</span>
+                                                                <span className="text-[9px] font-black text-slate-700 leading-none">{fmtDateShort(bar.realStart)}</span>
+                                                            </div>
+                                                        ) : <span className="text-[8px] text-slate-300">-</span>}
+                                                    </div>
+
+                                                    {/* Col 3: RF */}
+                                                    <div className="text-center">
+                                                        {bar.realEnd ? (
+                                                            <div className="flex flex-col items-center">
+                                                                <span className="text-[7px] text-slate-400 font-bold leading-none mb-0.5">RF</span>
+                                                                <span className="text-[9px] font-black text-slate-700 leading-none">{fmtDateShort(bar.realEnd)}</span>
+                                                            </div>
+                                                        ) : <span className="text-[8px] text-slate-300">-</span>}
+                                                    </div>
+
+                                                    {/* Col 4: Totals */}
+                                                    <div className="flex flex-col items-end pr-2">
+                                                        <span className="text-[9px] font-bold text-slate-600 tabular-nums">Exec: {bar.exec}</span>
+                                                        <span className="text-[8px] font-medium text-slate-400 tabular-nums">Sal: {bar.total}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -422,7 +456,7 @@ function GanttChart({ data, mode }: GanttChartProps) {
                                                 {/* Realized bar */}
                                                 {hasReal && realEnd && (
                                                     <div
-                                                        className="absolute top-1/2 -translate-y-1/2 rounded overflow-hidden flex items-center"
+                                                        className="absolute top-1/2 -translate-y-1/2 rounded flex items-center"
                                                         style={{
                                                             left: `${dayPct(bar.realStart!)}%`,
                                                             width: `${spanPct(bar.realStart!, realEnd)}%`,
@@ -430,6 +464,7 @@ function GanttChart({ data, mode }: GanttChartProps) {
                                                             zIndex: 4,
                                                             backgroundColor: `${bar.color}30`,
                                                             border: `1px solid ${bar.color}`,
+                                                            // REMOVED overflow-hidden to let text spill out on very short bars
                                                         }}
                                                     >
                                                         {/* Progress fill */}
@@ -441,7 +476,7 @@ function GanttChart({ data, mode }: GanttChartProps) {
                                                                 opacity: 0.8,
                                                             }}
                                                         />
-                                                        <span className="relative z-10 px-1 text-[8px] font-black text-slate-800 truncate leading-none">
+                                                        <span className="relative z-10 px-1 text-[8px] font-black text-slate-800 whitespace-nowrap leading-none mix-blend-multiply drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]">
                                                             {bar.realStart && `RI: ${fmtDateShort(bar.realStart)}`}
                                                             {bar.realEnd && ` · RF: ${fmtDateShort(bar.realEnd)}`}
                                                             { (bar.realStart || bar.realEnd) && ` · ` }
@@ -602,7 +637,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
     }, [tags]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 font-sans overflow-hidden">
+        <div className="flex flex-col w-full bg-slate-50/50 font-sans border border-slate-200 rounded-xl shadow-sm">
             {/* Header */}
             <div className="shrink-0 bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
                 <div className="flex items-center gap-4">
@@ -685,9 +720,18 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                                         <span className="text-[9px] font-bold text-slate-400 uppercase">Executado:</span>
                                         <span className="text-xs font-black" style={{ color: s.color }}>{tot[1]}</span>
                                     </div>
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex justify-between items-center border-b border-black/5 pb-1 mb-1">
                                         <span className="text-[9px] font-bold text-slate-400 uppercase">Saldo:</span>
                                         <span className="text-[11px] font-bold text-slate-600">{tot[0]}</span>
+                                    </div>
+                                    {/* Datas Agregadas do Projeto */}
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase">Início:</span>
+                                        <span className="text-[9px] font-black" style={{ color: s.color }}>{fmtDate((projeto as any)[`RealizadoInicio${s.key}`])}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase">Final:</span>
+                                        <span className="text-[9px] font-black" style={{ color: s.color }}>{fmtDate((projeto as any)[`RealizadoFinal${s.key}`])}</span>
                                     </div>
                                 </div>
                             </div>
@@ -696,8 +740,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-auto custom-scrollbar">
                 {loading && (
                     <div className="flex justify-center py-16">
                         <Loader className="animate-spin text-blue-500" size={28} />
@@ -816,10 +859,10 @@ export default function AcompanhamentoGeralPage() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 font-sans overflow-hidden">
+        <div className="flex flex-col w-full bg-slate-50/50 font-sans border border-slate-200 rounded-xl shadow-sm">
 
             {/* ── Header (Sticky) ── */}
-            <div className="sticky top-[-2rem] z-30 bg-white border-b border-slate-200 px-5 py-3 shadow-sm">
+            <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-5 py-3 shadow-sm">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
@@ -950,26 +993,6 @@ export default function AcompanhamentoGeralPage() {
                 </div>
             </div>
 
-            {/* ── Selected Banner ── */}
-            {selected && (
-                <div className="shrink-0 bg-indigo-50 border-b border-indigo-200 px-5 py-2 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-indigo-800">
-                        <CheckCircle2 size={14} className="text-indigo-500" />
-                        <span className="text-xs font-bold">Selecionado:</span>
-                        <span className="text-xs font-black">{selected.Projeto}</span>
-                        {selected.DescEmpresa && <span className="text-xs text-indigo-500">— {selected.DescEmpresa}</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button onClick={() => setDetalhe(selected)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
-                            <GanttChartSquare size={12} /> Ver Gantt
-                        </button>
-                        <button onClick={() => setSelected(null)} className="text-indigo-400 hover:text-indigo-600">
-                            <X size={14} />
-                        </button>
-                    </div>
-                </div>
-            )}
 
             {/* ── Table ── */}
             <div className="flex-1 overflow-auto custom-scrollbar relative">
@@ -989,7 +1012,7 @@ export default function AcompanhamentoGeralPage() {
                 {projetos.length > 0 && (
                     mainViewMode === 'lista' ? (
                         <table className="w-full text-[11px] border-collapse" style={{ minWidth: 1000 }}>
-                            <thead className="sticky top-[64px] z-20 shadow-sm">
+                            <thead className="sticky top-0 z-20 shadow-sm">
                                 <tr className="bg-slate-100 border-b border-slate-200">
                                     <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider" style={{ width: 60 }}>ID</th>
                                     <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Projeto / Cliente</th>
@@ -1035,12 +1058,12 @@ export default function AcompanhamentoGeralPage() {
                                                     />
                                                 </td>
                                             ))}
-                                            <td className="px-2 py-1.5 text-right">
+                                            <td className="px-2 py-1.5 text-right flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); setDetalhe(p); }}
-                                                    className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-[10px] font-bold border border-blue-100"
+                                                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all text-[10px] font-bold shadow-sm"
                                                 >
-                                                    Tags
+                                                    <GanttChartSquare size={12} /> Ver Gantt
                                                 </button>
                                             </td>
                                         </tr>
