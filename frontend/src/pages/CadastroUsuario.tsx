@@ -343,7 +343,7 @@ export default function CadastroUsuarioPage() {
 
     // ─── Render ─────────────────────────────────────────────────────────────────
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 p-3 gap-2 overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 bg-slate-50 p-3 gap-2">
 
             {/* ── Top Bar ── */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm px-4 py-2.5 flex items-center justify-between shrink-0">

@@ -16,6 +16,7 @@ interface ReposicaoItem {
     Espessura: string;
     MaterialSW: string;
     EnderecoArquivo: string;
+    EnderecoArquivoItemOrdemServico: string;
     CriadoPor: string;
     DataCriacao: string;
     QtdeTotal: number;
@@ -103,10 +104,17 @@ export default function ListaReposicaoPage() {
         fetchItens();
     }, []);
 
-    const excluirItem = async (id: number) => {
-        if (!confirm('Deseja realmente marcar este item de reposição como excluído?')) return;
+    const getUser = () => { try { const u = JSON.parse(localStorage.getItem('sinco_user') || '{}'); return u.username || u.NomeCompleto || 'Sistema'; } catch { return 'Sistema'; } };
+
+    const getCaminho = (item: ReposicaoItem) =>
+        (item.EnderecoArquivo || '').trim() || (item.EnderecoArquivoItemOrdemServico || '').trim();
+
+    const excluirItem = async (item: ReposicaoItem) => {
+        const confirmMsg = `Deseja excluir Desenho - ${item.CodMatFabricante} da OS - ${item.IdOrdemServico} Item - ${item.IdOrdemServicoItem}?`;
+        if (!confirm(confirmMsg)) return;
         try {
-            const res = await fetch(`${API_BASE}/reposicao/itens/${id}`, {
+            const usuario = encodeURIComponent(getUser());
+            const res = await fetch(`${API_BASE}/reposicao/itens/${item.IdOrdemServicoItem}?usuario=${usuario}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` }
             });
@@ -235,7 +243,7 @@ export default function ListaReposicaoPage() {
     }, [items, filProjeto, filTag, filEspessura, filDescResumo, filDescDetal, filCodMat, filIdOS, filIdItem, filSetorReposicao, exibirConcluidos]);
 
     return (
-        <div className="flex flex-col h-full bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 overflow-hidden relative">
+        <div className="flex flex-col flex-1 min-h-0 bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 relative">
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2 mb-4 shrink-0">
                 <Box className="text-orange-500" size={28} />
                 Lista Peças de Reposição
@@ -279,12 +287,12 @@ export default function ListaReposicaoPage() {
             </div>
 
             {/* Layout Principal Pós Filtro (Grid vs Detalhes) */}
-            <div className="flex-1 flex gap-4 min-h-0 overflow-hidden relative">
+            <div className="flex-1 flex gap-4 min-h-0 relative overflow-hidden">
                 
                 {/* Tabela Esquerda */}
                 <div className={`flex-1 bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col min-h-0 shadow-sm transition-all duration-300 ${selectedItem ? 'lg:w-[65%]' : 'w-full'}`}>
                     {error && <div className="bg-red-50 text-red-700 p-3 text-xs font-bold border-b border-red-100">{error}</div>}
-                    <div className="flex-1 overflow-auto custom-scrollbar">
+                    <div className="table-container">
                         <table className="w-full text-left text-[11px] whitespace-nowrap">
                             <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                                 <tr>
@@ -335,38 +343,56 @@ export default function ListaReposicaoPage() {
                                             <td className="px-3 py-2 text-slate-600 truncate max-w-[150px]" title={item.DescResumo}>{item.DescResumo}</td>
                                             <td className="px-3 py-2 font-bold text-green-700">{item.cortetotalexecutado ?? '-'}</td>
                                             <td className="px-3 py-2 font-bold text-blue-700">{item.cortetotalexecutar ?? '-'}</td>
-                                            <td className="px-3 py-2 text-center">
-                                                {selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem && (
-                                                    <div className="flex items-center justify-center gap-1.5 animate-in fade-in slide-in-from-right-2 duration-200" onClick={e => e.stopPropagation()}>
-                                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, '3d')} title="Ver 3D" className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded transition-colors border border-blue-200 hover:border-blue-600 shadow-sm">
-                                                            <Box size={14} />
-                                                        </button>
-                                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, 'pdf')} title="Ver PDF" className="p-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded transition-colors border border-red-200 hover:border-red-600 shadow-sm">
-                                                            <FileText size={14} />
-                                                        </button>
-                                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, 'dxf')} title="Ver DXF" className="p-1.5 bg-cyan-50 text-cyan-700 hover:bg-cyan-600 hover:text-white rounded transition-colors border border-cyan-200 hover:border-cyan-600 shadow-sm">
-                                                            <span className="font-mono text-[9px] font-bold leading-none px-0.5">DXF</span>
-                                                        </button>
-                                                        
-                                                        {item.sttxtCorte !== 'C' && Number(item.cortetotalexecutar) > 0 && (
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); handleAbrirApontamento(item); }}
-                                                                title="Apontar Reposição" 
-                                                                className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded transition-colors border border-emerald-200 hover:border-emerald-600 shadow-sm ml-1"
-                                                            >
-                                                                <Target size={14} />
-                                                            </button>
-                                                        )}
-                                                        
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); excluirItem(item.IdOrdemServicoItem); }}
-                                                            title="Excluir" 
-                                                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded transition-colors border border-rose-200 hover:border-rose-600 shadow-sm ml-2"
+                                            <td className="px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
+                                                <div className="flex items-center justify-center gap-1">
+                                                    {/* 1 - Abrir Desenho 3D */}
+                                                    <button
+                                                        onClick={() => abrirArquivoLocal(getCaminho(item), '3d')}
+                                                        title="1 - Abrir Desenho 3D"
+                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded transition-colors border border-blue-200 hover:border-blue-600 shadow-sm"
+                                                    >
+                                                        <Box size={12} />
+                                                        <span className="text-[8px] font-bold leading-none mt-0.5">3D</span>
+                                                    </button>
+                                                    {/* 2 - Abrir Desenho PDF */}
+                                                    <button
+                                                        onClick={() => abrirArquivoLocal(getCaminho(item), 'pdf')}
+                                                        title="2 - Abrir Desenho PDF"
+                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded transition-colors border border-red-200 hover:border-red-600 shadow-sm"
+                                                    >
+                                                        <FileText size={12} />
+                                                        <span className="text-[8px] font-bold leading-none mt-0.5">PDF</span>
+                                                    </button>
+                                                    {/* 3 - Abrir Desenho DXF */}
+                                                    <button
+                                                        onClick={() => abrirArquivoLocal(getCaminho(item), 'dxf')}
+                                                        title="3 - Abrir Desenho DXF"
+                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-cyan-50 text-cyan-700 hover:bg-cyan-600 hover:text-white rounded transition-colors border border-cyan-200 hover:border-cyan-600 shadow-sm"
+                                                    >
+                                                        <span className="font-mono text-[9px] font-bold leading-none">DXF</span>
+                                                        <span className="text-[8px] leading-none mt-0.5 opacity-60">CAD</span>
+                                                    </button>
+                                                    {/* Apontar (condicional) */}
+                                                    {item.sttxtCorte !== 'C' && Number(item.cortetotalexecutar) > 0 && (
+                                                        <button
+                                                            onClick={() => handleAbrirApontamento(item)}
+                                                            title="Apontar Reposição"
+                                                            className="flex flex-col items-center justify-center p-1 w-9 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded transition-colors border border-emerald-200 hover:border-emerald-600 shadow-sm"
                                                         >
-                                                            <Trash2 size={14} />
+                                                            <Target size={12} />
+                                                            <span className="text-[8px] font-bold leading-none mt-0.5">Apt</span>
                                                         </button>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                    {/* 4 - Excluir linha */}
+                                                    <button
+                                                        onClick={() => excluirItem(item)}
+                                                        title="4 - Excluir linha selecionada"
+                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded transition-colors border border-rose-200 hover:border-rose-600 shadow-sm"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                        <span className="text-[8px] font-bold leading-none mt-0.5">Del</span>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -390,7 +416,7 @@ export default function ListaReposicaoPage() {
                             <button onClick={() => setSelectedItem(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded transition-colors"><X size={18} /></button>
                         </div>
 
-                        <div className="flex-1 overflow-auto custom-scrollbar flex flex-col gap-4">
+                        <div className="table-container flex flex-col gap-4">
                             {/* Grid de Atributos do Solicitante */}
                             <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <div>
@@ -439,12 +465,23 @@ export default function ListaReposicaoPage() {
                                 </div>
                             </div>
 
-                            {/* Informacões Extensas do Item */}
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Caminho Arquivo</label>
-                                <div className="text-[10px] font-mono text-slate-500 bg-slate-100 p-2 rounded break-all border border-slate-200">
-                                    {selectedItem.EnderecoArquivo || 'Nenhum arquivo atribuído.'}
-                                </div>
+                            {/* Informações do Arquivo */}
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Caminho Arquivo (usado nos botões)</label>
+                                {getCaminho(selectedItem) ? (
+                                    <div className="text-[10px] font-mono text-emerald-700 bg-emerald-50 p-2 rounded break-all border border-emerald-200">
+                                        ✓ {getCaminho(selectedItem)}
+                                    </div>
+                                ) : (
+                                    <div className="text-[10px] font-mono text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                                        ✗ Nenhum caminho de arquivo atribuído a este item.
+                                    </div>
+                                )}
+                                {selectedItem.EnderecoArquivo && selectedItem.EnderecoArquivoItemOrdemServico && selectedItem.EnderecoArquivo !== selectedItem.EnderecoArquivoItemOrdemServico && (
+                                    <div className="text-[9px] text-slate-400 font-mono bg-slate-50 p-1.5 rounded border border-slate-100 break-all">
+                                        Alt: {selectedItem.EnderecoArquivoItemOrdemServico}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

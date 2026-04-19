@@ -154,7 +154,7 @@ export default function VisaoGeralPendenciasPage() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 xl:p-6 overflow-auto custom-scrollbar">
+        <div className="flex flex-col flex-1 min-h-0 bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 xl:p-6 overflow-auto custom-scrollbar">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>

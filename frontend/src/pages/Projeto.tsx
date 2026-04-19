@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2, Trash2, X, FolderKanban, Save,
-    Loader2, RefreshCw, Calendar, Tag as TagIcon, ChevronRight, ChevronDown, FolderOpen, CheckCircle2,
+    Loader2, RefreshCw, Calendar, Tag as TagIcon, ChevronRight, ChevronDown, FolderOpen, CheckCircle2, RotateCcw,
     Building2, Truck, Banknote
 } from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
@@ -23,6 +23,7 @@ interface Projeto {
     DescStatus?: string;
     liberado?: string;
     DataLiberacao?: string;
+    temApontamento?: number;
     PlanejadoFinanceiro?: string;
     DataEntradaPedido?: string;
     UF?: string;
@@ -31,7 +32,7 @@ interface Projeto {
     Segmento?: string;
     Cnpj?: string;
     NomeFantasia?: string;
-    IE?: string;
+    InscEst?: string;
     EnderecoCliente?: string;
     ContatoComercial?: string;
     FoneContatoComercial?: string;
@@ -265,7 +266,7 @@ export default function ProjetoPage() {
             toNum(projetoFormData.ValorInstalacao) +
             toNum(projetoFormData.ValorEmbalagem);
         if (total > 0) {
-            setProjetoFormData(prev => ({ ...prev, TotalFinal: String(total) }));
+            setProjetoFormData(prev => ({ ...prev, TotalValor: String(total) }));
         }
     }, [
         projetoFormData.ValorFabricacao,
@@ -359,10 +360,14 @@ export default function ProjetoPage() {
             const url = isEditingProjeto ? `${API_BASE}/projeto/${projetoFormData.IdProjeto}` : `${API_BASE}/projeto`;
             const method = isEditingProjeto ? 'PUT' : 'POST';
 
+            const payload: any = { ...projetoFormData };
+            delete payload.IE;
+            delete payload.Ie;
+
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(projetoFormData),
+                body: JSON.stringify(payload),
             });
 
             const json = await res.json();
@@ -380,12 +385,42 @@ export default function ProjetoPage() {
         }
     };
 
+    const parseToInputDate = (val: string | undefined): string => {
+        if (!val) return '';
+        if (/^\d{4}-\d{2}-\d{2}/.test(val)) return val.substring(0, 10);
+        const brMatch = val.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+        if (brMatch) return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`;
+        try {
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
+        } catch(e) {}
+        return '';
+    };
+
     const handleProjetoEdit = async (id: number) => {
         try {
             const res = await fetch(`${API_BASE}/projeto/${id}`);
             const json = await res.json();
-            if (json.success) {
-                setProjetoFormData(json.data);
+                if (json.success) {
+                const data = json.data;
+                
+                const valEntrada = data.DataEntradaPedido || data.dataentradapedido || data.DataEntrada;
+                if (valEntrada) data.DataEntradaPedido = parseToInputDate(valEntrada);
+                
+                const valPlanejado = data.PlanejadoFinanceiro || data.planejadofinanceiro || data.DataPlanejadoFinanceiro;
+                if (valPlanejado) data.PlanejadoFinanceiro = parseToInputDate(valPlanejado);
+                
+                const valPrevisao = data.DataPrevisao || data.dataprevisao;
+                if (valPrevisao) data.DataPrevisao = parseToInputDate(valPrevisao);
+                
+                // Unified mapping for IE/InscEst
+                const valIE = data.InscEst || data.IE || data.Ie || data.inscest;
+                data.InscEst = valIE || '';
+                delete data.IE;
+                delete data.Ie;
+                delete data.inscest;
+
+                setProjetoFormData(data);
                 setIsEditingProjeto(true);
                 setShowProjetoForm(true);
             }
@@ -450,6 +485,25 @@ export default function ProjetoPage() {
         }
     };
 
+    const handleCancelarLiberacao = async (id: number) => {
+        if (!confirm('Deseja realmente CANCELAR a liberação deste projeto?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/projeto/${id}/cancelar-liberacao`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const json = await res.json();
+            if (json.success) {
+                showAlert('Liberação cancelada com sucesso!', "success");
+                fetchProjetos(); // Recarrega
+            } else {
+                showAlert(json.message || 'Erro ao cancelar liberação.', "error");
+            }
+        } catch (err) {
+            showAlert('Erro de conexão ao cancelar liberação.', "error");
+        }
+    };
+
     const resetProjetoForm = () => {
         setProjetoFormData(emptyProjetoForm);
         setIsEditingProjeto(false);
@@ -459,7 +513,12 @@ export default function ProjetoPage() {
     // === TAG HANDLERS ===
     const openTagForm = (projeto: Projeto) => {
         setSelectedProjetoForTag(projeto);
-        setTagFormData(emptyTagForm);
+        // Ensure the date is in YYYY-MM-DD for the input
+        const defaultDate = parseToInputDate(projeto.DataPrevisao);
+        setTagFormData({
+            ...emptyTagForm,
+            DataPrevisao: defaultDate
+        });
         setIsEditingTag(false);
         setShowTagForm(true);
     };
@@ -824,13 +883,22 @@ export default function ProjetoPage() {
                                             >
                                                 <FolderOpen size={16} />
                                             </button>
-                                            {(!projeto.liberado || projeto.liberado.trim() === '') && (
+                                            {(!projeto.liberado || projeto.liberado.trim() === '') ? (
                                                 <button
                                                     onClick={() => projeto.IdProjeto && handleLiberar(projeto.IdProjeto)}
                                                     className="p-2 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
                                                     title="Liberar Projeto"
                                                 >
                                                     <CheckCircle2 size={16} />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => projeto.IdProjeto && handleCancelarLiberacao(projeto.IdProjeto)}
+                                                    className={`p-2 rounded-lg transition-colors ${Number(projeto.temApontamento) > 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-orange-600 hover:bg-orange-50'}`}
+                                                    title={Number(projeto.temApontamento) > 0 ? 'Não é possível cancelar: projeto possui apontamentos de produção' : 'Cancelar Liberação'}
+                                                    disabled={Number(projeto.temApontamento) > 0}
+                                                >
+                                                    <RotateCcw size={16} />
                                                 </button>
                                             )}
                                             <div className="w-px h-4 bg-gray-200 mx-1"></div>
@@ -1008,6 +1076,15 @@ export default function ProjetoPage() {
                                                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                                 Salvar
                                             </button>
+                                            {isEditingProjeto && projetoFormData.liberado === 'S' && (
+                                                <button type="button" onClick={() => projetoFormData.IdProjeto && handleCancelarLiberacao(projetoFormData.IdProjeto)} 
+                                                    disabled={Number(projetoFormData.temApontamento) > 0}
+                                                    className={`px-4 py-2 border text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm rounded ${Number(projetoFormData.temApontamento) > 0 ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed' : 'border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100'}`}
+                                                    title={Number(projetoFormData.temApontamento) > 0 ? 'Não é possível cancelar: projeto possui apontamentos de produção' : 'Cancelar Liberação'}
+                                                >
+                                                    <RotateCcw size={16} /> Cancelar Liberação
+                                                </button>
+                                            )}
                                             {isEditingProjeto && (
                                                 <button type="button" onClick={() => { setShowProjetoForm(false); setIsEditingTag(false); openTagForm(projetoFormData); }} className="px-4 py-2 border border-[#32423D]/20 text-[#32423D] bg-[#E0E800]/20 text-sm font-semibold hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2 shadow-sm rounded">
                                                     <TagIcon size={16} /> Inserir Tag
@@ -1152,7 +1229,7 @@ export default function ProjetoPage() {
                                                             </div>
                                                             <div>
                                                                 <label className="block text-xs font-semibold text-gray-600 mb-1">IE (Insc. Estadual)</label>
-                                                                <input type="text" name="IE" value={projetoFormData.IE || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+                                                                <input type="text" name="InscEst" value={projetoFormData.InscEst || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
                                                             </div>
                                                             <div className="md:col-span-2">
                                                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Endereço</label>

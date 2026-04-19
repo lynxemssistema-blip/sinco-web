@@ -149,3 +149,35 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400;
 }
+
+/* ===================================================
+   LAYOUT GLOBAL — Utilitários para telas com tabela
+   =================================================== */
+
+/* Container de tabela com cabeçalho sticky e scroll bidirecional
+   Uso: className="table-container" na div que envolve a <table> */
+.table-container {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container table {
+  min-width: 100%;
+  white-space: nowrap;
+}
+
+/* thead sticky dentro de .table-container */
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f8fafc;
+}
+
+/* Scrollbar fino */
+.table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-container::-webkit-scrollbar-track { background: transparent; }
+.table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+.table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

@@ -126,7 +126,7 @@ export default function RomaneioRetornoPage() {
     }, []);
 
     return (
-        <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 bg-gray-50 overflow-hidden">
             {/* Header - Filters */}
             <header className="bg-white border-b border-gray-200 p-4 shadow-sm">
                 <div className="w-full max-w-[1920px] mx-auto flex flex-wrap gap-4 items-end">

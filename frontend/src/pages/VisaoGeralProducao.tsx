@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -87,15 +88,15 @@ export default function VisaoGeralProducaoPage() {
     // State Persistence
     const [viewMode, setViewMode] = useState<'card' | 'list'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list') || 'card');
     const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
-    const [filFin, setFilFin] = useState(() => localStorage.getItem('vgp_filFin') === 'true');
-    const [filLib, setFilLib] = useState(() => localStorage.getItem('vgp_filLib') === 'true');
+    const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(
+        () => (localStorage.getItem('vgp_statusFilter') as 'finalizados'|'liberados'|'todos'|null) || null
+    );
 
     useEffect(() => {
         localStorage.setItem('vgp_viewMode', viewMode);
         localStorage.setItem('vgp_fProj', fProj);
-        localStorage.setItem('vgp_filFin', String(filFin));
-        localStorage.setItem('vgp_filLib', String(filLib));
-    }, [viewMode, fProj, filFin, filLib]);
+        localStorage.setItem('vgp_statusFilter', statusFilter || '');
+    }, [viewMode, fProj, statusFilter]);
 
     // Ler Query Params
     useEffect(() => {
@@ -232,27 +233,38 @@ export default function VisaoGeralProducaoPage() {
 
     const getUser = () => { try { const u = JSON.parse(localStorage.getItem('sinco_user') || '{}'); return u.username || u.name || 'Sistema'; } catch { return 'Sistema'; } };
 
-    const fetchProj = useCallback(async (fin = filFin, lib = filLib) => {
-        setLoad(true); setError(null); try {
-            const qs = new URLSearchParams(); 
-            if (fin) qs.set('finalizados', '1'); 
-            if (lib) qs.set('liberados', '1');
-            
-            if (fProjPrevIni) qs.set('previsaoInicio', isoToBr(fProjPrevIni));
-            if (fProjPrevFim) qs.set('previsaoFim', isoToBr(fProjPrevFim));
-            if (fProjCriacaoIni) qs.set('criacaoInicio', isoToBr(fProjCriacaoIni));
-            if (fProjCriacaoFim) qs.set('criacaoFim', isoToBr(fProjCriacaoFim));
+    // Refs para os filtros de data — evita closure stale nos botões
+    const dateFiltersRef = React.useRef({ fProjPrevIni, fProjPrevFim, fProjCriacaoIni, fProjCriacaoFim });
+    React.useEffect(() => {
+        dateFiltersRef.current = { fProjPrevIni, fProjPrevFim, fProjCriacaoIni, fProjCriacaoFim };
+    }, [fProjPrevIni, fProjPrevFim, fProjCriacaoIni, fProjCriacaoFim]);
 
-            const res = await (await fetch(`${API_BASE}/visao-geral/projetos${qs.toString() ? '?' + qs : ''}`)).json();
+    const fetchProj = async (sf: 'finalizados' | 'liberados' | 'todos' | null = null) => {
+        setLoad(true); setError(null);
+        try {
+            const qs = new URLSearchParams();
+            if (sf) qs.set('status', sf);
+
+            const { fProjPrevIni: pi, fProjPrevFim: pf, fProjCriacaoIni: ci, fProjCriacaoFim: cf } = dateFiltersRef.current;
+            if (pi) qs.set('previsaoInicio', isoToBr(pi));
+            if (pf) qs.set('previsaoFim', isoToBr(pf));
+            if (ci) qs.set('criacaoInicio', isoToBr(ci));
+            if (cf) qs.set('criacaoFim', isoToBr(cf));
+
+            const res = await (await fetch(`${API_BASE}/acompanhamento/projetos${qs.toString() ? '?' + qs : ''}`)).json();
             if (res.success) setProjetos(res.data);
             else setError(res.message || 'Erro ao carregar projetos do servidor');
-        } catch (e: any) { console.error(e); setError(e.message || 'Erro de rede ao buscar projetos'); } finally { setLoad(false); }
-    }, [filFin, filLib, fProjCriacaoIni, fProjCriacaoFim, fProjPrevIni, fProjPrevFim]);
+        } catch (e: any) { console.error(e); setError(e.message || 'Erro de rede'); }
+        finally { setLoad(false); }
+    };
 
-    const fetchTags = async (id: number) => { setLoadTags(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/tags/${id}`)).json(); if (r.success) setTags(r.data); } catch (e) { } finally { setLoadTags(false); } };
+
+    const fetchTags = async (id: number) => { setLoadTags(true); try { const r = await (await fetch(`${API_BASE}/acompanhamento/projeto/${id}/tags`)).json(); if (r.success) setTags(r.data); } catch (e) { } finally { setLoadTags(false); } };
     const fetchRncs = async (id: number, origem = 'VISAOGERALPROJ') => { setLoadRncs(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${id}?origem=${origem}`)).json(); if (r.success) setRncs(r.data); } catch (e) { } finally { setLoadRncs(false); } };
 
-    useEffect(() => { fetchProj(filFin, filLib); }, [filFin, filLib]);
+    // Busca inicial ao montar a página (usa o statusFilter salvo no localStorage)
+    useEffect(() => { fetchProj(statusFilter); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     useEffect(() => {
         const fetchConfig = async () => {
@@ -399,7 +411,7 @@ export default function VisaoGeralProducaoPage() {
                 planejadoFinalEngenharia: isoToBr(planejarProjetistaForm.planejadoFinalEngenharia),
                 usuario: getUser()
             };
-            const r = await (await fetch(`${API_BASE}/visao-geral/tags/${selTag.IdTag}/planejar-projetista`, {
+            const r = await (await fetch(`${API_BASE}/acompanhamento/tags/${selTag.IdTag}/planejar-projetista`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })).json();
@@ -419,7 +431,7 @@ export default function VisaoGeralProducaoPage() {
         }
         setIsSaving(true); setMsg(null);
         try {
-            const r = await (await fetch(`${API_BASE}/visao-geral/tags/${selTag.IdTag}/qtde`, {
+            const r = await (await fetch(`${API_BASE}/acompanhamento/tags/${selTag.IdTag}/qtde`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ qtdeLiberada: liberadaNum, usuario: getUser() })
             })).json();
@@ -436,7 +448,7 @@ export default function VisaoGeralProducaoPage() {
         if (!selTag || !selProj) return;
         setIsSaving(true); setMsg(null);
         try {
-            const r = await (await fetch(`${API_BASE}/visao-geral/tags/finalizar`, {
+            const r = await (await fetch(`${API_BASE}/acompanhamento/tags/finalizar`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idProjeto: selProj.IdProjeto, idTag: selTag.IdTag, finalizarTodas, usuario: getUser() })
             })).json();
@@ -558,7 +570,7 @@ export default function VisaoGeralProducaoPage() {
     const filteredRncs = rncs.filter(r => showFinalizedRncs || r.Estatus !== 'FINALIZADO');
 
     return (
-        <div className="flex flex-col h-full bg-[#f4f7f9] overflow-hidden font-sans">
+        <div className="flex flex-col flex-1 min-h-0 bg-[#f4f7f9] overflow-hidden font-sans">
             {!fromGlobal ? (
                 <>
                     {/* Top Bar */}
@@ -570,20 +582,73 @@ export default function VisaoGeralProducaoPage() {
                                 <Search className="text-slate-400" size={14} />
                                 <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-xs text-slate-700" />
                             </div>
-                            <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                                <button onClick={() => setFilFin(!filFin)} className={`flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition ${filFin ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><CheckCircle size={12} /> Finalizados</button>
-                                <button onClick={() => setFilLib(!filLib)} className={`flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition ${filLib ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}><Filter size={12} /> Liberados</button>
-                                <button onClick={() => { 
-                                    setFilFin(false); setFilLib(false); setFProj(''); 
+                            <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
+                                {/* === FILTRO RADIO: 3 opções mutuamente exclusivas === */}
+                                <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-inner">
+                                    {/* 1 - Finalizados */}
+                                    <button
+                                        onClick={() => {
+                                            const next = statusFilter === 'finalizados' ? null : 'finalizados';
+                                            setStatusFilter(next);
+                                            fetchProj(next);
+                                        }}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+                                            statusFilter === 'finalizados'
+                                                ? 'bg-emerald-600 text-white shadow-sm'
+                                                : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-50'
+                                        }`}
+                                    >
+                                        <CheckCircle size={11} /> Finalizados
+                                    </button>
+                                    {/* 2 - Liberados */}
+                                    <button
+                                        onClick={() => {
+                                            const next = statusFilter === 'liberados' ? null : 'liberados';
+                                            setStatusFilter(next);
+                                            fetchProj(next);
+                                        }}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+                                            statusFilter === 'liberados'
+                                                ? 'bg-blue-600 text-white shadow-sm'
+                                                : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <Filter size={11} /> Liberados
+                                    </button>
+                                    {/* 3 - Todos */}
+                                    <button
+                                        onClick={() => {
+                                            const next = statusFilter === 'todos' ? null : 'todos';
+                                            setStatusFilter(next);
+                                            fetchProj(next);
+                                        }}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+                                            statusFilter === 'todos'
+                                                ? 'bg-slate-700 text-white shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        <List size={11} /> Todos
+                                    </button>
+                                </div>
+
+                                {/* Limpar */}
+                                <button onClick={() => {
+                                    setStatusFilter(null);
+                                    setFProj('');
                                     setFProjCriacaoIni(''); setFProjCriacaoFim('');
                                     setFProjPrevIni(''); setFProjPrevFim('');
-                                    fetchProj(false, false);
-                                }} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200"><X size={12} /> Limpar</button>
-                                <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner ml-1">
+                                    fetchProj(null);
+                                }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
+                                    <X size={11} /> Limpar
+                                </button>
+
+                                {/* View Mode */}
+                                <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner">
                                     <button onClick={() => setViewMode('card')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid size={12} /> Cards</button>
                                     <button onClick={() => setViewMode('list')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><List size={12} /> Lista</button>
                                 </div>
-                                <button onClick={() => fetchProj()} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-[10px] hover:bg-blue-700 transition shadow-sm"><Search size={12} /> Pesquisar</button>
+                                <button onClick={() => fetchProj(statusFilter)} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-[10px] hover:bg-blue-700 transition shadow-sm"><Search size={12} /> Pesquisar</button>
                             </div>
                         </div>
 
@@ -884,8 +949,8 @@ export default function VisaoGeralProducaoPage() {
                     <div className="bg-white w-full max-w-[100vw] sm:max-w-[95vw] h-full sm:h-[95vh] sm:rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
                         
                         {/* Header Modal */}
-                        <div className="bg-[#f0f4f8] border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4 shrink-0 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                        <div className="bg-[#f0f4f8] border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4 shrink-0 flex flex-wrap items-center gap-3 justify-between">
+                            <div className="flex items-center gap-3 shrink-0">
                                 <div className="bg-blue-600 text-white w-10 h-10 rounded-xl items-center justify-center font-bold text-sm shadow-sm hidden md:flex">
                                     <TagIcon size={20} />
                                 </div>
@@ -898,41 +963,42 @@ export default function VisaoGeralProducaoPage() {
                                 </div>
                             </div>
                             
-                            <div className="flex items-center gap-3">
-                                <div className="hidden sm:flex items-center gap-1.5 flex-wrap md:flex-nowrap">
-                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Entrada:</span>
-                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Entrada:</span>
+                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                 </div>
-                                <div className="hidden sm:flex items-center gap-1.5 flex-wrap md:flex-nowrap">
-                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1 md:ml-2">Prev:</span>
-                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Prev:</span>
+                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] sm:text-xs text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors cursor-pointer" />
+                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                 </div>
-                                <div className="bg-white rounded-lg border border-slate-200 flex items-center px-2 py-1.5 shadow-sm w-32 sm:w-40 lg:w-48 hidden sm:flex ml-1 md:ml-2">
+                                <div className="bg-white rounded-lg border border-slate-200 flex items-center px-2 py-1.5 shadow-sm w-40">
                                     <Search size={14} className="text-slate-400 mr-2 shrink-0" />
                                     <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
                                 </div>
                                 {(fTag || fDataEntradaIni || fDataEntradaFim || fDataPrevIni || fDataPrevFim) && (
-                                    <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs" title="Limpar pesquisa e filtros">
-                                        <X size={14} /> <span className="hidden lg:inline">Limpar</span>
+                                    <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0" title="Limpar filtros">
+                                        <X size={14} /> <span>Limpar</span>
                                     </button>
                                 )}
-                                <div className="h-6 w-px bg-slate-300 mx-1 hidden sm:block"></div>
+                                <div className="h-6 w-px bg-slate-300 hidden sm:block shrink-0"></div>
                                 <button 
                                     onClick={() => { setBulkSectorDates({}); setMsg(null); setActionModal('bulkDateTags'); }} 
-                                    className="bg-indigo-600 hover:bg-indigo-700 p-2 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2 font-bold text-xs"
-                                    title="Planejar datas para TODAS as tags deste projeto (que ainda não possuem data)"
+                                    className="bg-indigo-600 hover:bg-indigo-700 p-2 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2 font-bold text-xs shrink-0"
+                                    title="Planejar datas para TODAS as tags deste projeto"
                                 >
-                                    <CalendarDays size={16} /> <span className="hidden lg:inline">Plan. em Lote</span>
+                                    <CalendarDays size={16} /> <span>Plan. em Lote</span>
                                 </button>
-                                <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-slate-100 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs">
+                                <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0">
                                     <X size={16} /> Fechar
                                 </button>
                             </div>
                         </div>
+
 
                         {/* Listagem de Tags Expandida (Tabela Gigante) */}
                         <div className="flex-1 overflow-auto bg-white p-0 relative w-full scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50">

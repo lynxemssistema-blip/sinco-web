@@ -115,7 +115,7 @@ export default function PesquisarDesenho() {
         return 'text-slate-400';
     };
 
-    const abrirArquivoLocal = async (caminho: string, tipo: '3d' | 'pdf') => {
+    const abrirArquivoLocal = async (caminho: string, tipo: '3d' | 'pdf' | 'dxf') => {
         if (!caminho || caminho.trim() === '') {
             alert("Endereço do arquivo não encontrado no sistema ou não atrelado a este item.");
             return;
@@ -137,7 +137,7 @@ export default function PesquisarDesenho() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300">
+        <div className="flex flex-col flex-1 min-h-0 bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300">
             {/* Header / Filtros */}
             <div className="bg-white p-3 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-200 mb-2 shrink-0">
                 <div className="flex justify-between items-center mb-2">
@@ -180,7 +180,7 @@ export default function PesquisarDesenho() {
                     </div>
                 )}
 
-                <div className="flex-1 overflow-auto custom-scrollbar relative">
+                <div className="table-container">
                     <table className="w-full text-left text-[11px] whitespace-nowrap">
                         <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <tr>
@@ -229,11 +229,17 @@ export default function PesquisarDesenho() {
                             {items.map(item => (
                                 <tr key={`osi-${item.IdOrdemServicoItem}`} className="hover:bg-blue-50/50 transition-colors">
                                     <td className="px-2 py-1 bg-white sticky left-0 z-10 shadow-[1px_0_0_rgba(0,0,0,0.05)] flex gap-1 items-center">
-                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, '3d')} className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="Abrir 3D">
+                                        {/* 1 - Abrir Desenho 3D */}
+                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, '3d')} className="p-1 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="1 - Abrir Desenho 3D">
                                             <Box size={14} />
                                         </button>
-                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, 'pdf')} className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded" title="Abrir PDF">
+                                        {/* 2 - Abrir Desenho PDF */}
+                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, 'pdf')} className="p-1 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded" title="2 - Abrir Desenho PDF">
                                             <FileText size={14} />
+                                        </button>
+                                        {/* 3 - Abrir Desenho DXF */}
+                                        <button onClick={() => abrirArquivoLocal(item.EnderecoArquivo, 'dxf')} className="p-1 text-slate-500 hover:text-cyan-700 hover:bg-cyan-50 rounded font-mono text-[9px] font-bold" title="3 - Abrir Desenho DXF">
+                                            DXF
                                         </button>
                                     </td>
                                     

@@ -301,7 +301,7 @@ function GanttChart({ data, mode }: GanttChartProps) {
     const LABEL_WIDTH = 360; // px (expanded for RI/RF pillars)
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
             {/* Legend */}
             <div className="shrink-0 flex items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-200 flex-wrap">
                 <div className="flex items-center gap-1.5">

@@ -134,28 +134,36 @@ app.get('/api/reposicao/itens', async (req, res) => {
 });
 
 app.delete('/api/reposicao/itens/:id', async (req, res) => {
+    let connection;
     try {
         const { id } = req.params;
-        const query = `
-            UPDATE ordemservicoitem 
-            SET 
-                D_E_L_E_T_E = '*', 
-                DataD_E_L_E_T_E = ?, 
-                UsuarioD_E_L_E_T_E = ? 
-            WHERE IdOrdemServicoItem = ?
-        `;
-        const [result] = await pool.query(query, [formatBR(new Date(), true), 'Sistema', id]);
-        
+        const usuario = req.query.usuario || 'Sistema';
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+        const dataAtual = formatBR(new Date(), true);
+        const [result] = await connection.query(
+            `UPDATE ordemservicoitem SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdOrdemServicoItem = ?`,
+            [dataAtual, usuario, id]
+        );
+        await connection.query(
+            `UPDATE ordemservicoitempendencia SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdOrdemServicoItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+            [dataAtual, usuario, id]
+        );
+        await connection.commit();
         if (result.affectedRows > 0) {
-            res.json({ success: true, message: 'Item excluÃƒÂ­do com sucesso (reposiÃƒÂ§ÃƒÂ£o).' });
+            res.json({ success: true, message: 'Item excluído com sucesso.' });
         } else {
-            res.status(404).json({ success: false, message: 'Item nÃƒÂ£o encontrado ou jÃƒÂ¡ excluÃƒÂ­do.' });
+            res.status(404).json({ success: false, message: 'Item não encontrado ou já excluído.' });
         }
     } catch (error) {
-        console.error('Erro ao excluir item de reposiÃƒÂ§ÃƒÂ£o:', error);
-        res.status(500).json({ success: false, message: 'Erro interno no servidor ao excluir reposiÃƒÂ§ÃƒÂ£o.' });
+        if (connection) await connection.rollback();
+        console.error('Erro ao excluir item de reposição:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao excluir reposição.' });
+    } finally {
+        if (connection) connection.release();
     }
 });
+
 
 app.post('/api/reposicao/apontamento', async (req, res) => {
     let connection;
@@ -3240,10 +3248,16 @@ app.get('/api/projeto', async (req, res) => {
         }
 
         const sql = `
-            SELECT *
-            FROM projetos 
-            ${whereClause}
-            ORDER BY IdProjeto DESC
+            SELECT p.*,
+                (SELECT COUNT(*) FROM ordemservicoitemcontrole c
+                 INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+                 INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
+                 WHERE os.IdProjeto = p.IdProjeto
+                   AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')
+                ) AS temApontamento
+            FROM projetos p
+            ${whereClause.replace(/\b(D_E_L_E_T_E|Finalizado|DataPrevisao|DataCriacao|Projeto|DescProjeto|DescEmpresa)\b/g, 'p.$1')}
+            ORDER BY p.IdProjeto DESC
             LIMIT 300
         `;
 
@@ -3259,7 +3273,14 @@ app.get('/api/projeto', async (req, res) => {
 app.get('/api/projeto/:id', async (req, res) => {
     try {
         const [rows] = await pool.execute(
-            'SELECT * FROM projetos WHERE IdProjeto = ?',
+            `SELECT p.*,
+                (SELECT COUNT(*) FROM ordemservicoitemcontrole c
+                 INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+                 INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
+                 WHERE os.IdProjeto = p.IdProjeto
+                   AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')
+                ) AS temApontamento
+            FROM projetos p WHERE p.IdProjeto = ?`,
             [req.params.id]
         );
         if (rows.length > 0) {
@@ -3371,14 +3392,14 @@ app.put('/api/projeto/:id', async (req, res) => {
                 IdEmpresa = ?, DescEmpresa = ?, PlanejadoFinanceiro = ?, DataEntradaPedido = ?,
                 Estado = ?,
                 /* Faturamento */
-                Cnpj = ?, NomeFantasia = ?, IE = ?, EnderecoCliente = ?,
+                Cnpj = ?, NomeFantasia = ?, InscEst = ?, EnderecoCliente = ?,
                 GerenteProjeto = ?, Segmento = ?,
                 ContatoComercial = ?, FoneContatoComercial = ?, EmailComercial = ?,
                 ContatoTecnico = ?, FoneContatoTecnico = ?, EmailTecnico = ?,
                 /* Entrega */
                 ClienteEntrega = ?, CnpjEntrega = ?, ContatoEntrega = ?, TelefoneEntrega = ?,
                 HrEntrega = ?, EnderecoEntrega = ?,
-                /* CobranÃƒÂ§a */
+                /* Cobrança */
                 ClienteCobranca = ?, CnpjCobranca = ?, ContatoCobranca = ?,
                 TelefoneCobranca = ?, EmailCobranca = ?, EnderecoCobranca = ?,
                 /* Fornecimento */
@@ -3391,7 +3412,7 @@ app.put('/api/projeto/:id', async (req, res) => {
                 FreteEmpresa = ?, ValorFrete = ?,
                 InstalacaoEmpresa = ?, ValorInstalacao = ?,
                 EmbalagemEmpresa = ?, ValorEmbalagem = ?,
-                TotalFinal = ?, ObservacaoFinal = ?
+                TotalValor = ?, ObservacaoFinal = ?
             WHERE IdProjeto = ?`,
             [
                 data.Projeto?.trim(),
@@ -3410,7 +3431,7 @@ app.put('/api/projeto/:id', async (req, res) => {
                 // Faturamento
                 data.Cnpj || null,
                 data.NomeFantasia || null,
-                data.IE || null,
+                data.InscEst || data.IE || null,
                 data.EnderecoCliente || null,
                 data.GerenteProjeto || null,
                 data.Segmento || null,
@@ -3458,7 +3479,7 @@ app.put('/api/projeto/:id', async (req, res) => {
                 data.ValorInstalacao || null,
                 data.EmbalagemEmpresa || null,
                 data.ValorEmbalagem || null,
-                data.TotalFinal || null,
+                data.TotalValor || data.TotalFinal || null,
                 data.ObservacaoFinal || null,
                 id
             ]
@@ -3497,31 +3518,30 @@ app.delete('/api/projeto/:id', async (req, res) => {
 // GET projetos for production overview
 app.get('/api/acompanhamento/projetos', async (req, res) => {
     try {
-        const mostrarFinalizados = req.query.finalizados === '1';
-        const mostrarLiberados = req.query.liberados === '1';
+        const status = req.query.status; // 'finalizados' | 'liberados' | 'todos' | undefined
 
-        // CondiÃƒÂ§ÃƒÂµes base de exclusÃƒÂ£o
+        // Condições base de exclusão
         const condicoes = [`COALESCE(p.D_E_L_E_T_E,'') = ''`];
 
-        if (mostrarFinalizados && mostrarLiberados) {
-            // Caso as duas opÃƒÂ§ÃƒÂµes primeiras sejam selecionadas exibir todos os registros
-            // nenhums condiÃƒÂ§ÃƒÂ£o extra
-        } else if (mostrarFinalizados && !mostrarLiberados) {
-            // 1- opÃƒÂ§ÃƒÂ£o 'Mostrar Finalizados' sÃƒÂ£o todos os registros onde 'Finalizado' ÃƒÂ© diferente de vazio e que nÃƒÂ£o foram liberados
-            condicoes.push(`COALESCE(p.Finalizado,'') != ''`);
-            condicoes.push(`COALESCE(p.liberado,'') = ''`);
-        } else if (!mostrarFinalizados && mostrarLiberados) {
-            // 2 - opÃƒÂ§ÃƒÂ£o 'Mostrar Liberado' sÃƒÂ£o todos os registros que tenham o campo 'Liberado' diferente de vazio
-            condicoes.push(`COALESCE(p.liberado,'') != ''`);
+        if (status === 'finalizados') {
+            // Apenas projetos com Finalizado = 'C'
+            condicoes.push(`p.Finalizado = 'C'`);
+        } else if (status === 'liberados') {
+            // Apenas projetos com liberado = 'S'
+            condicoes.push(`p.liberado = 'S'`);
+        } else if (status === 'todos') {
+            // Todos exceto excluídos — nenhuma condição extra
         } else {
-            // Se nenhuma das opÃƒÂ§oes ou 'Limpar' , apenas os registros com campos 'Finalizado' e 'Liberado' vazios
-            condicoes.push(`COALESCE(p.Finalizado,'') = ''`);
-            condicoes.push(`COALESCE(p.liberado,'') = ''`);
+            // Padrão: projetos ativos (nem finalizados nem liberados)
+            condicoes.push(`COALESCE(p.Finalizado,'') != 'C'`);
+            condicoes.push(`COALESCE(p.liberado,'') != 'S'`);
         }
 
         const where = condicoes.join(' AND ');
 
-        console.log(`[API] Acompanhamento Projetos Request - Finalizados: ${mostrarFinalizados}, Liberados: ${mostrarLiberados}`);
+        console.log(`[API] Projetos - status: ${status || 'default(ativos)'} | where: ${where}`);
+
+
 
 
         const queryPool = req.tenantDbPool || pool;
@@ -4439,10 +4459,10 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
 
         const [rows] = await pool.execute('SELECT liberado FROM projetos WHERE IdProjeto = ?', [req.params.id]);
         if (rows.length > 0 && rows[0].liberado && rows[0].liberado.trim() !== '') {
-            return res.status(400).json({ success: false, message: 'O projeto nÃƒÂ£o pode ser liberado pois o status de liberaÃƒÂ§ÃƒÂ£o nÃƒÂ£o estÃƒÂ¡ vazio.' });
+            return res.status(400).json({ success: false, message: 'O projeto não pode ser liberado pois o status de liberação não está vazio.' });
         }
 
-        // LÃƒÂ³gica NÃƒÂ£o-Alfatec padrÃƒÂ£o (liberado = 'S', DataLiberacao)
+        // Lógica Não-Alfatec padrão (liberado = 'S', DataLiberacao)
         await pool.execute(
             `UPDATE projetos SET 
                 liberado = 'S', 
@@ -4455,6 +4475,51 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
     } catch (error) {
         console.error('Error liberating project:', error);
         res.status(500).json({ success: false, message: 'Erro ao liberar o projeto.' });
+    }
+});
+
+app.post('/api/projeto/:id/cancelar-liberacao', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Verificar se existem apontamentos de produção vinculados ao projeto
+        const [apontRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM ordemservicoitemcontrole c
+             INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+             INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
+             WHERE os.IdProjeto = ?
+               AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')`,
+            [id]
+        );
+        if (apontRows[0].count > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Não é possível cancelar a liberação: este projeto já possui ${apontRows[0].count} apontamento(s) de produção registrado(s).` 
+            });
+        }
+
+        // 2. Verificar se existem Ordens de Serviço vinculadas
+        const [osRows] = await pool.execute('SELECT COUNT(*) as count FROM ordemservico WHERE IdProjeto = ?', [id]);
+        if (osRows[0].count > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Não é possível cancelar a liberação: existem ${osRows[0].count} Ordens de Serviço vinculadas a este projeto.` 
+            });
+        }
+
+        // 3. Reverter status do projeto
+        await pool.execute(
+            `UPDATE projetos SET 
+                liberado = '', 
+                DataLiberacao = NULL 
+            WHERE IdProjeto = ?`,
+            [id]
+        );
+
+        res.json({ success: true, message: 'Liberação do projeto cancelada com sucesso.' });
+    } catch (error) {
+        console.error('Error canceling project liberation:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao cancelar liberação.' });
     }
 });
 
@@ -4914,8 +4979,15 @@ app.get('/api/ordemservico', async (req, res) => {
         }
 
         if (projeto) {
-            whereClause += " AND Projeto LIKE ?";
-            params.push(`%${projeto}%`);
+            // Se for puramente numérico, filtra por IdProjeto (mais preciso)
+            // Caso contrário, filtra pelo nome do projeto (LIKE)
+            if (/^\d+$/.test(projeto.trim())) {
+                whereClause += " AND IdProjeto = ?";
+                params.push(parseInt(projeto.trim()));
+            } else {
+                whereClause += " AND Projeto LIKE ?";
+                params.push(`%${projeto.trim()}%`);
+            }
         }
         if (tag) {
             whereClause += " AND Tag LIKE ?";
@@ -5007,6 +5079,16 @@ app.get('/api/ordemservico', async (req, res) => {
                         os.QtdeTotalPecasCalc = 0;
                         os.QtdePecasExecutadasCalc = 0;
                     }
+
+                    // Verificar se OS possui apontamentos de produção
+                    const [apontCheck] = await pool.execute(
+                        `SELECT COUNT(*) as count FROM ordemservicoitemcontrole c
+                         INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+                         WHERE oi.IdOrdemServico = ?
+                           AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')`,
+                        [String(os.IdOrdemServico)]
+                    );
+                    os.temApontamento = apontCheck[0].count > 0;
                 } catch (err) {
                     console.error(`Error fetching context-safe stats for OS ${os.IdOrdemServico}:`, err);
                     os.QtdeTotalItensCalc = 0;
@@ -5014,6 +5096,7 @@ app.get('/api/ordemservico', async (req, res) => {
                     os.PercentualItensCalc = 0;
                     os.QtdeTotalPecasCalc = 0;
                     os.QtdePecasExecutadasCalc = 0;
+                    os.temApontamento = false;
                 }
             }
         }
@@ -5173,6 +5256,95 @@ app.post('/api/ordemservico/cancelar-finalizacao', tenantMiddleware, async (req,
     }
 });
 
+// ---------------------------------------------------------
+// NOVA ROTA: Cancelar Liberação da Ordem de Serviço
+// ---------------------------------------------------------
+app.post('/api/ordemservico/cancelar-liberacao', tenantMiddleware, async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const { IdOrdemServico } = req.body;
+
+        if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico é obrigatório' });
+
+        // 1. Verificar se a OS existe e está liberada
+        const [osRows] = await connection.query(
+            'SELECT Liberado_Engenharia, IdTag, IdProjeto, Fator, TipoLiberacaoOrdemServico FROM ordemservico WHERE IdOrdemServico = ?',
+            [IdOrdemServico]
+        );
+        if (osRows.length === 0) return res.status(404).json({ success: false, message: 'Ordem de Serviço não encontrada.' });
+
+        if (osRows[0].Liberado_Engenharia !== 'S') {
+            return res.status(400).json({ success: false, message: 'A Ordem de Serviço não está liberada.' });
+        }
+
+        // 2. Verificar se existem apontamentos de produção vinculados à OS
+        const [apontRows] = await connection.query(
+            `SELECT COUNT(*) as count FROM ordemservicoitemcontrole c
+             INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+             WHERE oi.IdOrdemServico = ?
+               AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')`,
+            [IdOrdemServico]
+        );
+        if (apontRows[0].count > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Não é possível cancelar a liberação: esta OS já possui ${apontRows[0].count} apontamento(s) de produção registrado(s).`
+            });
+        }
+
+        await connection.beginTransaction();
+
+        // 3. Reverter liberação da OS
+        await connection.query(
+            `UPDATE ordemservico SET Liberado_Engenharia = '', Data_Liberacao_Engenharia = NULL, TipoLiberacaoOrdemServico = '' WHERE IdOrdemServico = ?`,
+            [IdOrdemServico]
+        );
+
+        // 4. Reverter liberação dos itens da OS
+        await connection.query(
+            `UPDATE ordemservicoitem SET Liberado_Engenharia = '', Data_Liberacao_Engenharia = NULL WHERE IdOrdemServico = ?`,
+            [IdOrdemServico]
+        );
+
+        // 5. Reverter saldo na tag (se liberação era Total)
+        const osData = osRows[0];
+        if (osData.TipoLiberacaoOrdemServico === 'Total' && osData.IdTag && osData.Fator) {
+            const fator = parseFloat(osData.Fator) || 0;
+            if (fator > 0) {
+                await connection.query(
+                    `UPDATE tags SET QtdeLiberada = GREATEST(0, QtdeLiberada - ?), SaldoTag = SaldoTag + ? WHERE IdTag = ?`,
+                    [fator, fator, osData.IdTag]
+                );
+            }
+        }
+
+        // 6. Cancelar itens vinculados em Planos de Corte (se não tiverem execução)
+        try {
+            await connection.query(
+                `UPDATE planocorteitem pci
+                 INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = pci.IdOrdemServicoItem
+                 SET pci.D_E_L_E_T_E = '*'
+                 WHERE oi.IdOrdemServico = ?
+                   AND (pci.Executado IS NULL OR pci.Executado = '' OR pci.Executado = '0')`,
+                [IdOrdemServico]
+            );
+        } catch (e) {
+            console.log('[CancelarLiberacaoOS] Aviso ao limpar plano de corte:', e.message);
+        }
+
+        await connection.commit();
+        console.log(`[CancelarLiberacaoOS] OS ${IdOrdemServico} - Liberação cancelada com sucesso.`);
+        return res.json({ success: true, message: 'Liberação da Ordem de Serviço cancelada com sucesso.' });
+
+    } catch (e) {
+        if (connection) await connection.rollback();
+        console.error('[CancelarLiberacaoOS] Erro:', e);
+        res.status(500).json({ success: false, message: 'Erro interno ao cancelar liberação: ' + e.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
 
 // ---------------------------------------------------------
 // NOVA ROTA: Inserir Numero OP do Omie (Etapa 8)
@@ -5295,7 +5467,9 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
                 '', '', '', '', '', '',
                 ProdutoPrincipal, EnderecoArquivoItemOrdemServico, ?, ?
             FROM ordemservicoitem 
-            WHERE (IdOrdemServico = ?) AND (IdOrdemServicoReposicao IS NULL OR IdOrdemServicoReposicao = '')
+            WHERE (IdOrdemServico = ?) 
+              AND (IdOrdemServicoReposicao IS NULL OR IdOrdemServicoReposicao = '')
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
         `;
 
         await connection.query(queryInsertItens, [
@@ -5922,12 +6096,12 @@ app.get('/api/ordemservico/:id/itens', async (req, res) => {
 
 // Mapeamento de setores para colunas
 const setorColumns = {
-    corte: { txt: 'txtCorte', percentual: 'CortePercentual', status: 'sttxtCorte', total: 'CorteTotalExecutado', executar: 'CorteTotalExecutar' },
-    dobra: { txt: 'txtDobra', percentual: 'DobraPercentual', status: 'sttxtDobra', total: 'DobraTotalExecutado', executar: 'DobraTotalExecutar' },
-    solda: { txt: 'txtSolda', percentual: 'SoldaPercentual', status: 'sttxtSolda', total: 'SoldaTotalExecutado', executar: 'SoldaTotalExecutar' },
-    pintura: { txt: 'txtPintura', percentual: 'PinturaPercentual', status: 'sttxtPintura', total: 'PinturaTotalExecutado', executar: 'PinturaTotalExecutar' },
-    montagem: { txt: 'TxtMontagem', percentual: 'MontagemPercentual', status: 'sttxtMontagem', total: 'MontagemTotalExecutado', executar: 'MontagemTotalExecutar' },
-    mapa: { txt: 'txtCorte', percentual: 'CortePercentual', status: 'sttxtCorte', total: 'CorteTotalExecutado', executar: 'CorteTotalExecutar' }
+    corte:    { txt: 'txtCorte',    percentual: 'CortePercentual',    status: 'sttxtCorte',    total: 'CorteTotalExecutado',    executar: 'CorteTotalExecutar',    inicio: 'RealizadoInicioCorte',    final: 'RealizadoFinalCorte',    userInicio: 'UsuarioRealizadoInicioCorte',    userFinal: 'UsuarioRealizadoFinalCorte'    },
+    dobra:    { txt: 'txtDobra',    percentual: 'DobraPercentual',    status: 'sttxtDobra',    total: 'DobraTotalExecutado',    executar: 'DobraTotalExecutar',    inicio: 'RealizadoInicioDobra',    final: 'RealizadoFinalDobra',    userInicio: 'UsuarioRealizadoInicioDobra',    userFinal: 'UsuarioRealizadoFinalDobra'    },
+    solda:    { txt: 'txtSolda',    percentual: 'SoldaPercentual',    status: 'sttxtSolda',    total: 'SoldaTotalExecutado',    executar: 'SoldaTotalExecutar',    inicio: 'RealizadoInicioSolda',    final: 'RealizadoFinalSolda',    userInicio: 'UsuarioRealizadoInicioSolda',    userFinal: 'UsuarioRealizadoFinalSolda'    },
+    pintura:  { txt: 'txtPintura',  percentual: 'PinturaPercentual',  status: 'sttxtPintura',  total: 'PinturaTotalExecutado',  executar: 'PinturaTotalExecutar',  inicio: 'RealizadoInicioPintura',  final: 'RealizadoFinalPintura',  userInicio: 'UsuarioRealizadoInicioPintura',  userFinal: 'UsuarioRealizadoFinalPintura'  },
+    montagem: { txt: 'TxtMontagem', percentual: 'MontagemPercentual', status: 'sttxtMontagem', total: 'MontagemTotalExecutado', executar: 'MontagemTotalExecutar', inicio: 'RealizadoInicioMontagem', final: 'RealizadoFinalMontagem', userInicio: 'UsuarioRealizadoInicioMontagem', userFinal: 'UsuarioRealizadoFinalMontagem' },
+    mapa:     { txt: 'txtCorte',    percentual: 'CortePercentual',    status: 'sttxtCorte',    total: 'CorteTotalExecutado',    executar: 'CorteTotalExecutar',    inicio: 'RealizadoInicioCorte',    final: 'RealizadoFinalCorte',    userInicio: 'UsuarioRealizadoInicioCorte',    userFinal: 'UsuarioRealizadoFinalCorte'    }
 };
 
 /**
@@ -6569,7 +6743,7 @@ osi.*,
             lastNovoPercentual = novoPercentual;
             lastFinalizado = finalizado || isMapa;
 
-            // 5. Update ordemservicoitem
+            // 5. Update ordemservicoitem - totais + status
             let updateItemQuery = `
                 UPDATE ordemservicoitem 
                 SET ${sConfig.total} = ?, 
@@ -6579,26 +6753,28 @@ osi.*,
 `;
             const updateItemParams = [novoTotalExecutado, novoTotalExecutar, novoPercentual, (finalizado || isMapa) ? 'C' : ''];
 
-            if (finalizado || isMapa) {
-                const setorCapitalized = sName.charAt(0).toUpperCase() + sName.slice(1).toLowerCase();
-                const dateField = `RealizadoFinal${setorCapitalized} `;
-                const userField = `UsuarioRealizadoFinal${setorCapitalized} `;
-                updateItemQuery += `, ${dateField} = ?, ${userField} = ?`;
+            // 5a. Realizado INICIO: gravar no item se for o primeiro apontamento do setor (campo NULL)
+            if (!item[sConfig.inicio]) {
+                updateItemQuery += `, ${sConfig.inicio} = ?, ${sConfig.userInicio} = ?`;
                 updateItemParams.push(dateNow, CriadoPor || 'Sistema');
+            }
 
+            // 5b. Realizado FINAL: gravar no item quando todas as peças do setor forem produzidas
+            if (finalizado || isMapa) {
+                updateItemQuery += `, ${sConfig.final} = ?, ${sConfig.userFinal} = ?`;
+                updateItemParams.push(dateNow, CriadoPor || 'Sistema');
                 if (sName === 'montagem') {
-                    updateItemQuery += `, DataFinalMontagem = ? `;
+                    updateItemQuery += `, DataFinalMontagem = ?`;
                     updateItemParams.push(dateNow);
                 }
             }
 
-            updateItemQuery += ` WHERE IdOrdemServicoItem = ? `;
+            updateItemQuery += ` WHERE IdOrdemServicoItem = ?`;
             updateItemParams.push(IdOrdemServicoItem);
             await conn.execute(updateItemQuery, updateItemParams);
 
             // 6. Cascading Totals (HIERARQUIA: Item -> OS -> Tag -> Projeto)
             if (currentInputQty > 0) {
-                // Função auxiliar para atualização hierárquica (Adiciona ao Executado, Subtrai do Saldo)
                 const updateHierarchy = async (table, idField, idValue) => {
                     await conn.execute(`
                         UPDATE ${table} 
@@ -6607,15 +6783,86 @@ osi.*,
                         WHERE ${idField} = ?
                     `, [currentInputQty, currentInputQty, idValue]);
                 };
-
                 await updateHierarchy('ordemservico', 'IdOrdemServico', item.IdOrdemServico);
                 if (item.IdTag) await updateHierarchy('tags', 'IdTag', item.IdTag);
                 if (item.IdProjeto) await updateHierarchy('projetos', 'IdProjeto', item.IdProjeto);
             }
 
-            // 7. Success log
-            // Note: We log the actual sName process here, but if isMapa we log as 'mapa' in the final audit if desired.
-            // Following legacy, we will log a record for 'mapa' at the end, and for individual ones here.
+            // 6a. Cascatear Realizado INICIO para OS / Tag / Projeto (somente se campo ainda NULL)
+            if (!item[sConfig.inicio]) {
+                // OS: setar inicio se ainda nulo
+                await conn.execute(
+                    `UPDATE ordemservico SET ${sConfig.inicio} = ? WHERE IdOrdemServico = ? AND (${sConfig.inicio} IS NULL OR ${sConfig.inicio} = '')`,
+                    [dateNow, item.IdOrdemServico]
+                );
+                // Tag: setar inicio se ainda nulo
+                if (item.IdTag) {
+                    await conn.execute(
+                        `UPDATE tags SET ${sConfig.inicio} = ? WHERE IdTag = ? AND (${sConfig.inicio} IS NULL OR ${sConfig.inicio} = '')`,
+                        [dateNow, item.IdTag]
+                    );
+                }
+                // Projeto: setar inicio se ainda nulo
+                if (item.IdProjeto) {
+                    await conn.execute(
+                        `UPDATE projetos SET ${sConfig.inicio} = ? WHERE IdProjeto = ? AND (${sConfig.inicio} IS NULL OR ${sConfig.inicio} = '')`,
+                        [dateNow, item.IdProjeto]
+                    );
+                }
+            }
+
+            // 6b. Cascatear Realizado FINAL para OS / Tag / Projeto (verificar se todos completaram o setor)
+            if (finalizado || isMapa) {
+                // Verificar se TODOS os itens (não deletados) da OS têm RealizadoFinal no setor
+                const [pendFinalOS] = await conn.execute(
+                    `SELECT COUNT(*) as cnt FROM ordemservicoitem
+                     WHERE IdOrdemServico = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+                       AND NULLIF(${sConfig.txt}, '') = '1'
+                       AND (${sConfig.final} IS NULL OR ${sConfig.final} = '')`,
+                    [item.IdOrdemServico]
+                );
+                if (parseInt(pendFinalOS[0].cnt) === 0) {
+                    await conn.execute(
+                        `UPDATE ordemservico SET ${sConfig.final} = ? WHERE IdOrdemServico = ?`,
+                        [dateNow, item.IdOrdemServico]
+                    );
+                    // Verificar se TODAS as OS (não deletadas) da Tag têm RealizadoFinal no setor
+                    if (item.IdTag) {
+                        const [pendFinalTag] = await conn.execute(
+                            `SELECT COUNT(*) as cnt FROM ordemservico
+                             WHERE IdTag = ?
+                               AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+                               AND (${sConfig.final} IS NULL OR ${sConfig.final} = '')`,
+                            [item.IdTag]
+                        );
+                        if (parseInt(pendFinalTag[0].cnt) === 0) {
+                            await conn.execute(
+                                `UPDATE tags SET ${sConfig.final} = ? WHERE IdTag = ?`,
+                                [dateNow, item.IdTag]
+                            );
+                            // Verificar se TODAS as Tags (não deletadas) do Projeto têm RealizadoFinal no setor
+                            if (item.IdProjeto) {
+                                const [pendFinalProj] = await conn.execute(
+                                    `SELECT COUNT(*) as cnt FROM tags
+                                     WHERE IdProjeto = ?
+                                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+                                       AND (${sConfig.final} IS NULL OR ${sConfig.final} = '')`,
+                                    [item.IdProjeto]
+                                );
+                                if (parseInt(pendFinalProj[0].cnt) === 0) {
+                                    await conn.execute(
+                                        `UPDATE projetos SET ${sConfig.final} = ? WHERE IdProjeto = ?`,
+                                        [dateNow, item.IdProjeto]
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 7. Log de apontamento
             const txtSetor = `txt${sName.charAt(0).toUpperCase() + sName.slice(1).toLowerCase()}`;
             await conn.execute(`
                 INSERT INTO ordemservicoitemcontrole(
@@ -6628,22 +6875,20 @@ osi.*,
                 const setorCap = sName.charAt(0).toUpperCase() + sName.slice(1).toLowerCase();
                 const dateCol = `RealizadoFinal${setorCap}Controle`;
                 const userCol = `UsuarioRealizadoFinal${setorCap}Controle`;
-
                 const [tcRows] = await conn.execute('SELECT IdTagControle FROM tagcontrole WHERE IdTag = ? LIMIT 1', [item.IdTag]);
                 if (tcRows.length > 0) {
-                    await conn.execute(`UPDATE tagcontrole SET ${dateCol} = ?, ${userCol} = ? WHERE IdTagControle = ? `, [dateNow, CriadoPor || 'Sistema', tcRows[0].IdTagControle]);
+                    await conn.execute(`UPDATE tagcontrole SET ${dateCol} = ?, ${userCol} = ? WHERE IdTagControle = ?`, [dateNow, CriadoPor || 'Sistema', tcRows[0].IdTagControle]);
                 } else {
                     await conn.execute(`INSERT INTO tagcontrole(IdTag, Tag, IdProjeto, Projeto, ${dateCol}, ${userCol}, DataControle) VALUES(?, ?, ?, ?, ?, ?, ?)`,
                         [item.IdTag, item.Tag, item.IdProjeto, item.Projeto, dateNow, CriadoPor || 'Sistema', dateNow]);
                 }
             }
 
-            // 8.5 Incrementar saldo a executar do próximo setor (Fluxo de Produção Push)
+            // 8.5 Incrementar saldo do próximo setor (Fluxo Push)
             if (currentInputQty > 0) {
                 const currentIndex = sequence.indexOf(sName);
                 if (currentIndex < sequence.length - 1) {
                     let nextSectorName = null;
-                    // Procurar o PRÓXIMO setor ATIVO na cadeia produtiva para este item
                     for (let i = currentIndex + 1; i < sequence.length; i++) {
                         const checkSName = sequence[i];
                         const checkConfig = setorColumns[checkSName];
@@ -6652,14 +6897,9 @@ osi.*,
                             break;
                         }
                     }
-
                     if (nextSectorName) {
                         const nextConfig = setorColumns[nextSectorName];
-                        
-                        // 1. Update item balance
                         await conn.execute(`UPDATE ordemservicoitem SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServicoItem = ?`, [currentInputQty, IdOrdemServicoItem]);
-                        
-                        // 2. Propagate balance increment to higher levels
                         await conn.execute(`UPDATE ordemservico SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServico = ?`, [currentInputQty, item.IdOrdemServico]);
                         if (item.IdTag) await conn.execute(`UPDATE tags SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdTag = ?`, [currentInputQty, item.IdTag]);
                         if (item.IdProjeto) await conn.execute(`UPDATE projetos SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdProjeto = ?`, [currentInputQty, item.IdProjeto]);

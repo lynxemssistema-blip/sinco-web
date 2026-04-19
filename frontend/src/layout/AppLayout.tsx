@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon, Search } from 'lucide-react';
+import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon, Search, HelpCircle } from 'lucide-react';
 import { cn } from '../lib/cn';
+import { helpContents } from '../utils/helpContent';
 import { getIcon } from '../utils/iconMap';
 import type { MenuItem } from '../utils/iconMap';
 import type { User } from '../contexts/AuthContext';
@@ -24,6 +25,9 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
     const [sidebarSearch, setSidebarSearch] = useState('');
     const [appliedSearch, setAppliedSearch] = useState('');
+    const [showHelp, setShowHelp] = useState(false);
+
+    const currentHelp = helpContents[activePageId] || helpContents['default'];
 
     // Ref para o scroll container do sidebar desktop
     const sidebarScrollRef = useRef<HTMLDivElement>(null);
@@ -224,7 +228,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     );
 
     return (
-        <div className="h-screen w-screen overflow-hidden bg-background transition-colors duration-300 flex">
+        <div className="h-screen overflow-hidden bg-background transition-colors duration-300 flex">
             {/* Desktop Sidebar */}
             <aside className={cn(
                 "hidden md:flex bg-[#F9F8F3] text-primary fixed inset-y-0 left-0 z-30 shadow-xl flex-col border-r border-primary/10 transition-transform duration-300 w-72 h-full",
@@ -281,9 +285,9 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 "pt-16 md:pt-0 h-full w-full overflow-auto custom-scrollbar transition-all duration-300",
                 isSidebarCollapsed ? "md:ml-0" : "md:ml-72"
             )}>
-                <div className="p-4 md:p-8 w-full max-w-[1920px] mx-auto space-y-6">
+                <div className="p-4 md:p-6 w-full">
                     {/* Header Desktop (Breadcrumb/Title) */}
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -293,12 +297,22 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                                 <Menu size={24} />
                             </button>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{activeLabel}</h1>
-                                <p className="text-muted-foreground text-sm mt-1">Gerenciamento e Controle</p>
+                                <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-tight">{activeLabel}</h1>
+                                <p className="text-muted-foreground text-xs mt-0.5">Gerenciamento e Controle</p>
                             </div>
                         </div>
                         <div className="hidden md:flex items-center gap-4">
-                            {/* User Profile or Actions */}
+                            {/* Help Button */}
+                            <button 
+                                onClick={() => setShowHelp(true)} 
+                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors shadow-sm"
+                                title="Ajuda sobre a tela atual"
+                            >
+                                <HelpCircle size={16} />
+                                <span className="text-xs font-bold uppercase">Help</span>
+                            </button>
+
+                            {/* User Profile */}
                             <div className="flex items-center gap-3 px-4 py-2 bg-card border rounded-full shadow-sm">
                                 <div className="flex flex-col items-end mr-1 text-right">
                                     <span className="text-sm font-medium leading-tight">{user?.nome || 'Usuário'}</span>
@@ -321,6 +335,42 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                     </div>
                 </div>
             </main>
+
+
+            {/* Global Help Modal */}
+            <AnimatePresence>
+                {showHelp && (
+                    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }} 
+                            exit={{ opacity: 0, scale: 0.95 }} 
+                            className="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-[calc(100%-2rem)] m-4"
+                        >
+                            <div className="flex items-center justify-between border-b pb-4 mb-4">
+                                <h2 className="text-xl font-bold text-blue-600 flex items-center gap-2">
+                                    <HelpCircle size={24} /> 
+                                    {currentHelp.title}
+                                </h2>
+                                <button onClick={() => setShowHelp(false)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <div className="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
+                                {currentHelp.description}
+                            </div>
+                            <div className="mt-6 flex justify-end">
+                                <button 
+                                    onClick={() => setShowHelp(false)} 
+                                    className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                                >
+                                    Entendi
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -285,7 +285,7 @@ export default function TarefasPage() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 xl:p-6 overflow-auto custom-scrollbar">
+        <div className="flex flex-col flex-1 min-h-0 bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 xl:p-6 overflow-auto custom-scrollbar">
             
             {fromGlobal && (
                 <div className="mb-4">
@@ -450,7 +450,7 @@ export default function TarefasPage() {
                     </div>
                 )}
 
-                <div className="flex-1 overflow-auto custom-scrollbar relative">
+                <div className="table-container relative">
                     <table className="w-full text-left text-[11px] whitespace-nowrap">
                         <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <tr>

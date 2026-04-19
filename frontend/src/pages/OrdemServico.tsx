@@ -72,6 +72,8 @@ interface OrdemServico {
     RealizadoFinalACABAMENTO?: string;
     EnderecoOrdemServico?: string;
     NumeroOPOmie?: string;
+    Fator?: number | string;
+    temApontamento?: boolean;
 }
 
 interface OrdemServicoItem {
@@ -1327,10 +1329,16 @@ function OrdemServicoContent() {
 
                             {os.Liberado_Engenharia === 'S' && (
                                 <button 
-                                    onClick={() => handleCancelarLiberacao(os)}
-                                    disabled={liberandoOS === os.IdOrdemServico}
-                                    className="p-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm disabled:opacity-50"
-                                    title="Cancelar Liberação Engenharia"
+                                    onClick={() => !os.temApontamento && handleCancelarLiberacao(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico || os.temApontamento}
+                                    className={`p-2.5 border rounded-lg transition-colors shadow-sm disabled:opacity-50 ${
+                                        os.temApontamento 
+                                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                                            : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                                    }`}
+                                    title={os.temApontamento 
+                                        ? 'Não é possível cancelar: esta OS já possui apontamentos de produção registrados.' 
+                                        : 'Cancelar Liberação Engenharia'}
                                 >
                                     {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
                                 </button>

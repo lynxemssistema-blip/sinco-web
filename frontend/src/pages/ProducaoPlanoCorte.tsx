@@ -388,7 +388,7 @@ export default function ProducaoPlanoCorte() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 p-3 gap-3 overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 bg-slate-50 p-3 gap-3">
             
             <div className={`flex flex-col bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ${planoSel ? 'h-1/3' : 'h-full'}`}>
                 <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
