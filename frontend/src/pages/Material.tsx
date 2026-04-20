@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2, Trash2, X, Package, Save,
-    Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon
+    Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon, Globe
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -360,7 +360,7 @@ export default function MaterialPage() {
 
                                         {/* Actions */}
                                         <div className="flex-1 space-y-3">
-                                            <div className="grid grid-cols-3 gap-2">
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                                 {/* Camera Button */}
                                                 <label className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 cursor-pointer transition-all active:scale-95">
                                                     <input
@@ -397,6 +397,20 @@ export default function MaterialPage() {
                                                 >
                                                     <LinkIcon size={20} className="text-[#32423D]" />
                                                     <span className="text-xs font-medium text-gray-600">Link Web</span>
+                                                </button>
+
+                                                {/* Google Search Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const query = encodeURIComponent((formData.CodMatFabricante || '') + ' ' + (formData.DescResumo || ''));
+                                                        window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
+                                                        setShowUrlInput(true);
+                                                    }}
+                                                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-95`}
+                                                >
+                                                    <Globe size={20} className="text-[#32423D]" />
+                                                    <span className="text-xs font-medium text-gray-600 border-b border-transparent">Pesquisar WEB</span>
                                                 </button>
                                             </div>
 

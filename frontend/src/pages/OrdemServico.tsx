@@ -1267,10 +1267,16 @@ function OrdemServicoContent() {
                             </button>
 
                             <button 
-                                onClick={() => handleExcluirOS(os)}
-                                disabled={liberandoOS === os.IdOrdemServico}
-                                className="p-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm disabled:opacity-50"
-                                title="Excluir Ordem de Serviço"
+                                onClick={() => os.OrdemServicoFinalizado !== 'C' && handleExcluirOS(os)}
+                                disabled={liberandoOS === os.IdOrdemServico || os.OrdemServicoFinalizado === 'C'}
+                                className={`p-2.5 border rounded-lg transition-colors shadow-sm disabled:opacity-50 ${
+                                    os.OrdemServicoFinalizado === 'C' 
+                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                                        : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                                }`}
+                                title={os.OrdemServicoFinalizado === 'C' 
+                                    ? 'Ação bloqueada: O.S. já está concluída/finalizada.' 
+                                    : 'Excluir Ordem de Serviço'}
                             >
                                 <Trash2 size={18} />
                             </button>
@@ -1329,16 +1335,22 @@ function OrdemServicoContent() {
 
                             {os.Liberado_Engenharia === 'S' && (
                                 <button 
-                                    onClick={() => !os.temApontamento && handleCancelarLiberacao(os)}
-                                    disabled={liberandoOS === os.IdOrdemServico || os.temApontamento}
+                                    onClick={() => !os.temApontamento && os.OrdemServicoFinalizado !== 'C' && handleCancelarLiberacao(os)}
+                                    disabled={liberandoOS === os.IdOrdemServico || os.temApontamento || os.OrdemServicoFinalizado === 'C'}
                                     className={`p-2.5 border rounded-lg transition-colors shadow-sm disabled:opacity-50 ${
-                                        os.temApontamento 
-                                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
-                                            : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                                        os.OrdemServicoFinalizado === 'C'
+                                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                            : os.temApontamento 
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                                                : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
                                     }`}
-                                    title={os.temApontamento 
-                                        ? 'Não é possível cancelar: esta OS já possui apontamentos de produção registrados.' 
-                                        : 'Cancelar Liberação Engenharia'}
+                                    title={
+                                        os.OrdemServicoFinalizado === 'C'
+                                            ? 'Não é possível cancelar liberação: O.S. já está concluída/finalizada.'
+                                            : os.temApontamento 
+                                                ? 'Não é possível cancelar: esta OS já possui apontamentos de produção registrados.' 
+                                                : 'Cancelar Liberação Engenharia'
+                                    }
                                 >
                                     {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
                                 </button>

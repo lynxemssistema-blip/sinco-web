@@ -1107,11 +1107,11 @@ export default function ApontamentoProducaoPage() {
                         <span className="w-10 text-center">OS</span>
                         <span className="w-28">Info</span>
                         <span className="w-12 text-center">Item</span>
-                        <span className="min-w-[100px]">Código</span>
+                        <span className="w-[100px] shrink-0">Código</span>
                         <span className="w-20">Plano Corte</span>
                         <span className="w-28">Material</span>
                         <span className="w-12 text-center">Esp.</span>
-                        <span className="flex-1">Descrição</span>
+                        <span className="w-48 shrink-0">Descrição</span>
                         <span className="w-10 text-center">Qt</span>
                         <span className="w-14 text-center">Prod.</span>
                         <span className="w-12 text-center">%</span>
@@ -1161,10 +1161,10 @@ export default function ApontamentoProducaoPage() {
                             <span className="w-10 text-center">OS</span>
                             <span className="w-28">Info</span>
                             <span className="w-12 text-center">Item</span>
-                            <span className="min-w-[100px]">Código</span>
+                            <span className="w-[100px] shrink-0">Código</span>
                             <span className="w-20">Plano Corte</span>
                             <span className="w-28">Material</span>
-                            <span className="flex-1">Descrição</span>
+                            <span className="w-48 shrink-0">Descrição</span>
                             <span className="w-10 text-center">Qt</span>
                             {visibleSetores.includes('corte') && <span className="w-14 text-center bg-blue-100 rounded py-0.5">Corte</span>}
                             {visibleSetores.includes('dobra') && <span className="w-14 text-center bg-purple-100 rounded py-0.5">Dobra</span>}
@@ -1223,7 +1223,7 @@ export default function ApontamentoProducaoPage() {
                                         <span className="w-12 text-center text-gray-400 text-[9px]">
                                             #{item.IdOrdemServicoItem}
                                         </span>
-                                        <span className="min-w-[100px] text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                        <span className="w-[100px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
                                             {item.CodMatFabricante || '-'}
                                         </span>
                                         <span className="w-20 text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
@@ -1232,8 +1232,8 @@ export default function ApontamentoProducaoPage() {
                                         <span className="w-28 text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded truncate">
                                             {item.MaterialSW || '-'}
                                         </span>
-                                        <span className="flex-1 text-gray-700 truncate text-[10px]">
-                                            {item.DescResumo || '-'}
+                                        <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
+                                            {item.DescResumo?.trim() || '-'}
                                         </span>
                                         <span className="w-10 text-center font-black text-[#32423D] text-[11px]">
                                             {item.QtdeTotal}
@@ -1380,7 +1380,7 @@ export default function ApontamentoProducaoPage() {
                                                 </span>
 
                                                 {/* Código */}
-                                                <span className="min-w-[100px] text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                                <span className="w-[100px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
                                                     {item.CodMatFabricante || '-'}
                                                 </span>
 
@@ -1398,8 +1398,8 @@ export default function ApontamentoProducaoPage() {
                                                 </span>
 
                                                 {/* Descrição */}
-                                                <span className="flex-1 text-gray-700 truncate text-[10px]">
-                                                    {item.DescResumo || '-'}
+                                                <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
+                                                    {item.DescResumo?.trim() || '-'}
                                                 </span>
 
                                                 {/* Quantidade Total */}

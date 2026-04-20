@@ -3518,23 +3518,45 @@ app.delete('/api/projeto/:id', async (req, res) => {
 // GET projetos for production overview
 app.get('/api/acompanhamento/projetos', async (req, res) => {
     try {
-        const status = req.query.status; // 'finalizados' | 'liberados' | 'todos' | undefined
+        const status = req.query.status; 
+        const isFinalizados = req.query.finalizados === '1';
+        const isLiberados = req.query.liberados === '1';
+        const search = req.query.search;
+        const dataFinalDe = req.query.dataFinalDe;
+        const dataFinalAte = req.query.dataFinalAte;
 
         // Condições base de exclusão
         const condicoes = [`COALESCE(p.D_E_L_E_T_E,'') = ''`];
 
-        if (status === 'finalizados') {
-            // Apenas projetos com Finalizado = 'C'
-            condicoes.push(`p.Finalizado = 'C'`);
-        } else if (status === 'liberados') {
-            // Apenas projetos com liberado = 'S'
-            condicoes.push(`p.liberado = 'S'`);
-        } else if (status === 'todos') {
-            // Todos exceto excluídos — nenhuma condição extra
+        if (status) {
+            condicoes.push(`p.StatusProj = ${pool.escape(status)}`);
+        }
+
+        if (search) {
+            const s = pool.escape('%' + search + '%');
+            condicoes.push(`(p.Projeto LIKE ${s} OR p.DescProjeto LIKE ${s} OR p.DescEmpresa LIKE ${s})`);
+        }
+
+        if (dataFinalDe) {
+            // Usually dataFinalDe is YYYY-MM-DD from HTML date input
+            condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') >= '${dataFinalDe}'`);
+        }
+        if (dataFinalAte) {
+            condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= '${dataFinalAte}'`);
+        }
+
+        if (isFinalizados && isLiberados) {
+            // 'todos' — nenhuma condição extra
+        } else if (isFinalizados) {
+            // 'finalizados'
+            condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) = 'C'`);
+        } else if (isLiberados) {
+            // 'liberados'
+            condicoes.push(`TRIM(COALESCE(p.liberado,'')) = 'S'`);
         } else {
-            // Padrão: projetos ativos (nem finalizados nem liberados)
-            condicoes.push(`COALESCE(p.Finalizado,'') != 'C'`);
-            condicoes.push(`COALESCE(p.liberado,'') != 'S'`);
+            // 'ativos' padrão
+            condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
+            condicoes.push(`TRIM(COALESCE(p.liberado,'')) != 'S'`);
         }
 
         const where = condicoes.join(' AND ');
@@ -5490,6 +5512,9 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
               AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
         `, [novoId]);
 
+        // Recalcular as somatórias em cascata pelo fato de termos novos itens clonados
+        await recalcularQuantidadesTotais(novoId, connection);
+
         return res.json({ success: true, message: 'Nova Cópia da Ordem de Serviço inserida!', novoId });
 
     } catch (e) {
@@ -5529,6 +5554,12 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
         const { IdOrdemServico, Usuario } = req.body;
         
         if (!IdOrdemServico) return res.status(400).json({ success: false, message: 'IdOrdemServico ÃƒÂ© obrigatÃƒÂ³rio' });
+
+        // Validação adicional: Bloqueio de O.S Finalizada
+        const [osStatus] = await connection.query(`SELECT OrdemServicoFinalizado FROM ordemservico WHERE IdOrdemServico = ?`, [IdOrdemServico]);
+        if (osStatus.length > 0 && osStatus[0].OrdemServicoFinalizado === 'C') {
+            return res.status(400).json({ success: false, message: 'A OS Não pode ser excluída pois já encontra-se finalizada/concluída.' });
+        }
 
         // ValidaÃƒÂ§ÃƒÂ£o idÃƒÂªntica ao VB.NET: verificar se hÃƒÂ¡ execuÃƒÂ§ÃƒÂ£o ou plano de corte
         const [rows] = await connection.query(`
@@ -5587,9 +5618,8 @@ app.post('/api/ordemservico/excluir', tenantMiddleware, async (req, res) => {
             WHERE IdOrdemServico = ?
         `, [executor, dataatual, IdOrdemServico]);
 
-        // Aqui entraria: ClasseclOrdemServico.CalcularordemservicoitemFatorOS_TAG_PROJETO() 
-        // Em um ecosistema reativo moderno ou onde essa query roda, precisariamos recalcular nivel superior.
-        // Como o React recarrega a grid com dados do SQL, o `D_E_L_E_T_E = '*'` ja omitira da listagem inicial.
+        // Aqui executamos o Recalculo para subtrair os totais cascateados
+        await recalcularQuantidadesTotais(IdOrdemServico, connection);
 
         return res.json({ success: true, message: 'Ordem de serviÃƒÂ§o excluÃƒÂ­da com sucesso.' });
 
@@ -6582,7 +6612,7 @@ WHERE osi.IdOrdemServicoItem = ?
             item: item,
             historico: historicoRows,
             totalProduzido: totalExecutado,
-            qtdeFaltante: Math.max(0, totalExecutar)
+            qtdeFaltante: Math.min(item.QtdeTotal - totalExecutado, Math.max(0, totalExecutar))
         };
         console.log(`[API] Sending details for item ${id}`);
         res.json({
@@ -6620,6 +6650,14 @@ app.post('/api/apontamento', async (req, res) => {
 
     const conn = await pool.getConnection();
     try {
+        let req_idmatriz = null;
+        try {
+            const [matRows] = await pool.query('SELECT id FROM conexoes_bancos WHERE db_name = ? LIMIT 1', [req.tenantDb]);
+            if (matRows && matRows.length > 0) req_idmatriz = matRows[0].id;
+        } catch(e) {
+            console.error('[API Apontamento] Aviso: Falha ao buscar idmatriz de conexoes_bancos:', e.message);
+        }
+
         await conn.beginTransaction();
 
         const now = getCurrentDateTimeBR();
@@ -6749,9 +6787,10 @@ osi.*,
                 SET ${sConfig.total} = ?, 
                     ${sConfig.executar} = ?, 
                     ${sConfig.percentual} = ?,
-                    ${sConfig.status} = ?
+                    ${sConfig.status} = ?,
+                    idmatriz = COALESCE(NULLIF(idmatriz, 0), ?)
 `;
-            const updateItemParams = [novoTotalExecutado, novoTotalExecutar, novoPercentual, (finalizado || isMapa) ? 'C' : ''];
+            const updateItemParams = [novoTotalExecutado, novoTotalExecutar, novoPercentual, (finalizado || isMapa) ? 'C' : '', req_idmatriz];
 
             // 5a. Realizado INICIO: gravar no item se for o primeiro apontamento do setor (campo NULL)
             if (!item[sConfig.inicio]) {
@@ -6773,20 +6812,9 @@ osi.*,
             updateItemParams.push(IdOrdemServicoItem);
             await conn.execute(updateItemQuery, updateItemParams);
 
-            // 6. Cascading Totals (HIERARQUIA: Item -> OS -> Tag -> Projeto)
-            if (currentInputQty > 0) {
-                const updateHierarchy = async (table, idField, idValue) => {
-                    await conn.execute(`
-                        UPDATE ${table} 
-                        SET ${sConfig.total} = COALESCE(${sConfig.total}, 0) + ?,
-                            ${sConfig.executar} = GREATEST(0, COALESCE(${sConfig.executar}, 0) - ?)
-                        WHERE ${idField} = ?
-                    `, [currentInputQty, currentInputQty, idValue]);
-                };
-                await updateHierarchy('ordemservico', 'IdOrdemServico', item.IdOrdemServico);
-                if (item.IdTag) await updateHierarchy('tags', 'IdTag', item.IdTag);
-                if (item.IdProjeto) await updateHierarchy('projetos', 'IdProjeto', item.IdProjeto);
-            }
+            // 6. Cascading Totals e Percentuais Dinâmicos (HIERARQUIA: Item -> OS -> Tag -> Projeto)
+            // Utilizando o helper centralizado garantimos que QtdePecasExecutadas e Setores também recalculem em tempo real
+            await recalcularQuantidadesTotais(item.IdOrdemServico, conn);
 
             // 6a. Cascatear Realizado INICIO para OS / Tag / Projeto (somente se campo ainda NULL)
             if (!item[sConfig.inicio]) {
@@ -6866,9 +6894,9 @@ osi.*,
             const txtSetor = `txt${sName.charAt(0).toUpperCase() + sName.slice(1).toLowerCase()}`;
             await conn.execute(`
                 INSERT INTO ordemservicoitemcontrole(
-                    IdOrdemServicoItem, IdOrdemServico, Processo, QtdeTotal, QtdeProduzida, ${txtSetor}, CriadoPor, DataCriacao, D_E_L_E_T_E
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, '')
-            `, [IdOrdemServicoItem, item.IdOrdemServico, sName.toLowerCase(), item.QtdeTotal, currentInputQty, currentInputQty, CriadoPor || 'Sistema', now]);
+                    IdOrdemServicoItem, IdOrdemServico, Processo, QtdeTotal, QtdeProduzida, ${txtSetor}, CriadoPor, DataCriacao, D_E_L_E_T_E, idmatriz
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, '', ?)
+            `, [IdOrdemServicoItem, item.IdOrdemServico, sName.toLowerCase(), item.QtdeTotal, currentInputQty, currentInputQty, CriadoPor || 'Sistema', now, req_idmatriz]);
 
             // 8. Update tagcontrole
             if (item.IdTag) {
@@ -7019,15 +7047,15 @@ app.delete('/api/apontamento/:id', async (req, res) => {
     try {
         // Buscar dados do apontamento antes de deletar
         const [rows] = await pool.execute(
-            'SELECT IdOrdemServicoItem, Processo, QtdeProduzida FROM ordemservicoitemcontrole WHERE IdOrdemServicoItemControle = ?',
+            'SELECT IdOrdemServico, IdOrdemServicoItem, Processo, QtdeProduzida FROM ordemservicoitemcontrole WHERE IdOrdemServicoItemControle = ?',
             [req.params.id]
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Apontamento nÃ¯Â¿Â½o encontrado' });
+            return res.status(404).json({ success: false, message: 'Apontamento não encontrado' });
         }
 
-        const { IdOrdemServicoItem, Processo, QtdeProduzida } = rows[0];
+        const { IdOrdemServico, IdOrdemServicoItem, Processo, QtdeProduzida } = rows[0];
         const setorConfig = setorColumns[Processo.toLowerCase()];
 
         // Soft delete
@@ -7053,14 +7081,18 @@ app.delete('/api/apontamento/:id', async (req, res) => {
         const qtdeTotal = parseInt(itemRows[0]?.QtdeTotal) || 0;
         const totalProduzido = parseInt(sumRows[0].totalProduzido) || 0;
         const novoPercentual = qtdeTotal > 0 ? Math.min(100, Math.round((totalProduzido / qtdeTotal) * 100)) : 0;
+        const novoExecutar = Math.max(0, qtdeTotal - totalProduzido);
 
-        // Atualizar percentual
+        // Atualizar percentual, total e executar
         if (setorConfig) {
             await pool.execute(
-                `UPDATE ordemservicoitem SET ${setorConfig.percentual} = ? WHERE IdOrdemServicoItem = ? `,
-                [novoPercentual, IdOrdemServicoItem]
+                `UPDATE ordemservicoitem SET ${setorConfig.total} = ?, ${setorConfig.executar} = ?, ${setorConfig.percentual} = ? WHERE IdOrdemServicoItem = ? `,
+                [totalProduzido, novoExecutar, novoPercentual, IdOrdemServicoItem]
             );
         }
+
+        // Cascatear as alterações da remoção (percentuais dinâmicos da OS/TAG/PROJETO)
+        await recalcularQuantidadesTotais(IdOrdemServico, pool);
 
         res.json({ success: true, message: 'Apontamento estornado com sucesso' });
     } catch (error) {
@@ -8946,11 +8978,17 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
         const id = req.params.id;
         connection = await (req.tenantDbPool || pool).getConnection();
         
-        const [rows] = await connection.execute("SELECT Liberado_Engenharia FROM ordemservicoitem WHERE IdOrdemServicoItem = ?", [id]);
-        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Item nÃƒÂ£o encontrado.' });
+        const [rows] = await connection.execute("SELECT Liberado_Engenharia, IdOrdemServico FROM ordemservicoitem WHERE IdOrdemServicoItem = ?", [id]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Item não encontrado.' });
         
         if (rows[0].Liberado_Engenharia === 'S' || rows[0].Liberado_Engenharia === 'SIM') {
-            return res.status(400).json({ success: false, message: 'Item da Ordem ServiÃƒÂ§o nÃƒÂ£o pode ser excluido, O.S. jÃƒÂ¡ liberada! Verifique!' });
+            return res.status(400).json({ success: false, message: 'Item da Ordem Serviço não pode ser excluido, O.S. já liberada! Verifique!' });
+        }
+        
+        // Regra adicional: Proibir exclusão se tiver apontamentos
+        const [apontamentos] = await connection.execute("SELECT COUNT(*) as cnt FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')", [id]);
+        if (apontamentos[0].cnt > 0) {
+            return res.status(400).json({ success: false, message: 'Item não pode ser excluido pois possui apontamentos de produção vinculados.' });
         }
         
         const usuarioDesc = req.user?.nome || 'Sistema';
@@ -8965,6 +9003,9 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
         if (updateRes.affectedRows === 0) {
             return res.status(400).json({ success: false, message: 'Item nÃƒÂ£o excluÃƒÂ­do, verifique.' });
         }
+        
+        // Recalcular as quantidades porque o item foi deletado
+        await recalcularQuantidadesTotais(rows[0].IdOrdemServico, connection);
         
         res.json({ success: true, message: 'Item excluÃƒÂ­do com sucesso.' });
     } catch (err) {
@@ -10882,6 +10923,144 @@ app.post('/api/plano-corte/:id/atualizar-arquivos', async (req, res) => {
         if (connection) connection.release();
     }
 });
+
+// ============================================================================
+// HELPER CASCATA DE QUANTIDADES E PERCENTUAIS (OS -> TAG -> PROJETO)
+// ============================================================================
+async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
+    if (!IdOrdemServico) return;
+    try {
+        const [osInfo] = await connection.execute(`SELECT IdTag, IdProjeto FROM ordemservico WHERE IdOrdemServico = ?`, [IdOrdemServico]);
+        if (!osInfo || osInfo.length === 0) return;
+        const { IdTag, IdProjeto } = osInfo[0];
+
+        // 1. Atualizar TUDO na OS
+        await connection.execute(`
+            UPDATE ordemservico os
+            SET 
+                QtdeTotalItens = (SELECT COALESCE(SUM(oi.QtdeTotal), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                
+                -- Pecas Executadas: minimo entre setores ativos (quando todos ativos concluem aquela qtde)
+                QtdePecasExecutadas = (
+                    SELECT COALESCE(SUM(
+                        CASE 
+                            WHEN (IFNULL(oi.txtCorte,'')!='1' AND IFNULL(oi.txtDobra,'')!='1' AND IFNULL(oi.txtSoldagem,'')!='1' AND IFNULL(oi.txtPintura,'')!='1' AND IFNULL(oi.TxtMontagem,'')!='1' AND IFNULL(oi.txtMedicao,'')!='1' AND IFNULL(oi.txtAcabamento,'')!='1' AND IFNULL(oi.txtAprovacao,'')!='1' AND IFNULL(oi.txtIsometrico,'')!='1' AND IFNULL(oi.txtEngenharia,'')!='1') 
+                            THEN oi.QtdeTotal
+                            ELSE LEAST(
+                                COALESCE(CASE WHEN IFNULL(oi.txtCorte, '')='1' THEN oi.CorteTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtDobra, '')='1' THEN oi.DobraTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtSoldagem, '')='1' THEN oi.SoldaTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtPintura, '')='1' THEN oi.PinturaTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.TxtMontagem, '')='1' THEN oi.MontagemTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtMedicao, '')='1' THEN oi.MEDICAOTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtAcabamento, '')='1' THEN oi.ACABAMENTOTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtAprovacao, '')='1' THEN oi.APROVAÇÃOTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtIsometrico, '')='1' THEN oi.ISOMETRICOTotalExecutado ELSE 999999999 END, 999999999),
+                                COALESCE(CASE WHEN IFNULL(oi.txtEngenharia, '')='1' THEN oi.ENGENHARIATotalExecutado ELSE 999999999 END, 999999999)
+                            )
+                        END
+                    ), 0)
+                    FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')
+                ),
+
+                -- Setores executados
+                CorteTotalExecutado = (SELECT COALESCE(SUM(oi.CorteTotalExecutado), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                CorteTotalExecutar = (SELECT COALESCE(SUM(oi.CorteTotalExecutar), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                DobraTotalExecutado = (SELECT COALESCE(SUM(oi.DobraTotalExecutado), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                DobraTotalExecutar = (SELECT COALESCE(SUM(oi.DobraTotalExecutar), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                SoldaTotalExecutado = (SELECT COALESCE(SUM(oi.SoldaTotalExecutado), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                SoldaTotalExecutar = (SELECT COALESCE(SUM(oi.SoldaTotalExecutar), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                PinturaTotalExecutado = (SELECT COALESCE(SUM(oi.PinturaTotalExecutado), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                PinturaTotalExecutar = (SELECT COALESCE(SUM(oi.PinturaTotalExecutar), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                MontagemTotalExecutado = (SELECT COALESCE(SUM(oi.MontagemTotalExecutado), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = '')),
+                MontagemTotalExecutar = (SELECT COALESCE(SUM(oi.MontagemTotalExecutar), 0) FROM ordemservicoitem oi WHERE oi.IdOrdemServico = os.IdOrdemServico AND (oi.d_e_l_e_t_e IS NULL OR oi.d_e_l_e_t_e = ''))
+            WHERE os.IdOrdemServico = ?
+        `, [IdOrdemServico]);
+
+        // Cálculo de % OS
+        await connection.execute(`
+            UPDATE ordemservico os
+            SET 
+                PercentualPecas = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.QtdePecasExecutadas / os.QtdeTotalItens) * 100, 2) ELSE 0 END,
+                CortePercentual = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.CorteTotalExecutado / os.QtdeTotalItens) * 100, 2) ELSE 0 END,
+                DobraPercentual = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.DobraTotalExecutado / os.QtdeTotalItens) * 100, 2) ELSE 0 END,
+                SoldaPercentual = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.SoldaTotalExecutado / os.QtdeTotalItens) * 100, 2) ELSE 0 END,
+                PinturaPercentual = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.PinturaTotalExecutado / os.QtdeTotalItens) * 100, 2) ELSE 0 END,
+                MontagemPercentual = CASE WHEN os.QtdeTotalItens > 0 THEN TRUNCATE((os.MontagemTotalExecutado / os.QtdeTotalItens) * 100, 2) ELSE 0 END
+            WHERE os.IdOrdemServico = ?
+        `, [IdOrdemServico]);
+
+        // 2. Atualizar TAG
+        if (IdTag) {
+            await connection.execute(`
+                UPDATE tags t
+                SET 
+                    QtdePecasOS = (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    QtdePecasExecutadas = (SELECT COALESCE(SUM(os.QtdePecasExecutadas), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    
+                    CorteTotalExecutado = (SELECT COALESCE(SUM(os.CorteTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    CorteTotalExecutar = (SELECT COALESCE(SUM(os.CorteTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    DobraTotalExecutado = (SELECT COALESCE(SUM(os.DobraTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    DobraTotalExecutar = (SELECT COALESCE(SUM(os.DobraTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    SoldaTotalExecutado = (SELECT COALESCE(SUM(os.SoldaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    SoldaTotalExecutar = (SELECT COALESCE(SUM(os.SoldaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    PinturaTotalExecutado = (SELECT COALESCE(SUM(os.PinturaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    PinturaTotalExecutar = (SELECT COALESCE(SUM(os.PinturaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    MontagemTotalExecutado = (SELECT COALESCE(SUM(os.MontagemTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    MontagemTotalExecutar = (SELECT COALESCE(SUM(os.MontagemTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = ''))
+                WHERE t.IdTag = ?
+            `, [IdTag]);
+
+            await connection.execute(`
+                UPDATE tags t
+                SET 
+                    PercentualPecas = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.QtdePecasExecutadas / t.QtdePecasOS) * 100, 2) ELSE 0 END,
+                    CortePercentual = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.CorteTotalExecutado / t.QtdePecasOS) * 100, 2) ELSE 0 END,
+                    DobraPercentual = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.DobraTotalExecutado / t.QtdePecasOS) * 100, 2) ELSE 0 END,
+                    SoldaPercentual = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.SoldaTotalExecutado / t.QtdePecasOS) * 100, 2) ELSE 0 END,
+                    PinturaPercentual = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.PinturaTotalExecutado / t.QtdePecasOS) * 100, 2) ELSE 0 END,
+                    MontagemPercentual = CASE WHEN t.QtdePecasOS > 0 THEN TRUNCATE((t.MontagemTotalExecutado / t.QtdePecasOS) * 100, 2) ELSE 0 END
+                WHERE t.IdTag = ?
+            `, [IdTag]);
+        }
+
+        // 3. Atualizar PROJETO
+        if (IdProjeto) {
+            await connection.execute(`
+                UPDATE projetos p
+                SET 
+                    QtdePecasTags = (SELECT COALESCE(SUM(t.QtdePecasOS), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    QtdePecasExecutadas = (SELECT COALESCE(SUM(t.QtdePecasExecutadas), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    
+                    CorteTotalExecutado = (SELECT COALESCE(SUM(t.CorteTotalExecutado), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    CorteTotalExecutar = (SELECT COALESCE(SUM(t.CorteTotalExecutar), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    DobraTotalExecutado = (SELECT COALESCE(SUM(t.DobraTotalExecutado), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    DobraTotalExecutar = (SELECT COALESCE(SUM(t.DobraTotalExecutar), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    SoldaTotalExecutado = (SELECT COALESCE(SUM(t.SoldaTotalExecutado), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    SoldaTotalExecutar = (SELECT COALESCE(SUM(t.SoldaTotalExecutar), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    PinturaTotalExecutado = (SELECT COALESCE(SUM(t.PinturaTotalExecutado), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    PinturaTotalExecutar = (SELECT COALESCE(SUM(t.PinturaTotalExecutar), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    MontagemTotalExecutado = (SELECT COALESCE(SUM(t.MontagemTotalExecutado), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
+                    MontagemTotalExecutar = (SELECT COALESCE(SUM(t.MontagemTotalExecutar), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = ''))
+                WHERE p.IdProjeto = ?
+            `, [IdProjeto]);
+
+            await connection.execute(`
+                UPDATE projetos p
+                SET 
+                    PercentualPecas = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.QtdePecasExecutadas / p.QtdePecasTags) * 100, 2) ELSE 0 END,
+                    CortePercentual = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.CorteTotalExecutado / p.QtdePecasTags) * 100, 2) ELSE 0 END,
+                    DobraPercentual = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.DobraTotalExecutado / p.QtdePecasTags) * 100, 2) ELSE 0 END,
+                    SoldaPercentual = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.SoldaTotalExecutado / p.QtdePecasTags) * 100, 2) ELSE 0 END,
+                    PinturaPercentual = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.PinturaTotalExecutado / p.QtdePecasTags) * 100, 2) ELSE 0 END,
+                    MontagemPercentual = CASE WHEN p.QtdePecasTags > 0 THEN TRUNCATE((p.MontagemTotalExecutado / p.QtdePecasTags) * 100, 2) ELSE 0 END
+                WHERE p.IdProjeto = ?
+            `, [IdProjeto]);
+        }
+    } catch(e) {
+        console.error('Erro ao recalcularQuantidadesTotais:', e);
+    }
+}
 
 
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
