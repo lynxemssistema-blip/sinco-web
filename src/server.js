@@ -6665,6 +6665,8 @@ app.get('/api/apontamentos-parciais', async (req, res) => {
                 c.DataCriacao,
                 i.CodMatFabricante,
                 i.IdPlanodecorte,
+                i.EnderecoArquivo,
+                i.EnderecoArquivoItemOrdemServico,
                 os.Projeto,
                 os.Tag
             FROM ordemservicoitemcontrole c
