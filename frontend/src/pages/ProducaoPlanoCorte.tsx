@@ -110,6 +110,13 @@ export default function ProducaoPlanoCorte() {
     const [fIRes, setFIRes] = useState('');
     const [fICod, setFICod] = useState('');
 
+    // Modal de Lançamento
+    const [modalLancarOpen, setModalLancarOpen] = useState(false);
+    const [lancarItem, setLancarItem] = useState<ItemPlano | null>(null);
+    const [lancarSaldo, setLancarSaldo] = useState(0);
+    const [tipoApontamento, setTipoApontamento] = useState<'Total' | 'Parcial'>('Total');
+    const [qtdeApontar, setQtdeApontar] = useState('');
+
     const fetchPlanos = useCallback(async () => {
         setLoadingPlanos(true);
         try {
@@ -308,7 +315,7 @@ export default function ProducaoPlanoCorte() {
         }
     };
 
-    const handleLancarProducao = async (it: ItemPlano) => {
+    const handleLancarProducao = (it: ItemPlano) => {
         if (!planoSel) return;
         if (!planoSel.LiberacaoParaCorte || planoSel.LiberacaoParaCorte.trim() === '') {
             addToast({ type: 'warning', title: 'Atenção', message: 'Plano de corte não liberado para iniciar o corte.' });
@@ -322,27 +329,31 @@ export default function ProducaoPlanoCorte() {
 
         const qtde = Number(it.QtdeTotal) || 0;
         const executar = Number(it.CorteTotalExecutar) || 0 || qtde;
-        const executado = Number(it.CorteTotalExecutado) || 0;
-        
-        // O limite agora é exatamente o que falta executar (A CORTAR)
         const saldo = executar;
-        const msg = `Lançamento de Produção - Item ${it.CodMatFabricante}\n` +
-                    `Projeto: ${it.Projeto} - Tag: ${it.Tag}\n\n` +
-                    `Informe a quantidade produzida (Máx: ${saldo}):`;
+
+        setLancarItem(it);
+        setLancarSaldo(saldo);
+        setTipoApontamento('Total');
+        setQtdeApontar('');
+        setModalLancarOpen(true);
+    };
+
+    const confirmLancarProducao = async () => {
+        if (!planoSel || !lancarItem) return;
         
-        const resp = window.prompt(msg, `${saldo}`);
-        
-        if (resp === null) return;
-        
-        const entrada = parseFloat(resp.replace(',', '.'));
-        if (isNaN(entrada) || entrada <= 0 || entrada > saldo) {
-            addToast({ type: 'error', title: 'Valor Inválido', message: `Informe um valor entre 0 e ${saldo}.` });
-            return;
+        let entrada = lancarSaldo; // Por padrão, se Total, a entrada é todo o saldo
+
+        if (tipoApontamento === 'Parcial') {
+            entrada = parseFloat(qtdeApontar.replace(',', '.'));
+            if (isNaN(entrada) || entrada <= 0 || entrada > lancarSaldo) {
+                addToast({ type: 'error', title: 'Valor Inválido', message: `Informe um valor entre 1 e ${lancarSaldo}.` });
+                return;
+            }
         }
 
         setLoadingAcao(true);
         try {
-            const res = await fetch(`/api/producao-plano-corte/itens/${it.IdOrdemServicoItem}/lancar-producao`, {
+            const res = await fetch(`/api/producao-plano-corte/itens/${lancarItem.IdOrdemServicoItem}/lancar-producao`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -351,12 +362,14 @@ export default function ProducaoPlanoCorte() {
                 body: JSON.stringify({ 
                     entrada,
                     idPlanodecorte: planoSel.IdPlanodecorte,
+                    TipoApontamento: tipoApontamento,
                     usuario: user?.NomeCompleto || user?.nome || 'Sistema'
                 })
             });
             const result = await res.json();
             if (result.success) {
                 addToast({ type: 'success', title: 'Sucesso', message: result.message });
+                setModalLancarOpen(false);
                 fetchItens();
                 fetchPlanos(); 
             } else {
@@ -631,6 +644,95 @@ export default function ProducaoPlanoCorte() {
                     <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Selecione um plano de corte acima para ver seus itens</p>
                 </div>
             )}
+
+            {modalLancarOpen && lancarItem && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="bg-[#1A2E35] p-5 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <ClipboardCheck size={80} />
+                            </div>
+                            <div className="relative z-10">
+                                <h3 className="text-xl font-black text-white">Lançar Produção - Plano de Corte</h3>
+                                <p className="text-[#8B9A96] text-xs font-bold uppercase tracking-wider mt-1">{lancarItem.CodMatFabricante}</p>
+                            </div>
+                        </div>
+
+                        <div className="p-5">
+                            <div className="flex bg-gray-100 p-1 mb-4 rounded-lg border border-gray-200">
+                                <button 
+                                    onClick={() => { setTipoApontamento('Total'); setQtdeApontar(''); }}
+                                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    Apontamento Total
+                                </button>
+                                <button 
+                                    onClick={() => { setTipoApontamento('Parcial'); setQtdeApontar(''); }}
+                                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Parcial' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    Apontamento Parcial
+                                </button>
+                            </div>
+
+                            {tipoApontamento === 'Parcial' && (
+                                <div className="mb-4">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">Quantidade a Produzir</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max={lancarSaldo}
+                                            value={qtdeApontar}
+                                            onChange={(e) => setQtdeApontar(e.target.value)}
+                                            className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
+                                            placeholder="0"
+                                        />
+                                        <div className="flex flex-col gap-1 w-28">
+                                            <button
+                                                onClick={() => setQtdeApontar(String(lancarSaldo))}
+                                                className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 hover:bg-blue-100 transition-colors"
+                                            >
+                                                Restante ({lancarSaldo})
+                                            </button>
+                                            <button
+                                                onClick={() => setQtdeApontar('1')}
+                                                className="flex-1 py-1 text-[10px] font-bold bg-gray-50 text-gray-600 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
+                                            >
+                                                Unidade (1)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {tipoApontamento === 'Total' && (
+                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center mb-4">
+                                    <div className="text-xs text-blue-600 font-bold mb-1">Quantidade a ser concluída</div>
+                                    <div className="text-3xl font-black text-blue-900">{lancarSaldo}</div>
+                                </div>
+                            )}
+
+                            <div className="flex gap-2 justify-end mt-6">
+                                <button
+                                    onClick={() => setModalLancarOpen(false)}
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-lg transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmLancarProducao}
+                                    disabled={loadingAcao || (tipoApontamento === 'Parcial' && (!qtdeApontar || Number(qtdeApontar) <= 0))}
+                                    className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                    Confirmar Apontamento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

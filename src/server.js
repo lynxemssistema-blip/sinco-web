@@ -3679,7 +3679,7 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
                 QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
-                qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
+                qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia, Observacao,
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
                 CorteTotalExecutado, CorteTotalExecutar, CortePercentual,
                 PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra,
@@ -3750,6 +3750,28 @@ app.put('/api/acompanhamento/projeto/:id/observacao', async (req, res) => {
     } catch (error) {
         console.error('Error updating project observation:', error);
         res.status(500).json({ success: false, message: 'Erro ao atualizar observaÃƒÂ§ÃƒÂ£o: ' + error.message });
+    }
+});
+
+// PUT observacao for a tag
+app.put('/api/acompanhamento/tags/:idTag/observacao', async (req, res) => {
+    try {
+        const { idTag } = req.params;
+        const { observacao } = req.body;
+
+        const [result] = await pool.execute(
+            "UPDATE tags SET Observacao = ? WHERE IdTag = ?",
+            [observacao || '', idTag]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        }
+
+        res.json({ success: true, message: 'Observação da tag atualizada com sucesso.' });
+    } catch (error) {
+        console.error('Error updating tag observation:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar observação da tag: ' + error.message });
     }
 });
 
@@ -6416,14 +6438,17 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             osi.txtmontagem as TxtMontagem,
             osi.ProdutoPrincipal as IsProdutoPrincipal,
             (SELECT DescResumo FROM ordemservicoitem WHERE IdOrdemServico = osi.IdOrdemServico AND ProdutoPrincipal = 'sim' LIMIT 1) as NomeProdutoPrincipal,
-        (SELECT COALESCE(SUM(CAST(QtdeProduzida AS UNSIGNED)), 0) 
-                 FROM ordemservicoitemcontrole 
-                 WHERE IdOrdemServicoItem = osi.IdOrdemServicoItem 
-                   AND Processo = ?
-            AND(D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E != '*')) as QtdeProduzidaHistory
+            COALESCE(history.QtdeProduzidaHistory, 0) as QtdeProduzidaHistory
             FROM ordemservicoitem osi
             INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
             LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto
+            LEFT JOIN (
+                SELECT IdOrdemServicoItem, COALESCE(SUM(CAST(QtdeProduzida AS UNSIGNED)), 0) as QtdeProduzidaHistory
+                FROM ordemservicoitemcontrole
+                WHERE Processo = ?
+                  AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E != '*')
+                GROUP BY IdOrdemServicoItem
+            ) history ON history.IdOrdemServicoItem = osi.IdOrdemServicoItem
             WHERE ${whereClause}
             ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
             LIMIT 300
@@ -6625,9 +6650,86 @@ WHERE osi.IdOrdemServicoItem = ?
     }
 });
 
+// GET: Listar apontamentos parciais
+app.get('/api/apontamentos-parciais', async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                c.IdOrdemServicoItemControle,
+                c.IdOrdemServicoItem,
+                c.IdOrdemServico,
+                c.Processo,
+                c.QtdeTotal,
+                c.QtdeProduzida,
+                c.CriadoPor,
+                c.DataCriacao,
+                i.CodMatFabricante,
+                i.IdPlanodecorte,
+                os.Projeto,
+                os.Tag
+            FROM ordemservicoitemcontrole c
+            INNER JOIN ordemservicoitem i ON c.IdOrdemServicoItem = i.IdOrdemServicoItem
+            INNER JOIN ordemservico os ON c.IdOrdemServico = os.IdOrdemServico
+            WHERE c.TipoApontamento = 'Parcial'
+              AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E = '')
+            ORDER BY c.DataCriacao DESC
+        `);
+        res.json({ success: true, parciais: rows });
+    } catch (error) {
+        console.error('[API Apontamentos Parciais] Erro ao buscar parciais:', error);
+        res.status(500).json({ success: false, message: 'Erro no servidor' });
+    }
+});
+
+// DELETE: Excluir apontamento parcial
+app.delete('/api/apontamentos-parciais/:id', async (req, res) => {
+    const { id } = req.params;
+    const conn = await pool.getConnection();
+    try {
+        await conn.beginTransaction();
+        
+        // Buscar dados do controle
+        const [ctrlRows] = await conn.execute(
+            "SELECT * FROM ordemservicoitemcontrole WHERE IdOrdemServicoItemControle = ? AND TipoApontamento = 'Parcial' AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')",
+            [id]
+        );
+        
+        if (ctrlRows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ success: false, message: 'Apontamento parcial não encontrado.' });
+        }
+        
+        const controle = ctrlRows[0];
+        const setorFieldTotal = `txt${controle.Processo.charAt(0).toUpperCase() + controle.Processo.slice(1).toLowerCase()}`;
+        const setorColTotalExecutado = `${controle.Processo.charAt(0).toUpperCase() + controle.Processo.slice(1).toLowerCase()}TotalExecutado`;
+        
+        // Subtrair quantidade do TotalExecutado no item
+        await conn.execute(`
+            UPDATE ordemservicoitem 
+            SET ${setorColTotalExecutado} = GREATEST(0, COALESCE(${setorColTotalExecutado}, 0) - ?)
+            WHERE IdOrdemServicoItem = ?
+        `, [controle.QtdeProduzida, controle.IdOrdemServicoItem]);
+        
+        // Ocultar da tabela de controle (soft delete)
+        await conn.execute("UPDATE ordemservicoitemcontrole SET D_E_L_E_T_E = '*' WHERE IdOrdemServicoItemControle = ?", [id]);
+        
+        // Recalcular totais (OS, Tag, Projeto)
+        await recalcularQuantidadesTotais(controle.IdOrdemServico, conn);
+        
+        await conn.commit();
+        res.json({ success: true, message: 'Apontamento parcial removido com sucesso.' });
+    } catch (error) {
+        await conn.rollback();
+        console.error('[API Apontamentos Parciais] Erro ao excluir parcial:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao excluir.' });
+    } finally {
+        conn.release();
+    }
+});
+
 // POST: Registrar apontamento de produção
 app.post('/api/apontamento', async (req, res) => {
-    const { IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, CriadoPor } = req.body;
+    const { IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, TipoApontamento, CriadoPor } = req.body;
 
     if (!IdOrdemServicoItem || !Processo || !QtdeProduzida) {
         return res.status(400).json({
@@ -6892,11 +6994,12 @@ osi.*,
 
             // 7. Log de apontamento
             const txtSetor = `txt${sName.charAt(0).toUpperCase() + sName.slice(1).toLowerCase()}`;
+            const tipoAppEnv = TipoApontamento || 'Total';
             await conn.execute(`
                 INSERT INTO ordemservicoitemcontrole(
-                    IdOrdemServicoItem, IdOrdemServico, Processo, QtdeTotal, QtdeProduzida, ${txtSetor}, CriadoPor, DataCriacao, D_E_L_E_T_E, idmatriz
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, '', ?)
-            `, [IdOrdemServicoItem, item.IdOrdemServico, sName.toLowerCase(), item.QtdeTotal, currentInputQty, currentInputQty, CriadoPor || 'Sistema', now, req_idmatriz]);
+                    IdOrdemServicoItem, IdOrdemServico, Processo, QtdeTotal, QtdeProduzida, ${txtSetor}, TipoApontamento, CriadoPor, DataCriacao, D_E_L_E_T_E, idmatriz
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, '', ?)
+            `, [IdOrdemServicoItem, item.IdOrdemServico, sName.toLowerCase(), item.QtdeTotal, currentInputQty, currentInputQty, tipoAppEnv, CriadoPor || 'Sistema', now, req_idmatriz]);
 
             // 8. Update tagcontrole
             if (item.IdTag) {
@@ -6913,7 +7016,7 @@ osi.*,
             }
 
             // 8.5 Incrementar saldo do próximo setor (Fluxo Push)
-            if (currentInputQty > 0) {
+            if (currentInputQty > 0 && (TipoApontamento !== 'Parcial')) {
                 const currentIndex = sequence.indexOf(sName);
                 if (currentIndex < sequence.length - 1) {
                     let nextSectorName = null;
@@ -6931,6 +7034,27 @@ osi.*,
                         await conn.execute(`UPDATE ordemservico SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServico = ?`, [currentInputQty, item.IdOrdemServico]);
                         if (item.IdTag) await conn.execute(`UPDATE tags SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdTag = ?`, [currentInputQty, item.IdTag]);
                         if (item.IdProjeto) await conn.execute(`UPDATE projetos SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdProjeto = ?`, [currentInputQty, item.IdProjeto]);
+                    }
+                }
+            } else if (finalizado && TipoApontamento === 'Parcial') {
+                // If it reached final validation using Parcial steps, we push the FULL QTDE to the next sector now.
+                const currentIndex = sequence.indexOf(sName);
+                if (currentIndex < sequence.length - 1) {
+                    let nextSectorName = null;
+                    for (let i = currentIndex + 1; i < sequence.length; i++) {
+                        const checkSName = sequence[i];
+                        const checkConfig = setorColumns[checkSName];
+                        if (NULLIF_TRIM(item[checkConfig.txt]) === '1') {
+                            nextSectorName = checkSName;
+                            break;
+                        }
+                    }
+                    if (nextSectorName) {
+                        const nextConfig = setorColumns[nextSectorName];
+                        await conn.execute(`UPDATE ordemservicoitem SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServicoItem = ?`, [item.QtdeTotal, IdOrdemServicoItem]);
+                        await conn.execute(`UPDATE ordemservico SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServico = ?`, [item.QtdeTotal, item.IdOrdemServico]);
+                        if (item.IdTag) await conn.execute(`UPDATE tags SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdTag = ?`, [item.QtdeTotal, item.IdTag]);
+                        if (item.IdProjeto) await conn.execute(`UPDATE projetos SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdProjeto = ?`, [item.QtdeTotal, item.IdProjeto]);
                     }
                 }
             }
@@ -8539,7 +8663,7 @@ app.get('/api/controle-expedicao/abrir-arquivo', (req, res) => {
                 res.json({ success: true, message: 'Arquivo aberto com sucesso' });
             });
         } else {
-            res.status(404).json({ success: false, message: 'Arquivo nÃƒÂ£o existe!!' });
+            res.status(404).json({ success: false, message: 'Arquivo não existe!!' });
         }
     } catch (error) {
         console.error('Erro exception abrir:', error);
@@ -8566,7 +8690,7 @@ app.get('/api/controle-expedicao/abrir-iso', async (req, res) => {
                     res.json({ success: true, message: 'IsomÃƒÂ©trico aberto com sucesso' });
                 });
             } else {
-                res.status(404).json({ success: false, message: 'Arquivo referenciado na base de dados nÃƒÂ£o existe!!' });
+                res.status(404).json({ success: false, message: 'Arquivo referenciado na base de dados não existe!!' });
             }
         } else {
             res.status(404).json({ success: false, message: 'Nenhum caminho isomÃƒÂ©trico encontrado para esta Tag.' });
@@ -8943,7 +9067,7 @@ app.get('/api/pdf', (req, res) => {
             const stream = fs.createReadStream(resolvedPath);
             stream.pipe(res);
         } else {
-            res.status(404).send('<script>alert("Arquivo PDF nÃƒÂ£o encontrado!"); window.close();</script>');
+            res.status(404).send('<script>alert("Arquivo PDF não encontrado!"); window.close();</script>');
         }
     } catch (err) {
         res.status(500).send(err.message);
@@ -9806,7 +9930,7 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
         await connection.beginTransaction();
 
         const { id } = req.params;
-        const { entrada, idPlanodecorte, usuario } = req.body;
+        const { entrada, idPlanodecorte, TipoApontamento, usuario } = req.body;
         const qtd = parseFloat(entrada);
 
         if (isNaN(qtd) || qtd <= 0) throw new Error('Quantidade informada inválida.');
@@ -9892,15 +10016,14 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
         }
 
         // 3. Registro de Auditoria (Histórico de Produção)
-        // Mapeamento conforme SalvarDados VB.NET:
-        // QtdeTotal, "", CorteTotalExecutado (QtdeProduzida), CorteTotalExecutar (QtdeFaltante), Login, DataCriacao, ...
+        const tipoAppEnv = TipoApontamento || 'Total';
         await connection.execute(
             `INSERT INTO ordemservicoitemcontrole (
                 IdOrdemServico, IdOrdemServicoItem, IdOSItemProcesso, Processo,
-                QtdeTotal, QtdeProduzida, QtdeFaltante, CriadoPor, DataCriacao, Situacao
-            ) VALUES (?, ?, 0, 'CORTE', ?, ?, ?, ?, ?, 'LANCAMENTO')`,
-            [item.IdOrdemServico, id, qtdeTotal, novoExecutado, novoExecutar, usuario, agoraFull]
-        );
+                QtdeTotal, QtdeProduzida, QtdeFaltante, CriadoPor, DataCriacao, Situacao, TipoApontamento, txtCorte
+            ) VALUES (?, ?, 0, 'CORTE', ?, ?, ?, ?, ?, 'LANCAMENTO', ?, ?)`,
+            [item.IdOrdemServico, id, qtdeTotal, qtd, novoExecutar, usuario, agoraFull, tipoAppEnv, qtd]
+        ); // Nota: QtdeProduzida é a diferença (qtd) e txtCorte foi unificado
 
         // 4. Propaga para próximo setor
         let proximoCol = null;
@@ -9910,10 +10033,18 @@ app.post('/api/producao-plano-corte/itens/:id/lancar-producao', async (req, res)
         else if (item.txtMontagem === '1') proximoCol = 'MontagemTotalExecutar';
 
         if (proximoCol) {
-            await connection.execute(
-                `UPDATE ordemservicoitem SET ${proximoCol} = COALESCE(${proximoCol}, 0) + ? WHERE IdOrdemServicoItem = ?`,
-                [qtd, id]
-            );
+            if (tipoAppEnv !== 'Parcial') {
+                await connection.execute(
+                    `UPDATE ordemservicoitem SET ${proximoCol} = COALESCE(${proximoCol}, 0) + ? WHERE IdOrdemServicoItem = ?`,
+                    [qtd, id]
+                );
+            } else if (novoExecutar <= 0) {
+                // Ao finalizar o setor em Parciais repetitivos, empurra o pacote todo
+                await connection.execute(
+                    `UPDATE ordemservicoitem SET ${proximoCol} = COALESCE(${proximoCol}, 0) + ? WHERE IdOrdemServicoItem = ?`,
+                    [qtdeTotal, id]
+                );
+            }
         }
 
         // 5. Recalcula totais do plano

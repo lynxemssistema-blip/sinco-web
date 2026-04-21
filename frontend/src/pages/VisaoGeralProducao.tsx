@@ -12,7 +12,7 @@ interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string
     PlanejadoInicioSolda: string; PlanejadoFinalSolda: string; RealizadoInicioSolda: string; RealizadoFinalSolda: string; SoldaTotalExecutado: string; SoldaTotalExecutar: string; SoldaPercentual: string; 
     PlanejadoInicioPintura: string; PlanejadoFinalPintura: string; RealizadoInicioPintura: string; RealizadoFinalPintura: string; PinturaTotalExecutado: string; PinturaTotalExecutar: string; PinturaPercentual: string; 
     PlanejadoInicioMontagem: string; PlanejadoFinalMontagem: string; RealizadoInicioMontagem: string; RealizadoFinalMontagem: string; MontagemTotalExecutado: string; MontagemTotalExecutar: string; MontagemPercentual: string; 
-    ProjetistaPlanejado?: string; PlanejadoInicioEngenharia?: string; PlanejadoFinalEngenharia?: string;
+    ProjetistaPlanejado?: string; PlanejadoInicioEngenharia?: string; PlanejadoFinalEngenharia?: string; Observacao?: string;
 }
 interface Rnc { IdRnc: number; Estatus: string; Tag: string; SetorResponsavel: string; DescricaoPendencia: string; DescResumo: string; UsuarioResponsavel: string; TipoTarefa?: string; DataExecucao?: string; DataCriacao: string; DataFinalizacao: string; UsuarioResponsavelFinalizacao?: string; SetorResponsavelFinalizacao?: string; DescricaoFinalizacao?: string; DescEmpresa?: string; DescTag?: string; }
 
@@ -440,6 +440,22 @@ export default function VisaoGeralProducaoPage() {
                 setTags(ts => ts.map(x => x.IdTag === selTag.IdTag ? { ...x, QtdeLiberada: String(r.data.qtdeLiberada), SaldoTag: String(r.data.saldoTag) } : x));
                 setMsg({ ok: true, t: 'Quantidade liberada atualizada com sucesso!' });
                 setTimeout(() => setActionModal(null), 1500);
+            } else setMsg({ ok: false, t: r.message });
+        } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+    };
+
+    const salvarObservacaoTag = async (tId: number, obs: string) => {
+        setIsSaving(true); setMsg(null);
+        try {
+            const r = await (await fetch(`${API_BASE}/acompanhamento/tags/${tId}/observacao`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ observacao: obs, usuario: getUser() })
+            })).json();
+            
+            if (r.success) {
+                setTags(ts => ts.map(x => x.IdTag === tId ? { ...x, Observacao: obs } : x));
+                setMsg({ ok: true, t: 'Observação da tag salva!' });
+                setTimeout(() => setMsg(null), 1500);
             } else setMsg({ ok: false, t: r.message });
         } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
     };
@@ -1090,6 +1106,32 @@ export default function VisaoGeralProducaoPage() {
                                                                 <span className="font-bold text-blue-700">{t.QtdeTag || '1'} <span className="text-[8px] font-normal text-slate-400 lowercase">(x a produzir)</span></span>
                                                             </div>
                                                             {t.ValorTag && <div className="flex flex-col col-span-2 mt-1"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] flex items-center gap-0.5"><DollarSign size={8}/> Valor</span><span className="font-bold text-slate-700">R$ {parseFloat(t.ValorTag).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></div>}
+                                                            <div className="flex flex-col col-span-2 mt-1">
+                                                                <span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] mb-0.5">Observação</span>
+                                                                <div className="flex items-start gap-1">
+                                                                    <textarea
+                                                                        id={`obs_tag_${t.IdTag}`}
+                                                                        className="flex-1 bg-white/50 border border-slate-200 rounded p-1 text-[10px] text-slate-700 outline-none focus:border-blue-400 focus:bg-white transition-colors resize-none overflow-hidden"
+                                                                        defaultValue={t.Observacao || ''}
+                                                                        placeholder="Inserir observação..."
+                                                                        onMouseEnter={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
+                                                                        onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
+                                                                        onBlur={(e) => { if (e.target.value !== (t.Observacao || '')) salvarObservacaoTag(t.IdTag, e.target.value); }}
+                                                                        rows={(t.Observacao || '').split('\n').length || 1}
+                                                                    />
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            const el = document.getElementById(`obs_tag_${t.IdTag}`) as HTMLTextAreaElement;
+                                                                            if (el && el.value !== (t.Observacao || '')) salvarObservacaoTag(t.IdTag, el.value);
+                                                                        }}
+                                                                        className="p-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 rounded border border-emerald-200 transition-colors"
+                                                                        title="Salvar Observação"
+                                                                    >
+                                                                        <CheckCircle size={12} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </td>
 

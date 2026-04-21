@@ -176,6 +176,7 @@ export default function ApontamentoProducaoPage() {
     const [itemDetails, setItemDetails] = useState<ItemDetails | null>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [qtdeApontar, setQtdeApontar] = useState('');
+    const [tipoApontamento, setTipoApontamento] = useState<'Total' | 'Parcial'>('Total');
     const [submitting, setSubmitting] = useState(false);
     const [confirmingMapa, setConfirmingMapa] = useState(false);
     const [modalSetor, setModalSetor] = useState<Setor>('mapa');
@@ -485,6 +486,7 @@ export default function ApontamentoProducaoPage() {
         setModalOpen(true);
         setLoadingDetails(true);
         setQtdeApontar('');
+        setTipoApontamento('Total');
         setConfirmingMapa(false);
 
         try {
@@ -535,6 +537,10 @@ export default function ApontamentoProducaoPage() {
 
         setSubmitting(true);
         try {
+            const finalQtde = modalSetor === 'mapa' || tipoApontamento === 'Total' 
+                ? itemDetails.qtdeFaltante 
+                : qProduzir;
+
             const res = await fetch(`${API_BASE}/apontamento`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -542,8 +548,9 @@ export default function ApontamentoProducaoPage() {
                     IdOrdemServicoItem: selectedItem.IdOrdemServicoItem,
                     IdOrdemServico: selectedItem.IdOrdemServico,
                     Processo: modalSetor,
-                    QtdeProduzida: qProduzir,
-                    CriadoPor: 'Edson' // In a real app, this would be the logged user
+                    QtdeProduzida: finalQtde,
+                    TipoApontamento: tipoApontamento,
+                    CriadoPor: 'Edson' // Temporário, aguardando refatoração de AuthContext nesta página
                 })
             });
 
@@ -1101,21 +1108,21 @@ export default function ApontamentoProducaoPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
                 {/* Primary Table Header - Movido para dentro do container com sticky */}
                 {!loading && itens.length > 0 && setorAtivo !== 'mapa' && (
-                    <div className="bg-gray-100 px-2 py-1.5 flex items-center gap-1.5 text-[9px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200 shadow-sm">
-                        <span className="w-5"></span>
-                        <span className="w-6">PDF</span>
-                        <span className="w-10 text-center">OS</span>
-                        <span className="w-28">Info</span>
-                        <span className="w-12 text-center">Item</span>
+                    <div className="bg-gray-100 px-2 py-1.5 flex items-center gap-1.5 text-[9px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200 shadow-sm min-w-max">
+                        <span className="w-5 shrink-0"></span>
+                        <span className="w-6 shrink-0 text-center">PDF</span>
+                        <span className="w-10 shrink-0 text-center">OS</span>
+                        <span className="w-28 shrink-0">Info</span>
+                        <span className="w-12 shrink-0 text-center">Item</span>
                         <span className="w-[100px] shrink-0">Código</span>
-                        <span className="w-20">Plano Corte</span>
-                        <span className="w-28">Material</span>
-                        <span className="w-12 text-center">Esp.</span>
+                        <span className="w-20 shrink-0">Plano Corte</span>
+                        <span className="w-28 shrink-0">Material</span>
+                        <span className="w-12 shrink-0 text-center">Esp.</span>
                         <span className="w-48 shrink-0">Descrição</span>
-                        <span className="w-10 text-center">Qt</span>
-                        <span className="w-14 text-center">Prod.</span>
-                        <span className="w-12 text-center">%</span>
-                        <span className="w-56 text-right pr-2">Ação</span>
+                        <span className="w-10 shrink-0 text-center">Qt</span>
+                        <span className="w-14 shrink-0 text-center">Prod.</span>
+                        <span className="w-12 shrink-0 text-center">%</span>
+                        <span className="w-56 shrink-0 text-right pr-2">Ação</span>
                     </div>
                 )}
 
@@ -1341,7 +1348,7 @@ export default function ApontamentoProducaoPage() {
                                                     }`}
                                             >
                                                 {/* Status Icon */}
-                                                <div className="w-5 flex-shrink-0">
+                                                <div className="w-5 shrink-0">
                                                     {concluido ? (
                                                         <CheckCircle size={14} className="text-green-500" />
                                                     ) : (
@@ -1350,7 +1357,7 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* PDF / Arquivos (Indicador estático) */}
-                                                <div className="w-6 flex-shrink-0">
+                                                <div className="w-6 shrink-0 flex justify-center">
                                                     {item.EnderecoArquivo ? (
                                                         <div className="w-6 h-6 rounded flex items-center justify-center bg-blue-50 text-blue-600 cursor-default" title="Clique para arquivos">
                                                             <FileText size={11} />
@@ -1363,21 +1370,23 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* OS Number */}
-                                                <span className="w-10 text-center font-bold text-[#32423D] bg-blue-100 px-0.5 py-0.5 rounded text-[10px]">
-                                                    {item.IdOrdemServico}
-                                                </span>
+                                                <div className="w-10 shrink-0 text-center">
+                                                    <span className="font-bold text-[#32423D] bg-blue-100 px-0.5 py-0.5 rounded text-[10px]">
+                                                        {item.IdOrdemServico}
+                                                    </span>
+                                                </div>
 
                                                 {/* Info Column */}
-                                                <div className="w-28 flex flex-col gap-0 text-[8px]">
+                                                <div className="w-28 shrink-0 flex flex-col gap-0 text-[8px]">
                                                     <span className="truncate font-bold text-blue-700 bg-blue-50 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
                                                     <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm" title={item.Tag}>{item.Tag}</span>
                                                     {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase" title={item.Cliente}>{item.Cliente}</span>}
                                                 </div>
 
                                                 {/* Item ID */}
-                                                <span className="w-12 text-center text-gray-400 text-[9px]">
+                                                <div className="w-12 shrink-0 text-center text-gray-400 text-[9px]">
                                                     #{item.IdOrdemServicoItem}
-                                                </span>
+                                                </div>
 
                                                 {/* Código */}
                                                 <span className="w-[100px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
@@ -1385,17 +1394,21 @@ export default function ApontamentoProducaoPage() {
                                                 </span>
 
                                                 {/* Plano de Corte */}
-                                                <span className="w-20 text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
-                                                    {item.PlanoCorte || '-'}
-                                                </span>
-                                                <span className="w-28 text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded truncate">
-                                                    {item.MaterialSW || '-'}
-                                                </span>
+                                                <div className="w-20 shrink-0 flex items-center">
+                                                    <span className="text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
+                                                        {item.PlanoCorte || '-'}
+                                                    </span>
+                                                </div>
+                                                <div className="w-28 shrink-0 flex items-center">
+                                                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded truncate">
+                                                        {item.MaterialSW || '-'}
+                                                    </span>
+                                                </div>
 
                                                 {/* Espessura */}
-                                                <span className="w-12 text-center text-[10px] text-gray-600">
+                                                <div className="w-12 shrink-0 text-center text-[10px] text-gray-600">
                                                     {item.Espessura || '-'}
-                                                </span>
+                                                </div>
 
                                                 {/* Descrição */}
                                                 <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
@@ -1403,19 +1416,19 @@ export default function ApontamentoProducaoPage() {
                                                 </span>
 
                                                 {/* Quantidade Total */}
-                                                <div className="w-10 text-center">
+                                                <div className="w-10 shrink-0 text-center">
                                                     <span className="font-black text-[#32423D]">{qtdeTotal}</span>
                                                 </div>
 
                                                 {/* Produzido */}
-                                                <div className="w-14 text-center">
+                                                <div className="w-14 shrink-0 text-center">
                                                     <span className={`font-bold text-[10px] ${concluido ? 'text-green-600' : 'text-gray-600'}`}>
                                                         {qtdeProduzida}/{qtdeTotal}
                                                     </span>
                                                 </div>
 
                                                 {/* Progress */}
-                                                <div className="w-12">
+                                                <div className="w-12 shrink-0">
                                                     <div className="flex items-center gap-1">
                                                         <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
                                                             <div
@@ -1428,7 +1441,7 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* Actions */}
-                                                <div className="flex gap-1 items-center justify-end w-56 pr-2">
+                                                <div className="flex gap-1 items-center justify-end w-56 shrink-0 pr-2">
                                                     {/* File Icons on Selected Line */}
                                                     {selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem && (
                                                         <div className="flex gap-0.5 mr-1.5">
@@ -1901,36 +1914,68 @@ export default function ApontamentoProducaoPage() {
                                         {/* Quantidade Input - Hidden in Mapa Mode */}
                                         {modalSetor !== 'mapa' && (
                                             <div className="pt-2">
-                                                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">
-                                                    Quantidade a Produzir
-                                                </label>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        max={itemDetails.qtdeFaltante}
-                                                        value={qtdeApontar}
-                                                        onChange={(e) => setQtdeApontar(e.target.value)}
-                                                        className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
-                                                        placeholder="0"
-                                                    />
-                                                    {itemDetails.qtdeFaltante > 0 && (
-                                                        <div className="flex flex-col gap-1 w-28">
-                                                            <button
-                                                                onClick={() => setQtdeApontar(String(itemDetails.qtdeFaltante))}
-                                                                className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 hover:bg-blue-100 transition-colors"
-                                                            >
-                                                                Restante ({itemDetails.qtdeFaltante})
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setQtdeApontar('1')}
-                                                                className="flex-1 py-1 text-[10px] font-bold bg-gray-50 text-gray-600 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
-                                                            >
-                                                                Unidade (1)
-                                                            </button>
-                                                        </div>
-                                                    )}
+                                                <div className="flex bg-gray-100 p-1 mb-3 rounded-lg border border-gray-200">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setTipoApontamento('Total');
+                                                            setQtdeApontar('');
+                                                        }}
+                                                        className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                    >
+                                                        Apontamento Total
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setTipoApontamento('Parcial');
+                                                            setQtdeApontar('');
+                                                        }}
+                                                        className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Parcial' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                    >
+                                                        Apontamento Parcial
+                                                    </button>
                                                 </div>
+
+                                                {tipoApontamento === 'Parcial' && (
+                                                    <>
+                                                        <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">
+                                                            Quantidade a Produzir
+                                                        </label>
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                max={itemDetails.qtdeFaltante}
+                                                                value={qtdeApontar}
+                                                                onChange={(e) => setQtdeApontar(e.target.value)}
+                                                                className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
+                                                                placeholder="0"
+                                                            />
+                                                            {itemDetails.qtdeFaltante > 0 && (
+                                                                <div className="flex flex-col gap-1 w-28">
+                                                                    <button
+                                                                        onClick={() => setQtdeApontar(String(itemDetails.qtdeFaltante))}
+                                                                        className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 hover:bg-blue-100 transition-colors"
+                                                                    >
+                                                                        Restante ({itemDetails.qtdeFaltante})
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => setQtdeApontar('1')}
+                                                                        className="flex-1 py-1 text-[10px] font-bold bg-gray-50 text-gray-600 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
+                                                                    >
+                                                                        Unidade (1)
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                {tipoApontamento === 'Total' && (
+                                                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center">
+                                                        <div className="text-xs text-blue-600 font-bold mb-1">Quantidade a ser concluída</div>
+                                                        <div className="text-2xl font-black text-blue-900">{itemDetails.qtdeFaltante}</div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 

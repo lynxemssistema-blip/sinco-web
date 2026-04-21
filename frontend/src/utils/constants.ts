@@ -4,6 +4,7 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'acabamento', icon: 'Paintbrush', label: 'Acabamento', href: '/acabamento' },
     { id: 'acompanhamento-geral', icon: 'MonitorPlay', label: 'Acompanhamento Geral', href: '/acompanhamento-geral' },
     { id: 'apontamento', icon: 'Factory', label: 'Apontamento Produção', href: '/apontamento' },
+    { id: 'apontamentos-parciais', icon: 'PieChart', label: 'Apontamentos Parciais', href: '/apontamentos-parciais' },
     {
         id: 'cadastro-usuarios',
         icon: 'Users',

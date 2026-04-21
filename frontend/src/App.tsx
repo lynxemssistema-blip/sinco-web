@@ -18,6 +18,7 @@ import ProjetoPage from './pages/Projeto';
 import TipoProdutoPage from './pages/TipoProduto';
 import OrdemServicoPage from './pages/OrdemServico';
 import ApontamentoProducaoPage from './pages/ApontamentoProducao';
+import ApontamentosParciaisPage from './pages/ApontamentosParciais';
 import ConfiguracaoPage from './pages/Configuracao';
 import ConfiguracaoSistemaPage from './pages/ConfiguracaoSistema';
 import UsuarioPage from './pages/Usuario';
@@ -230,6 +231,19 @@ function AppContent() {
             }
           }
 
+          // Force add 'apontamentos-parciais' if missing
+          if (!savedMenu.find(item => item.id === 'apontamentos-parciais')) {
+            const apItem = defaultMenuItems.find(item => item.id === 'apontamentos-parciais');
+            if (apItem) {
+              const baseIdx = savedMenu.findIndex(item => item.id === 'apontamento');
+              if (baseIdx >= 0) {
+                savedMenu = [...savedMenu.slice(0, baseIdx + 1), apItem, ...savedMenu.slice(baseIdx + 1)];
+              } else {
+                savedMenu = [...savedMenu, apItem];
+              }
+            }
+          }
+
           setMenuItems(sortMenuRecursive(savedMenu));
         } else {
           const filtered = defaultMenuItems.filter(item => 
@@ -341,6 +355,8 @@ function AppContent() {
         return <ProducaoPlanoCortePage />;
       case 'apontamento':
         return <ApontamentoProducaoPage />;
+      case 'apontamentos-parciais':
+        return <ApontamentosParciaisPage />;
       case 'acompanhamento-geral':
         return <AcompanhamentoGeralPage />;
       case 'visao-geral-producao':
