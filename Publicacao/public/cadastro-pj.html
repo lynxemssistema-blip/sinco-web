@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCO - Pessoas Jurídicas</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        .split-view {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+        }
+
+        .list-section {
+            background-color: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            padding: var(--space-lg);
+        }
+
+        /* Table Styles */
+        .data-table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: var(--space-md);
+            background-color: #F8FAFC;
+            border-bottom: 1px solid var(--color-border);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .data-table td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--color-border);
+            vertical-align: middle;
+            color: var(--text-primary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .data-logo-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: #eee;
+        }
+
+        /* Actions */
+        .action-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #f1f5f9;
+            color: var(--color-brand-dark);
+        }
+
+        .action-btn-del:hover {
+            background-color: #fef2f2;
+            color: #ef4444;
+        }
+
+        /* Dense Grid System (reused) */
+        .dense-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 12px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .col-1 {
+            grid-column: span 1;
+        }
+
+        .col-2 {
+            grid-column: span 2;
+        }
+
+        .col-3 {
+            grid-column: span 3;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .col-5 {
+            grid-column: span 5;
+        }
+
+        .col-6 {
+            grid-column: span 6;
+        }
+
+        .col-8 {
+            grid-column: span 8;
+        }
+
+        .col-12 {
+            grid-column: span 12;
+        }
+
+        .form-label-sm {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-input-sm {
+            width: 100%;
+            padding: 0.5rem;
+            height: 36px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+        }
+
+        .logo-preview-box {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .logo-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-preview-box:hover {
+            border-color: var(--color-brand-accent);
+            background-color: #FDFFDF;
+        }
+
+        .form-label-sm.required::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: white;">
+                SINCO - Cadastros
+            </div>
+            <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'"
+                style="color: white; border-color: rgba(255,255,255,0.3);">Voltar</button>
+        </header>
+
+        <aside class="sidebar">
+            <div class="sidebar-search">
+                <input type="text" placeholder="Buscar...">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item"><span>📊 Dashboard</span></a>
+                <a href="#" class="nav-item active"><span>📁 Pessoas Jurídicas</span></a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="split-view">
+
+                <!-- TOP: FORM -->
+                <form id="pjForm" class="card" enctype="multipart/form-data">
+                    <input type="hidden" name="IdPessoa" id="IdPessoa">
+
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: var(--space-lg); border-bottom: 1px solid #eee; padding-bottom: var(--space-md);">
+                        <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--color-brand-dark);">Cadastro de
+                            Empresa</h2>
+                        <div style="display: flex; gap: var(--space-sm);">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Novo / Limpar</button>
+                            <button type="submit" id="saveBtn" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: var(--space-lg);">
+                        <!-- Logo Upload -->
+                        <div
+                            style="width: 100px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <label class="form-label-sm">Logo</label>
+                            <div class="logo-preview-box" onclick="document.getElementById('LogoInput').click()">
+                                <span id="logoIcon">📷</span>
+                                <img id="logoPreview" style="display: none;">
+                            </div>
+                            <input type="file" name="Logo" id="LogoInput" accept="image/*" style="display: none;"
+                                onchange="previewLogo(this)">
+                            <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center;">Clique para
+                                alterar</div>
+                        </div>
+
+                        <!-- Main Fields -->
+                        <div style="flex: 1;">
+                            <div class="dense-grid">
+                                <div class="col-3">
+                                    <label class="form-label-sm required">CNPJ</label>
+                                    <input type="text" class="form-input-sm" name="Cnpj"
+                                        placeholder="00.000.000/0000-00">
+                                </div>
+                                <div class="col-5">
+                                    <label class="form-label-sm required">Razão Social</label>
+                                    <input type="text" class="form-input-sm" name="RazaoSocial" required>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label-sm">Nome Fantasia</label>
+                                    <input type="text" class="form-input-sm" name="NomeFantasia">
+                                </div>
+                            </div>
+
+                            <div class="dense-grid">
+                                <div class="col-3">
+                                    <label class="form-label-sm">Segmento</label>
+                                    <input type="text" class="form-input-sm" name="Segmento">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label-sm">Responsável</label>
+                                    <input type="text" class="form-input-sm" name="Responsavel">
+                                </div>
+                                <div class="col-5">
+                                    <label class="form-label-sm required">Email</label>
+                                    <input type="email" class="form-input-sm" name="Email">
+                                </div>
+                            </div>
+
+                            <div class="dense-grid">
+                                <div class="col-4">
+                                    <label class="form-label-sm required">Endereço</label>
+                                    <input type="text" class="form-input-sm" name="Endereco">
+                                </div>
+                                <div class="col-2">
+                                    <label class="form-label-sm required">Número</label>
+                                    <input type="text" class="form-input-sm" name="Numero">
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label-sm required">Bairro</label>
+                                    <input type="text" class="form-input-sm" name="Bairro">
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label-sm">Complemento</label>
+                                    <input type="text" class="form-input-sm" name="Complemento">
+                                </div>
+                            </div>
+
+                            <div class="dense-grid">
+                                <div class="col-2">
+                                    <label class="form-label-sm required">CEP</label>
+                                    <input type="text" class="form-input-sm" name="Cep">
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label-sm required">Cidade</label>
+                                    <input type="text" class="form-input-sm" name="Cidade">
+                                </div>
+                                <div class="col-1">
+                                    <label class="form-label-sm required">UF</label>
+                                    <input type="text" class="form-input-sm" name="Estado">
+                                </div>
+                                <div class="col-2">
+                                    <label class="form-label-sm">Telefone</label>
+                                    <input type="text" class="form-input-sm" name="Telefone">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- BOTTOM: LIST TABLE -->
+                <div class="list-section">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                        <h3 style="font-size: 1.1rem; font-weight: 600;">Empresas Cadastradas</h3>
+                        <div class="sidebar-search" style="margin: 0; width: 300px;">
+                            <input type="text" id="gridSearch" placeholder="Filtrar por nome ou CNPJ..."
+                                onkeyup="filterGrid()">
+                        </div>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">Logo</th>
+                                    <th>Razão Social</th>
+                                    <th>Nome Fantasia</th>
+                                    <th>CNPJ</th>
+                                    <th>Cidade/UF</th>
+                                    <th style="width: 100px; text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        const form = document.getElementById('pjForm');
+        let allData = [];
+
+        // Preview Logo
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                    document.getElementById('logoIcon').style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Reset
+        function resetForm() {
+            form.reset();
+            document.getElementById('IdPessoa').value = '';
+            document.getElementById('saveBtn').innerText = 'Salvar';
+            document.getElementById('logoPreview').src = '';
+            document.getElementById('logoPreview').style.display = 'none';
+            document.getElementById('logoIcon').style.display = 'block';
+        }
+
+        // Load List
+        async function loadData() {
+            try {
+                const res = await fetch('/api/pj');
+                const json = await res.json();
+                if (json.success) {
+                    allData = json.data;
+                    renderTable(allData);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Render Table
+        function renderTable(data) {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="padding:2rem; text-align:center; color:var(--text-muted);">Nenhum registro encontrado.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const logoUrl = item.EnderecoLogo || '';
+                const logoHtml = logoUrl ? `<img src="${logoUrl}" class="data-logo-thumb">` : `<div class="data-logo-thumb" style="display:flex;align-items:center;justify-content:center;font-size:0.8rem;">🏢</div>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${logoHtml}</td>
+                    <td><strong>${item.RazaoSocial}</strong></td>
+                    <td>${item.NomeFantasia || '-'}</td>
+                    <td>${item.Cnpj || '-'}</td>
+                    <td>${item.Cidade || ''}-${item.Estado || ''}</td>
+                    <td style="text-align: right;">
+                        <button class="action-btn" onclick="editItem(${item.IdPessoa})" title="Editar">✏️</button>
+                        <button class="action-btn action-btn-del" onclick="deleteItem(${item.IdPessoa})" title="Excluir">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Edit
+        async function editItem(id) {
+            try {
+                const res = await fetch(`/api/pj/${id}`);
+                const json = await res.json();
+                if (json.success) {
+                    const data = json.data;
+                    document.getElementById('IdPessoa').value = data.IdPessoa;
+
+                    ['RazaoSocial', 'NomeFantasia', 'Segmento', 'Cnpj', 'Email', 'Responsavel', 'Cep', 'Cidade', 'Estado', 'Telefone', 'Endereco', 'Numero', 'Complemento', 'Bairro'].forEach(f => {
+                        if (form.elements[f]) form.elements[f].value = data[f] || '';
+                    });
+
+                    if (data.EnderecoLogo) {
+                        document.getElementById('logoPreview').src = data.EnderecoLogo;
+                        document.getElementById('logoPreview').style.display = 'block';
+                        document.getElementById('logoIcon').style.display = 'none';
+                    } else {
+                        document.getElementById('logoPreview').style.display = 'none';
+                        document.getElementById('logoIcon').style.display = 'block';
+                    }
+
+                    document.getElementById('saveBtn').innerText = 'Atualizar';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (e) {
+                alert('Erro ao carregar');
+            }
+        }
+
+        // Delete (Updated to send User)
+        async function deleteItem(id) {
+            if (!confirm('Excluir este registro?')) return;
+
+            // Get user from localStorage or prompt if missing (for legacy sessions)
+            let user = localStorage.getItem('sinco_usuario');
+            if (!user) {
+                user = prompt('Sessão expirada. Digite seu usuário para confirmar a exclusão:');
+                if (!user) return;
+            }
+
+            await fetch(`/api/pj/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario: user })
+            });
+            loadData();
+        }
+
+        // Filter
+        function filterGrid() {
+            const term = document.getElementById('gridSearch').value.toLowerCase();
+            const filtered = allData.filter(item =>
+                (item.RazaoSocial && item.RazaoSocial.toLowerCase().includes(term)) ||
+                (item.Cnpj && item.Cnpj.includes(term))
+            );
+            renderTable(filtered);
+        }
+
+        // --- MASKS & VALIDATION ---
+        const masks = {
+            cnpj(value) {
+                return value
+                    .replace(/\D/g, '')
+                    .replace(/^(\d{2})(\d)/, '$1.$2')
+                    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+                    .replace(/(\d{4})(\d)/, '$1-$2')
+                    .replace(/(-\d{2})\d+?$/, '$1');
+            },
+            phone(value) {
+                return value
+                    .replace(/\D/g, '')
+                    .replace(/^(\d{2})(\d)/g, '($1) $2')
+                    .replace(/(\d)(\d{4})$/, '$1-$2');
+            },
+            cep(value) {
+                return value
+                    .replace(/\D/g, '')
+                    .replace(/(\d{5})(\d)/, '$1-$2')
+                    .replace(/(-\d{3})\d+?$/, '$1');
+            }
+        };
+
+        // Attach masks on input and blur
+        ['input', 'blur'].forEach(evt => {
+            const cnpjInput = document.querySelector('input[name="Cnpj"]');
+            if (cnpjInput) cnpjInput.addEventListener(evt, e => e.target.value = masks.cnpj(e.target.value));
+
+            const cepInput = document.querySelector('input[name="Cep"]');
+            if (cepInput) cepInput.addEventListener(evt, e => e.target.value = masks.cep(e.target.value));
+
+            const phoneInput = document.querySelector('input[name="Telefone"]');
+            if (phoneInput) phoneInput.addEventListener(evt, e => e.target.value = masks.phone(e.target.value));
+        });
+
+        // CEP Integration (ViaCEP)
+        const cepField = document.querySelector('input[name="Cep"]');
+        if (cepField) {
+            cepField.addEventListener('blur', async (e) => {
+                let cep = e.target.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    try {
+                        // Visual feedback
+                        document.body.style.cursor = 'wait';
+
+                        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                        const data = await res.json();
+
+                        document.body.style.cursor = 'default';
+
+                        if (!data.erro) {
+                            if (form.elements['Endereco']) form.elements['Endereco'].value = data.logradouro;
+                            if (form.elements['Bairro']) form.elements['Bairro'].value = data.bairro;
+                            if (form.elements['Cidade']) form.elements['Cidade'].value = data.localidade;
+                            if (form.elements['Estado']) form.elements['Estado'].value = data.uf;
+                            if (form.elements['Numero']) form.elements['Numero'].focus();
+                        } else {
+                            alert('CEP não encontrado.');
+                        }
+                    } catch (error) {
+                        document.body.style.cursor = 'default';
+                        console.error('ViaCEP Error:', error);
+                    }
+                }
+            });
+        }
+
+        // Validation Functions
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/[^\d]+/g, '');
+            if (cnpj === '') return false;
+            if (cnpj.length !== 14) return false;
+            // Basic repeating digits check
+            if (/^(\d)\1+$/.test(cnpj)) return false;
+
+            // Checksum algo
+            let tamanho = cnpj.length - 2
+            let numeros = cnpj.substring(0, tamanho);
+            let digitos = cnpj.substring(tamanho);
+            let soma = 0;
+            let pos = tamanho - 7;
+            for (let i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado != digitos.charAt(0)) return false;
+
+            tamanho = tamanho + 1;
+            numeros = cnpj.substring(0, tamanho);
+            soma = 0;
+            pos = tamanho - 7;
+            for (let i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado != digitos.charAt(1)) return false;
+
+            return true;
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Save (Multipart Form)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate inputs
+            const cnpjVal = form.elements['Cnpj'].value;
+            const emailVal = form.elements['Email'].value;
+
+            if (cnpjVal && !validateCNPJ(cnpjVal)) {
+                alert('CNPJ inválido!');
+                return;
+            }
+            if (emailVal && !validateEmail(emailVal)) {
+                alert('Email inválido!');
+                return;
+            }
+
+            const id = document.getElementById('IdPessoa').value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/pj/${id}` : '/api/pj';
+
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    body: formData
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    resetForm();
+                    loadData();
+                    alert('Salvo com sucesso!');
+                } else {
+                    alert('Erro: ' + json.message);
+                }
+            } catch (err) {
+                alert('Erro ao salvar');
+            }
+        });
+
+        // Init
+        loadData();
+    </script>
+</body>
+
+</html>

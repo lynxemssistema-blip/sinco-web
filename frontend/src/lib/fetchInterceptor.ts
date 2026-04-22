@@ -45,5 +45,15 @@ window.fetch = async (...args) => {
     }
 
     // Call original fetch with updated config
-    return originalFetch(resource, config);
+    const response = await originalFetch(resource, config);
+    
+    if (response.status === 401 && typeof resource === 'string' && !resource.includes('/api/login') && !resource.includes('/api/admin/login')) {
+        console.warn('[FETCH INTERCEPTOR] 401 Unauthorized received. Clearing session...');
+        localStorage.removeItem('sinco_user');
+        localStorage.removeItem('sinco_token');
+        localStorage.removeItem('superadmin_token');
+        window.dispatchEvent(new Event('auth-expired'));
+    }
+    
+    return response;
 };

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "node src/server.js",
     "dev:frontend": "cd frontend && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,6 +26,7 @@
     "mysql2": "^3.16.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "concurrently": "^9.2.1"
   }
 }

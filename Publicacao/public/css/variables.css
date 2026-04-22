@@ -1,0 +1,67 @@
+:root {
+    /* 
+     * LYNX IDENTITY COLORS (Updated from Reference App)
+     * Reference: sincolynxgestao.base44.app
+     */
+    --color-brand-dark: #32423D;
+    /* Dark Moss/Charcoal */
+    --color-brand-accent: #E0E800;
+    /* Lime Yellow */
+    --color-background: #F9F8F3;
+    /* Ivory/Snow */
+    --color-surface: #FFFFFF;
+    /* Pure White */
+    --color-input-bg: #F8FAFC;
+    /* Very Light Slate */
+
+    /* Semantic Map */
+    --bg-app: var(--color-background);
+    --bg-surface: var(--color-surface);
+    --bg-glass: rgba(255, 255, 255, 0.9);
+    /* Less transp. for crisp web app look */
+
+    --text-primary: var(--color-brand-dark);
+    --text-heading: #0F172A;
+    /* Dark Slate Navy from reference */
+    --text-muted: #64748B;
+    /* Slate 500 */
+    --text-inverse: #FFFFFF;
+
+    --color-primary: var(--color-brand-dark);
+    --color-accent: var(--color-brand-accent);
+    --color-border: #E2E8F0;
+    /* Light Slate Border */
+
+    /* Typography */
+    --font-primary: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: 'Geist', 'Inter', sans-serif;
+    /* Reference uses Geist for headings too */
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Shadows - Reference App Style */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 25px 50px -12px rgba(50, 66, 61, 0.25);
+    /* Deep "floating" shadow */
+    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-focus: 0 0 0 4px rgba(224, 232, 0, 0.3);
+    /* Vision Glow */
+
+    /* Effects */
+    --blur-glass: 12px;
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCO-WEB | Login</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        body {
+            background-color: var(--bg-app);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-md);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .brand-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--color-brand-dark);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .login-card {
+            background: white;
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .login-footer {
+            margin-top: var(--space-lg);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .login-footer a {
+            color: var(--color-brand-dark);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="brand-header">
+            <div class="brand-logo">SISTEMA LYNX</div>
+            <p style="color: var(--text-muted); margin-top: var(--space-xs);">Faça login para continuar</p>
+        </div>
+
+        <div class="login-card">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Usuário / Email</label>
+                    <input type="text" class="form-input" placeholder="Usuário ou Email" required>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-xs);">
+                        <label class="form-label" style="margin-bottom: 0;">Senha</label>
+                        <a href="#"
+                            style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">Esqueceu?</a>
+                    </div>
+                    <input type="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: var(--space-md);">Entrar</button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            Não tem uma conta? <a href="#">Contate o Suporte</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            const loginInput = e.target.querySelector('input[type="text"]'); // Using the first input as Login
+            const passwordInput = e.target.querySelector('input[type="password"]');
+
+            // Temporarily disable button
+            btn.innerText = 'Autenticando...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        login: loginInput.value,
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(data.message || 'Falha no login');
+                    btn.innerText = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ocorreu um erro durante o login');
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

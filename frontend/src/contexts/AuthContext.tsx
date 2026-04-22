@@ -42,6 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem('sinco_user');
             localStorage.removeItem('sinco_token');
         }
+
+        const handleAuthExpired = () => {
+            setUser(null);
+            setToken(null);
+        };
+
+        window.addEventListener('auth-expired', handleAuthExpired);
+        return () => {
+            window.removeEventListener('auth-expired', handleAuthExpired);
+        };
     }, []);
 
     const login = (userData: User, jwtToken: string) => {

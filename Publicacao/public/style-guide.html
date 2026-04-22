@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCO-WEB | Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Using Inter as a high-quality fallback/proxy for Geist if not hosting it locally -->
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        /* Specific overrides for presentation */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .color-swatch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .swatch {
+            height: 80px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-end;
+            padding: var(--space-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+        <!-- Mobile Overlay -->
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">SISTEMA LYNX</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <span>Visão Geral</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <div class="nav-item has-submenu">
+                    <div class="nav-item-header" onclick="this.parentElement.classList.toggle('open')">
+                        <span>Cadastros</span>
+                        <span class="nav-arrow">▶</span>
+                    </div>
+                    <div class="nav-submenu">
+                        <a href="cadastro-pj.html" class="nav-item">
+                            <span>Pessoa Jurídica</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="#" class="nav-item">
+                    <span>Relatórios</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>Configurações</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <!-- Mobile Toggle -->
+            <button class="btn btn-secondary" id="menu-toggle"
+                style="margin-right: var(--space-md); display: none;">☰</button>
+            <script>
+                if (window.innerWidth <= 768) document.getElementById('menu-toggle').style.display = 'inline-flex';
+            </script>
+
+            <div class="breadcrumbs">
+                <span>Sistema</span> / <span class="current">Visão Geral</span>
+            </div>
+
+            <div class="user-actions">
+                <button class="btn btn-primary">Nova Ação</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1>Identidade Visual Lynx</h1>
+            <p>Apresentação institucional do sistema visual aplicado ao SINCO-WEB.</p>
+
+            <!-- Colors Section -->
+            <section class="mb-5" style="margin-bottom: var(--space-2xl);">
+                <h2>Paleta de Cores</h2>
+                <div class="card">
+                    <div class="color-swatch-grid">
+                        <div class="swatch" style="background: var(--color-brand-dark); color: white;">Brand Dark</div>
+                        <div class="swatch"
+                            style="background: var(--color-brand-accent); color: var(--color-brand-dark);">Brand Accent
+                        </div>
+                        <div class="swatch"
+                            style="background: var(--color-background); color: var(--color-brand-dark);">Background
+                        </div>
+                        <div class="swatch" style="background: var(--color-surface); color: var(--color-brand-dark);">
+                            Surface</div>
+                        <div class="swatch" style="background: var(--color-border); color: var(--color-brand-dark);">
+                            Border
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Typography & Components -->
+            <section class="preview-grid">
+                <!-- Typography Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Tipografia</h3>
+                    </div>
+                    <div>
+                        <h1>Título H1</h1>
+                        <h2>Título H2</h2>
+                        <h3>Título H3</h3>
+                        <p>Texto do corpo usando a fonte padrão. Otimizado para legibilidade e elegância no fundo Snow.
+                        </p>
+                        <small>Exemplo de legenda ou texto pequeno.</small>
+                    </div>
+                </div>
+
+                <!-- Input Components Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Elementos de Formulário</h3>
+                    </div>
+                    <form onsubmit="return false;">
+                        <div class="form-group">
+                            <label class="form-label">Endereço de Email</label>
+                            <input type="email" class="form-input" placeholder="usuario@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-input" placeholder="••••••••">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">Entrar</button>
+                    </form>
+                </div>
+
+                <!-- Buttons & States Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Estados Interativos</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                        <div>
+                            <button class="btn btn-primary">Ação Primária</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary">Ação Secundária</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-accent">Destaque / CTA</button>
+                        </div>
+                        <div style="margin-top: var(--space-md);">
+                            <span class="badge badge-success">Status Ativo</span>
+                            <span class="badge badge-neutral">Inativo</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

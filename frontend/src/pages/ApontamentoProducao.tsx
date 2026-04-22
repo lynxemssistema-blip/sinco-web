@@ -327,30 +327,12 @@ export default function ApontamentoProducaoPage() {
             .catch(console.error);
     }, []);
 
-    // Config for visible sectors
+    // Config for visible sectors (fetched via context)
     useEffect(() => {
-        fetch(`${API_BASE}/config`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.config.ProcessosVisiveis) {
-                    try {
-                        const visible = JSON.parse(data.config.ProcessosVisiveis);
-                        setVisibleSetores(visible);
-                        // If current active sector is not visible, switch to first visible one or mapa
-                        if (!visible.includes(setorAtivo) && setorAtivo !== 'mapa') {
-                            setSetorAtivo('mapa');
-                        }
-                    } catch (e) {
-                        console.error('Error parsing visible sectors', e);
-                        setVisibleSetores(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
-                    }
-                } else {
-                    // Default all visible
-                    setVisibleSetores(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
-                }
-            })
-            .catch(() => setVisibleSetores(['corte', 'dobra', 'solda', 'pintura', 'montagem']));
-    }, []);
+        if (visibleSetores.length > 0 && !visibleSetores.includes(setorAtivo) && setorAtivo !== 'mapa') {
+            setSetorAtivo('mapa');
+        }
+    }, [visibleSetores, setorAtivo]);
 
     // Ler Query Params caso venha de links globais
     useEffect(() => {

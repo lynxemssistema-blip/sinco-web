@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @theme {
   --color-border: var(--border);
@@ -20,74 +21,75 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --font-sans: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-sans: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 :root {
-  /* Modern Clean Theme */
-  --background: #F8FAFC; /* Slate-50 - cleaner than previous beige/gray */
-  --foreground: #0F172A; /* Slate-900 - sharp text */
+  /* Lynx EMS Brand Colors */
+  --background: #F9F8F3; /* Off-white beige */
+  --foreground: #32423D; /* Dark slate text */
 
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #32423D;
 
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover-foreground: #32423D;
 
-  /* Primary: Deep Jungle / Slate Mix */
-  --primary: #0F172A; 
-  --primary-foreground: #F8FAFC;
+  /* Primary: Dark Slate/Green */
+  --primary: #32423D; 
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #F1F5F9; /* Slate-100 */
-  --secondary-foreground: #0F172A;
+  --secondary: #425750; /* Lighter slate green */
+  --secondary-foreground: #FFFFFF;
 
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B; /* Slate-500 */
+  --muted: #E2E8F0;
+  --muted-foreground: #64748B;
 
-  /* Accent: Electric Lime - Kept but refined */
+  /* Accent: Neon Yellow */
   --accent: #E0E800; 
-  --accent-foreground: #0F172A;
+  --accent-foreground: #32423D;
 
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
 
   --border: #E2E8F0;
   --input: #E2E8F0;
-  --ring: #0F172A;
+  --ring: #32423D;
 
-  --radius: 0.75rem; /* Slightly rounder 12px */
+  --radius: 0.5rem; /* Clean subtle radius */
 }
 
 .dark {
-  --background: #020817;
-  --foreground: #F8FAFC;
+  --background: #09090B; /* Deep Zinc 950 */
+  --foreground: #FAFAFB;
 
-  --card: #0F172A;
-  --card-foreground: #F8FAFC;
+  --card: #18181B; /* Zinc 900 for cards */
+  --card-foreground: #FAFAFB;
 
-  --popover: #0F172A;
-  --popover-foreground: #F8FAFC;
+  --popover: #18181B;
+  --popover-foreground: #FAFAFB;
 
-  --primary: #F8FAFC;
-  --primary-foreground: #0F172A;
+  --primary: #FAFAFB;
+  --primary-foreground: #09090B;
 
-  --secondary: #1E293B;
-  --secondary-foreground: #F8FAFC;
+  --secondary: #27272A; /* Zinc 800 */
+  --secondary-foreground: #FAFAFB;
 
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA; /* Zinc 400 */
 
-  --accent: #E0E800;
-  --accent-foreground: #0F172A;
+  --accent: #E0E800; /* Vibrant Lime to "pop" on dark screen */
+  --accent-foreground: #09090B;
 
   --destructive: #7F1D1D;
-  --destructive-foreground: #F8FAFC;
+  --destructive-foreground: #FAFAFB;
 
-  --border: #1E293B;
-  --input: #1E293B;
+  --border: #27272A;
+  --input: #27272A;
   --ring: #E0E800;
 }
 
@@ -101,35 +103,43 @@
   }
 }
 
-/* Animations */
+/* Animations & Effects */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.4s ease-out;
+.animate-fade-in { animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-in-up { animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Skeleton Shimmer classes */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--secondary) 25%, var(--border) 50%, var(--secondary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(24, 24, 27, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Custom Scrollbar */
@@ -143,19 +153,25 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: #d4d4d8; /* zinc-300 */
+  border-radius: 9999px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3f3f46; /* zinc-700 */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background-color: #a1a1aa; /* zinc-400 */
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #52525b; /* zinc-600 */
 }
 
 /* ===================================================
    LAYOUT GLOBAL — Utilitários para telas com tabela
    =================================================== */
-
-/* Container de tabela com cabeçalho sticky e scroll bidirecional
-   Uso: className="table-container" na div que envolve a <table> */
 .table-container {
   flex: 1;
   min-height: 0;
@@ -168,16 +184,25 @@
   white-space: nowrap;
 }
 
-/* thead sticky dentro de .table-container */
 .table-container thead th {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #f8fafc;
+  @apply bg-secondary/90 text-muted-foreground backdrop-blur-md;
 }
 
-/* Scrollbar fino */
 .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
 .table-container::-webkit-scrollbar-track { background: transparent; }
-.table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-.table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.table-container::-webkit-scrollbar-thumb { 
+  background-color: #d4d4d8; 
+  border-radius: 9999px;
+}
+.dark .table-container::-webkit-scrollbar-thumb { 
+  background-color: #3f3f46;
+}
+.table-container::-webkit-scrollbar-thumb:hover { 
+  background-color: #a1a1aa;
+}
+.dark .table-container::-webkit-scrollbar-thumb:hover { 
+  background-color: #52525b;
+}
