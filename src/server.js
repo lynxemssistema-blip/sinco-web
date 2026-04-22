@@ -11201,6 +11201,10 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 app.use('/css', express.static(path.join(__dirname, '../public/css')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../login_inicial.html'));
+});
+
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
