@@ -8,6 +8,7 @@ const app = express();
 const pool = require('./config/db');
 const tenantMiddleware = require('./middleware/tenant');
 const matrizRoutes = require('./routes/matrizRoutes');
+const blocksetRoutes = require('./routes/blocksetRoutes');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const multer = require('multer');
 const fs = require('fs');
@@ -104,6 +105,9 @@ app.use('/api', tenantMiddleware);
 
 // Admin Routes
 app.use('/api/matriz', matrizRoutes);
+
+// BlockSet Routes
+app.use('/api/blockset', blocksetRoutes);
 
 // ReposiÃƒÂ§ÃƒÂ£o Routes
 app.get('/api/reposicao/itens', async (req, res) => {

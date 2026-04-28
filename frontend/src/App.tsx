@@ -39,6 +39,7 @@ import MontagemPlanoCortePage from './pages/MontagemPlanoCorte';
 import ProducaoPlanoCortePage from './pages/ProducaoPlanoCorte';
 import TesteFinalMontagemPage from './pages/TesteFinalMontagem';
 import CadastroUsuarioPage from './pages/CadastroUsuario';
+import BlockSetPage from './pages/BlockSet/BlockSet';
 function AppContent() {
   const { user, logout } = useAuth();
   const [activePageId, setActivePageId] = useState('dashboard');
@@ -266,9 +267,13 @@ function AppContent() {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       const path = window.location.pathname;
-      const foundItem = findItemByHref(defaultMenuItems, path);
-      if (foundItem) {
-        setActivePageId(foundItem.id);
+      if (path.startsWith('/blockset')) {
+        setActivePageId('blockset');
+      } else {
+        const foundItem = findItemByHref(defaultMenuItems, path);
+        if (foundItem) {
+          setActivePageId(foundItem.id);
+        }
       }
     }
   }, [user]);
@@ -409,6 +414,8 @@ function AppContent() {
         return <ConfiguracaoSistemaPage />;
       case 'superadmin':
         return <SuperadminPage />;
+      case 'blockset':
+        return <BlockSetPage />;
       default:
         // Handle custom pages or IDs dynamically if needed, for now fallback to Dashboard
         return <DashboardPage onNavigate={handleNavigate} />;
