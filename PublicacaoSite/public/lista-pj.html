@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCO - Pessoas Jurídicas</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-table th {
+            background-color: var(--color-input-bg);
+            font-weight: 600;
+            color: var(--text-heading);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        .action-btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn-icon:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+                <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: white;">
+                    SINCO
+                </div>
+            </div>
+            <button class="btn btn-secondary" style="color: white; border-color: rgba(255,255,255,0.3);"
+                onclick="window.history.back()">Voltar</button>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-search">
+                <input type="text" placeholder="Buscar..." id="searchInput">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span>📊 Dashboard</span>
+                </a>
+                <div class="nav-item active">
+                    <!-- Icon placeholder -->
+                    <span>📁 Pessoas Jurídicas</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="list-header">
+                <div>
+                    <h1 style="font-size: 1.5rem; color: var(--color-brand-dark); font-weight: 700;">Pessoas Jurídicas
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Gerencie as empresas cadastradas.</p>
+                </div>
+                <a href="cadastro-pj.html" class="btn btn-primary">
+                    + Novo Cadastro
+                </a>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--color-border);">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Razão Social</th>
+                            <th>CNPJ</th>
+                            <th>Cidade/UF</th>
+                            <th>Telefone</th>
+                            <th style="width: 100px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">Carregando dados...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Load Data
+        async function loadData() {
+            try {
+                const response = await fetch('/api/pj');
+                const result = await response.json();
+
+                if (result.success) {
+                    renderTable(result.data);
+                } else {
+                    alert('Erro ao carregar dados');
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro de conexão</td></tr>';
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Nenhum registro encontrado.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 500; color: var(--color-brand-dark);">${item.RazaoSocial || '-'}</td>
+                    <td>${item.Cnpj || '-'}</td>
+                    <td>${item.Cidade || ''} / ${item.Estado || ''}</td>
+                    <td>${item.Telefone || '-'}</td>
+                    <td style="text-align: center;">
+                        <a href="cadastro-pj.html?id=${item.IdPessoa}" class="action-btn-icon" title="Editar">✏️</a>
+                        <button onclick="deleteItem(${item.IdPessoa})" class="action-btn-icon" title="Excluir" style="color: #ef4444;">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+
+            try {
+                const response = await fetch(`/api/pj/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    loadData(); // Reload
+                } else {
+                    alert('Erro ao excluir: ' + result.message);
+                }
+            } catch (error) {
+                alert('Erro de conexão');
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>

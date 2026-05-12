@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCO - Lynx Gestão</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <!-- Topbar (Full Width, Dark) -->
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+                <!-- Mobile Toggle -->
+                <button id="menu-toggle" class="btn-icon-only" style="color: white; display: none;">☰</button>
+
+                <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: white;">
+                    SINCO - Lynx Gestão
+                </div>
+                <span class="badge"
+                    style="background: rgba(255,255,255,0.1); color: var(--color-brand-accent); font-size: 0.7rem; border: none;">Gestão
+                    Inteligente v1.0.0</span>
+            </div>
+
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <button class="btn btn-accent"
+                    style="padding: 0.5rem 1.25rem; font-size: 0.85rem; border-radius: 6px;">Entrar</button>
+                <div
+                    style="width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer;">
+                    🔔
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar (Left, Light) -->
+        <aside class="sidebar">
+
+            <!-- Sidebar Search -->
+            <div class="sidebar-search">
+                <input type="text" placeholder="Buscar menu...">
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item">
+                    <span>📅 Calendário</span>
+                </a>
+
+                <a href="dashboard.html" class="nav-item">
+                    <span>📊 Dashboard</span>
+                </a>
+
+                <div class="nav-item has-submenu">
+                    <div class="nav-item-header" onclick="this.parentElement.classList.toggle('open')"
+                        style="padding-left: 0; padding-right: 0; color: var(--text-muted);">
+                        <div style="display: flex; gap: var(--space-md); align-items: center;">
+                            <span>📁 Menu Gerencial</span>
+                        </div>
+                        <span class="nav-arrow" style="color: var(--text-muted);">▼</span>
+                    </div>
+                    <div class="nav-submenu">
+                        <a href="cadastro-pj.html" class="nav-item">
+                            <span>Pessoa Jurídica</span>
+                        </a>
+                        <a href="style-guide.html" class="nav-item">
+                            <span>Guia de Estilos</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="#" class="nav-item">
+                    <span>📈 Relatórios</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>❓ Ajuda Geral</span>
+                </a>
+
+                <div style="margin-top: var(--space-md);">
+                    <div class="nav-item" style="justify-content: space-between;">
+                        <span>⚖️ SST - Segurança</span>
+                        <span style="font-size: 0.7rem;">▶</span>
+                    </div>
+                </div>
+                <div class="nav-item" style="justify-content: space-between;">
+                    <span>🛡️ CIPA - Segurança</span>
+                    <span style="font-size: 0.7rem;">▶</span>
+                </div>
+                <div class="nav-item" style="justify-content: space-between;">
+                    <span>✅ SGQ - Qualidade</span>
+                    <span style="font-size: 0.7rem;">▶</span>
+                </div>
+            </nav>
+
+            <!-- User Profile (Bottom) -->
+            <div
+                style="margin-top: auto; padding-top: var(--space-md); border-top: 1px solid var(--color-border); display: flex; align-items: center; gap: var(--space-sm);">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-brand-dark); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                    E</div>
+                <div style="flex: 1; overflow: hidden;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-heading);">Edson User</div>
+                    <div
+                        style="font-size: 0.75rem; color: var(--text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                        edson@sinco.com</div>
+                </div>
+                <button style="background: none; border: none; cursor: pointer; color: var(--text-muted);">➜</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-badge">⚡ Agilidade e Precisão</div>
+                <h1 class="hero-title">
+                    A engenharia sob<br>
+                    o olhar Lynx
+                </h1>
+                <p class="hero-subtitle">
+                    Assinando os serviços da Sinco Lynx, o usuário passa a ter SST (Segurança e Saúde no Trabalho),
+                    SGQ (Gestão da Qualidade) e PCP (Planejamento e Controle da Produção) integrados em uma única
+                    plataforma,
+                    com processos padronizados, indicadores claros e rastreabilidade total.
+                </p>
+
+                <a href="#" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">
+                    Acessar Sistema &nbsp; ›
+                </a>
+            </section>
+
+            <!-- Pillars Section -->
+            <section class="pillars-container">
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-xs);">PILARES Lynx</h2>
+                <p style="opacity: 0.7; font-size: 0.9rem;">Valores que guiam nossa excelência</p>
+
+                <div class="pillars-grid">
+                    <div class="pillar-card">
+                        <div class="pillar-icon">🛡️</div>
+                        <span class="pillar-label">Confiável</span>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon">↗️</div>
+                        <span class="pillar-label">Ágil</span>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon">✓</div>
+                        <span class="pillar-label">Inovadora</span>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-icon">👥</div>
+                        <span class="pillar-label">Flexível</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>
