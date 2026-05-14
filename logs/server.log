@@ -1,0 +1,1468 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (80ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"lynxlocal","password":"lynxlocal"}
+[ADMIN AUTH] Raw Body: { username: 'lynxlocal', password: 'lynxlocal' }
+[ADMIN AUTH] Check: 'lynxlocal' (len=9) vs 'superadmin'
+[ADMIN AUTH] Password Len: 9
+[ADMIN AUTH] Invalid credentials for: lynxlocal
+[API] 401 (636ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"lynxlocaladmin","password":"lynxlocaladmin"}
+[ADMIN AUTH] Raw Body: { username: 'lynxlocaladmin', password: 'lynxlocaladmin' }
+[ADMIN AUTH] Check: 'lynxlocaladmin' (len=14) vs 'superadmin'
+[ADMIN AUTH] Password Len: 14
+[ADMIN AUTH] Invalid credentials for: lynxlocaladmin
+[API] 401 (178ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"admin","password":"admin"}
+[ADMIN AUTH] Raw Body: { username: 'admin', password: 'admin' }
+[ADMIN AUTH] Check: 'admin' (len=5) vs 'superadmin'
+[ADMIN AUTH] Password Len: 5
+[ADMIN AUTH] Invalid credentials for: admin
+[API] 401 (126ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (48ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (7ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (694ms | rows:13): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€ â‚¬Ã¢â€ â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€ â‚¬Ã¢â€ â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (862ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (10ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"lynxlocalTablynxlocal","password":""}
+[ADMIN AUTH] Raw Body: { username: 'lynxlocalTablynxlocal', password: '' }
+[ADMIN AUTH] Check: 'lynxlocalTablynxlocal' (len=21) vs 'superadmin'
+[ADMIN AUTH] Password Len: 0
+[ADMIN AUTH] Invalid credentials for: lynxlocalTablynxlocal
+[API] 401 (181ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"lynxlocal","password":"lynxlocal"}
+[ADMIN AUTH] Raw Body: { username: 'lynxlocal', password: 'lynxlocal' }
+[ADMIN AUTH] Check: 'lynxlocal' (len=9) vs 'superadmin'
+[ADMIN AUTH] Password Len: 9
+[ADMIN AUTH] Invalid credentials for: lynxlocal
+[API] 401 (211ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (24ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config
+[TenantMiddleware] No token provided for /config
+[API] 401 (7ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (9ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"admin","password":"admin"}
+[ADMIN AUTH] Raw Body: { username: 'admin', password: 'admin' }
+[ADMIN AUTH] Check: 'admin' (len=5) vs 'superadmin'
+[ADMIN AUTH] Password Len: 5
+[ADMIN AUTH] Invalid credentials for: admin
+[API] 401 (918ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (774ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 304 (1008ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (725ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[API] 304 (732ms)
+[API] 304 (49ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (829ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 304 (839ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (24ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (551ms | rows:5): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€ â‚¬Ã¢â€ â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€ â‚¬Ã¢â€ â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 200 (569ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (55ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (36ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-04-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-04-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (33ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-04-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-04-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (104ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-04-14&dataFinalAte=2026-04-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-04-14","dataFinalAte":"2026-04-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (31ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (62ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] PATCH /api/acompanhamento/projeto/3/observacao
+[API]    BODY: {"observacao":null}
+[API] 404 (11ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (35ms)
+[API] 304 (142ms)
+[API] 304 (154ms)
+[API] 304 (170ms)
+[API] 304 (162ms)
+[API] 304 (169ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+[API] 304 (25ms)
+[API] 304 (26ms)
+[API] 304 (27ms)
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (29ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+[API] 304 (28ms)
+[API] 304 (26ms)
+[API] 304 (27ms)
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+[API] 304 (28ms)
+[API] 304 (26ms)
+[API] 304 (25ms)
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (24ms)
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[API] 304 (31ms)
+[API] 304 (31ms)
+[API] 304 (32ms)
+[API] 304 (35ms)
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[API] 304 (25ms)
+[API] 304 (26ms)
+[API] 304 (27ms)
+[API] 304 (28ms)
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[API] 304 (25ms)
+[API] 304 (27ms)
+[API] 304 (27ms)
+[API] 304 (28ms)
+[API] 304 (31ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+[API] 304 (26ms)
+[API] 304 (26ms)
+[API] 304 (27ms)
+[API] 304 (28ms)
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (24ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (25ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1264ms | rows:5): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€ â‚¬Ã¢â€ â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€ â‚¬Ã¢â€ â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (1371ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (2439ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 304 (2445ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (2053ms | rows:5): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€ â‚¬Ã¢â€ â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€ â‚¬Ã¢â€ â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (2065ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (2582ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (2413ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[API] 304 (2423ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (2744ms)
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (25ms)
+[API] 304 (48ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (92ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (50ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (31ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-04-14&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-04-14","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (42ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-04-13&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-04-13","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (34ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-13&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-13","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (31ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-13&dataFinalAte=2026-04-02&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-13","dataFinalAte":"2026-04-02","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (35ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (57ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (50ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (32ms)
+[API] 304 (156ms)
+[API] 304 (165ms)
+[API] 304 (159ms)
+[API] 304 (167ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[API] 304 (30ms)
+[API] 304 (28ms)
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (29ms)
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (34ms)
+[API] 304 (34ms)
+[API] 304 (40ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (291ms | rows:0): SELECT IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag, QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas, qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngen
+[API] 304 (293ms)
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+[API] 304 (28ms)
+[API] 304 (45ms)
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)

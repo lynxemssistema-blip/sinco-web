@@ -1240,7 +1240,7 @@ function OrdemServicoContent() {
                             <button 
                                 onClick={() => handleAtualizarArquivos(os)}
                                 disabled={liberandoOS === os.IdOrdemServico}
-                                className="p-2.5 border rounded-lg shadow-sm transition-colors bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 disabled:opacity-50"
+                                className="p-2.5 border rounded-lg shadow-sm transition-colors bg-[#E0E800]/30 text-[#32423D] border-blue-200 hover:bg-[#E0E800]/20 disabled:opacity-50"
                                 title="Atualizar arquivos na pasta da OS"
                             >
                                 <RefreshCw size={18} />
@@ -1570,7 +1570,7 @@ function OrdemServicoContent() {
                                                     {item.EnderecoArquivo ? (
                                                         <button
                                                             onClick={(e) => handleOpenFile(e, item.EnderecoArquivo || '', 'dxf')}
-                                                            className="w-8 h-8 rounded flex items-center justify-center bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                            className="w-8 h-8 rounded flex items-center justify-center bg-[#E0E800]/30 text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
                                                             title={`Download DXF: ${item.CodMatFabricante}`}
                                                         >
                                                             <PenTool size={14} />
@@ -1795,7 +1795,7 @@ function OrdemServicoContent() {
                                     console.error('Failed to open folder', err);
                                 }
                             }}
-                            className="p-2 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="p-2 rounded-lg text-blue-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 transition-colors"
                             title={`Abrir pasta: ${os.EnderecoOrdemServico}`}
                         >
                             <FolderOpen size={16} />
@@ -2032,7 +2032,7 @@ function OrdemServicoContent() {
                         <Filter size={14} className="text-gray-400" />
                         <span className="text-xs text-gray-500">Filtros ativos:</span>
                         {projetoFilter && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                            <span className="px-2 py-1 text-xs bg-[#E0E800]/40 text-[#32423D] rounded-full">
                                 Projeto: {projetoFilter}
                             </span>
                         )}
@@ -2201,7 +2201,7 @@ function OrdemServicoContent() {
                             </div>
 
                             <div className="p-6 overflow-y-auto flex-1 space-y-4">
-                                <div className="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm mb-4">
+                                <div className="bg-[#E0E800]/30 text-[#32423D] p-3 rounded-lg text-sm mb-4">
                                     <strong>Atenção:</strong> Você está prestes a duplicar a <strong>OS {showModalClonar.IdOrdemServico}</strong>.<br/> 
                                     Selecione o Projeto e a Tag de destino.
                                 </div>
@@ -2582,7 +2582,7 @@ function OrdemServicoContent() {
                                 <div className="grid grid-cols-12 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
                                     <div className="col-span-2">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">ID RNC</label>
-                                        <div className={`text-sm font-bold px-3 py-2 border rounded ${idRncEdicao ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                                        <div className={`text-sm font-bold px-3 py-2 border rounded ${idRncEdicao ? 'bg-[#E0E800]/20 border-blue-200 text-[#32423D]' : 'bg-red-50 border-red-200 text-red-600'}`}>
                                             {idRncEdicao ? `#${idRncEdicao}` : 'NOVA'}
                                         </div>
                                     </div>
@@ -2702,7 +2702,7 @@ function OrdemServicoContent() {
                                     {visibleSetores.includes('corte') && (
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input type="checkbox" checked={chkCorteRnc} onChange={e => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? 'text-blue-700' : 'text-blue-500'} /> Corte</span>
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-[#32423D] font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? 'text-[#32423D]' : 'text-[#32423D]'} /> Corte</span>
                                         </label>
                                     )}
                                     {visibleSetores.includes('dobra') && (
@@ -2792,7 +2792,7 @@ function OrdemServicoContent() {
                                                 <div className="flex items-center gap-3">
                                                     <h3 className="text-xs font-bold text-gray-700 uppercase">Histórico de Pendências deste Item</h3>
                                                     <label className="flex items-center gap-1 cursor-pointer">
-                                                        <input type="checkbox" checked={exibirFinalizadas} onChange={e => setExibirFinalizadas(e.target.checked)} className="rounded text-blue-600 focus:ring-blue-500 w-3 h-3" />
+                                                        <input type="checkbox" checked={exibirFinalizadas} onChange={e => setExibirFinalizadas(e.target.checked)} className="rounded text-[#32423D] focus:ring-[#32423D]/40 w-3 h-3" />
                                                         <span className="text-[10px] text-gray-600 font-medium select-none">Exibir Finalizadas</span>
                                                     </label>
                                                 </div>
@@ -2803,13 +2803,13 @@ function OrdemServicoContent() {
                                                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 1</label>
                                                     <input type="text" value={searchQuery1} onChange={e => setSearchQuery1(e.target.value)}
                                                         placeholder="Buscar na descrição..."
-                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-blue-500 focus:outline-none" />
+                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-[#32423D] focus:outline-none" />
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
                                                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 2</label>
                                                     <input type="text" value={searchQuery2} onChange={e => setSearchQuery2(e.target.value)}
                                                         placeholder="Buscar na descrição..."
-                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-blue-500 focus:outline-none" />
+                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-[#32423D] focus:outline-none" />
                                                 </div>
                                                 <button type="button" onClick={() => { setSearchQuery1(''); setSearchQuery2(''); }}
                                                     className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded border border-gray-300 flex items-center gap-1 transition-colors">

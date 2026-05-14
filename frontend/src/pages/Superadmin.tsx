@@ -487,10 +487,10 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
 
             {/* Tabs */}
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl overflow-x-auto">
-                <button onClick={() => setActiveTab('tenants')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'tenants' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                <button onClick={() => setActiveTab('tenants')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'tenants' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                     <div className="flex items-center justify-center gap-2"><Server size={16} /> Gestão de Bancos</div>
                 </button>
-                <button onClick={() => setActiveTab('users')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'users' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                <button onClick={() => setActiveTab('users')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'users' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                     <div className="flex items-center justify-center gap-2"><Users size={16} /> Usuários Globais</div>
                 </button>
                 <button onClick={() => setActiveTab('schema')} className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'schema' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
@@ -505,7 +505,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                 <div className="space-y-6 animate-fade-in">
                     {/* Add Tenant Form */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800"><Plus size={20} className="text-blue-500" /> Cadastrar Novo Banco de Cliente</h3>
+                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800"><Plus size={20} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input placeholder="Nome do Cliente" className="border p-2 rounded" value={newTenant.nome_cliente} onChange={e => setNewTenant({ ...newTenant, nome_cliente: e.target.value })} />
                             <input placeholder="Host" className="border p-2 rounded" value={newTenant.db_host} onChange={e => setNewTenant({ ...newTenant, db_host: e.target.value })} />
@@ -513,7 +513,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                             <input placeholder="Usuário" className="border p-2 rounded" value={newTenant.db_user} onChange={e => setNewTenant({ ...newTenant, db_user: e.target.value })} />
                             <input placeholder="Senha" type="password" className="border p-2 rounded" value={newTenant.db_pass} onChange={e => setNewTenant({ ...newTenant, db_pass: e.target.value })} />
                             <input placeholder="Cópia Banco Dados (Backup)" className="border p-2 rounded" value={newTenant.copia_banco_dados} onChange={e => setNewTenant({ ...newTenant, copia_banco_dados: e.target.value })} />
-                            <button onClick={handleAddTenant} disabled={loading} className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={16} /> Cadastrar</button>
+                            <button onClick={handleAddTenant} disabled={loading} className="bg-[#32423D] text-white p-2 rounded hover:bg-[#32423D]/80 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={16} /> Cadastrar</button>
                         </div>
                     </div>
                     
@@ -534,18 +534,18 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                         {tenants.map(tenant => (
                             <motion.div key={tenant.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
                                 <div className="flex justify-between items-start mb-3">
-                                    <div className="p-2 bg-blue-50 rounded-lg"><Server className="text-blue-600" size={24} /></div>
+                                    <div className="p-2 bg-[#E0E800]/20 rounded-lg"><Server className="text-[#32423D]" size={24} /></div>
                                     <span className={`px-2 py-1 text-xs font-bold rounded-full ${tenant.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{tenant.ativo ? 'ATIVO' : 'INATIVO'}</span>
                                 </div>
                                 <h4 className="font-bold text-lg text-gray-800">{tenant.nome_cliente}</h4>
                                 <p className="text-gray-500 text-xs mb-1 font-mono">{tenant.db_host} / {tenant.db_name}</p>
                                 {tenant.copia_banco_dados && (
-                                    <p className="text-blue-500 text-[10px] italic truncate mb-4" title={tenant.copia_banco_dados}>
+                                    <p className="text-[#32423D] text-[10px] italic truncate mb-4" title={tenant.copia_banco_dados}>
                                         Backup: {tenant.copia_banco_dados}
                                     </p>
                                 )}
                                 <div className="space-y-2 mt-4">
-                                    <button onClick={() => handleAccessTenant(tenant)} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm"><ArrowRight size={16} /> Acessar Banco</button>
+                                    <button onClick={() => handleAccessTenant(tenant)} className="w-full py-2 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm"><ArrowRight size={16} /> Acessar Banco</button>
                                     <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-2 ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'} rounded-lg flex items-center justify-center gap-2 transition-colors font-medium`}><ShieldCheck size={16} /> {tenant.ativo ? 'Desativar Acesso' : 'Ativar Acesso'}</button>
                                     <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 flex items-center justify-center gap-2 transition-colors"><Users size={16} /> {loading ? 'Sincronizando...' : 'Sincronizar Usuários'}</button>
                                 </div>
@@ -583,7 +583,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                                             </td>
                                             <td className="px-6 py-4">
                                                 {user.id_conexao_banco ? (
-                                                    <span className="text-blue-600">{user.nome_cliente} ({user.db_name})</span>
+                                                    <span className="text-[#32423D]">{user.nome_cliente} ({user.db_name})</span>
                                                 ) : (
                                                     <span className="text-gray-400 italic">Global (Sem Vínculo)</span>
                                                 )}
@@ -591,7 +591,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => handleToggleSuperadmin(user.id, user.superadmin)}
-                                                    className={`font-medium hover:underline ${user.superadmin === 'S' ? 'text-red-600' : 'text-blue-600'}`}
+                                                    className={`font-medium hover:underline ${user.superadmin === 'S' ? 'text-red-600' : 'text-[#32423D]'}`}
                                                 >
                                                     {user.superadmin === 'S' ? 'Remover Superadmin' : 'Tornar Superadmin'}
                                                 </button>
@@ -676,7 +676,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                                         {schemaActions.map((action, idx) => (
                                             <div key={idx} className="p-4 hover:bg-gray-50 group">
                                                 <div className="flex items-start gap-3">
-                                                    <div className={`p-2 rounded-lg ${action.type === 'create_table' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                    <div className={`p-2 rounded-lg ${action.type === 'create_table' ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-amber-100 text-amber-700'}`}>
                                                         {action.type === 'create_table' ? <Database size={18} /> : <Code size={18} />}
                                                     </div>
                                                     <div className="flex-1">
@@ -721,7 +721,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                         </div>
                         <div className="mt-6 flex justify-end gap-3">
                             <button onClick={handleTestConnection} disabled={loading} className="px-6 py-2 border rounded hover:bg-gray-50">Testar</button>
-                            <button onClick={handleSaveConfig} disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar</button>
+                            <button onClick={handleSaveConfig} disabled={loading} className="px-6 py-2 bg-[#32423D] text-white rounded hover:bg-[#32423D]/80">Salvar</button>
                         </div>
                     </div>
                 )

@@ -335,21 +335,21 @@ export default function ListaReposicaoPage() {
                                             <td className="px-3 py-2 font-mono text-slate-600">{item.IdOrdemServicoItem}</td>
                                             <td className="px-3 py-2 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{item.Projeto}</td>
-                                            <td className="px-3 py-2 font-bold text-blue-700">{item.Tag}</td>
+                                            <td className="px-3 py-2 font-bold text-[#32423D]">{item.Tag}</td>
                                             <td className="px-3 py-2 text-center font-bold text-slate-800">{item.QtdeTotal}</td>
                                             <td className="px-3 py-2 text-slate-600">{item.Espessura}</td>
                                             <td className="px-3 py-2 text-slate-600">{item.MaterialSW}</td>
                                             <td className="px-3 py-2 font-mono text-slate-500">{item.CodMatFabricante}</td>
                                             <td className="px-3 py-2 text-slate-600 truncate max-w-[150px]" title={item.DescResumo}>{item.DescResumo}</td>
                                             <td className="px-3 py-2 font-bold text-green-700">{item.cortetotalexecutado ?? '-'}</td>
-                                            <td className="px-3 py-2 font-bold text-blue-700">{item.cortetotalexecutar ?? '-'}</td>
+                                            <td className="px-3 py-2 font-bold text-[#32423D]">{item.cortetotalexecutar ?? '-'}</td>
                                             <td className="px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
                                                 <div className="flex items-center justify-center gap-1">
                                                     {/* 1 - Abrir Desenho 3D */}
                                                     <button
                                                         onClick={() => abrirArquivoLocal(getCaminho(item), '3d')}
                                                         title="1 - Abrir Desenho 3D"
-                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded transition-colors border border-blue-200 hover:border-blue-600 shadow-sm"
+                                                        className="flex flex-col items-center justify-center p-1 w-9 bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white rounded transition-colors border border-blue-200 hover:border-[#32423D] shadow-sm"
                                                     >
                                                         <Box size={12} />
                                                         <span className="text-[8px] font-bold leading-none mt-0.5">3D</span>

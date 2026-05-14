@@ -97,7 +97,7 @@ type Setor = 'mapa' | 'corte' | 'dobra' | 'solda' | 'pintura' | 'montagem' | 'ma
 
 const setores: { id: Setor; label: string; icon: typeof Scissors; color: string }[] = [
     { id: 'mapa', label: 'Mapa', icon: Settings2, color: 'bg-gray-700' },
-    { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-blue-500' },
+    { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-[#E0E800]/200' },
     { id: 'dobra', label: 'Dobra', icon: Wrench, color: 'bg-purple-500' },
     { id: 'solda', label: 'Solda', icon: Flame, color: 'bg-orange-500' },
     { id: 'pintura', label: 'Pintura', icon: Paintbrush, color: 'bg-green-500' },
@@ -897,7 +897,7 @@ export default function ApontamentoProducaoPage() {
                         )}
                         <h1 className="text-2xl font-bold text-[#32423D] flex items-center gap-2">
                             Apontamento de Produção
-                            <span className="bg-blue-100 text-blue-700 text-[9px] px-1.5 py-0.5 rounded font-mono uppercase tracking-tighter">PATCH 1.4</span>
+                            <span className="bg-[#E0E800]/40 text-[#32423D] text-[9px] px-1.5 py-0.5 rounded font-mono uppercase tracking-tighter">PATCH 1.4</span>
                         </h1>
                     </div>
                     <p className="text-gray-500 text-sm mt-1">Registre a produção por setor</p>
@@ -922,15 +922,14 @@ export default function ApontamentoProducaoPage() {
                             : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        <Filter size={18} />
-                        Filtros
+                        Pesquisar
                         {hasActiveFilters && (
                             <span className="w-2 h-2 rounded-full bg-[#E0E800]" />
                         )}
                     </motion.button>
                     <div className="flex flex-col items-end mr-1">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Limite de Leitura</span>
-                        <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 shadow-sm">{maxRegistros || 300} itens</span>
+                        <span className="text-xs font-black text-[#32423D] bg-[#E0E800]/20 px-2 py-0.5 rounded border border-blue-100 shadow-sm">{maxRegistros || 300} itens</span>
                     </div>
                     <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -1077,7 +1076,7 @@ export default function ApontamentoProducaoPage() {
                                 <select
                                     value={groupBy}
                                     onChange={(e) => setGroupBy(e.target.value as any)}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs font-bold text-blue-700 bg-blue-50 border-blue-200"
+                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs font-bold text-[#32423D] bg-[#E0E800]/20 border-blue-200"
                                 >
                                     <option value="os">Ordem Serviço</option>
                                     <option value="projeto">Projeto</option>
@@ -1116,7 +1115,7 @@ export default function ApontamentoProducaoPage() {
                             <button
                                 onClick={handleSearch}
                                 disabled={loading}
-                                className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg shadow-sm transition-colors ml-auto"
+                                className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 disabled:bg-blue-400 rounded-lg shadow-sm transition-colors ml-auto"
                             >
                                 {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                                 Pesquisar
@@ -1173,7 +1172,7 @@ export default function ApontamentoProducaoPage() {
 
                 {loading ? (
                     <div className="p-12 flex flex-col items-center justify-center gap-4 text-gray-400">
-                        <Loader2 size={32} className="animate-spin text-blue-500" />
+                        <Loader2 size={32} className="animate-spin text-[#32423D]" />
                         <div className="text-center">
                             <p className="text-sm font-medium text-gray-600">Carregando itens do setor {setorInfo.label}...</p>
                             <p className="text-[10px] text-gray-400 mt-1">Aguarde enquanto processamos os dados...</p>
@@ -1200,7 +1199,7 @@ export default function ApontamentoProducaoPage() {
                             <p className="text-sm text-gray-500">
                                 Não há itens pendentes para o setor <span className="font-bold text-[#32423D]">{setorInfo.label}</span>.
                             </p>
-                            <p className="text-xs text-gray-400 mt-3 bg-blue-50 p-3 rounded-lg border border-blue-100 italic">
+                            <p className="text-xs text-gray-400 mt-3 bg-[#E0E800]/20 p-3 rounded-lg border border-blue-100 italic">
                                 Certifique-se de que os filtros estão corretos ou se as etapas anteriores da produção já foram concluídas para liberar saldo para este setor.
                             </p>
                         </div>
@@ -1257,7 +1256,7 @@ export default function ApontamentoProducaoPage() {
                                         key={item.IdOrdemServicoItem}
                                         onClick={() => selectItem(item)}
                                         className={`flex items-center gap-1.5 px-2 py-1 cursor-pointer transition-colors text-[11px] border-l-4 ${selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem
-                                            ? 'bg-blue-50 border-blue-600 shadow-inner'
+                                            ? 'bg-[#E0E800]/20 border-[#32423D] shadow-inner'
                                             : 'hover:bg-gray-50 border-transparent'
                                             }`}
                                     >
@@ -1267,7 +1266,7 @@ export default function ApontamentoProducaoPage() {
 
                                         {/* Info Column */}
                                         <div className="w-28 flex flex-col gap-0 text-[9px]">
-                                            <span className="truncate font-bold text-blue-700 bg-blue-50 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
+                                            <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
                                             <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm" title={item.Tag}>{item.Tag}</span>
                                             {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase" title={item.Cliente}>{item.Cliente}</span>}
                                         </div>
@@ -1281,7 +1280,7 @@ export default function ApontamentoProducaoPage() {
                                         <span className="w-20 text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
                                             {item.PlanoCorte || '-'}
                                         </span>
-                                        <span className="w-28 text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded truncate">
+                                        <span className="w-28 text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
                                             {item.MaterialSW || '-'}
                                         </span>
                                         <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
@@ -1388,7 +1387,7 @@ export default function ApontamentoProducaoPage() {
                                                 key={item.IdOrdemServicoItem}
                                                 onClick={() => selectItem(item)}
                                                 className={`flex items-center gap-1.5 px-2 py-1 cursor-pointer transition-colors text-[11px] border-l-4 ${selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem
-                                                    ? 'bg-blue-50 border-blue-600 shadow-inner'
+                                                    ? 'bg-[#E0E800]/20 border-[#32423D] shadow-inner'
                                                     : 'hover:bg-gray-50 border-transparent'
                                                     }`}
                                             >
@@ -1404,7 +1403,7 @@ export default function ApontamentoProducaoPage() {
                                                 {/* PDF / Arquivos (Indicador estático) */}
                                                 <div className="w-6 shrink-0 flex justify-center">
                                                     {item.EnderecoArquivo ? (
-                                                        <div className="w-6 h-6 rounded flex items-center justify-center bg-blue-50 text-blue-600 cursor-default" title="Clique para arquivos">
+                                                        <div className="w-6 h-6 rounded flex items-center justify-center bg-[#E0E800]/30 text-[#32423D] cursor-default" title="Clique para arquivos">
                                                             <FileText size={11} />
                                                         </div>
                                                     ) : (
@@ -1423,7 +1422,7 @@ export default function ApontamentoProducaoPage() {
 
                                                 {/* Info Column */}
                                                 <div className="w-28 shrink-0 flex flex-col gap-0 text-[8px]">
-                                                    <span className="truncate font-bold text-blue-700 bg-blue-50 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
+                                                    <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
                                                     <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm" title={item.Tag}>{item.Tag}</span>
                                                     {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase" title={item.Cliente}>{item.Cliente}</span>}
                                                 </div>
@@ -1445,7 +1444,7 @@ export default function ApontamentoProducaoPage() {
                                                     </span>
                                                 </div>
                                                 <div className="w-28 shrink-0 flex items-center">
-                                                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded truncate">
+                                                    <span className="text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
                                                         {item.MaterialSW || '-'}
                                                     </span>
                                                 </div>
@@ -1507,7 +1506,7 @@ export default function ApontamentoProducaoPage() {
                                                                             e.stopPropagation();
                                                                             window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=dxf`, '_blank');
                                                                         }}
-                                                                        className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-blue-50 hover:text-blue-600 transition-colors border border-gray-200"
+                                                                        className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-[#E0E800]/10 hover:text-[#32423D] transition-colors border border-gray-200"
                                                                         title="DXF"
                                                                     >
                                                                         <PenTool size={11} />
@@ -1580,7 +1579,7 @@ export default function ApontamentoProducaoPage() {
                                                             e.stopPropagation();
                                                             selectItem(item);
                                                         }}
-                                                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                                        className="p-1.5 text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 rounded-full transition-colors"
                                                         title="Histórico"
                                                     >
                                                         <History size={14} />
@@ -1663,7 +1662,7 @@ export default function ApontamentoProducaoPage() {
                         >
                             <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
+                                    <div className="p-1.5 bg-blue-100 text-[#32423D] rounded-lg">
                                         <History size={18} />
                                     </div>
                                     <div>
@@ -1682,7 +1681,7 @@ export default function ApontamentoProducaoPage() {
                             <div className="p-4 bg-white">
                                 {loadingDetails ? (
                                     <div className="flex flex-col items-center justify-center py-12 gap-3">
-                                        <Loader2 size={32} className="animate-spin text-blue-600" />
+                                        <Loader2 size={32} className="animate-spin text-[#32423D]" />
                                         <p className="text-xs text-gray-400 animate-pulse font-medium">Carregando histórico completo...</p>
                                     </div>
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
@@ -1706,13 +1705,13 @@ export default function ApontamentoProducaoPage() {
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
                                                 {itemDetails.historico.map((h: any) => (
-                                                    <tr key={h.idordemservicoitemControle} className="hover:bg-blue-50/30 transition-colors">
+                                                    <tr key={h.idordemservicoitemControle} className="hover:bg-[#E0E800]/10/30 transition-colors">
                                                         <td className="px-3 py-2 text-[10px] text-gray-500">{h.idordemservicoitemControle}</td>
                                                         <td className="px-3 py-2 text-[10px] text-gray-700 truncate max-w-[80px]" title={h.CriadoPor}>{h.CriadoPor}</td>
                                                         <td className="px-3 py-2 text-[10px] font-medium text-gray-500 whitespace-nowrap">{formatDate(h.DataCriacao)}</td>
                                                         <td className="px-3 py-2 text-[10px] font-bold text-[#32423D] bg-yellow-50">{h.Codmatfabricante || '-'}</td>
                                                         <td className="px-2 py-2 text-[10px] font-bold text-[#32423D] text-center">{h.QtdeTotal}</td>
-                                                        <td className="px-2 py-2 text-[10px] font-bold text-blue-600 text-center">{h.QtdeProduzida}</td>
+                                                        <td className="px-2 py-2 text-[10px] font-bold text-[#32423D] text-center">{h.QtdeProduzida}</td>
                                                         <td className="px-2 py-2 text-[10px] font-bold text-red-600 text-center">{h.QtdeFaltante}</td>
                                                         {processosVisiveis.includes('corte') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtCorte || ''}</td>}
                                                         {processosVisiveis.includes('dobra') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtDobra || ''}</td>}
@@ -1742,7 +1741,7 @@ export default function ApontamentoProducaoPage() {
             ) : (
                 <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-200 p-8 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                    <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-sm border border-blue-100">
+                    <div className="w-20 h-20 bg-[#E0E800]/30 text-[#32423D] rounded-full flex items-center justify-center mb-6 shadow-sm border border-blue-100">
                         <AlertTriangle size={36} />
                     </div>
                     <h2 className="text-2xl font-bold text-[#32423D] mb-2 tracking-tight">Log de Pendência (Mapa)</h2>
@@ -1751,14 +1750,14 @@ export default function ApontamentoProducaoPage() {
                     </p>
                     <button
                         onClick={() => window.location.href = '/visao-geral-pendencias'}
-                        className="group flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all font-medium shadow-sm active:scale-95 z-10"
+                        className="group flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:text-[#32423D] hover:border-blue-200 transition-all font-medium shadow-sm active:scale-95 z-10"
                     >
-                        <ArrowLeft size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
+                        <ArrowLeft size={18} className="text-gray-400 group-hover:text-[#32423D] transition-colors" />
                         Voltar para Todas as Pendências
                     </button>
                     
                     {/* Decoration elements */}
-                    <div className="absolute top-10 right-10 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                    <div className="absolute top-10 right-10 w-64 h-64 bg-[#E0E800]/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                     <div className="absolute bottom-10 left-10 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 </div>
             )}
@@ -1781,7 +1780,7 @@ export default function ApontamentoProducaoPage() {
                             className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden"
                         >
                             {/* Modal Header */}
-                            <div className={`px-4 py-2 flex items-center justify-between ${modalSetor === 'mapa' ? 'bg-blue-600' : setorInfo.color} text-white`}>
+                            <div className={`px-4 py-2 flex items-center justify-between ${modalSetor === 'mapa' ? 'bg-[#32423D]' : setorInfo.color} text-white`}>
                                 <div className="flex items-center gap-2">
                                     <div className="p-1.5 bg-white/20 rounded-lg">
                                         {modalSetor === 'mapa' ? <CheckCircle size={18} /> : (setorInfo.icon ? <setorInfo.icon size={18} /> : <Settings2 size={18} />)}
@@ -1829,7 +1828,7 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
                                                 <div className="flex items-center justify-between border-b border-gray-100 pb-0.5">
                                                     <span className="text-gray-400 font-medium">Projeto:</span>
-                                                    <span className="font-bold flex-1 text-right truncate ml-2 text-blue-700">{itemDetails.item.Projeto}</span>
+                                                    <span className="font-bold flex-1 text-right truncate ml-2 text-[#32423D]">{itemDetails.item.Projeto}</span>
                                                 </div>
                                                 <div className="flex items-center justify-between border-b border-gray-100 pb-0.5">
                                                     <span className="text-gray-400 font-medium">Tag:</span>
@@ -1867,7 +1866,7 @@ export default function ApontamentoProducaoPage() {
                                                                         const dxfUrl = `${API_BASE}/download?path=${encodeURIComponent(itemDetails.item.EnderecoArquivo || '')}&type=dxf`;
                                                                         window.open(dxfUrl, '_blank');
                                                                     }}
-                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-xs font-bold border border-blue-100"
+                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded hover:bg-[#E0E800]/20 transition-colors text-xs font-bold border border-blue-100"
                                                                     title="Abrir Desenho DXF"
                                                                 >
                                                                     <PenTool size={14} />
@@ -1894,9 +1893,9 @@ export default function ApontamentoProducaoPage() {
                                         </div>
 
                                         {modalSetor !== 'mapa' && (
-                                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+                                            <div className="bg-[#E0E800]/20 border border-blue-100 rounded-lg p-2.5 flex items-center justify-between shadow-sm">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-blue-600 shadow-sm">
+                                                    <span className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#32423D] shadow-sm">
                                                         <Settings2 size={14} />
                                                     </span>
                                                     <span className="text-xs font-black text-blue-800 uppercase tracking-tighter">Próximo Setor:</span>
@@ -1946,16 +1945,16 @@ export default function ApontamentoProducaoPage() {
 
                                         {/* Mapa Awareness & Confirmation */}
                                         {modalSetor === 'mapa' && (
-                                            <div className="rounded-lg p-5 border bg-blue-50 border-blue-200 shadow-sm">
+                                            <div className="rounded-lg p-5 border bg-[#E0E800]/20 border-blue-200 shadow-sm">
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
+                                                    <div className="w-10 h-10 rounded-full bg-[#32423D] text-white flex items-center justify-center shadow-md">
                                                         <CheckCircle size={24} />
                                                     </div>
                                                     <div>
                                                         <h3 className="text-sm font-bold text-blue-900 uppercase">
                                                             Finalização Total (MAPA)
                                                         </h3>
-                                                        <p className="text-xs text-blue-700">
+                                                        <p className="text-xs text-[#32423D]">
                                                             Confirme para concluir todos os setores deste item.
                                                         </p>
                                                     </div>
@@ -1965,7 +1964,7 @@ export default function ApontamentoProducaoPage() {
                                                     <p className="text-xs text-blue-800 font-medium mb-2">
                                                         Ações automáticas:
                                                     </p>
-                                                    <ul className="text-[11px] text-blue-700 space-y-1 ml-4 list-disc">
+                                                    <ul className="text-[11px] text-[#32423D] space-y-1 ml-4 list-disc">
                                                         <li>Aplica <strong>{itemDetails.item.QtdeTotal}</strong> em todos os setores</li>
                                                         <li>Zera o "Saldo a Executar" geral</li>
                                                         <li>Marca o Item como <strong>CONCLUÍDO (C)</strong></li>
@@ -1974,7 +1973,7 @@ export default function ApontamentoProducaoPage() {
 
                                                 <div className="flex flex-wrap gap-1.5 opacity-60">
                                                     {['CORTE', 'DOBRA', 'SOLDA', 'PINTURA', 'MONTAGEM'].map(s => (
-                                                        <span key={s} className="px-1.5 py-0.5 bg-blue-100 border border-blue-200 rounded text-[9px] font-bold text-blue-700">
+                                                        <span key={s} className="px-1.5 py-0.5 bg-blue-100 border border-blue-200 rounded text-[9px] font-bold text-[#32423D]">
                                                             {s}
                                                         </span>
                                                     ))}
@@ -1991,7 +1990,7 @@ export default function ApontamentoProducaoPage() {
                                                             setTipoApontamento('Total');
                                                             setQtdeApontar('');
                                                         }}
-                                                        className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                        className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                                                     >
                                                         Apontamento Total
                                                     </button>
@@ -2018,14 +2017,14 @@ export default function ApontamentoProducaoPage() {
                                                                 max={itemDetails.qtdeFaltante}
                                                                 value={qtdeApontar}
                                                                 onChange={(e) => setQtdeApontar(e.target.value)}
-                                                                className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
+                                                                className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
                                                                 placeholder="0"
                                                             />
                                                             {itemDetails.qtdeFaltante > 0 && (
                                                                 <div className="flex flex-col gap-1 w-28">
                                                                     <button
                                                                         onClick={() => setQtdeApontar(String(itemDetails.qtdeFaltante))}
-                                                                        className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 hover:bg-blue-100 transition-colors"
+                                                                        className="flex-1 py-1 text-[10px] font-bold bg-[#E0E800]/30 text-[#32423D] rounded border border-blue-100 hover:bg-[#E0E800]/20 transition-colors"
                                                                     >
                                                                         Restante ({itemDetails.qtdeFaltante})
                                                                     </button>
@@ -2042,8 +2041,8 @@ export default function ApontamentoProducaoPage() {
                                                 )}
 
                                                 {tipoApontamento === 'Total' && (
-                                                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-center">
-                                                        <div className="text-xs text-blue-600 font-bold mb-1">Quantidade a ser concluída</div>
+                                                    <div className="bg-[#E0E800]/20 border border-blue-100 rounded-lg p-3 text-center">
+                                                        <div className="text-xs text-[#32423D] font-bold mb-1">Quantidade a ser concluída</div>
                                                         <div className="text-2xl font-black text-blue-900">{itemDetails.qtdeFaltante}</div>
                                                     </div>
                                                 )}
@@ -2086,7 +2085,7 @@ export default function ApontamentoProducaoPage() {
                                     disabled={submitting || (modalSetor !== 'mapa' && (!qtdeApontar || parseInt(qtdeApontar) <= 0))}
                                     className={`flex-1 py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 ${submitting || (modalSetor !== 'mapa' && (!qtdeApontar || parseInt(qtdeApontar) <= 0))
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        : modalSetor === 'mapa' ? 'bg-blue-600 text-white shadow-lg' : `${setorInfo.color} text-white`
+                                        : modalSetor === 'mapa' ? 'bg-[#32423D] text-white shadow-lg' : `${setorInfo.color} text-white`
                                         }`}
                                 >
                                     {submitting ? (
@@ -2132,7 +2131,7 @@ export default function ApontamentoProducaoPage() {
                             {/* Modal Header */}
                             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                    <div className="p-2 bg-[#E0E800]/30 text-[#32423D] rounded-lg">
                                         <History size={20} />
                                     </div>
                                     <div>
@@ -2152,7 +2151,7 @@ export default function ApontamentoProducaoPage() {
                             <div className="p-6">
                                 {loadingDetails ? (
                                     <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                        <Loader2 size={40} className="animate-spin text-blue-600" />
+                                        <Loader2 size={40} className="animate-spin text-[#32423D]" />
                                         <p className="text-gray-500 animate-pulse">Carregando histórico...</p>
                                     </div>
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
@@ -2171,7 +2170,7 @@ export default function ApontamentoProducaoPage() {
                                                     <tr key={h.IdOrdemServicoItemControle} className="hover:bg-gray-50 transition-colors">
                                                         <td className="px-4 py-3 text-xs text-gray-600">{formatDate(h.DataCriacao)}</td>
                                                         <td className="px-4 py-3 text-xs">
-                                                            <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold uppercase text-[9px]">
+                                                            <span className="px-2 py-0.5 rounded-full bg-[#E0E800]/40 text-[#32423D] font-bold uppercase text-[9px]">
                                                                 {h.Processo || '-'}
                                                             </span>
                                                         </td>
@@ -2512,7 +2511,7 @@ export default function ApontamentoProducaoPage() {
                                     {processosVisiveis.includes('corte') && (
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input type="checkbox" checked={chkCorteRnc} onChange={(e) => setChkCorteRnc(e.target.checked)} className="rounded text-red-500 focus:ring-red-500" />
-                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-blue-700 font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? "text-blue-700" : "text-blue-500"} /> Corte</span>
+                                            <span className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors ${chkCorteRnc ? 'text-[#32423D] font-bold bg-blue-100' : 'text-gray-700 font-semibold'}`}><Scissors size={14} className={chkCorteRnc ? "text-[#32423D]" : "text-[#32423D]"} /> Corte</span>
                                         </label>
                                     )}
                                     {processosVisiveis.includes('dobra') && (
@@ -2607,7 +2606,7 @@ export default function ApontamentoProducaoPage() {
                                                 <div className="flex items-center gap-3">
                                                     <h3 className="text-xs font-bold text-gray-700 uppercase">Histórico de Pendências deste Item</h3>
                                                     <label className="flex items-center gap-1 cursor-pointer">
-                                                        <input type="checkbox" checked={exibirFinalizadas} onChange={(e) => setExibirFinalizadas(e.target.checked)} className="rounded text-blue-600 focus:ring-blue-500 w-3 h-3" />
+                                                        <input type="checkbox" checked={exibirFinalizadas} onChange={(e) => setExibirFinalizadas(e.target.checked)} className="rounded text-[#32423D] focus:ring-[#32423D]/40 w-3 h-3" />
                                                         <span className="text-[10px] text-gray-600 font-medium select-none">Exibir Finalizadas</span>
                                                     </label>
                                                 </div>
@@ -2621,7 +2620,7 @@ export default function ApontamentoProducaoPage() {
                                                         value={searchQuery1}
                                                         onChange={(e) => setSearchQuery1(e.target.value)}
                                                         placeholder="Buscar na descrição..."
-                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-[#32423D] focus:outline-none"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
@@ -2631,7 +2630,7 @@ export default function ApontamentoProducaoPage() {
                                                         value={searchQuery2}
                                                         onChange={(e) => setSearchQuery2(e.target.value)}
                                                         placeholder="Buscar na descrição..."
-                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                                                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-[#32423D] focus:outline-none"
                                                     />
                                                 </div>
                                                 <div className="pb-0.5 whitespace-nowrap">

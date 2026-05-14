@@ -314,7 +314,7 @@ export default function ControleExpedicaoPage() {
                             </button>
                         )}
                         <h2 className="text-xs font-bold text-slate-700 flex items-center gap-2">
-                            <PackageCheck className="text-blue-600" size={16} />
+                            <PackageCheck className="text-[#32423D]" size={16} />
                             Filtros de Pesquisa
                         </h2>
                     </div>
@@ -325,12 +325,12 @@ export default function ControleExpedicaoPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
-                    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
-                    <input type="text" placeholder="Desc. Tag (ex: Pipe Rack)" value={filDescTag} onChange={e => setFilDescTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
-                    <input type="text" placeholder="Empresa (Cliente)" value={filEmpresa} onChange={e => setFilEmpresa(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
-                    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
-                    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-blue-500 bg-white" />
+                    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <input type="text" placeholder="Desc. Tag (ex: Pipe Rack)" value={filDescTag} onChange={e => setFilDescTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <input type="text" placeholder="Empresa (Cliente)" value={filEmpresa} onChange={e => setFilEmpresa(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
                     <div className="flex gap-2 items-center lg:col-span-2 bg-white px-2 rounded border border-slate-300">
                         <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">Data Previsão:</span>
                         <input title="Data Previsão Inicial" type="date" value={filDataPrevisaoInicio} onChange={e => setFilDataPrevisaoInicio(e.target.value)} className="w-full text-[11px] py-1 bg-transparent focus:outline-none" />
@@ -354,7 +354,7 @@ export default function ControleExpedicaoPage() {
                 
                 {loading && (
                     <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                        <Loader2 className="animate-spin text-blue-600" size={32} />
+                        <Loader2 className="animate-spin text-[#32423D]" size={32} />
                     </div>
                 )}
 
@@ -395,17 +395,17 @@ export default function ControleExpedicaoPage() {
                                     <React.Fragment key={rowKey}>
                                         <tr 
                                             onClick={() => handleExpand(item)}
-                                            className={`hover:bg-blue-50/50 cursor-pointer transition-colors ${isExpanded ? 'bg-blue-50/30' : ''}`}
+                                            className={`hover:bg-[#E0E800]/10 cursor-pointer transition-colors ${isExpanded ? 'bg-[#E0E800]/20/30' : ''}`}
                                         >
                                             <td className="px-2 py-1 text-slate-400">
                                                 {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                             </td>
-                                            <td className="px-2 py-1 font-mono font-bold text-blue-700">{item.Idordemservico || ''}</td>
+                                            <td className="px-2 py-1 font-mono font-bold text-[#32423D]">{item.Idordemservico || ''}</td>
                                             <td className="px-2 py-1 font-mono text-slate-600">{item.idordemservicoitem || item.IdOrdemServicoItem || ''}</td>
                                             <td className="px-2 py-1 font-bold text-slate-700">{item.projeto || item.Projeto || ''}</td>
                                             <td className="px-2 py-1 text-slate-600 max-w-[120px] truncate" title={item.DescEmpresa}>{item.DescEmpresa || '-'}</td>
                                             <td className="px-2 py-1">
-                                                <div className="font-bold text-blue-700">{item.Tag}</div>
+                                                <div className="font-bold text-[#32423D]">{item.Tag}</div>
                                                 <div className="text-[9px] text-slate-500 max-w-[150px] truncate" title={item.DescTag}>{item.DescTag || ''}</div>
                                             </td>
                                             <td className="px-2 py-1 text-slate-600 font-mono whitespace-nowrap">{item.DataPrevisao || '-'}</td>
@@ -414,7 +414,7 @@ export default function ControleExpedicaoPage() {
                                             <td className="px-2 py-1 text-slate-600 truncate max-w-[120px]">{item.ProdutoPrincipal || '-'}</td>
                                             <td className="px-2 py-1 font-bold">{item.QTDETOTAL ?? item.QtdeTotal ?? 0}</td>
                                             {visibleSetores.includes('montagem') && <td className="px-2 py-1 text-emerald-600 font-bold">{item.MontagemTotalExecutado || 0}</td>}
-                                            <td className="px-2 py-1 text-blue-600 font-bold">{item.TotalExpedicao || 0}</td>
+                                            <td className="px-2 py-1 text-[#32423D] font-bold">{item.TotalExpedicao || 0}</td>
                                             <td className="px-2 py-1">{Number(item.PesoUnitario || 0).toLocaleString('pt-BR')} kg</td>
                                             <td className="px-2 py-1 text-slate-500 text-[10px]">
                                                 {item.Comprimento || 0} x {item.Profundidade || 0} x {item.Largura || 0}
@@ -436,7 +436,7 @@ export default function ControleExpedicaoPage() {
 
                                                         {/* AÇÕES (Desenhos e Atualizar) */}
                                                         <div className="flex flex-wrap gap-2 mb-4">
-                                                            <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, '3d') }} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+                                                            <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, '3d') }} className="px-3 py-1.5 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
                                                                 <Box size={14} /> Abrir Desenho 3D
                                                             </button>
                                                             <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, 'pdf') }} className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
@@ -483,7 +483,7 @@ export default function ControleExpedicaoPage() {
                                                                                     <td className="px-3 py-1.5 font-mono text-slate-500">#{sec.IDOrdemServicoITEM ?? sec.IdOrdemServicoITem}</td>
                                                                                     <td className="px-3 py-1.5 text-slate-700">{sec.CriadoPor}</td>
                                                                                     <td className="px-3 py-1.5 text-slate-500">{sec.DataCriacao}</td>
-                                                                                    <td className="px-3 py-1.5 font-mono text-blue-700">{sec.CodMatFabricante || '-'}</td>
+                                                                                    <td className="px-3 py-1.5 font-mono text-[#32423D]">{sec.CodMatFabricante || '-'}</td>
                                                                                     <td className="px-3 py-1.5 font-bold text-slate-700">{sec.QtdeTotal || 0}</td>
                                                                                     <td className="px-3 py-1.5 font-bold text-emerald-600">{sec.TotalExpedicao || 0}</td>
                                                                                 </tr>
@@ -510,7 +510,7 @@ export default function ControleExpedicaoPage() {
             {apontarItem && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="bg-blue-600 px-4 py-3 flex justify-between items-center text-white">
+                        <div className="bg-[#32423D] px-4 py-3 flex justify-between items-center text-white">
                             <h3 className="font-bold flex items-center gap-2">
                                 <Box size={18} /> Apontar Expedição
                             </h3>
@@ -523,7 +523,7 @@ export default function ControleExpedicaoPage() {
                                 <div><strong className="text-slate-700">OS:</strong> {apontarItem.Idordemservico}</div>
                                 <div><strong className="text-slate-700">Item:</strong> {apontarItem.idordemservicoitem || apontarItem.IdOrdemServicoItem}</div>
                                 <div><strong className="text-slate-700">Tag:</strong> {apontarItem.Tag}</div>
-                                <div className="mt-2 text-blue-700 font-bold">
+                                <div className="mt-2 text-[#32423D] font-bold">
                                     Limite Perm.: {(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0)} - {(apontarItem.TotalExpedicao || 0)} = {(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0) - (apontarItem.TotalExpedicao || 0)}
                                 </div>
                             </div>
@@ -537,7 +537,7 @@ export default function ControleExpedicaoPage() {
                                     max={(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0) - (apontarItem.TotalExpedicao || 0)}
                                     value={apontarQtde}
                                     onChange={(e) => setApontarQtde(e.target.value)}
-                                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:border-[#32423D] focus:outline-none"
                                     placeholder="Digite a quantidade"
                                     disabled={isApontarSubmitting}
                                 />
@@ -547,7 +547,7 @@ export default function ControleExpedicaoPage() {
                             <button onClick={closeApontarModal} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors disabled:opacity-50">
                                 Cancelar
                             </button>
-                            <button onClick={submitApontar} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 rounded shadow-sm inline-flex items-center gap-2 transition-colors disabled:opacity-50">
+                            <button onClick={submitApontar} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold bg-[#32423D] text-white hover:bg-[#32423D]/80 rounded shadow-sm inline-flex items-center gap-2 transition-colors disabled:opacity-50">
                                 {isApontarSubmitting && <Loader2 size={14} className="animate-spin" />}
                                 Confirmar Apontamento
                             </button>

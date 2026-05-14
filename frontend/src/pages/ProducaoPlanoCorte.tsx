@@ -406,7 +406,7 @@ export default function ProducaoPlanoCorte() {
             <div className={`flex flex-col bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all duration-300 ${planoSel ? 'h-1/3' : 'h-full'}`}>
                 <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
                     <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-sm">
+                        <div className="p-1.5 bg-[#32423D] text-white rounded-lg shadow-sm">
                             <Scissors size={18} />
                         </div>
                         <div>
@@ -416,9 +416,9 @@ export default function ProducaoPlanoCorte() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner focus-within:border-blue-400">
+                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-inner focus-within:border-[#32423D]/40">
                             <Search size={12} className="text-slate-400" />
-                            <input type="text" placeholder="ID" value={fPId} onChange={e=>setFPId(e.target.value)} className="w-12 text-[10px] outline-none font-bold text-blue-700" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
+                            <input type="text" placeholder="ID" value={fPId} onChange={e=>setFPId(e.target.value)} className="w-12 text-[10px] outline-none font-bold text-[#32423D]" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
                             <input type="text" placeholder="Descrição..." value={fPDesc} onChange={e=>setFPDesc(e.target.value)} className="w-32 text-[10px] outline-none border-l border-slate-100 pl-1.5" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
                             <input type="text" placeholder="Esp..." value={fPEsp} onChange={e=>setFPEsp(e.target.value)} className="w-16 text-[10px] outline-none border-l border-slate-100 pl-1.5" onKeyDown={e=>e.key==='Enter'&&fetchPlanos()} />
                             {(fPId || fPDesc || fPEsp || fPMat) && (
@@ -432,7 +432,7 @@ export default function ProducaoPlanoCorte() {
                             <button
                                 onClick={handleAbrirPasta}
                                 disabled={!planoSel}
-                                className="p-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="p-2 bg-[#E0E800]/30 text-[#32423D] border border-blue-200 rounded-lg hover:bg-[#E0E800]/20 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                                 title="Abrir Pasta Plano de Corte"
                             >
                                 <FolderOpen size={16} />
@@ -472,7 +472,7 @@ export default function ProducaoPlanoCorte() {
                 <div className="flex-1 overflow-auto custom-scrollbar relative">
                     {loadingPlanos && (
                         <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
-                            <Loader2 className="animate-spin text-blue-600" size={24} />
+                            <Loader2 className="animate-spin text-[#32423D]" size={24} />
                         </div>
                     )}
                     <table className="w-full text-[11px] text-left border-separate border-spacing-0">
@@ -495,13 +495,13 @@ export default function ProducaoPlanoCorte() {
                                 <tr 
                                     key={p.IdPlanodecorte} 
                                     onClick={()=>setPlanoSel(p)}
-                                    className={`group cursor-pointer transition-colors border-b border-slate-50 ${planoSel?.IdPlanodecorte === p.IdPlanodecorte ? 'bg-blue-50/80 ring-1 ring-inset ring-blue-100' : 'hover:bg-slate-50'}`}
+                                    className={`group cursor-pointer transition-colors border-b border-slate-50 ${planoSel?.IdPlanodecorte === p.IdPlanodecorte ? 'bg-[#E0E800]/20/80 ring-1 ring-inset ring-blue-100' : 'hover:bg-slate-50'}`}
                                 >
-                                    <td className="px-3 py-1.5 font-black text-blue-600">{p.IdPlanodecorte}</td>
+                                    <td className="px-3 py-1.5 font-black text-[#32423D]">{p.IdPlanodecorte}</td>
                                     <td className="px-3 py-1.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
                                     <td className="px-3 py-1.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
                                     <td className="px-3 py-1.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>
-                                    <td className="px-3 py-1.5 text-blue-500 italic font-medium">{fmt(p.DataLiberacao)}</td>
+                                    <td className="px-3 py-1.5 text-[#32423D] italic font-medium">{fmt(p.DataLiberacao)}</td>
                                     <td className="px-3 py-1.5 text-slate-500">{fmt(p.DataLiberacaoParaCorte)}</td>
                                     <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataInicial)}</td>
                                     <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataFinal)}</td>
@@ -590,7 +590,7 @@ export default function ProducaoPlanoCorte() {
                                         >
                                             <td className="px-3 py-2">
                                                 <div className={`flex items-center gap-1 transition-all duration-200 ${selecionado ? 'opacity-100' : 'opacity-30 pointer-events-none grayscale'}`}>
-                                                    <button onClick={() => handleAbrirDesenho(it, '3D')} className="p-1 hover:bg-blue-100 text-blue-600 rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
+                                                    <button onClick={() => handleAbrirDesenho(it, '3D')} className="p-1 hover:bg-[#E0E800]/20 text-[#32423D] rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
                                                     <button onClick={() => handleAbrirDesenho(it, 'PDF')} className="p-1 hover:bg-red-100 text-red-600 rounded transition-colors" title="Abrir Desenho PDF"><FileText size={14}/></button>
                                                     <button onClick={() => handleAbrirDesenho(it, 'DXF')} className="p-1 hover:bg-emerald-100 text-emerald-600 rounded transition-colors" title="Abrir Desenho DXF"><Layers size={14}/></button>
                                                     <button onClick={() => handleAbrirDesenho(it, 'PDF_ITEM')} className="p-1 hover:bg-amber-100 text-amber-600 rounded transition-colors" title="Abrir PDF do Item"><FileCode size={14}/></button>
@@ -600,7 +600,7 @@ export default function ProducaoPlanoCorte() {
                                             </td>
                                             <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
-                                            <td className="px-3 py-2 font-black text-blue-600">{it.Tag}</td>
+                                            <td className="px-3 py-2 font-black text-[#32423D]">{it.Tag}</td>
                                             <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
                                             <td className="px-3 py-2 text-center font-black text-indigo-600">{it.QtdeTotal}</td>
                                             <td className="px-3 py-2 text-center font-black text-emerald-600">{executado}</td>
@@ -662,7 +662,7 @@ export default function ProducaoPlanoCorte() {
                             <div className="flex bg-gray-100 p-1 mb-4 rounded-lg border border-gray-200">
                                 <button 
                                     onClick={() => { setTipoApontamento('Total'); setQtdeApontar(''); }}
-                                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                    className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${tipoApontamento === 'Total' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                                 >
                                     Apontamento Total
                                 </button>
@@ -684,13 +684,13 @@ export default function ProducaoPlanoCorte() {
                                             max={lancarSaldo}
                                             value={qtdeApontar}
                                             onChange={(e) => setQtdeApontar(e.target.value)}
-                                            className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
+                                            className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
                                             placeholder="0"
                                         />
                                         <div className="flex flex-col gap-1 w-28">
                                             <button
                                                 onClick={() => setQtdeApontar(String(lancarSaldo))}
-                                                className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 hover:bg-blue-100 transition-colors"
+                                                className="flex-1 py-1 text-[10px] font-bold bg-[#E0E800]/30 text-[#32423D] rounded border border-blue-100 hover:bg-[#E0E800]/20 transition-colors"
                                             >
                                                 Restante ({lancarSaldo})
                                             </button>
@@ -706,8 +706,8 @@ export default function ProducaoPlanoCorte() {
                             )}
 
                             {tipoApontamento === 'Total' && (
-                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center mb-4">
-                                    <div className="text-xs text-blue-600 font-bold mb-1">Quantidade a ser concluída</div>
+                                <div className="bg-[#E0E800]/20 border border-blue-100 rounded-lg p-4 text-center mb-4">
+                                    <div className="text-xs text-[#32423D] font-bold mb-1">Quantidade a ser concluída</div>
                                     <div className="text-3xl font-black text-blue-900">{lancarSaldo}</div>
                                 </div>
                             )}

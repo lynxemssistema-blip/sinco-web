@@ -36,8 +36,8 @@ const DateBadge = ({ date, label, onClick, editable = false }: { date: string, l
     if (!date && !editable) return <span className="text-slate-300 text-[10px]">—</span>;
     if (!date && editable) return (
         <div onClick={onClick} className="flex flex-col cursor-pointer group">
-            {label && <span className="text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none group-hover:text-blue-500 transition-colors">{label}</span>}
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-500 border border-slate-200 border-dashed group-hover:border-blue-400 leading-none">
+            {label && <span className="text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none group-hover:text-[#32423D] transition-colors">{label}</span>}
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-500 border border-slate-200 border-dashed group-hover:border-[#32423D]/40 leading-none">
                 <CalendarDays size={10} /> Definir
             </span>
         </div>
@@ -46,8 +46,8 @@ const DateBadge = ({ date, label, onClick, editable = false }: { date: string, l
     const color = days === -1 ? 'bg-red-50 text-red-700 border-red-200' : (days !== null && days <= 5) ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
     return (
         <div onClick={editable ? onClick : undefined} className={`flex flex-col ${editable ? 'cursor-pointer group' : ''}`}>
-            {label && <span className={`text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none ${editable ? 'group-hover:text-blue-500 transition-colors' : ''}`}>{label}</span>}
-            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${editable ? 'group-hover:border-blue-400 group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors' : color} font-bold leading-none whitespace-nowrap`}>
+            {label && <span className={`text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none ${editable ? 'group-hover:text-[#32423D] transition-colors' : ''}`}>{label}</span>}
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${editable ? 'group-hover:border-[#32423D]/40 group-hover:bg-[#E0E800]/10 group-hover:text-[#32423D]/70 transition-colors' : color} font-bold leading-none whitespace-nowrap`}>
                 <CalendarDays size={10} /> {date} {days === -1 ? '· Atrasado' : (days !== null && days >= 0 ? `· ${days}d` : '')}
             </span>
         </div>
@@ -55,13 +55,13 @@ const DateBadge = ({ date, label, onClick, editable = false }: { date: string, l
 };
 
 const SECTORS = [
-    { k: 'Corte', ex: 'ExecCorte', t: 'TotalCorte', c: 'bg-blue-600' }, { k: 'Dobra', ex: 'ExecDobra', t: 'TotalDobra', c: 'bg-indigo-600' },
+    { k: 'Corte', ex: 'ExecCorte', t: 'TotalCorte', c: 'bg-[#32423D]' }, { k: 'Dobra', ex: 'ExecDobra', t: 'TotalDobra', c: 'bg-indigo-600' },
     { k: 'Solda', ex: 'ExecSolda', t: 'TotalSolda', c: 'bg-red-600' }, { k: 'Pintura', ex: 'ExecPintura', t: 'TotalPintura', c: 'bg-amber-500' },
     { k: 'Montagem', ex: 'ExecMontagem', t: 'TotalMontagem', c: 'bg-emerald-600' },
 ];
 
 const TAG_SECTORS = [
-    { k: 'Corte', ex: 'CorteTotalExecutado', t: 'CorteTotalExecutar', p: 'CortePercentual', c: 'bg-blue-500', 
+    { k: 'Corte', ex: 'CorteTotalExecutado', t: 'CorteTotalExecutar', p: 'CortePercentual', c: 'bg-[#E0E800]/200', 
       fields: { pi: 'PlanejadoInicioCorte', pf: 'PlanejadoFinalCorte', ri: 'RealizadoInicioCorte', rf: 'RealizadoFinalCorte' } },
     { k: 'Dobra', ex: 'DobraTotalExecutado', t: 'DobraTotalExecutar', p: 'DobraPercentual', c: 'bg-indigo-500',
       fields: { pi: 'PlanejadoInicioDobra', pf: 'PlanejadoFinalDobra', ri: 'RealizadoInicioDobra', rf: 'RealizadoFinalDobra' } },
@@ -143,6 +143,9 @@ export default function VisaoGeralProducaoPage() {
 
     // Estado para Planejamento em Lote (Muitos Setores)
     const [bulkSectorDates, setBulkSectorDates] = useState<{ [key: string]: string }>({});
+
+    const [osDetailsModal, setOsDetailsModal] = useState<{ type: 'tag' | 'projeto', id: number, osList: any[] } | null>(null);
+    const [loadOsDetails, setLoadOsDetails] = useState(false);
 
     // Configuração de Setores Visíveis
     const [visibleProcesses, setVisibleProcesses] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
@@ -267,8 +270,65 @@ export default function VisaoGeralProducaoPage() {
     };
 
 
-    const fetchTags = async (id: number) => { setLoadTags(true); try { const r = await (await fetch(`${API_BASE}/acompanhamento/projeto/${id}/tags`)).json(); if (r.success) setTags(r.data); } catch (e) { } finally { setLoadTags(false); } };
-    const fetchRncs = async (id: number, origem = 'VISAOGERALPROJ') => { setLoadRncs(true); try { const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${id}?origem=${origem}`)).json(); if (r.success) setRncs(r.data); } catch (e) { } finally { setLoadRncs(false); } };
+    const fetchOsForTag = async (idTag: number) => {
+        setLoadOsDetails(true);
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral/tag/${idTag}/ordens-servico`)).json();
+            if (r.success) {
+                setOsDetailsModal({ type: 'tag', id: idTag, osList: r.data });
+            } else {
+                setOsDetailsModal({ type: 'tag', id: idTag, osList: [] });
+            }
+        } catch (e) {
+            console.error(e);
+            setOsDetailsModal({ type: 'tag', id: idTag, osList: [] });
+        } finally {
+            setLoadOsDetails(false);
+        }
+    };
+
+    const fetchOsForProject = async (idProj: number) => {
+        setLoadOsDetails(true);
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral/projeto/${idProj}/ordens-servico?t=${Date.now()}`, { cache: 'no-store' })).json();
+            if (r.success) {
+                setOsDetailsModal({ type: 'projeto', id: idProj, osList: r.data });
+            } else {
+                setOsDetailsModal({ type: 'projeto', id: idProj, osList: [] });
+            }
+        } catch (e) {
+            console.error(e);
+            setOsDetailsModal({ type: 'projeto', id: idProj, osList: [] });
+        } finally {
+            setLoadOsDetails(false);
+        }
+    };
+
+    const fetchTags = async (projId: number) => {
+        setLoadTags(true);
+        try {
+            const r = await (await fetch(`${API_BASE}/acompanhamento/projeto/${projId}/tags?t=${Date.now()}`)).json();
+            if (r.success) setTags(r.data);
+            else { setTags([]); setMsg({ ok: false, t: r.message }); }
+        } catch {
+            setTags([]); setMsg({ ok: false, t: 'Erro de conexão.' });
+        } finally {
+            setLoadTags(false);
+        }
+    };
+
+    const fetchRncs = async (projId: number, origem: string = 'VISAOGERALPROJ') => {
+        setLoadRncs(true);
+        try {
+            const r = await (await fetch(`${API_BASE}/visao-geral/pendencias/${projId}?origem=${origem}&t=${Date.now()}`)).json();
+            if (r.success) setRncs(r.data);
+            else { setRncs([]); setMsg({ ok: false, t: r.message }); }
+        } catch {
+            setRncs([]); setMsg({ ok: false, t: 'Erro de conexão.' });
+        } finally {
+            setLoadRncs(false);
+        }
+    };
 
     // Busca inicial ao montar a página (usa o statusFilter salvo no localStorage)
     useEffect(() => { fetchProj(statusFilter); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -609,7 +669,7 @@ export default function VisaoGeralProducaoPage() {
                     <div className="bg-white border-b px-6 py-3 flex flex-col gap-3 shrink-0 shadow-sm z-10 w-full">
                         {/* Linha 1: Pesquisa Texto e Checkboxes */}
                         <div className="flex flex-col md:flex-row items-center gap-3 w-full">
-                            <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-1.5 focus-within:ring-2 focus-within:ring-blue-500/30 transition-shadow">
+                            <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-1.5 focus-within:ring-2 focus-within:ring-[#32423D]/30 transition-shadow">
                                 <Search className="text-slate-400" size={14} />
                                 <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-xs text-slate-700" />
                             </div>
@@ -640,8 +700,8 @@ export default function VisaoGeralProducaoPage() {
                                         }}
                                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
                                             statusFilter === 'liberados'
-                                                ? 'bg-blue-600 text-white shadow-sm'
-                                                : 'text-slate-500 hover:text-blue-700 hover:bg-blue-50'
+                                                ? 'bg-[#32423D] text-white shadow-sm'
+                                                : 'text-slate-500 hover:text-[#32423D]/70 hover:bg-[#E0E800]/10'
                                         }`}
                                     >
                                         <Filter size={11} /> Liberados
@@ -676,10 +736,10 @@ export default function VisaoGeralProducaoPage() {
 
                                 {/* View Mode */}
                                 <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner">
-                                    <button onClick={() => setViewMode('card')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid size={12} /> Cards</button>
-                                    <button onClick={() => setViewMode('list')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><List size={12} /> Lista</button>
+                                    <button onClick={() => setViewMode('card')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid size={12} /> Cards</button>
+                                    <button onClick={() => setViewMode('list')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><List size={12} /> Lista</button>
                                 </div>
-                                <button onClick={() => fetchProj(statusFilter)} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-[10px] hover:bg-blue-700 transition shadow-sm"><Search size={12} /> Pesquisar</button>
+                                <button onClick={() => fetchProj(statusFilter)} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#32423D] text-white font-bold text-[10px] hover:bg-[#32423D]/80 transition shadow-sm"><Search size={12} /> Pesquisar</button>
                             </div>
                         </div>
 
@@ -689,9 +749,9 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 w-full lg:w-auto">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Criação:</span>
                                 <div className="flex items-center gap-1 flex-1 lg:flex-none">
-                                    <input type="date" value={fProjCriacaoIni} onChange={e => setFProjCriacaoIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <input type="date" value={fProjCriacaoIni} onChange={e => setFProjCriacaoIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
                                     <span className="text-slate-400 text-[10px]">até</span>
-                                    <input type="date" value={fProjCriacaoFim} onChange={e => setFProjCriacaoFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <input type="date" value={fProjCriacaoFim} onChange={e => setFProjCriacaoFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
                                 </div>
                             </div>
                             
@@ -701,9 +761,9 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 w-full lg:w-auto">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Previsão:</span>
                                 <div className="flex items-center gap-1 flex-1 lg:flex-none">
-                                    <input type="date" value={fProjPrevIni} onChange={e => setFProjPrevIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <input type="date" value={fProjPrevIni} onChange={e => setFProjPrevIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
                                     <span className="text-slate-400 text-[10px]">até</span>
-                                    <input type="date" value={fProjPrevFim} onChange={e => setFProjPrevFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-blue-400 w-full md:w-28" />
+                                    <input type="date" value={fProjPrevFim} onChange={e => setFProjPrevFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
                                 </div>
                             </div>
                         </div>
@@ -755,7 +815,7 @@ export default function VisaoGeralProducaoPage() {
                                                         <div className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</div>
                                                         <div className="flex items-center gap-2 flex-wrap mt-2">
                                                             {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
-                                                            {isLib && !isFin && <span className="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
+                                                            {isLib && !isFin && <span className="text-[9px] font-bold text-[#32423D] bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
@@ -774,17 +834,30 @@ export default function VisaoGeralProducaoPage() {
                                                              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</div>
                                                              <div className="text-sm font-black text-slate-800">{p.QtdeTags || 0}</div>
                                                              <div className="flex gap-1 mt-0.5 font-bold text-[8px] uppercase flex-col w-full">
-                                                                 <span className="text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded w-full text-center">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
+                                                                 <span className="text-[#32423D] bg-[#E0E800]/20 border border-blue-100 px-1.5 py-0.5 rounded w-full text-center">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
                                                                  <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded w-full text-center">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
                                                                  <span className="text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded w-full text-center">Saldo: {Number(p.SumSaldoTag || 0).toFixed(0)}</span>
                                                              </div>
                                                          </div>
                                                      </td>
                                                      <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
-                                                         <div className="flex flex-col items-center justify-center text-center gap-0.5">
-                                                             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ClipboardList size={10}/> OS</div>
-                                                             <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
-                                                             <span className="text-[8px] font-medium text-slate-400 uppercase">Total OS</span>
+                                                         <div 
+                                                             className={`flex flex-col items-center justify-center text-center gap-0.5 rounded p-1.5 transition-colors ${p.QtdeOS > 0 ? 'hover:bg-[#E0E800]/10 cursor-pointer group' : ''}`}
+                                                             onClick={() => { if (p.QtdeOS > 0) fetchOsForProject(p.IdProjeto); }}
+                                                             title={p.QtdeOS > 0 ? "Clique para exibir Ordens de Serviço" : ""}
+                                                         >
+                                                             <div className={`text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 transition-colors ${p.QtdeOS > 0 ? 'text-[#32423D] group-hover:text-[#32423D]' : 'text-slate-400'}`}>
+                                                                 <ClipboardList size={10}/> OS
+                                                             </div>
+                                                             <div className={`text-sm font-black flex items-center gap-1.5 transition-colors ${p.QtdeOS > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-800'}`}>
+                                                                 {p.QtdeOS || 0}
+                                                                 {p.QtdeOS > 0 && (
+                                                                     <span className="text-[8px] bg-blue-100 text-[#32423D] px-1 py-0.5 rounded leading-none group-hover:bg-[#32423D] group-hover:text-white transition-colors uppercase">
+                                                                         Exibir
+                                                                     </span>
+                                                                 )}
+                                                             </div>
+                                                             <span className={`text-[8px] font-medium uppercase transition-colors ${p.QtdeOS > 0 ? 'text-blue-400 group-hover:text-[#32423D]' : 'text-slate-400'}`}>Total OS</span>
                                                          </div>
                                                      </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
@@ -804,8 +877,8 @@ export default function VisaoGeralProducaoPage() {
                                                             </div>
                                                             <div className="flex flex-col gap-0.5 group/edit">
                                                                 <div className="flex justify-between items-center w-full">
-                                                                    <span className="text-[9px] font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-blue-500"/> Prev.</span>
-                                                                    <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-0.5" title="Editar Data"><Edit3 size={10}/> Edit</button>
+                                                                    <span className="text-[9px] font-bold text-[#32423D] uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-[#32423D]"/> Prev.</span>
+                                                                    <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-[#32423D] hover:text-[#32423D]/70 font-bold uppercase underline decoration-blue-300 flex items-center gap-0.5" title="Editar Data"><Edit3 size={10}/> Edit</button>
                                                                 </div>
                                                                 <span className={`text-[11px] font-bold ${businessDaysUntil(p.DataPrevisao) === -1 ? 'text-red-600' : 'text-slate-800'}`}>
                                                                     {p.DataPrevisao || 'Não definida'} {businessDaysUntil(p.DataPrevisao) === -1 && '(Atrasado)'}
@@ -815,21 +888,21 @@ export default function VisaoGeralProducaoPage() {
                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center min-w-[140px]">
                                                         <div className="flex flex-col gap-1.5 justify-center">
-                                                            <button onClick={() => openDetailsModal(p)} className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-lg transition-colors border border-blue-100 shadow-sm text-[10px] font-black uppercase flex items-center justify-center gap-1.5 w-full">
-                                                                <LayoutGrid size={12} /> Exibir Detalhes Tag
+                                                            <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`px-3 py-2 rounded-lg transition-colors border shadow-sm text-[10px] font-black uppercase flex items-center justify-center gap-1.5 w-full ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`}>
+                                                                <LayoutGrid size={12} className="pointer-events-none" /> Exibir Detalhes Tag
                                                             </button>
                                                             <div className="grid grid-cols-2 gap-1.5 text-[9px] font-bold uppercase">
-                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-red-100 shadow-sm flex items-center justify-center gap-1" title="Gerar Pendência">
-                                                                    <ShieldAlert size={12} /> RNC
+                                                                <button type="button" onClick={() => { setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-red-100 shadow-sm flex items-center justify-center gap-1" title="Gerar Pendência">
+                                                                    <ShieldAlert size={12} className="pointer-events-none" /> RNC
                                                                 </button>
-                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-indigo-100 shadow-sm flex items-center justify-center gap-1" title="Agendar Tarefa">
-                                                                    <CalendarDays size={12} /> Tarf
+                                                                <button type="button" onClick={() => { setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-1 py-1.5 rounded-lg transition-colors border border-indigo-100 shadow-sm flex items-center justify-center gap-1" title="Agendar Tarefa">
+                                                                    <CalendarDays size={12} className="pointer-events-none" /> Tarf
                                                                 </button>
                                                             </div>
                                                             {!isFin ? (
-                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[9px] text-emerald-600 hover:bg-emerald-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-emerald-200 mt-0.5"><CheckCircle size={10}/> Finalizar Proj.</button>
+                                                                <button type="button" onClick={() => { setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[9px] text-emerald-600 hover:bg-emerald-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-emerald-200 mt-0.5"><CheckCircle size={10} className="pointer-events-none"/> Finalizar Proj.</button>
                                                             ) : (
-                                                                <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[9px] text-orange-600 hover:bg-orange-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-orange-200 mt-0.5"><RotateCcw size={10}/> Cancelar Fin.</button>
+                                                                <button type="button" onClick={() => { setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[9px] text-orange-600 hover:bg-orange-50 px-2 py-1.5 font-bold uppercase flex items-center justify-center gap-1 transition-colors rounded-lg border border-transparent hover:border-orange-200 mt-0.5"><RotateCcw size={10} className="pointer-events-none"/> Cancelar Fin.</button>
                                                             )}
                                                         </div>
                                                     </td>
@@ -856,18 +929,18 @@ export default function VisaoGeralProducaoPage() {
                                         <div key={p.IdProjeto} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col relative overflow-hidden group">
                                             
                                             {/* Header do Card */}
-                                            <div className="p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openDetailsModal(p)}>
+                                            <div className={`p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? 'opacity-80' : 'hover:bg-slate-50/50 cursor-pointer'}`} onClick={() => { if (p.QtdeTags > 0) openDetailsModal(p); }}>
                                                 <div className="flex-1 mr-4">
                                                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
                                                         <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
                                                         {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
-                                                        {isLib && !isFin && <span className="text-[9px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
+                                                        {isLib && !isFin && <span className="text-[9px] font-bold text-[#32423D] bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
                                                     </div>
-                                                    <h3 className="font-black text-slate-800 text-lg leading-tight mb-1 group-hover:text-blue-700 transition-colors" title={p.Projeto}>{p.Projeto}</h3>
+                                                    <h3 className={`font-black text-slate-800 text-lg leading-tight mb-1 transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? '' : 'group-hover:text-[#32423D]/70'}`} title={p.Projeto}>{p.Projeto}</h3>
                                                     <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
                                                 </div>
-                                                <button className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition-colors border border-blue-100 shadow-sm shrink-0" title="Ver Tags Detalhadas">
-                                                    <ArrowRight size={18} />
+                                                <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`p-2 rounded-lg transition-colors border shadow-sm shrink-0 ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`} title="Ver Tags Detalhadas">
+                                                    <ArrowRight size={18} className="pointer-events-none" />
                                                 </button>
                                             </div>
 
@@ -881,7 +954,7 @@ export default function VisaoGeralProducaoPage() {
                                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1 justify-center"><TagIcon size={10}/> Tags</span>
                                                         <div className="text-sm font-black text-slate-800">{p.QtdeTags}</div>
                                                         <div className="flex flex-col gap-0.5 mt-1">
-                                                            <span className="text-[8px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-1 py-0.5 rounded">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
+                                                            <span className="text-[8px] font-bold text-[#32423D] bg-[#E0E800]/20 border border-blue-100 px-1 py-0.5 rounded">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
                                                             <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
                                                             <span className="text-[8px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-1 py-0.5 rounded">Saldo: {Number(p.SumSaldoTag || 0).toFixed(0)}</span>
                                                         </div>
@@ -904,9 +977,9 @@ export default function VisaoGeralProducaoPage() {
                                                 </div>
 
                                                 <div className="grid grid-cols-2 gap-2 mt-[-12px]">
-                                                    <div className="bg-blue-50/50 border border-blue-100 rounded-xl py-2 px-3 flex items-center justify-between">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1"><ClipboardList size={10} className="text-blue-500"/> Ordens de Serviço:</span>
-                                                        <span className="text-xs font-black text-blue-700">{p.QtdeOS || 0}</span>
+                                                    <div className="bg-[#E0E800]/10 border border-blue-100 rounded-xl py-2 px-3 flex items-center justify-between">
+                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1"><ClipboardList size={10} className="text-[#32423D]"/> Ordens de Serviço:</span>
+                                                        <span className="text-xs font-black text-[#32423D]">{p.QtdeOS || 0}</span>
                                                     </div>
                                                 </div>
 
@@ -940,8 +1013,8 @@ export default function VisaoGeralProducaoPage() {
                                                     </div>
                                                     <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6">
                                                         <div className="flex justify-between w-full">
-                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-blue-500"/> Entrega Prev.</span>
-                                                            <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 ml-4 flex items-center gap-0.5"><Edit3 size={10}/> Editar</button>
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-[#32423D]"/> Entrega Prev.</span>
+                                                            <button onClick={() => { setSelProj(p); setDateInput(brToIso(p.DataPrevisao)); setMsg(null); setActionModal('dateProj'); }} className="text-[9px] text-[#32423D] hover:text-[#32423D]/70 font-bold uppercase underline decoration-blue-300 ml-4 flex items-center gap-0.5"><Edit3 size={10}/> Editar</button>
                                                         </div>
                                                         <span className={`text-xs font-bold ${businessDaysUntil(p.DataPrevisao) === -1 ? 'text-red-600' : 'text-slate-800'}`}>
                                                             {p.DataPrevisao || 'Não definida'} {businessDaysUntil(p.DataPrevisao) === -1 && '(Atrasado)'}
@@ -951,12 +1024,12 @@ export default function VisaoGeralProducaoPage() {
                                                 <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0 items-start">
                                                     <div className="flex gap-4 w-full">
                                                         {!isFin ? (
-                                                            <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12}/> Finalizar Projeto</button>
+                                                            <button type="button" onClick={() => { setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12} className="pointer-events-none"/> Finalizar Projeto</button>
                                                         ) : (
-                                                            <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12}/> Cancelar Finalização</button>
+                                                            <button type="button" onClick={() => { setSelProj(p); setMsg(null); setActionModal('cancelFin'); }} className="text-[10px] text-orange-600 hover:text-orange-800 font-bold uppercase underline decoration-orange-300 flex items-center gap-1 transition-colors"><RotateCcw size={12} className="pointer-events-none"/> Cancelar Finalização</button>
                                                         )}
-                                                        <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12}/> Gerar Pendência</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="text-[10px] text-blue-600 hover:text-blue-800 font-bold uppercase underline decoration-blue-300 flex items-center gap-1 transition-colors ml-2"><CalendarDays size={12}/> Agendar Tarefa</button>
+                                                        <button type="button" onClick={() => { setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'VISAOGERALPROJ'); setActionModal('addRnc'); }} className="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase underline decoration-red-300 flex items-center gap-1 transition-colors"><ShieldAlert size={12} className="pointer-events-none"/> Gerar Pendência</button>
+                                                        <button type="button" onClick={() => { setSelProj(p); setRncForm({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '' }); setMsg(null); fetchRncs(p.IdProjeto, 'ACAOPCP'); setActionModal('addTask'); }} className="text-[10px] text-[#32423D] hover:text-[#32423D]/70 font-bold uppercase underline decoration-blue-300 flex items-center gap-1 transition-colors ml-2"><CalendarDays size={12} className="pointer-events-none"/> Agendar Tarefa</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -972,7 +1045,7 @@ export default function VisaoGeralProducaoPage() {
                 </>
             ) : (
                 <div className="flex flex-col items-center justify-center p-12 h-full gap-5 mx-6 bg-white shadow-sm border border-slate-200 rounded-3xl mt-6">
-                    <div className="bg-blue-50 text-blue-600 w-20 h-20 rounded-full flex items-center justify-center border border-blue-100 shadow-sm animate-pulse">
+                    <div className="bg-[#E0E800]/30 text-[#32423D] w-20 h-20 rounded-full flex items-center justify-center border border-blue-100 shadow-sm animate-pulse">
                         <ShieldAlert size={36} />
                     </div>
                     <div className="text-center">
@@ -1000,7 +1073,7 @@ export default function VisaoGeralProducaoPage() {
                         {/* Header Modal */}
                         <div className="bg-[#f0f4f8] border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4 shrink-0 flex flex-wrap items-center gap-3 justify-between">
                             <div className="flex items-center gap-3 shrink-0">
-                                <div className="bg-blue-600 text-white w-10 h-10 rounded-xl items-center justify-center font-bold text-sm shadow-sm hidden md:flex">
+                                <div className="bg-[#32423D] text-white w-10 h-10 rounded-xl items-center justify-center font-bold text-sm shadow-sm hidden md:flex">
                                     <TagIcon size={20} />
                                 </div>
                                 <div className="flex flex-col">
@@ -1015,15 +1088,15 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Entrada:</span>
-                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Prev:</span>
-                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
                                 </div>
                                 <div className="bg-white rounded-lg border border-slate-200 flex items-center px-2 py-1.5 shadow-sm w-40">
                                     <Search size={14} className="text-slate-400 mr-2 shrink-0" />
@@ -1071,7 +1144,7 @@ export default function VisaoGeralProducaoPage() {
                                         {filteredTags.map((t, idx) => {
                                             const tFin = t.Finalizado?.trim() !== '';
                                             return (
-                                                <tr key={t.IdTag} className={`group hover:bg-blue-50/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
+                                                <tr key={t.IdTag} className={`group hover:bg-[#E0E800]/10/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
                                                     {/* TAG INFO */}
                                                     <td className="px-4 py-3 align-top min-w-[220px] max-w-[280px] border-r border-slate-100 bg-inherit sticky left-0 z-10 shadow-[1px_0_0_#f1f5f9] group-hover:shadow-[1px_0_0_#dbeafe]">
                                                         <div className="flex items-center gap-1.5 mb-1"><div className={`w-2 h-2 rounded-full shadow-sm ${tFin ? 'bg-emerald-500' : 'bg-amber-400'}`} /> <span className="font-black text-slate-800 text-[13px] break-all whitespace-normal leading-tight">{t.Tag}</span></div>
@@ -1088,7 +1161,7 @@ export default function VisaoGeralProducaoPage() {
                                                             </button>
                                                             <button 
                                                                 onClick={(e) => { e.stopPropagation(); if (selProj) fetchRncs(selProj.IdProjeto, 'ACAOPCP'); setRncForm({ idTag: t.IdTag, tag: t.Tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false }); setActionModal('addTask'); }}
-                                                                className="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
+                                                                className="bg-[#E0E800]/20 hover:bg-[#E0E800]/20 border border-blue-200 text-[#32423D] px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors"
                                                                 title="Agendar Tarefa"
                                                             >
                                                                 <CalendarDays size={10} /> Tarefa
@@ -1130,13 +1203,27 @@ export default function VisaoGeralProducaoPage() {
                                                     {/* DETALHES TAG */}
                                                     <td className="px-3 py-4 align-top border-r border-slate-100 bg-slate-50/30">
                                                         <div className="grid grid-cols-2 gap-x-4 gap-y-3 w-48 text-[10px]">
-                                                            <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. OS</span><span className="font-black text-slate-700">{t.QtdeOS || '0'}</span></div>
+                                                            <div 
+                                                                className={`flex flex-col rounded p-1.5 -ml-1.5 transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'hover:bg-[#E0E800]/10 cursor-pointer group' : ''}`}
+                                                                onClick={() => { if (parseInt(t.QtdeOS || '0') > 0) fetchOsForTag(t.IdTag); }}
+                                                                title={parseInt(t.QtdeOS || '0') > 0 ? "Clique para exibir Ordens de Serviço" : ""}
+                                                            >
+                                                                <span className={`font-bold uppercase tracking-widest text-[8px] transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]' : 'text-slate-400'}`}>Qtd. OS</span>
+                                                                <span className={`font-black flex items-center gap-2 transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-700'}`}>
+                                                                    {t.QtdeOS || '0'}
+                                                                    {parseInt(t.QtdeOS || '0') > 0 && (
+                                                                        <span className="text-[9px] bg-blue-100 text-[#32423D] px-1.5 py-0.5 rounded leading-none group-hover:bg-[#32423D] group-hover:text-white transition-colors uppercase">
+                                                                            Exibir
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                            </div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. Peças</span><span className="font-black text-slate-700">{t.qtdetotal || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Liberada</span><span className="font-bold text-emerald-600">{t.QtdeLiberada || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Saldo</span><span className="font-bold text-orange-600">{t.SaldoTag || '0'}</span></div>
                                                             <div className="flex flex-col col-span-2 mt-0.5 pt-1.5 border-t border-slate-100">
                                                                 <span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Multiplicador Tag</span>
-                                                                <span className="font-bold text-blue-700">{t.QtdeTag || '1'} <span className="text-[8px] font-normal text-slate-400 lowercase">(x a produzir)</span></span>
+                                                                <span className="font-bold text-[#32423D]">{t.QtdeTag || '1'} <span className="text-[8px] font-normal text-slate-400 lowercase">(x a produzir)</span></span>
                                                             </div>
                                                             {t.ValorTag && <div className="flex flex-col col-span-2 mt-1"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] flex items-center gap-0.5"><DollarSign size={8}/> Valor</span><span className="font-bold text-slate-700">R$ {parseFloat(t.ValorTag).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></div>}
                                                             <div className="flex flex-col col-span-2 mt-1">
@@ -1144,7 +1231,7 @@ export default function VisaoGeralProducaoPage() {
                                                                 <div className="flex items-start gap-1">
                                                                     <textarea
                                                                         id={`obs_tag_${t.IdTag}`}
-                                                                        className="flex-1 bg-white/50 border border-slate-200 rounded p-1 text-[10px] text-slate-700 outline-none focus:border-blue-400 focus:bg-white transition-colors resize-none overflow-hidden"
+                                                                        className="flex-1 bg-white/50 border border-slate-200 rounded p-1 text-[10px] text-slate-700 outline-none focus:border-[#32423D] focus:bg-white transition-colors resize-none overflow-hidden"
                                                                         defaultValue={t.Observacao || ''}
                                                                         placeholder="Inserir observação..."
                                                                         onMouseEnter={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
@@ -1204,11 +1291,11 @@ export default function VisaoGeralProducaoPage() {
                                                                         >
                                                                             <div className="flex items-center justify-between gap-0.5">
                                                                                 <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. In.</span>
-                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-blue-700 transition-colors ${!pIni ? 'text-slate-300 border-dashed border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>{pIni || 'Definir'}</span>
+                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pIni ? 'text-slate-300 border-dashed border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>{pIni || 'Definir'}</span>
                                                                             </div>
                                                                             <div className="flex items-center justify-between gap-0.5">
                                                                                 <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. Fim</span>
-                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-blue-700 transition-colors ${!pFim ? 'text-slate-300 border-dashed border-slate-200' : (businessDaysUntil(pFim) === -1 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-50 text-slate-600 border-slate-200')}`}>{pFim || 'Definir'}</span>
+                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pFim ? 'text-slate-300 border-dashed border-slate-200' : (businessDaysUntil(pFim) === -1 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-50 text-slate-600 border-slate-200')}`}>{pFim || 'Definir'}</span>
                                                                             </div>
                                                                         </div>
                                                                         <div className="flex flex-col gap-1 border border-emerald-100/40 rounded p-1 bg-emerald-50/20 relative">
@@ -1243,20 +1330,20 @@ export default function VisaoGeralProducaoPage() {
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-start mb-4">
-                            <div><h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={18} className="text-blue-600" /> Editar Data Previsão</h3><p className="text-[11px] font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 mt-1.5 rounded-md text-slate-600 inline-block">{actionModal === 'dateTagGlobal' ? `Tag: ${selTag?.Tag}` : `${selProj?.Projeto}`}</p></div>
+                            <div><h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={18} className="text-[#32423D]" /> Editar Data Previsão</h3><p className="text-[11px] font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 mt-1.5 rounded-md text-slate-600 inline-block">{actionModal === 'dateTagGlobal' ? `Tag: ${selTag?.Tag}` : `${selProj?.Projeto}`}</p></div>
                             <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1 rounded-md"><X size={18} /></button>
                         </div>
-                        <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} className="w-full border-2 border-slate-200 hover:border-blue-300 rounded-xl px-4 py-3 text-slate-700 outline-none focus:border-blue-500 transition mb-4 font-bold" />
+                        <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} className="w-full border-2 border-slate-200 hover:border-blue-300 rounded-xl px-4 py-3 text-slate-700 outline-none focus:border-[#32423D] transition mb-4 font-bold" />
                         
                         {actionModal === 'dateProj' && (
                             <label className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl text-sm mb-5 cursor-pointer hover:bg-slate-100 border border-slate-200 transition-colors">
-                                <input type="checkbox" checked={updateTagsCheck} onChange={e => setUpdateTagsCheck(e.target.checked)} className="rounded border-slate-300 text-blue-600 mt-1 w-4 h-4" />
+                                <input type="checkbox" checked={updateTagsCheck} onChange={e => setUpdateTagsCheck(e.target.checked)} className="rounded border-slate-300 text-[#32423D] mt-1 w-4 h-4" />
                                 <div className="leading-tight"><span className="font-bold text-slate-800 text-sm">Atualizar tags em cascata</span><br/><span className="text-[10px] text-slate-500 font-medium">Aplica a data para todas as filhas deste projeto</span></div>
                             </label>
                         )}
 
                         {msg && <div className={`px-3 py-2.5 rounded-lg text-xs uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
-                        <button onClick={actionModal === 'dateProj' ? salvarDataProj : salvarDataTagPrevisao} disabled={!dateInput || isSaving} className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 flex justify-center items-center gap-2">
+                        <button onClick={actionModal === 'dateProj' ? salvarDataProj : salvarDataTagPrevisao} disabled={!dateInput || isSaving} className="w-full bg-[#32423D] hover:bg-[#32423D]/80 disabled:opacity-50 text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 flex justify-center items-center gap-2">
                             {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Data Previsão'}
                         </button>
                     </div>
@@ -1268,7 +1355,7 @@ export default function VisaoGeralProducaoPage() {
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
                         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
-                            <div><h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={18} className="text-blue-600" /> Planejamento de Setores</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
+                            <div><h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={18} className="text-[#32423D]" /> Planejamento de Setores</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
                             <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
                         </div>
                         
@@ -1280,12 +1367,12 @@ export default function VisaoGeralProducaoPage() {
                                         <div className="flex flex-col gap-3">
                                             <div>
                                                 <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Inicial</label>
-                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-blue-500 outline-none" 
+                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
                                                     value={tagSectorDates[s.fields.pi] || ''} onChange={(e) => setTagSectorDates(prev => ({...prev, [s.fields.pi]: e.target.value}))}/>
                                             </div>
                                             <div>
                                                 <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Final</label>
-                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-blue-500 outline-none" 
+                                                <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
                                                     value={tagSectorDates[s.fields.pf] || ''} onChange={(e) => setTagSectorDates(prev => ({...prev, [s.fields.pf]: e.target.value}))}/>
                                             </div>
                                         </div>
@@ -1299,7 +1386,7 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex gap-3">
                                 {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
                                 <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-xl text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
-                                <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+                                <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#32423D] hover:bg-[#32423D]/80 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
                                     {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Todos os Setores'}
                                 </button>
                             </div>
@@ -1549,7 +1636,7 @@ export default function VisaoGeralProducaoPage() {
                                         </button>
                                     )}
                                     <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
-                                    <button onClick={salvarNovaRnc} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><ShieldAlert size={12}/> Salvar Dados</button>
+                                    <button onClick={salvarNovaRnc} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><ShieldAlert size={12}/> Salvar Dados</button>
                                 </div>
                             </div>
 
@@ -1675,7 +1762,7 @@ export default function VisaoGeralProducaoPage() {
                                                     usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
                                                     usuarioFin: r.UsuarioResponsavelFinalizacao || '', dataFin: r.DataFinalizacao ? brToIso(r.DataFinalizacao) : '', setorFin: r.SetorResponsavelFinalizacao || 'Corte', descFin: r.DescricaoFinalizacao || '',
                                                     wantsToFinalize: false 
-                                                })} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'FINALIZADO' ? 'opacity-60' : ''}`}>
+                                                })} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'FINALIZADO' ? 'opacity-60' : ''}`}>
                                                     <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
                                                     <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{r.Estatus || 'Aberta'}</span></td>
                                                     <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
@@ -1703,7 +1790,7 @@ export default function VisaoGeralProducaoPage() {
                         {/* HEADER DA MODAL */}
                         <div className="flex justify-between items-start mb-4 shrink-0">
                             <div>
-                                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-xl"><CalendarDays size={22} className="text-blue-500" /> Agendar Tarefa (PCP)</h3>
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-xl"><CalendarDays size={22} className="text-[#32423D]" /> Agendar Tarefa (PCP)</h3>
                                 <p className="text-xs font-bold bg-slate-100 border border-slate-200 px-2.5 py-1 mt-1.5 rounded-md text-slate-600 inline-block">
                                     {selProj?.Projeto} {rncForm.tag ? ` > Tag: ${rncForm.tag}` : ''}
                                 </p>
@@ -1721,7 +1808,7 @@ export default function VisaoGeralProducaoPage() {
                         {/* ÁREA DE FORMULÁRIO (TOP) */}
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 mb-4 shrink-0 shadow-sm relative">
                             {/* Overlay de Loading do Salvar */}
-                            {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-xl z-10 flex items-center justify-center"><Loader className="animate-spin text-blue-600" size={28} /></div>}
+                            {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-xl z-10 flex items-center justify-center"><Loader className="animate-spin text-[#32423D]" size={28} /></div>}
                             
                             <div className="flex justify-between items-center mb-3">
                                 <h4 className="font-bold text-sm text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Nova Tarefa'}</h4>
@@ -1737,14 +1824,14 @@ export default function VisaoGeralProducaoPage() {
                                         </button>
                                     )}
                                     <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
-                                    <button onClick={salvarNovaTarefa} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><CalendarDays size={12}/> Agendar Tarefa</button>
+                                    <button onClick={salvarNovaTarefa} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><CalendarDays size={12}/> Agendar Tarefa</button>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Responsável</label>
-                                    <select value={rncForm.usuario} onChange={e => setRncForm(prev => ({...prev, usuario: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                    <select value={rncForm.usuario} onChange={e => setRncForm(prev => ({...prev, usuario: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#32423D]">
                                         <option value="">Selecione...</option>
                                         {rncForm.usuario && !usuarios.find(u => u.NomeCompleto === rncForm.usuario) && <option value={rncForm.usuario}>{rncForm.usuario}</option>}
                                         {usuarios.map(u => <option key={`task_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
@@ -1752,7 +1839,7 @@ export default function VisaoGeralProducaoPage() {
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Tipo de Tarefa</label>
-                                    <select value={rncForm.tipoTarefa} onChange={e => setRncForm(prev => ({...prev, tipoTarefa: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                    <select value={rncForm.tipoTarefa} onChange={e => setRncForm(prev => ({...prev, tipoTarefa: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#32423D]">
                                         <option value="">Selecione...</option>
                                         {rncForm.tipoTarefa && !tipostarefa.find(t => t.TipoTarefa === rncForm.tipoTarefa) && <option value={rncForm.tipoTarefa}>{rncForm.tipoTarefa}</option>}
                                         {tipostarefa.map(t => <option key={`task_${t.IdTipoTarefa}`} value={t.TipoTarefa}>{t.TipoTarefa}</option>)}
@@ -1760,7 +1847,7 @@ export default function VisaoGeralProducaoPage() {
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
-                                    <select value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
+                                    <select value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#32423D]">
                                         {filteredSectors.map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
                                         <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
                                         {rncForm.setor && !filteredSectors.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
@@ -1768,12 +1855,12 @@ export default function VisaoGeralProducaoPage() {
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Data Execução (Prevista)</label>
-                                    <input type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({...prev, dataExec: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400" />
+                                    <input type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({...prev, dataExec: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#32423D]" />
                                 </div>
                             </div>
                             <div>
                                 <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição / Notas da Tarefa</label>
-                                <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-400 resize-none font-medium" />
+                                <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium" />
                             </div>
 
                             {/* BLOCO DE FINALIZAÇÃO DA TAREFA */}
@@ -1814,7 +1901,7 @@ export default function VisaoGeralProducaoPage() {
                             </div>
                             )}
 
-                            {msg && <div className={`mt-3 px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
+                            {msg && <div className={`mt-3 px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
                         </div>
 
                         {/* ÁREA DE GRID (BOTTOM) */}
@@ -1865,9 +1952,9 @@ export default function VisaoGeralProducaoPage() {
                                                     idRnc: r.IdRnc, tag: r.Tag || undefined, estatus: r.Estatus, descricao: r.DescricaoPendencia || '', setor: mappedSetor, 
                                                     usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
                                                     wantsToFinalize: false 
-                                                })} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'TarefaFinalizada' ? 'opacity-60' : ''}`}>
+                                                })} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'TarefaFinalizada' ? 'opacity-60' : ''}`}>
                                                     <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
-                                                    <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{r.Estatus || 'Aberta'}</span></td>
+                                                    <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-[#E0E800]/30 text-[#32423D] border-blue-100'}`}>{r.Estatus || 'Aberta'}</span></td>
                                                     <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
                                                     <td className="px-3 py-2 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
                                                     <td className="px-3 py-2 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
@@ -1902,12 +1989,59 @@ export default function VisaoGeralProducaoPage() {
                                             </div>
                                             <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100 mb-2 leading-relaxed">{r.DescricaoPendencia || r.DescResumo}</div>
                                             <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider pt-2 border-t border-slate-100 mt-1">
-                                                <span className="flex items-center gap-1 text-slate-500"><div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>{r.SetorResponsavel}</span><span>Cr: {r.DataCriacao}</span>
+                                                <span className="flex items-center gap-1 text-slate-500"><div className="w-1.5 h-1.5 rounded-full bg-[#E0E800]/200"></div>{r.SetorResponsavel}</span><span>Cr: {r.DataCriacao}</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {osDetailsModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
+                        <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
+                            <div>
+                                <h3 className="font-black text-slate-800 text-lg">Ordens de Serviço</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Lista de O.S {osDetailsModal.type === 'tag' ? 'da Tag selecionada' : 'do Projeto selecionado'}</p>
+                            </div>
+                            <button onClick={() => setOsDetailsModal(null)} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-4 overflow-y-auto min-h-[150px] relative">
+                            {loadOsDetails ? (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10"><Loader className="animate-spin text-[#32423D]" /></div>
+                            ) : osDetailsModal.osList.length === 0 ? (
+                                <div className="py-8 text-center text-slate-500 text-sm font-medium bg-slate-50 rounded-xl border border-slate-100">Nenhuma ordem de serviço vinculada.</div>
+                            ) : (
+                                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] font-bold uppercase">
+                                            <tr>
+                                                <th className="px-3 py-2 border-r border-slate-200">ID da O.S</th>
+                                                <th className="px-3 py-2">Descrição</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {osDetailsModal.osList.map((os, i) => (
+                                                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                                    <td className="px-3 py-2 font-mono text-xs font-bold text-slate-700 border-r border-slate-100 w-24">#{String(os.IdOrdemServico).padStart(5, '0')}</td>
+                                                    <td className="px-3 py-2 text-xs text-slate-600 font-medium">{os.Descricao || '-'}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                            <button onClick={() => setOsDetailsModal(null)} className="px-4 py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg text-xs font-bold transition-colors">
+                                Voltar
+                            </button>
                         </div>
                     </div>
                 </div>

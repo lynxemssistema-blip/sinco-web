@@ -1,14 +1,25 @@
 # Dependencies
 node_modules/
 frontend/node_modules/
+PublicacaoSite/node_modules/
+SINCO_Deploy/node_modules/
 
 # Build output
 frontend/dist/
+frontend/dev-dist/
 dist/
 
-# Logs
+# Logs temporários de desenvolvimento (raiz e subpastas)
 *.log
 npm-debug.log*
+
+# Preservar pasta de logs da aplicação (monitoramento de produção)
+!logs/
+!logs/*.log
+!PublicacaoSite/logs/
+!PublicacaoSite/logs/*.log
+!SINCO_Deploy/logs/
+!SINCO_Deploy/logs/*.log
 
 # Environment
 .env

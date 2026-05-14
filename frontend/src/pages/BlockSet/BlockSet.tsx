@@ -62,7 +62,7 @@ const BlockSet: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-[#0B1120]">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#32423D]"></div>
             </div>
         );
     }
@@ -83,7 +83,7 @@ const BlockSet: React.FC = () => {
                 <div className="bg-[#111827] rounded-xl border border-gray-800 p-6 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
                     <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                        <span className="bg-blue-500/10 text-blue-400 p-2 rounded-lg">
+                        <span className="bg-[#E0E800]/200/10 text-blue-400 p-2 rounded-lg">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>

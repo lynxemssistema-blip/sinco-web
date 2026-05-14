@@ -136,7 +136,7 @@ export default function RomaneioRetornoPage() {
                             type="text"
                             value={filters.romaneio}
                             onChange={e => setFilters({ ...filters, romaneio: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#32423D]/40 outline-none"
                             placeholder="Ex: 15"
                         />
                     </div>
@@ -146,7 +146,7 @@ export default function RomaneioRetornoPage() {
                             type="text"
                             value={filters.projeto}
                             onChange={e => setFilters({ ...filters, projeto: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#32423D]/40 outline-none"
                         />
                     </div>
                     <div className="flex-1 min-w-[150px]">
@@ -155,7 +155,7 @@ export default function RomaneioRetornoPage() {
                             type="text"
                             value={filters.tag}
                             onChange={e => setFilters({ ...filters, tag: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#32423D]/40 outline-none"
                         />
                     </div>
                     <div className="flex-1 min-w-[150px]">
@@ -164,7 +164,7 @@ export default function RomaneioRetornoPage() {
                             type="text"
                             value={filters.numDoc}
                             onChange={e => setFilters({ ...filters, numDoc: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#32423D]/40 outline-none"
                         />
                     </div>
                     <div className="flex items-center gap-2 pb-2">
@@ -173,7 +173,7 @@ export default function RomaneioRetornoPage() {
                             checked={filters.mostrarConcluidos}
                             onChange={e => setFilters({ ...filters, mostrarConcluidos: e.target.checked })}
                             id="mostrarConcluidos"
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-[#32423D] border-gray-300 rounded focus:ring-[#32423D]/40"
                         />
                         <label htmlFor="mostrarConcluidos" className="text-sm text-gray-600">Mostrar + Concluídos</label>
                     </div>
@@ -194,7 +194,7 @@ export default function RomaneioRetornoPage() {
                 <section className="flex-[2] bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                     <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
                         <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <Truck className="w-4 h-4 text-blue-500" />
+                            <Truck className="w-4 h-4 text-[#32423D]" />
                             ITENS DO ROMANEIO PARA RETORNO
                         </h2>
                         <span className="text-xs text-gray-500 font-mono">{items.length} itens encontrados</span>
@@ -226,7 +226,7 @@ export default function RomaneioRetornoPage() {
                                             key={item.IdRomaneioItem}
                                             onClick={() => handleItemSelect(item)}
                                             onContextMenu={(e) => handleContextMenu(e, 'item', item)}
-                                            className={`hover:bg-blue-50 cursor-pointer transition-colors text-sm ${selectedItem?.IdRomaneioItem === item.IdRomaneioItem ? 'bg-blue-100 border-l-4 border-blue-500' : ''}`}
+                                            className={`hover:bg-[#E0E800]/10 cursor-pointer transition-colors text-sm ${selectedItem?.IdRomaneioItem === item.IdRomaneioItem ? 'bg-blue-100 border-l-4 border-[#32423D]' : ''}`}
                                         >
                                             <td className="px-4 py-2">
                                                 {item.MarcarComoFinalizado === 'S' ?
@@ -293,7 +293,7 @@ export default function RomaneioRetornoPage() {
                                             className="hover:bg-gray-50 text-xs"
                                         >
                                             <td className="px-4 py-2 font-mono">{formatToBRDate(h.DataCriacao)}</td>
-                                            <td className="px-4 py-2 font-bold text-blue-600">{h.QtdeIdentificadores}</td>
+                                            <td className="px-4 py-2 font-bold text-[#32423D]">{h.QtdeIdentificadores}</td>
                                             <td className="px-4 py-2 font-semibold">{h.Situacao}</td>
                                             <td className="px-4 py-2">{h.UsuarioLogado}</td>
                                             <td className="px-4 py-2 text-gray-500">{h.Observacao}</td>
@@ -322,40 +322,40 @@ export default function RomaneioRetornoPage() {
 
                         {contextMenu.type === 'item' ? (
                             <>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <CheckCircle className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform" />
                                     <span>Marcar Todos</span>
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <XCircle className="w-4 h-4 text-gray-400 group-hover:scale-110 transition-transform" />
                                     <span>Desmarcar Todos</span>
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <RefreshCw className="w-4 h-4 text-black group-hover:rotate-180 transition-transform duration-500" />
                                     <span>Inverter Seleção</span>
                                 </button>
                                 <div className="border-t border-gray-100 my-1"></div>
                                 <button
                                     onClick={() => handleProcessReturn(contextMenu.data.IdRomaneioItem, contextMenu.data.QtdeRomaneio - (contextMenu.data.QtdeTotalRetorno || 0), 'Entrada em lote', 'ENTRADA/RETORNO')}
-                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors"
                                 >
                                     <FileCheck className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
                                     <span>Marcar Itens Selecionados Como Entrada/Retorno</span>
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <ArrowLeftCircle className="w-4 h-4 text-orange-600 group-hover:scale-110 transition-transform" />
                                     <span>Marcar Item Individual como Entrada/Retorno</span>
                                 </button>
                                 <div className="border-t border-gray-100 my-1"></div>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <ArrowLeftCircle className="w-4 h-4 text-black rotate-180 group-hover:translate-x-1 transition-transform" />
                                     <span>Marcar como Item Finalizado</span>
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <AlertTriangle className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
                                     <span>Gerar RNC - Lista Pendência Retorno</span>
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-sm text-gray-700 group transition-colors">
+                                <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
                                     <FileText className="w-4 h-4 text-red-700 group-hover:scale-110 transition-transform" />
                                     <span>Abrir Desenho PDF</span>
                                 </button>

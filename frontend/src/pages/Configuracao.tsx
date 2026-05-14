@@ -369,7 +369,7 @@ export default function ConfiguracaoPage() {
                             </div>
                             <span className="font-medium text-gray-700 flex-1 truncate">{item.label}</span>
 
-                            <button onClick={() => setEditingItem({ item })} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"><Edit2 size={16} /></button>
+                            <button onClick={() => setEditingItem({ item })} className="p-1.5 text-[#32423D] hover:bg-[#E0E800]/10 rounded transition-colors"><Edit2 size={16} /></button>
                             {/* Only show delete for created groups or allow deleting anything? Allow anything, user can restore default. */}
                             <button onClick={() => setMenuItems(deleteItem(menuItems, item.id))} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={16} /></button>
                         </div>
@@ -392,7 +392,7 @@ export default function ConfiguracaoPage() {
                 {showDbSelection ? (
                     <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 w-full max-w-4xl animate-scale-in">
                         <div className="flex flex-col items-center mb-8">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-4">
+                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-[#32423D] mb-4">
                                 <Database size={32} />
                             </div>
                             <h2 className="text-2xl font-bold text-gray-800">Selecione o Banco de Dados</h2>
@@ -400,27 +400,27 @@ export default function ConfiguracaoPage() {
                         </div>
 
                         {loadingDbs ? (
-                            <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>
+                            <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#32423D]"></div></div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar p-2">
                                 {availableDbs.map(db => (
                                     <button
                                         key={db.id}
                                         onClick={() => handleSelectDb(db)}
-                                        className="flex flex-col items-start p-5 border rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group text-left relative overflow-hidden"
+                                        className="flex flex-col items-start p-5 border rounded-xl hover:border-[#32423D] hover:bg-[#E0E800]/10 transition-all group text-left relative overflow-hidden"
                                     >
                                         <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <ArrowRight className="text-blue-500" size={20} />
+                                            <ArrowRight className="text-[#32423D]" size={20} />
                                         </div>
                                         <div className="flex items-center gap-3 mb-3">
                                             <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                                                <Server size={20} className="text-gray-600 group-hover:text-blue-700" />
+                                                <Server size={20} className="text-gray-600 group-hover:text-[#32423D]/70" />
                                             </div>
                                             <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${db.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                                 {db.ativo ? 'ATIVO' : 'INATIVO'}
                                             </span>
                                         </div>
-                                        <h3 className="font-bold text-gray-800 group-hover:text-blue-800">{db.nome_cliente}</h3>
+                                        <h3 className="font-bold text-gray-800 group-hover:text-[#32423D]/70">{db.nome_cliente}</h3>
                                         <p className="text-xs text-gray-500 mt-1 font-mono">{db.db_name}</p>
                                         <p className="text-xs text-gray-400 mt-0.5">{db.db_host}</p>
                                     </button>
@@ -706,7 +706,7 @@ export default function ConfiguracaoPage() {
                         <div className="flex items-center gap-2">
                             <button 
                                 onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
-                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-bold transition-colors border border-blue-100"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-sm font-bold transition-colors border border-blue-100"
                             >
                                 <List size={16} /> Ordenar A-Z
                             </button>

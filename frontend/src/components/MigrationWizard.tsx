@@ -426,13 +426,13 @@ export function MigrationWizard() {
             {/* DATABASE SWITCHER FOOTER */}
             <div className="bg-slate-50 border-t border-slate-100 p-4 flex justify-between items-center">
                 <div className="text-sm text-slate-500">
-                    Banco de Dados Ativo: <span className={cn("font-bold", activeDB === 'mysql' ? "text-blue-600" : "text-green-600")}>{activeDB.toUpperCase()}</span>
+                    Banco de Dados Ativo: <span className={cn("font-bold", activeDB === 'mysql' ? "text-[#32423D]" : "text-green-600")}>{activeDB.toUpperCase()}</span>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={() => handleSwitchDatabase('mysql')}
                         disabled={activeDB === 'mysql'}
-                        className="px-3 py-1 text-xs font-medium rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:bg-blue-50 disabled:border-blue-200 disabled:text-blue-700"
+                        className="px-3 py-1 text-xs font-medium rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:bg-[#E0E800]/20 disabled:border-blue-200 disabled:text-[#32423D]"
                     >
                         Usar MySQL
                     </button>

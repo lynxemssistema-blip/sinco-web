@@ -228,7 +228,7 @@ export default function UsuarioPage() {
                                         <td className="py-4 px-6">
                                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${usuario.TipoUsuario === 'A' || usuario.TipoUsuario === 'Admin'
                                                     ? 'bg-purple-100 text-purple-700'
-                                                    : 'bg-blue-100 text-blue-700'
+                                                    : 'bg-[#E0E800]/40 text-[#32423D]'
                                                 }`}>
                                                 {usuario.TipoUsuario === 'A' || usuario.TipoUsuario === 'Admin' ? (
                                                     <Shield size={12} />
@@ -248,7 +248,7 @@ export default function UsuarioPage() {
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => handleOpenModal(usuario)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    className="p-2 text-[#32423D] hover:bg-[#E0E800]/10 rounded-lg transition-colors"
                                                     title="Editar"
                                                 >
                                                     <Edit2 size={18} />

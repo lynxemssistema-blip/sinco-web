@@ -208,7 +208,7 @@ const PowerBuildImport: React.FC = () => {
             {/* Header Section */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 shrink-0 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-[#32423D]">
                         <FilePlus size={24} />
                     </div>
                     <div>
@@ -233,7 +233,7 @@ const PowerBuildImport: React.FC = () => {
             <div className="flex-1 overflow-auto custom-scrollbar">
                 <div className="max-w-4xl mx-auto space-y-6 pb-8">
                     {initializing && (
-                        <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-center gap-3 text-blue-600">
+                        <div className="bg-[#E0E800]/20 border border-blue-200 p-4 rounded-xl flex items-center gap-3 text-[#32423D]">
                             <Loader2 className="w-5 h-5 animate-spin" />
                             <span className="text-sm font-medium">Verificando estrutura do banco de dados...</span>
                         </div>
@@ -256,7 +256,7 @@ const PowerBuildImport: React.FC = () => {
                                         <select 
                                             value={selectedProjeto}
                                             onChange={e => setSelectedProjeto(e.target.value)}
-                                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800"
+                                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
                                         >
                                             <option value="">Selecione o Projeto</option>
                                             {Array.isArray(projetos) && projetos.map(p => (
@@ -270,7 +270,7 @@ const PowerBuildImport: React.FC = () => {
                                             value={selectedTag}
                                             onChange={e => setSelectedTag(e.target.value)}
                                             disabled={!selectedProjeto}
-                                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+                                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
                                         >
                                             <option value="">Selecione a Tag</option>
                                             {Array.isArray(tags) && tags.map(t => (
@@ -297,14 +297,14 @@ const PowerBuildImport: React.FC = () => {
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsRevision(false)}
-                                                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${!isRevision ? 'bg-white text-blue-600 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
+                                                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${!isRevision ? 'bg-white text-[#32423D] shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
                                             >
                                                 Nova (Rev 0)
                                             </button>
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsRevision(true)}
-                                                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${isRevision ? 'bg-white text-blue-600 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
+                                                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${isRevision ? 'bg-white text-[#32423D] shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
                                             >
                                                 Revisão
                                             </button>
@@ -323,7 +323,7 @@ const PowerBuildImport: React.FC = () => {
                                                 <select 
                                                     value={selectedMaster}
                                                     onChange={e => setSelectedMaster(e.target.value)}
-                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 outline-none transition-all text-sm text-gray-800"
+                                                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
                                                 >
                                                     <option value="">Selecione o arquivo mestre...</option>
                                                     {masterPlanilhas.map(p => <option key={p.NomeArquivo} value={p.NomeArquivo}>{p.NomeArquivo}</option>)}
@@ -347,8 +347,8 @@ const PowerBuildImport: React.FC = () => {
                                         onChange={handleFileChange}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-4 transition-all ${file ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 group-hover:border-blue-400 group-hover:bg-blue-50'}`}>
-                                        <div className={`p-4 rounded-2xl ${file ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                                    <div className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-4 transition-all ${file ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 group-hover:border-[#32423D]/40 group-hover:bg-[#E0E800]/10'}`}>
+                                        <div className={`p-4 rounded-2xl ${file ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-[#32423D]'}`}>
                                             <FileSpreadsheet className="w-10 h-10" />
                                         </div>
                                         <div className="text-center">
@@ -364,7 +364,7 @@ const PowerBuildImport: React.FC = () => {
                             <button 
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-extrabold text-lg flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-[#32423D] hover:bg-[#E0E800]/100 text-white py-4 rounded-2xl font-extrabold text-lg flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
                                     <>
@@ -390,9 +390,9 @@ const PowerBuildImport: React.FC = () => {
                             </h2>
                             <ul className="space-y-4">
                                 <li className="flex gap-3">
-                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 shrink-0"></div>
+                                    <div className="w-1.5 h-1.5 bg-[#E0E800]/200 rounded-full mt-1.5 shrink-0"></div>
                                     <p className="text-xs text-gray-600 leading-relaxed">
-                                        <strong className="text-gray-800">Aba "data":</strong> O sistema buscará automaticamente por esta aba para importar dados do tipo <strong className="text-blue-600">BlockSet</strong>.
+                                        <strong className="text-gray-800">Aba "data":</strong> O sistema buscará automaticamente por esta aba para importar dados do tipo <strong className="text-[#32423D]">BlockSet</strong>.
                                     </p>
                                 </li>
                                 <li className="flex gap-3">
@@ -410,17 +410,17 @@ const PowerBuildImport: React.FC = () => {
                             </ul>
                         </div>
 
-                        <div className="bg-blue-50 rounded-2xl border border-blue-200 p-6 shadow-sm">
+                        <div className="bg-[#E0E800]/20 rounded-2xl border border-blue-200 p-6 shadow-sm">
                             <h2 className="text-blue-900 font-bold mb-4">Resumo da Revisão</h2>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between text-xs">
-                                    <span className="text-blue-700">Próxima Revisão:</span>
-                                    <span className="text-blue-700 font-bold bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
+                                    <span className="text-[#32423D]">Próxima Revisão:</span>
+                                    <span className="text-[#32423D] font-bold bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
                                         {isRevision ? 'Auto-calculado' : 'Rev 0 (Inicial)'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between text-xs">
-                                    <span className="text-blue-700">Vínculo:</span>
+                                    <span className="text-[#32423D]">Vínculo:</span>
                                     <span className="text-blue-800 font-bold truncate ml-4" title={selectedMaster || 'Nenhum'}>
                                         {selectedMaster || 'Nenhum'}
                                     </span>

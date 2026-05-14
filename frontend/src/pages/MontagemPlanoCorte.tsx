@@ -151,7 +151,7 @@ interface PendenciaRnc {
 }
 
 const SECTORS = [
-    { k: 'Corte', c: 'bg-blue-600' }, 
+    { k: 'Corte', c: 'bg-[#32423D]' }, 
     { k: 'Dobra', c: 'bg-indigo-600' },
     { k: 'Solda', c: 'bg-red-600' }, 
     { k: 'Pintura', c: 'bg-amber-500' },
@@ -283,7 +283,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                             className="w-full text-[10px] py-0.5 outline-none bg-transparent text-slate-700 placeholder:text-indigo-300" />
                     </div>
                     <button onClick={() => fetchItens(aglutinado, fItem)} className="p-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"><Search size={10} /></button>
-                    <button onClick={handleToggle} className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${aglutinado ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300'}`}>
+                    <button onClick={handleToggle} className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${aglutinado ? 'bg-[#32423D] text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300'}`}>
                         {aglutinado ? 'Aglutinado' : 'Individual'}
                     </button>
                     <button
@@ -321,7 +321,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                                     <tr key={i} 
                                         onClick={() => setItemInternoSelecionadoId(isSelected ? null : it.IdOrdemServicoItem)}
                                         className={`border-b border-slate-100 transition-colors cursor-pointer ${
-                                            isSelected ? 'bg-blue-50 border-blue-300' : 
+                                            isSelected ? 'bg-[#E0E800]/20 border-blue-300' : 
                                             itensAbertos.has(it.IdOrdemServicoItem) ? 'bg-cyan-50' : 'hover:bg-indigo-50/30'
                                         }`}
                                     >
@@ -337,7 +337,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                                                 <button
                                                     onClick={() => handleAbrirDesenho(it.EnderecoArquivo, '3D', it.IdOrdemServicoItem)}
                                                     disabled={!isSelected || !it.CodMatFabricante || !it.EnderecoArquivo}
-                                                    className="p-1 px-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded hover:bg-blue-100 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
+                                                    className="p-1 px-1.5 bg-[#E0E800]/30 text-[#32423D] border border-blue-200 rounded hover:bg-[#E0E800]/20 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
                                                     title={!isSelected ? "Selecione a linha primeiro" : "Abrir Desenho 3D"}
                                                 >
                                                     <Box size={13} />
@@ -401,7 +401,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                                     <tr key={i} 
                                         onClick={() => setItemInternoSelecionadoId(isSelected ? null : it.IdOrdemServicoItem)}
                                         className={`border-b border-slate-100 transition-colors cursor-pointer ${
-                                            isSelected ? 'bg-blue-50 border-blue-300 shadow-inner' : 
+                                            isSelected ? 'bg-[#E0E800]/20 border-blue-300 shadow-inner' : 
                                             fin ? 'opacity-50' : 
                                             itensAbertos.has(it.IdOrdemServicoItem) ? 'bg-cyan-50' : 'hover:bg-indigo-50/30'
                                         }`}
@@ -425,7 +425,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                                                 <button
                                                     onClick={() => handleAbrirDesenho(it.EnderecoArquivo, '3D', it.IdOrdemServicoItem)}
                                                     disabled={!isSelected || !it.CodMatFabricante || !it.EnderecoArquivo}
-                                                    className="p-1 px-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded hover:bg-blue-100 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
+                                                    className="p-1 px-1.5 bg-[#E0E800]/30 text-[#32423D] border border-blue-200 rounded hover:bg-[#E0E800]/20 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
                                                     title={!isSelected ? "Selecione a linha primeiro" : "Abrir Desenho 3D"}
                                                 >
                                                     <Box size={13} />
@@ -584,7 +584,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
 
     const setorBadge = (setor: string) => {
         const colors: Record<string, string> = {
-            Corte: 'bg-blue-100 text-blue-700 border-blue-200',
+            Corte: 'bg-[#E0E800]/40 text-[#32423D] border-blue-200',
             Dobra: 'bg-indigo-100 text-indigo-700 border-indigo-200',
             Solda: 'bg-red-100 text-red-700 border-red-200',
             Pintura: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -1051,7 +1051,7 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
                                             <button
                                                 onClick={() => handleAbrirDesenho(item.EnderecoArquivo, '3D', item.IdOrdemServicoItem)}
                                                 disabled={itemFocadoId !== item.IdOrdemServicoItem || !item.EnderecoArquivo}
-                                                className="p-1 px-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded hover:bg-blue-100 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
+                                                className="p-1 px-1.5 bg-[#E0E800]/30 text-[#32423D] border border-blue-200 rounded hover:bg-[#E0E800]/20 transition-colors disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed shadow-sm"
                                                 title={itemFocadoId !== item.IdOrdemServicoItem ? "Selecione a linha para habilitar" : "Abrir Desenho 3D"}
                                             >
                                                 <Box size={13} />
@@ -1679,14 +1679,14 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                 <div className="shrink-0 border-b border-slate-100 px-2 py-1.5 bg-white">
                     <div className="flex flex-wrap gap-1">
                         {[{ ph: 'Espessura', val: fEsp, set: setFEsp, w: 'w-20' }, { ph: 'Material SW', val: fMat, set: setFMat, w: 'w-28' }].map(({ ph, val, set, w }) => (
-                            <div key={ph} className={`flex items-center bg-slate-50 border border-slate-200 rounded px-1.5 focus-within:border-blue-400 ${w}`}>
+                            <div key={ph} className={`flex items-center bg-slate-50 border border-slate-200 rounded px-1.5 focus-within:border-[#32423D]/40 ${w}`}>
                                 <input type="text" placeholder={ph} value={val}
                                     onChange={e => set(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && fetchPlanos()}
                                     className="w-full text-[10px] py-1 outline-none bg-transparent text-slate-700 placeholder:text-slate-400" />
                             </div>
                         ))}
-                        <button onClick={fetchPlanos} className="flex items-center gap-0.5 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded">
+                        <button onClick={fetchPlanos} className="flex items-center gap-0.5 px-2 py-1 bg-[#32423D] hover:bg-[#32423D]/80 text-white text-[10px] font-bold rounded">
                             <Search size={10} />Buscar
                         </button>
                         <button onClick={handleLimpar} className="flex items-center gap-0.5 px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-600 text-[10px] font-bold rounded">
@@ -1705,7 +1705,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
 
                 {/* Tabela */}
                 <div className="flex-1 overflow-auto relative">
-                    {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={24} /></div>}
+                    {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-[#32423D]" size={24} /></div>}
                     <table className="w-full text-left">
                         <thead className="text-[9px] text-slate-500 uppercase bg-slate-100/80 sticky top-0 z-10 border-b border-slate-200">
                             <tr>
@@ -1742,7 +1742,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                                             <div className="flex items-center gap-2">
                                                 <div className={`h-1.5 w-1.5 rounded-full ${
                                                     concluido ? 'bg-emerald-500'
-                                                    : enviado  ? 'bg-blue-500'
+                                                    : enviado  ? 'bg-[#E0E800]/200'
                                                     : bloqueado ? 'bg-amber-500'
                                                     : 'bg-slate-400'
                                                 }`}></div>
@@ -1779,7 +1779,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                                                     <CheckCircle size={10} /> CONCLUÍDO
                                                 </span>
                                             ) : enviado ? (
-                                                <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[9px] font-black border border-blue-200">
+                                                <span className="inline-flex items-center gap-1 bg-[#E0E800]/40 text-[#32423D] rounded-full px-2 py-0.5 text-[9px] font-black border border-blue-200">
                                                     <Scissors size={10} /> ENVIADO
                                                 </span>
                                             ) : bloqueado ? (
@@ -2124,13 +2124,13 @@ export default function MontagemPlanoCortePage() {
             <div className="shrink-0 bg-white border-b border-slate-200 shadow-sm px-5 py-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shadow-sm shrink-0"><Scissors size={22} /></div>
+                        <div className="h-10 w-10 bg-blue-100 text-[#32423D] rounded-xl flex items-center justify-center shadow-sm shrink-0"><Scissors size={22} /></div>
                         <div>
                             <h1 className="text-lg font-black text-slate-800 leading-none tracking-tight">Montagem Plano de Corte</h1>
                             <p className="text-[11px] text-slate-500 mt-0.5">Selecione itens de OS e inclua no plano de corte</p>
                         </div>
                     </div>
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${filtroAtivo === 'chaparia' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-blue-50 border-blue-300 text-blue-700'}`}>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${filtroAtivo === 'chaparia' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-[#E0E800]/20 border-blue-300 text-[#32423D]'}`}>
                         {filtroAtivo === 'chaparia' ? <FileType2 size={14} /> : <SplitSquareHorizontal size={14} />}
                         {filtroAtivo === 'chaparia' ? 'Desenho Chaparia' : 'Setor Corte'}
                         <span className="text-[9px] opacity-60 ml-1">(via Configuracao)</span>

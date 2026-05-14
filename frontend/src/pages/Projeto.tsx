@@ -623,7 +623,7 @@ export default function ProjetoPage() {
             case 'FN': return 'bg-green-100 text-green-700';
             case 'CA': return 'bg-red-100 text-red-700';
             case 'PA': return 'bg-yellow-100 text-yellow-700';
-            default: return 'bg-blue-100 text-blue-700';
+            default: return 'bg-[#E0E800]/40 text-[#32423D]';
         }
     };
 
@@ -879,7 +879,7 @@ export default function ProjetoPage() {
                                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                                             <button
                                                 onClick={() => projeto.IdProjeto && handleOpenFolder(projeto.IdProjeto)}
-                                                className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                                className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 transition-colors"
                                                 title="Abrir Pasta Projeto"
                                             >
                                                 <FolderOpen size={16} />

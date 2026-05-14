@@ -139,7 +139,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     const [selectedInsertedId, setSelectedInsertedId] = useState<number | null>(null);
 
     const insertedActions = [
-        { id: 'pdf', label: 'Abrir desenho PDF', icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50', hover: 'hover:bg-blue-100' },
+        { id: 'pdf', label: 'Abrir desenho PDF', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
         { id: '3d', label: 'Abrir desenho 3D', icon: Box, color: 'text-indigo-600', bg: 'bg-indigo-50', hover: 'hover:bg-indigo-100' },
         { id: 'excluir', label: 'Excluir item', icon: Trash2, color: 'text-red-600', bg: 'bg-red-50', hover: 'hover:bg-red-100' },
         { id: 'rnc', label: 'Gerar RNC - Pendência', icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50', hover: 'hover:bg-orange-100' },
@@ -496,7 +496,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
     const actions = [
         { id: 'abrir_pasta', label: 'Abrir Pasta', icon: FolderOpen, color: 'text-yellow-600', bg: 'bg-yellow-50', hover: 'hover:bg-yellow-100' },
-        { id: 'registrar', label: 'Registrar', icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50', hover: 'hover:bg-blue-100' },
+        { id: 'registrar', label: 'Registrar', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
         { id: 'liberar', label: 'Liberar', icon: FileCheck, color: 'text-green-600', bg: 'bg-green-50', hover: 'hover:bg-green-100' },
         { id: 'cancelar_lib', label: 'Cancelar Lib.', icon: FileX, color: 'text-red-500', bg: 'bg-red-50', hover: 'hover:bg-red-100' },
         { id: 'atualizar', label: 'Atualizar Docs', icon: RefreshCw, color: 'text-indigo-600', bg: 'bg-indigo-50', hover: 'hover:bg-indigo-100' },
@@ -667,7 +667,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                             />
                         </div>
                         {selectedId && (
-                            <span className="text-sm text-blue-600 font-medium animate-pulse ml-auto">
+                            <span className="text-sm text-[#32423D] font-medium animate-pulse ml-auto">
                                 Romaneio #{selectedId} Selecionado
                             </span>
                         )}
@@ -709,7 +709,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                             key={romaneio.idRomaneio}
                                             onClick={() => handleRowClick(romaneio.idRomaneio)}
                                             className={`transition-colors cursor-pointer group border-l-4 ${selectedId === romaneio.idRomaneio
-                                                ? 'bg-blue-50/50 border-blue-500'
+                                                ? 'bg-[#E0E800]/10 border-[#32423D]'
                                                 : 'hover:bg-gray-50 border-transparent'
                                                 }`}
                                         >
@@ -729,7 +729,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                     let label = 'Novo';
 
                                                     if (estatus === 'F') { badgeClass = 'bg-green-100 text-green-700'; label = 'Finalizado'; }
-                                                    else if (liberado === 'S') { badgeClass = 'bg-blue-100 text-blue-700'; label = 'Liberado'; }
+                                                    else if (liberado === 'S') { badgeClass = 'bg-[#E0E800]/40 text-[#32423D]'; label = 'Liberado'; }
                                                     else if (hasMotoristaOrData) {
                                                         badgeClass = 'bg-yellow-100 text-yellow-700';
                                                         label = 'Registrado';
@@ -782,7 +782,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         onClick={() => handleOpenFolder(romaneio.idRomaneio, romaneio.ENDERECORomaneio)}
-                                                        className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                                                        className="p-2 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 transition-colors"
                                                         title="Abrir Pasta"
                                                     >
                                                         <FolderOpen size={18} />
@@ -857,7 +857,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                                     <div className="pt-4 flex justify-end gap-3">
                                         <button type="button" onClick={() => setShowShipmentModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Cancelar</button>
-                                        <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">Confirmar Envio</button>
+                                        <button type="submit" className="px-6 py-2 bg-[#32423D] text-white rounded-lg hover:bg-[#32423D]/80 font-medium">Confirmar Envio</button>
                                     </div>
                                 </form>
                             </motion.div>
@@ -1341,7 +1341,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                             <p className="text-[11px] font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded break-all">
                                                 {reportData.ENDERECORomaneio || 'Não configurado'}
                                             </p>
-                                            <Copy size={12} className="text-gray-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                                            <Copy size={12} className="text-gray-400 group-hover:text-[#32423D] transition-colors shrink-0" />
                                         </div>
                                     </div>
                                 </div>
@@ -1354,7 +1354,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                 </div>
                                 <div className="flex justify-between items-center border-b border-gray-50 pb-2">
                                     <span className="text-[10px] uppercase font-bold text-gray-400">Motorista</span>
-                                    <span className="text-sm font-bold text-blue-700 uppercase">{reportData.NomeMotorista || 'N/A'}</span>
+                                    <span className="text-sm font-bold text-[#32423D] uppercase">{reportData.NomeMotorista || 'N/A'}</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b border-gray-50 pb-2">
                                     <span className="text-[10px] uppercase font-bold text-gray-400">Envio</span>
@@ -1389,7 +1389,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     <tr key={idx} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 text-xs font-bold text-gray-500">{idx + 1}</td>
                                         <td className="px-6 py-4 text-xs font-bold text-[#32423D]">{item.PROJETO}</td>
-                                        <td className="px-6 py-4 text-xs font-medium text-blue-600">{item.TAG}</td>
+                                        <td className="px-6 py-4 text-xs font-medium text-[#32423D]">{item.TAG}</td>
                                         <td className="px-6 py-4">
                                             <p className="text-xs font-bold text-gray-800 uppercase">{item.DescResumo}</p>
                                             <p className="text-[10px] text-gray-500 uppercase mt-0.5">{item.DescDetal}</p>

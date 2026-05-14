@@ -217,7 +217,7 @@ export default function CameraPage() {
             )}
 
             {/* Info Footer */}
-            <div className="bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start gap-3 text-sm">
+            <div className="bg-[#E0E800]/20 text-blue-800 p-4 rounded-lg flex items-start gap-3 text-sm">
                 <Smartphone className="shrink-0 mt-0.5" size={16} />
                 <p>
                     <strong>Dica Pro:</strong> Em dispositivos móveis, a opção "Câmera Nativa" oferece a melhor qualidade e estabilização de imagem.

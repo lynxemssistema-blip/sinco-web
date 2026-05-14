@@ -743,7 +743,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
             <div className="flex-1 overflow-auto custom-scrollbar">
                 {loading && (
                     <div className="flex justify-center py-16">
-                        <Loader className="animate-spin text-blue-500" size={28} />
+                        <Loader className="animate-spin text-[#32423D]" size={28} />
                     </div>
                 )}
                 {error && (
@@ -789,8 +789,10 @@ export default function AcompanhamentoGeralPage() {
     const [detalhe, setDetalhe] = useState<ProjetoAcomp | null>(null);
     const [mainViewMode, setMainViewMode] = useState<'lista' | 'gantt'>('lista');
 
-    const [fSearch, setFSearch] = useState('');
+    const [fSearchProjeto, setFSearchProjeto] = useState('');
+    const [fSearchDescricao, setFSearchDescricao] = useState('');
     const [fSearchInput, setFSearchInput] = useState('');
+    const [fDescricaoInput, setFDescricaoInput] = useState('');
     const [fStatus, setFStatus] = useState('');
     const [fModo, setFModo] = useState<'ativos' | 'finalizados' | 'todos'>('ativos');
     const [showObs, setShowObs] = useState<number | null>(null);
@@ -827,7 +829,8 @@ export default function AcompanhamentoGeralPage() {
         setError(null);
         try {
             const params = new URLSearchParams();
-            if (fSearch) params.set('search', fSearch);
+            if (fSearchProjeto) params.set('projeto', fSearchProjeto);
+            if (fSearchDescricao) params.set('descricao', fSearchDescricao);
             if (fStatus) params.set('status', fStatus);
             if (fDataDe) params.set('dataFinalDe', fDataDe);
             if (fDataAte) params.set('dataFinalAte', fDataAte);
@@ -844,13 +847,23 @@ export default function AcompanhamentoGeralPage() {
         } finally {
             setLoading(false);
         }
-    }, [fSearch, fStatus, fModo, fDataDe, fDataAte]);
+    }, [fSearchProjeto, fSearchDescricao, fStatus, fModo, fDataDe, fDataAte]);
 
     useEffect(() => { fetchDados(); }, [fetchDados]);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        setFSearch(fSearchInput);
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        setFSearchProjeto(fSearchInput);
+        setFSearchDescricao(fDescricaoInput);
+    };
+
+    const handleRefresh = () => {
+        if (fSearchInput === fSearchProjeto && fDescricaoInput === fSearchDescricao) {
+            fetchDados();
+        } else {
+            setFSearchProjeto(fSearchInput);
+            setFSearchDescricao(fDescricaoInput);
+        }
     };
 
     // If detalhe mode, render the detail view
@@ -878,14 +891,14 @@ export default function AcompanhamentoGeralPage() {
                         <div className="flex bg-slate-100 p-1 rounded-xl mr-2">
                             <button
                                 onClick={() => setMainViewMode('lista')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                             >
                                 <LayoutList size={14} />
                                 Lista
                             </button>
                             <button
                                 onClick={() => setMainViewMode('gantt')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                             >
                                 <GanttChartSquare size={14} />
                                 Ver Gantt Geral
@@ -904,26 +917,45 @@ export default function AcompanhamentoGeralPage() {
                         )}
                         <div className="text-right ml-2 border-l pl-3 border-slate-200">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-1">Total Projetos</div>
-                            <div className="text-sm font-black text-blue-700">{projetos.length}</div>
+                            <div className="text-sm font-black text-[#32423D]">{projetos.length}</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Filters */}
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
-                    {/* Busca textual */}
-                    <form onSubmit={handleSearch} className="relative" style={{ minWidth: 200, maxWidth: 300 }}>
+                    {/* Busca textual - Projeto/Cliente */}
+                    <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                         <input
-                            id="acomp-search"
+                            id="acomp-search-projeto"
                             type="text"
-                            placeholder="Buscar projeto, cliente, estado..."
+                            placeholder="Buscar projeto/cliente..."
                             value={fSearchInput}
                             onChange={e => setFSearchInput(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 outline-none"
+                            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
                         />
                         {fSearchInput && (
-                            <button type="button" onClick={() => { setFSearchInput(''); setFSearch(''); }}
+                            <button type="button" onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                                <X size={12} />
+                            </button>
+                        )}
+                    </form>
+
+                    {/* Busca textual - Descrição */}
+                    <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                        <input
+                            id="acomp-search-descricao"
+                            type="text"
+                            placeholder="Buscar descrição..."
+                            value={fDescricaoInput}
+                            onChange={e => setFDescricaoInput(e.target.value)}
+                            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
+                        />
+                        {fDescricaoInput && (
+                            <button type="button" onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
                                 <X size={12} />
                             </button>
@@ -935,7 +967,7 @@ export default function AcompanhamentoGeralPage() {
                         id="acomp-status"
                         value={fStatus}
                         onChange={e => setFStatus(e.target.value)}
-                        className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500/20 outline-none"
+                        className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 outline-none"
                     >
                         <option value="">Todos os Status</option>
                         <option value="AT">Ativo</option>
@@ -979,16 +1011,16 @@ export default function AcompanhamentoGeralPage() {
                     <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white text-xs">
                         {(['ativos', 'finalizados', 'todos'] as const).map(m => (
                             <button key={m} onClick={() => setFModo(m)}
-                                className={`px-3 py-2 font-semibold capitalize transition-colors ${fModo === m ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                className={`px-3 py-2 font-semibold capitalize transition-colors ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
                                 {m === 'ativos' ? 'Ativos' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
                             </button>
                         ))}
                     </div>
 
                     {/* Refresh */}
-                    <button onClick={fetchDados} title="Atualizar"
-                        className="p-2 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors">
-                        <Filter size={14} />
+                    <button onClick={handleRefresh} title="Atualizar"
+                        className="px-4 py-2 font-bold text-xs rounded-lg bg-[#32423D] text-white hover:bg-[#32423D]/80 transition-colors shadow-sm">
+                        Pesquisar
                     </button>
                 </div>
             </div>
@@ -1078,7 +1110,7 @@ export default function AcompanhamentoGeralPage() {
 
                 {loading && (
                     <div className="flex justify-center p-10">
-                        <Loader className="animate-spin text-blue-500" size={24} />
+                        <Loader className="animate-spin text-[#32423D]" size={24} />
                     </div>
                 )}
             </div>

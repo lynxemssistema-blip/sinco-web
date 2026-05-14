@@ -145,7 +145,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
                     <>
                         <motion.div variants={item} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-primary/20 transition-all duration-300 group">
                             <div className="flex justify-between items-start mb-6">
-                                <div className="p-3.5 bg-blue-500/10 rounded-xl text-blue-600 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                                <div className="p-3.5 bg-[#E0E800]/200/10 rounded-xl text-[#32423D] group-hover:scale-110 group-hover:bg-[#E0E800]/100 group-hover:text-white transition-all duration-300">
                                     <Building2 size={24} strokeWidth={2.5} />
                                 </div>
                                 <span className="text-xs font-bold px-3 py-1 bg-secondary rounded-full text-muted-foreground">Total</span>

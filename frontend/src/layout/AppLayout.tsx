@@ -295,10 +295,10 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 {/* Floating Decorative Blur */}
                 <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[30%] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="p-4 md:p-8 w-full max-w-7xl mx-auto relative">
+                <div className="p-3 md:p-4 w-full max-w-full mx-auto relative">
                     {/* Header Desktop (Breadcrumb/Title) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-                        <div className="flex items-start gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                        <div className="flex items-start gap-3">
                             <button 
                                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                                 className="hidden md:flex p-2.5 bg-card border border-border hover:shadow-sm hover:border-primary/50 rounded-md text-foreground/80 hover:text-primary transition-all active:scale-95"
@@ -307,16 +307,16 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                                 <Menu size={20} strokeWidth={2} />
                             </button>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">{activeLabel}</h1>
-                                <p className="text-muted-foreground text-sm mt-1 font-medium">Plataforma de Gerenciamento Especializado</p>
+                                <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-tight">{activeLabel}</h1>
+                                <p className="text-muted-foreground text-xs mt-0 font-medium">Plataforma de Gerenciamento Especializado</p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end mt-4 sm:mt-0">
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end mt-2 sm:mt-0">
                             {/* Help Button */}
                             <button 
                                 onClick={() => setShowHelp(true)} 
-                                className="group flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-all shadow-md"
+                                className="group flex items-center gap-1.5 px-3 py-1.5 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-md transition-all shadow-md"
                                 title="Precisa de ajuda?"
                             >
                                 <div className="bg-white/20 text-white rounded-md p-1 transition-colors">

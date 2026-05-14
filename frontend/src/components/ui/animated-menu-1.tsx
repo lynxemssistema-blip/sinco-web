@@ -205,7 +205,7 @@ export default function AnimatedMenuComponent() {
                             initial={{ width: 0 }}
                             animate={{ width: 80 }}
                             transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
-                            className={`h-1 mt-2 rounded ${isDark ? 'bg-blue-500' : 'bg-blue-600'
+                            className={`h-1 mt-2 rounded ${isDark ? 'bg-[#E0E800]/200' : 'bg-[#32423D]'
                                 }`}
                         />
                     </motion.div>
@@ -231,7 +231,7 @@ export default function AnimatedMenuComponent() {
                                         whileHover={{ scale: 1.15, rotate: 8 }}
                                         whileTap={{ scale: 0.95 }}
                                         className={`p-2 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-200'
-                                            } group-hover:bg-blue-500 group-hover:text-white transition-all duration-300`}
+                                            } group-hover:bg-[#E0E800]/100 group-hover:text-white transition-all duration-300`}
                                     >
                                         <item.icon size={24} />
                                     </motion.div>

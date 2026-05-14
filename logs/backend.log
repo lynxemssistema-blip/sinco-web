@@ -1,0 +1,2 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Loader, Edit3, Save } from 'lucide-react';
+import { Search, Loader, Edit3, Save, X, CalendarDays } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -38,6 +38,53 @@ interface TagData {
 type SectorType = 'Medicao' | 'Isometrico' | 'Engenharia' | 'Aprovacao';
 const SECTORS: SectorType[] = ['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao'];
 
+const SECTOR_INFO: Record<SectorType, { label: string; icon: string; desc: string; steps: string[] }> = {
+    Medicao: {
+        label: 'Medição',
+        icon: '📐',
+        desc: 'Levantamento dimensional in loco do sistema de tubulação ou estrutura existente.',
+        steps: [
+            'Visita técnica ao campo para coleta de medidas',
+            'Registro de cotas, diâmetros, elevações e interferências',
+            'Elaboração de croqui de campo como base para o isométrico',
+            'Validação das medidas com o responsável do cliente',
+        ],
+    },
+    Isometrico: {
+        label: 'Isométrico',
+        icon: '📄',
+        desc: 'Desenho técnico em vista isométrica representando o percurso e especificações da tubulação.',
+        steps: [
+            'Elaboração do desenho isométrico com base no croqui de medição',
+            'Inclusão de lista de materiais (BOM) e especificações técnicas',
+            'Revisão interna antes de envio para engenharia',
+            'Geração de PDF/DXF para aprovação do cliente',
+        ],
+    },
+    Engenharia: {
+        label: 'Engenharia',
+        icon: '⚙️',
+        desc: 'Desenvolvimento do projeto de engenharia: cálculos, memoriais, especificações e documentação técnica.',
+        steps: [
+            'Análise das especificações técnicas do cliente (normas, pressão, temperatura)',
+            'Desenvolvimento de memoriais de cálculo estrutural/hidráulico',
+            'Elaboração de desenhos de fabricação (plantas, cortes, detalhes)',
+            'Emissão do conjunto documental para aprovação',
+        ],
+    },
+    Aprovacao: {
+        label: 'Aprovação',
+        icon: '✅',
+        desc: 'Ciclo de revisão e aprovação formal dos documentos técnicos pelo cliente ou órgão competente.',
+        steps: [
+            'Envio do pacote de documentos ao cliente ou órgão certificador',
+            'Registro de comentários e solicitações de revisão',
+            'Emissão de revisão com incorporação dos comentários',
+            'Aprovação final e liberação para fabricação/execução',
+        ],
+    },
+};
+
 const getSectorColors = (sector: SectorType) => {
     switch (sector) {
         case 'Medicao': return { head: 'bg-blue-100 text-blue-900 border-blue-200', sub: 'bg-blue-50 text-blue-800 border-blue-200' };
@@ -55,10 +102,16 @@ export default function VisaoGeralEngenharia() {
 
     const [activeSectors, setActiveSectors] = useState<Set<SectorType>>(new Set());
     
-    // Filters
-    const [fQuery, setFQuery] = useState('');
+    // Filters — individual
+    const [fProjeto, setFProjeto] = useState('');
+    const [fEmpresa, setFEmpresa] = useState('');
+    const [fTag, setFTag] = useState('');
+    const [fDescTag, setFDescTag] = useState('');
+    const [fProjetista, setFProjetista] = useState('');
     const [fTipo, setFTipo] = useState('');
-    const [fProjPlanejado, setFProjPlanejado] = useState('');
+    // Date range
+    const [fPrevIni, setFPrevIni] = useState('');
+    const [fPrevFim, setFPrevFim] = useState('');
 
     // Selection
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -225,18 +278,37 @@ export default function VisaoGeralEngenharia() {
     const isFilled = (val: any) => val && String(val).trim() !== '';
 
     // Calculate Summary Grid logic based on filtered items
+    const brToIsoDate = (br: string): Date | null => {
+        if (!br) return null;
+        const [d, m, y] = br.split('/');
+        if (!d || !m || !y) return null;
+        return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+    };
+
     const filteredTags = useMemo(() => {
-        return tags.filter(t => 
-            (!fTipo || (t.TipoProduto||'').toLowerCase().includes(fTipo.toLowerCase())) &&
-            (!fProjPlanejado || (t.ProjetistaPlanejado||'').toLowerCase().includes(fProjPlanejado.toLowerCase())) &&
-            (!fQuery || 
-                (t.Projeto||'').toLowerCase().includes(fQuery.toLowerCase()) || 
-                (t.Tag||'').toLowerCase().includes(fQuery.toLowerCase()) || 
-                (t.DescEmpresa||'').toLowerCase().includes(fQuery.toLowerCase()) || 
-                (t.DescTag||'').toLowerCase().includes(fQuery.toLowerCase())
-            )
-        );
-    }, [tags, fTipo, fProjPlanejado, fQuery]);
+        return tags.filter(t => {
+            if (fProjeto && !(t.Projeto||'').toLowerCase().includes(fProjeto.toLowerCase())) return false;
+            if (fEmpresa && !(t.DescEmpresa||'').toLowerCase().includes(fEmpresa.toLowerCase())) return false;
+            if (fTag && !(t.Tag||'').toLowerCase().includes(fTag.toLowerCase())) return false;
+            if (fDescTag && !(t.DescTag||'').toLowerCase().includes(fDescTag.toLowerCase())) return false;
+            if (fProjetista && !(t.ProjetistaPlanejado||'').toLowerCase().includes(fProjetista.toLowerCase())) return false;
+            if (fTipo && !(t.TipoProduto||'').toLowerCase().includes(fTipo.toLowerCase())) return false;
+            if (fPrevIni || fPrevFim) {
+                const tagDate = brToIsoDate(t.DataPrevisao);
+                if (!tagDate) return false;
+                if (fPrevIni) {
+                    const ini = new Date(fPrevIni);
+                    if (tagDate < ini) return false;
+                }
+                if (fPrevFim) {
+                    const fim = new Date(fPrevFim);
+                    fim.setHours(23,59,59);
+                    if (tagDate > fim) return false;
+                }
+            }
+            return true;
+        });
+    }, [tags, fProjeto, fEmpresa, fTag, fDescTag, fProjetista, fTipo, fPrevIni, fPrevFim]);
 
     const summary = useMemo(() => {
         const buildSect = (sect: SectorType) => {
@@ -261,50 +333,169 @@ export default function VisaoGeralEngenharia() {
     return (
         <div className="h-full flex flex-col font-sans bg-gray-50 text-xs overflow-hidden pt-12">
             {/* Header / Filters Block */}
-            <div className="border-b border-gray-300 bg-white p-2 shrink-0 flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                    <div className="font-bold text-gray-800 text-sm whitespace-nowrap">Visão Geral Engenharia ({tags.length} tags)</div>
-                    <div className="relative flex-1 md:max-w-xs">
-                        <input type="text" placeholder="Pesquisar Projeto, Tag, Desc... " value={fQuery} onChange={e => setFQuery(e.target.value)} className="w-full text-xs pl-7 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-blue-500" />
-                        <Search size={14} className="absolute left-2 top-1.5 text-gray-400" />
+            <div className="border-b border-gray-300 bg-white px-3 py-2 shrink-0 flex flex-col gap-2">
+
+                {/* Title bar */}
+                <div className="flex items-center justify-between">
+                    <div className="font-bold text-gray-800 text-sm">
+                        Visão Geral Engenharia
+                        <span className="ml-2 text-gray-500 font-normal text-xs">({filteredTags.length} de {tags.length} tags)</span>
                     </div>
-                    <input type="text" placeholder="Tipo Produto" value={fTipo} onChange={e => setFTipo(e.target.value)} className="w-24 md:w-32 text-xs px-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-blue-500" />
-                    <input type="text" placeholder="Projetista" value={fProjPlanejado} onChange={e => setFProjPlanejado(e.target.value)} className="w-24 md:w-32 text-xs px-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-blue-500" />
-                    {(fQuery || fTipo || fProjPlanejado) && (
-                        <button onClick={() => { setFQuery(''); setFTipo(''); setFProjPlanejado(''); }} className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors">
-                            Limpar
+                    {(fProjeto || fEmpresa || fTag || fDescTag || fProjetista || fTipo || fPrevIni || fPrevFim) && (
+                        <button
+                            onClick={() => { setFProjeto(''); setFEmpresa(''); setFTag(''); setFDescTag(''); setFProjetista(''); setFTipo(''); setFPrevIni(''); setFPrevFim(''); }}
+                            className="flex items-center gap-1 text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded transition-colors font-bold"
+                        >
+                            <X size={11} /> Limpar Filtros
                         </button>
                     )}
                 </div>
-                
-                {/* Visual Options - Checkboxes for Sectors */}
-                <div className="flex flex-wrap items-center gap-4 bg-gray-100 p-1 rounded border border-gray-200">
-                    <span className="font-bold text-gray-700 ml-1">Exibir Setores:</span>
-                    <label className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded transition-colors">
-                        <input type="checkbox" checked={activeSectors.size === SECTORS.length} onChange={toggleAllSectors} className="w-3 h-3 cursor-pointer" /> <span className="text-gray-700 font-medium text-[11px]">Todos</span>
-                    </label>
-                    {SECTORS.map(s => {
-                        // Base colors for better visual grouping that match the table
-                        let colorClass = 'text-gray-700 hover:bg-gray-200';
-                        if (s === 'Medicao') colorClass = 'text-blue-800 hover:bg-blue-100/50';
-                        if (s === 'Isometrico') colorClass = 'text-purple-800 hover:bg-purple-100/50';
-                        if (s === 'Engenharia') colorClass = 'text-amber-800 hover:bg-amber-100/50';
-                        if (s === 'Aprovacao') colorClass = 'text-emerald-800 hover:bg-emerald-100/50';
 
-                        return (
-                            <label key={s} className={`flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded transition-colors ${colorClass} ${activeSectors.has(s) ? 'bg-white shadow-sm border border-gray-200/50' : ''}`}>
-                                <input type="checkbox" checked={activeSectors.has(s)} onChange={() => toggleSector(s)} className="w-3 h-3 cursor-pointer" /> 
-                                <span className="font-bold text-[11px] uppercase tracking-wide">{s}</span>
-                            </label>
-                        );
-                    })}
+                {/* Row 1 — Text Filters */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projeto</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Ex: 010469"
+                                value={fProjeto} onChange={e => setFProjeto(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Empresa / Cliente</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Ex: Eletrocentro"
+                                value={fEmpresa} onChange={e => setFEmpresa(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tag</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Ex: T-001"
+                                value={fTag} onChange={e => setFTag(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Descrição da Tag</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Palavras-chave"
+                                value={fDescTag} onChange={e => setFDescTag(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projetista</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Nome do projetista"
+                                value={fProjetista} onChange={e => setFProjetista(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tipo Produto</label>
+                        <div className="relative">
+                            <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <input
+                                type="text" placeholder="Ex: Painel"
+                                value={fTipo} onChange={e => setFTipo(e.target.value)}
+                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 2 — Date range + sectors */}
+                <div className="flex flex-wrap items-end gap-3">
+                    {/* Date range Previsão */}
+                    <div className="flex items-center gap-2">
+                        <CalendarDays size={13} className="text-[#32423D] shrink-0" />
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap">Previsão de Entrega:</span>
+                        <div className="flex items-center gap-1">
+                            <input
+                                type="date" value={fPrevIni} onChange={e => setFPrevIni(e.target.value)}
+                                className="text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
+                                title="Data início"
+                            />
+                            <span className="text-gray-400 font-bold">—</span>
+                            <input
+                                type="date" value={fPrevFim} onChange={e => setFPrevFim(e.target.value)}
+                                className="text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
+                                title="Data fim"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Sector checkboxes */}
+                    <div className="flex flex-wrap items-center gap-3 bg-gray-100 px-2 py-1 rounded border border-gray-200 flex-1">
+                        <span className="font-bold text-gray-700 text-[10px] uppercase">Exibir Setores:</span>
+                        <label className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded transition-colors">
+                            <input type="checkbox" checked={activeSectors.size === SECTORS.length} onChange={toggleAllSectors} className="w-3 h-3 cursor-pointer" />
+                            <span className="text-gray-700 font-medium text-[11px]">Todos</span>
+                        </label>
+                        {SECTORS.map(s => {
+                            let colorClass = 'text-gray-700 hover:bg-gray-200';
+                            let tooltipBg = 'bg-gray-800';
+                            if (s === 'Medicao')    { colorClass = 'text-blue-800 hover:bg-blue-100/50';     tooltipBg = 'bg-blue-900'; }
+                            if (s === 'Isometrico') { colorClass = 'text-purple-800 hover:bg-purple-100/50'; tooltipBg = 'bg-purple-900'; }
+                            if (s === 'Engenharia') { colorClass = 'text-amber-800 hover:bg-amber-100/50';   tooltipBg = 'bg-amber-900'; }
+                            if (s === 'Aprovacao')  { colorClass = 'text-emerald-800 hover:bg-emerald-100/50'; tooltipBg = 'bg-emerald-900'; }
+                            const info = SECTOR_INFO[s];
+                            return (
+                                <div key={s} className="relative group">
+                                    <label className={`flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded transition-colors ${colorClass} ${activeSectors.has(s) ? 'bg-white shadow-sm border border-gray-200/50' : ''}`}>
+                                        <input type="checkbox" checked={activeSectors.has(s)} onChange={() => toggleSector(s)} className="w-3 h-3 cursor-pointer" />
+                                        <span className="font-bold text-[11px] uppercase tracking-wide">{s}</span>
+                                    </label>
+                                    {/* Tooltip */}
+                                    <div className={`absolute bottom-full left-0 mb-2 z-50 w-72 ${tooltipBg} text-white rounded-xl shadow-2xl p-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-left`}>
+                                        <div className="flex items-center gap-2 mb-2 border-b border-white/20 pb-2">
+                                            <span className="text-lg">{info.icon}</span>
+                                            <div>
+                                                <div className="font-black text-sm uppercase tracking-wide">{info.label}</div>
+                                                <div className="text-[10px] text-white/70 font-medium">Setor de Engenharia</div>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-white/90 leading-relaxed mb-2">{info.desc}</p>
+                                        <div className="text-[10px] font-bold text-white/60 uppercase tracking-wider mb-1">Etapas do processo:</div>
+                                        <ol className="space-y-1">
+                                            {info.steps.map((step, i) => (
+                                                <li key={i} className="flex items-start gap-1.5 text-[10px] text-white/80">
+                                                    <span className="shrink-0 font-black text-white/50">{i + 1}.</span>
+                                                    <span>{step}</span>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                        {/* Arrow */}
+                                        <div className={`absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent ${tooltipBg.replace('bg-', 'border-t-')}`} />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 
             {/* Main Tags Grid Toolbar */}
             <div className="px-2 py-1 border-b border-gray-300 flex items-center justify-between bg-white shrink-0">
                 <div className="text-gray-700 font-bold flex items-center gap-2">
-                    {selectedIds.size > 0 && <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{selectedIds.size} tags selecionadas</span>}
+                    {selectedIds.size > 0 && <span className="font-bold text-[#32423D] bg-[#E0E800]/40 px-2 py-0.5 rounded border border-[#E0E800]">{selectedIds.size} tags selecionadas</span>}
                 </div>
                 <div>
                     {!batchEditing ? (
@@ -379,7 +570,7 @@ export default function VisaoGeralEngenharia() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {filteredTags.map((t, idx) => (
-                            <tr key={t.IdTag} className={`hover:bg-blue-50/50 transition-colors ${selectedIds.has(t.IdTag) ? 'bg-blue-50' : idx % 2 === 0 ? 'bg-white' : 'bg-[#fafbfc]'}`}>
+                            <tr key={t.IdTag} className={`hover:bg-[#E0E800]/10 transition-colors ${selectedIds.has(t.IdTag) ? 'bg-[#E0E800]/20' : idx % 2 === 0 ? 'bg-white' : 'bg-[#fafbfc]'}`}>
                                 <td className="px-2 py-1 border-r border-gray-200 text-center">
                                     <input type="checkbox" checked={selectedIds.has(t.IdTag)} onChange={() => toggleSelect(t.IdTag)} className="w-3 h-3 cursor-pointer" />
                                 </td>
@@ -389,15 +580,15 @@ export default function VisaoGeralEngenharia() {
                                 <td className="px-2 py-1 border-r border-gray-200 overflow-hidden text-ellipsis max-w-[250px]" title={t.DescTag}>{t.DescTag}</td>
                                 <td className="px-2 py-1 border-r border-gray-200 overflow-hidden text-ellipsis max-w-[100px]" title={t.TipoProduto}>{t.TipoProduto}</td>
                                 <td className="px-2 py-1 border-r border-gray-200">{t.DataPrevisao}</td>
-                                <td className="px-2 py-1 border-r border-gray-200 max-w-[120px] overflow-hidden text-ellipsis text-blue-800" title={t.ProjetistaPlanejado}>{t.ProjetistaPlanejado}</td>
+                                <td className="px-2 py-1 border-r border-gray-200 max-w-[120px] overflow-hidden text-ellipsis text-[#32423D] font-semibold" title={t.ProjetistaPlanejado}>{t.ProjetistaPlanejado}</td>
                                 <td className="px-2 py-1 border-r border-gray-200 text-center text-xs">
                                     {t.CaminhoIsometrico ? (
                                         <div className="flex items-center gap-2 justify-center">
-                                            <a href={t.CaminhoIsometrico} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline flex-1 truncate font-medium" title={t.CaminhoIsometrico}>Baixar PDF</a>
+                                            <a href={t.CaminhoIsometrico} target="_blank" rel="noreferrer" className="text-[#32423D] hover:text-[#32423D]/70 hover:underline flex-1 truncate font-medium" title={t.CaminhoIsometrico}>Baixar PDF</a>
                                             <button onClick={() => confirmClearIso(t.IdTag, t.Tag)} className="text-red-500 hover:text-red-700 bg-red-50 px-1 rounded border border-red-200" title="Remover Associação">✖</button>
                                         </div>
                                     ) : (
-                                        <label className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline flex items-center justify-center gap-1 font-medium bg-blue-50/50 px-1 py-0.5 rounded border border-blue-100/50">
+                                        <label className="cursor-pointer text-[#32423D] hover:text-[#32423D]/70 flex items-center justify-center gap-1 font-medium bg-[#E0E800]/20 px-1 py-0.5 rounded border border-[#E0E800]/50">
                                             <Edit3 size={12} /> Associar
                                             <input type="file" accept=".pdf" className="hidden" onChange={(e) => handleUploadIso(e, t.IdTag, t.Tag)} />
                                         </label>
@@ -417,7 +608,7 @@ export default function VisaoGeralEngenharia() {
                                                     type="date" 
                                                     value={brToIso(pi)} 
                                                     onChange={e => handleInlineDateChange(t.IdTag, s, 'PlanejadoInicio', e.target.value)}
-                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700"
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-[#32423D]/40 rounded px-1 text-gray-700"
                                                 />
                                             </td>
                                             <td className="px-0.5 py-1 border-r border-gray-200 text-center">
@@ -425,7 +616,7 @@ export default function VisaoGeralEngenharia() {
                                                     type="date" 
                                                     value={brToIso(pf)} 
                                                     onChange={e => handleInlineDateChange(t.IdTag, s, 'PlanejadoFinal', e.target.value)}
-                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700"
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-[#32423D]/40 rounded px-1 text-gray-700"
                                                 />
                                             </td>
                                             <td className="px-0.5 py-1 border-r border-gray-200 text-center">
@@ -433,7 +624,7 @@ export default function VisaoGeralEngenharia() {
                                                     type="date" 
                                                     value={brToIso(ri)} 
                                                     onChange={e => handleInlineDateChange(t.IdTag, s, 'RealizadoInicio', e.target.value)}
-                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700 font-bold"
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-[#32423D]/40 rounded px-1 text-gray-700 font-bold"
                                                 />
                                             </td>
                                             <td className="px-0.5 py-1 border-r border-gray-200 text-center">
@@ -441,7 +632,7 @@ export default function VisaoGeralEngenharia() {
                                                     type="date" 
                                                     value={brToIso(rf)} 
                                                     onChange={e => handleInlineDateChange(t.IdTag, s, 'RealizadoFinal', e.target.value)}
-                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 text-gray-700 font-bold"
+                                                    className="w-[110px] text-[11px] bg-transparent border-none outline-none focus:ring-1 focus:ring-[#32423D]/40 rounded px-1 text-gray-700 font-bold"
                                                 />
                                             </td>
                                         </React.Fragment>

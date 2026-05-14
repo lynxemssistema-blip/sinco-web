@@ -259,7 +259,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-6 mb-6 shrink-0 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-[#32423D]">
                         <FileSpreadsheet size={24} />
                     </div>
                     <div>
@@ -290,7 +290,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                             <select 
                                 value={selectedProjeto}
                                 onChange={e => { setSelectedProjeto(e.target.value); setSelectedTag(''); }}
-                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800"
+                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
                             >
                                 <option value="">Selecione o Projeto</option>
                                 {projetos.map(p => <option key={p.IdProjeto} value={p.IdProjeto}>{p.Projeto}</option>)}
@@ -302,7 +302,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                 value={selectedTag}
                                 onChange={e => setSelectedTag(e.target.value)}
                                 disabled={!selectedProjeto}
-                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
                             >
                                 <option value="">Selecione a Tag</option>
                                 {tags.map(t => <option key={t.IdTag} value={t.IdTag}>{t.NomeTag}</option>)}
@@ -314,7 +314,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                 value={selectedPlanilha}
                                 onChange={e => setSelectedPlanilha(e.target.value)}
                                 disabled={!selectedTag}
-                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
                             >
                                 <option value="">Selecione a Planilha</option>
                                 {planilhas.map(p => <option key={p} value={p}>{p}</option>)}
@@ -326,7 +326,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                 value={selectedRevisao}
                                 onChange={e => setSelectedRevisao(e.target.value)}
                                 disabled={!selectedPlanilha}
-                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+                                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
                             >
                                 <option value="-1">Todas</option>
                                 {revisoes.map(r => <option key={r} value={r}>Revisão {r}</option>)}
@@ -344,7 +344,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                     placeholder="Ex: 1SVR405622R0000"
                                     value={codMatFilter}
                                     onChange={e => setCodMatFilter(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2.5 pl-10 pr-4 focus:border-blue-500 outline-none transition-all text-sm text-gray-800"
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl py-2.5 pl-10 pr-4 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
                                 />
                             </div>
                         </div>
@@ -352,7 +352,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                             <button 
                                 onClick={handleSearch}
                                 disabled={loading || !selectedPlanilha}
-                                className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                                className="flex-1 md:flex-none bg-[#32423D] hover:bg-[#32423D]/80 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                 Pesquisar
@@ -370,14 +370,14 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
 
                 {/* Processing Controls (Visible after search) */}
                 {items.length > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="bg-[#E0E800]/20 border border-blue-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
                             <div className="space-y-2 w-full md:w-80">
                                 <label className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">OS de Destino</label>
                                 <select 
                                     value={selectedOS}
                                     onChange={e => setSelectedOS(e.target.value)}
-                                    className="w-full bg-white border border-blue-300 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none transition-all text-sm text-gray-800 shadow-sm"
+                                    className="w-full bg-white border border-blue-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 shadow-sm"
                                 >
                                     <option value="">Selecione a OS Destino</option>
                                     {osDestinoList.map(os => <option key={os.IdOrdemServico} value={os.IdOrdemServico}>{os.DescricaoOS}</option>)}
@@ -386,13 +386,13 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                             <div className="flex flex-wrap gap-3">
                                 <button 
                                     onClick={() => handleToggleSelectAll(true)}
-                                    className="text-xs font-bold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-gray-600 hover:text-[#32423D] transition-colors flex items-center gap-1"
                                 >
                                     <CheckSquare className="w-4 h-4" /> Marcar Todos
                                 </button>
                                 <button 
                                     onClick={() => handleToggleSelectAll(false)}
-                                    className="text-xs font-bold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                                    className="text-xs font-bold text-gray-600 hover:text-[#32423D] transition-colors flex items-center gap-1"
                                 >
                                     <Square className="w-4 h-4" /> Desmarcar Todos
                                 </button>
@@ -455,13 +455,13 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                     items.map((item) => (
                                         <tr 
                                             key={item.IdDado} 
-                                            className={`group transition-colors ${item.selected ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}
+                                            className={`group transition-colors ${item.selected ? 'bg-[#E0E800]/10' : 'hover:bg-gray-50'}`}
                                             onClick={() => handleToggleItem(item.IdDado)}
                                         >
                                             <td className="py-3 px-6 text-center cursor-pointer">
                                                 <div className="flex items-center justify-center">
                                                     {item.selected ? (
-                                                        <CheckSquare className="w-5 h-5 text-blue-600" />
+                                                        <CheckSquare className="w-5 h-5 text-[#32423D]" />
                                                     ) : (
                                                         <Square className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
                                                     )}
@@ -474,7 +474,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                                 </div>
                                             </td>
                                             <td className="py-3 px-6 text-center font-medium text-sm text-gray-700">{item.PD_qty}</td>
-                                            <td className="py-3 px-6 text-center font-bold text-sm text-blue-600">{item.Part_total_qty}</td>
+                                            <td className="py-3 px-6 text-center font-bold text-sm text-[#32423D]">{item.Part_total_qty}</td>
                                             <td className="py-3 px-6 text-center">
                                                 <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-300">
                                                     R{item.Revisao}
@@ -507,10 +507,10 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                     <div className="flex items-center justify-between text-sm text-gray-500 px-2">
                         <div className="flex gap-4">
                             <span>Total de Itens: <strong className="text-gray-800">{items.length}</strong></span>
-                            <span>Selecionados: <strong className="text-blue-600">{items.filter(i => i.selected).length}</strong></span>
+                            <span>Selecionados: <strong className="text-[#32423D]">{items.filter(i => i.selected).length}</strong></span>
                         </div>
                         <div className="flex items-center gap-2 italic">
-                            <AlertCircle className="w-4 h-4 text-blue-500" />
+                            <AlertCircle className="w-4 h-4 text-[#32423D]" />
                             <span>Itens rosa indicam material não cadastrado no sistema.</span>
                         </div>
                     </div>

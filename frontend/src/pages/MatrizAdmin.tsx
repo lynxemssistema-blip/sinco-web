@@ -226,7 +226,7 @@ export default function MatrizAdmin() {
                                         <td className="p-4 text-center space-x-2 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleEdit(matriz)}
-                                                className="p-1.5 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                                className="p-1.5 text-[#32423D] hover:bg-[#E0E800]/100/10 rounded-lg transition-colors"
                                                 title="Editar"
                                             >
                                                 <Edit2 size={16} />

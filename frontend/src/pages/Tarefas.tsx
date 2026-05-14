@@ -301,12 +301,12 @@ export default function TarefasPage() {
             {/* CABEÇALHO -> FORMULÁRIO PRINCIPAL (INLINE) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-4 shrink-0 flex flex-col relative overflow-hidden">
                 {/* Overlay de Loading do Salvar */}
-                {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center gap-2"><Loader className="animate-spin text-blue-600" size={28} /><span className="text-[10px] font-bold text-slate-600 uppercase">Processando...</span></div>}
+                {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center gap-2"><Loader className="animate-spin text-[#32423D]" size={28} /><span className="text-[10px] font-bold text-slate-600 uppercase">Processando...</span></div>}
 
                 {/* Topbar of Form */}
                 <div className="bg-[#f8fafc] border-b border-slate-200 px-5 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                        {rncForm.idRnc ? <Edit3 className="text-amber-500" size={20} /> : <Plus className="text-blue-600" size={20} />}
+                        {rncForm.idRnc ? <Edit3 className="text-amber-500" size={20} /> : <Plus className="text-[#32423D]" size={20} />}
                         {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Cadastrar Nova Tarefa'}
                     </h2>
                     
@@ -320,7 +320,7 @@ export default function TarefasPage() {
                         <button 
                             onClick={salvarNovaTarefa} 
                             disabled={!rncForm.descricao.trim() || rncForm.estatus === 'TarefaFinalizada'}
-                            className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 md:flex-none bg-[#32423D] hover:bg-[#32423D]/80 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save size={14} /> Salvar Dados
                         </button>
@@ -338,7 +338,7 @@ export default function TarefasPage() {
                         
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Responsável</label>
-                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.usuario} onChange={e => setRncForm(prev => ({...prev, usuario: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
+                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.usuario} onChange={e => setRncForm(prev => ({...prev, usuario: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#32423D] disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
                                 <option value="">Selecione...</option>
                                 {rncForm.usuario && !(usuarios || []).find(u => u.NomeCompleto === rncForm.usuario) && <option value={rncForm.usuario}>{rncForm.usuario}</option>}
                                 {(usuarios || []).map(u => <option key={`task_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
@@ -347,7 +347,7 @@ export default function TarefasPage() {
                         
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Tipo de Tarefa</label>
-                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.tipoTarefa} onChange={e => setRncForm(prev => ({...prev, tipoTarefa: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
+                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.tipoTarefa} onChange={e => setRncForm(prev => ({...prev, tipoTarefa: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#32423D] disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
                                 <option value="">Selecione...</option>
                                 {rncForm.tipoTarefa && !(tipostarefa || []).find(t => t.TipoTarefa === rncForm.tipoTarefa) && <option value={rncForm.tipoTarefa}>{rncForm.tipoTarefa}</option>}
                                 {(tipostarefa || []).map(t => <option key={`task_${t.IdTipoTarefa}`} value={t.TipoTarefa}>{t.TipoTarefa}</option>)}
@@ -356,7 +356,7 @@ export default function TarefasPage() {
                         
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Setor</label>
-                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
+                            <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setor} onChange={e => setRncForm(prev => ({...prev, setor: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#32423D] disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors">
                                 {SECTORS.filter(s => visibleSetores.includes(s.k.toLowerCase())).map(s => <option key={`task_${s.k}`} value={s.k}>{s.k}</option>)}
                                 <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
                                 {rncForm.setor && !SECTORS.find(s=>s.k===rncForm.setor) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setor) && <option value={rncForm.setor}>{rncForm.setor}</option>}
@@ -365,14 +365,14 @@ export default function TarefasPage() {
                         
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Data Execução (Prevista)</label>
-                            <input disabled={rncForm.estatus === 'TarefaFinalizada'} type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({...prev, dataExec: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
+                            <input disabled={rncForm.estatus === 'TarefaFinalizada'} type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({...prev, dataExec: e.target.value}))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#32423D] disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
                         </div>
                     </div>
                     <div>
                         <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição / Notas da Tarefa <span className="text-red-500">*</span></label>
-                        <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-400 resize-none font-medium shadow-inner disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
+                        <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium shadow-inner disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
                     </div>
-                    {msg && <div className={`px-4 py-2 rounded-lg text-xs uppercase font-bold text-center ${msg.ok ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>{msg.t}</div>}
+                    {msg && <div className={`px-4 py-2 rounded-lg text-xs uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D] border border-blue-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>{msg.t}</div>}
                 </div>
             </div>
 
@@ -431,7 +431,7 @@ export default function TarefasPage() {
                             type="checkbox" 
                             checked={showFinalized} 
                             onChange={(e) => setShowFinalized(e.target.checked)}
-                            className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                            className="w-3.5 h-3.5 text-[#32423D] rounded border-slate-300 focus:ring-[#32423D]/40"
                         />
                         <span className="text-[11px] font-bold text-slate-600 uppercase">Consultar Finalizadas</span>
                     </label>
@@ -446,7 +446,7 @@ export default function TarefasPage() {
                 
                 {loading && (
                     <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex flex-col gap-2 items-center justify-center">
-                        <Loader2 className="animate-spin text-blue-600" size={32} />
+                        <Loader2 className="animate-spin text-[#32423D]" size={32} />
                     </div>
                 )}
 
@@ -477,7 +477,7 @@ export default function TarefasPage() {
                                 </tr>
                             )}
                             {items.map(item => (
-                                <tr key={item.IdOrdemServicoItemPendencia} onClick={() => openEditMode(item)} className={`cursor-pointer group hover:bg-blue-50/50 transition-colors ${item.Status === 'Finalizada' ? 'bg-[#fafcfd] opacity-70' : 'bg-white'}`}>
+                                <tr key={item.IdOrdemServicoItemPendencia} onClick={() => openEditMode(item)} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${item.Status === 'Finalizada' ? 'bg-[#fafcfd] opacity-70' : 'bg-white'}`}>
                                     <td className="px-3 py-2 font-mono text-slate-600 font-bold flex items-center gap-1.5"><Edit3 size={10} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" /> #{item.IdOrdemServicoItemPendencia}</td>
                                     <td className="px-3 py-2">
                                         {item.Status === 'TarefaAberta' ? (
@@ -488,7 +488,7 @@ export default function TarefasPage() {
                                     </td>
                                     <td className="px-3 py-2 font-bold text-slate-700 truncate max-w-[150px]">{item.Projeto || '—'}</td>
                                     <td className="px-3 py-2 truncate max-w-[150px]" title={item.DescEmpresa}>{item.DescEmpresa || '—'}</td>
-                                    <td className="px-3 py-2 font-bold text-blue-700 truncate max-w-[120px]">{item.Tag || '—'}</td>
+                                    <td className="px-3 py-2 font-bold text-[#32423D] truncate max-w-[120px]">{item.Tag || '—'}</td>
                                     <td className="px-3 py-2 font-mono truncate max-w-[120px]" title={item.CodMatFabricante}>{item.CodMatFabricante || '—'}</td>
                                     <td className="px-3 py-2 font-mono">{item.IdOrdemServico || '—'}</td>
                                     <td className="px-3 py-2 font-mono">{item.IdOrdemServicoItem || '—'}</td>

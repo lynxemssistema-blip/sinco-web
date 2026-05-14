@@ -260,7 +260,7 @@ export default function ApontamentosParciaisPage() {
                                         {item.CriadoPor}
                                     </td>
                                     <td className="px-4 py-2 text-center text-xs">
-                                        <span className="bg-blue-100 text-blue-800 font-black px-2 py-0.5 rounded shadow-sm">
+                                        <span className="bg-[#E0E800]/40 text-[#32423D] font-black px-2 py-0.5 rounded shadow-sm">
                                             OS {item.IdOrdemServico}
                                         </span>
                                     </td>
@@ -285,7 +285,7 @@ export default function ApontamentosParciaisPage() {
                                     </td>
                                     <td className="px-4 py-2 text-center">
                                         <div className="flex items-center justify-center gap-1">
-                                            <button onClick={() => handleAbrirDesenho(item, '3D')} className="p-1 hover:bg-blue-100 text-blue-600 rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
+                                            <button onClick={() => handleAbrirDesenho(item, '3D')} className="p-1 hover:bg-[#E0E800]/20 text-[#32423D] rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
                                             <button onClick={() => handleAbrirDesenho(item, 'PDF')} className="p-1 hover:bg-red-100 text-red-600 rounded transition-colors" title="Abrir Desenho PDF"><FileText size={14}/></button>
                                             <button onClick={() => handleAbrirDesenho(item, 'DXF')} className="p-1 hover:bg-emerald-100 text-emerald-600 rounded transition-colors" title="Abrir Desenho DXF"><Layers size={14}/></button>
                                             <button onClick={() => handleAbrirDesenho(item, 'PDF_ITEM')} className="p-1 hover:bg-amber-100 text-amber-600 rounded transition-colors" title="Abrir PDF do Item"><FileCode size={14}/></button>

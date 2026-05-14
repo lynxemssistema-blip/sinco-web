@@ -69,7 +69,7 @@ const permissoes: { key: keyof FormData; label: string; icon: React.ReactNode; c
     { key: 'txtDobra',              label: 'Dobra',         icon: <FoldVertical size={12} />, color: 'text-orange-500' },
     { key: 'txtSolda',              label: 'Solda',         icon: <Flame size={12} />,        color: 'text-amber-500' },
     { key: 'txtPintura',            label: 'Pintura',       icon: <Paintbrush size={12} />,   color: 'text-pink-500' },
-    { key: 'txtMontagem',           label: 'Montagem',      icon: <Wrench size={12} />,       color: 'text-blue-500' },
+    { key: 'txtMontagem',           label: 'Montagem',      icon: <Wrench size={12} />,       color: 'text-[#32423D]' },
     { key: 'txtAlmoxarifado',       label: 'Almoxarifado',  icon: <Warehouse size={12} />,    color: 'text-teal-500' },
     { key: 'MapaProducao',          label: 'Mapa Prod.',    icon: <Map size={12} />,          color: 'text-cyan-500' },
     { key: 'Romaneio',              label: 'Romaneio',      icon: <ClipboardList size={12} />,color: 'text-violet-500' },
@@ -332,7 +332,7 @@ export default function CadastroUsuarioPage() {
 
     const tipoLabel = (tipo: string) => {
         if (tipo === 'A') return { label: 'Administrador', cls: 'bg-purple-100 text-purple-700 border-purple-200', icon: <Shield size={11} /> };
-        return { label: 'Comum', cls: 'bg-blue-100 text-blue-700 border-blue-200', icon: <User size={11} /> };
+        return { label: 'Comum', cls: 'bg-[#E0E800]/40 text-[#32423D] border-blue-200', icon: <User size={11} /> };
     };
     const statusBadge = (st: string) => {
         const ativo = st === 'A' || !st;
@@ -359,7 +359,7 @@ export default function CadastroUsuarioPage() {
                         <Plus size={14} /> Novo
                     </button>
                     <button onClick={handleSalvar} disabled={saving || !showForm}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showForm ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showForm ? 'bg-[#32423D] text-white hover:bg-[#32423D]/80' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
                         {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Salvar
                     </button>
                     <button onClick={handleExcluir} disabled={saving || isNewMode || !form.idUsuario}
@@ -414,7 +414,7 @@ export default function CadastroUsuarioPage() {
                                     <button onClick={() => updateField('TipoUsuario', 'A')} className={`flex-1 text-[10px] font-black px-1.5 py-1 rounded-md border transition-all ${form.TipoUsuario === 'A' ? 'bg-purple-100 text-purple-700 border-purple-300 ring-1 ring-purple-300' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-purple-200'}`}>
                                         <Shield size={9} className="inline mr-0.5 -mt-0.5" />Admin
                                     </button>
-                                    <button onClick={() => updateField('TipoUsuario', 'C')} className={`flex-1 text-[10px] font-black px-1.5 py-1 rounded-md border transition-all ${form.TipoUsuario !== 'A' ? 'bg-blue-100 text-blue-700 border-blue-300 ring-1 ring-blue-300' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-blue-200'}`}>
+                                    <button onClick={() => updateField('TipoUsuario', 'C')} className={`flex-1 text-[10px] font-black px-1.5 py-1 rounded-md border transition-all ${form.TipoUsuario !== 'A' ? 'bg-[#E0E800]/40 text-[#32423D] border-blue-300 ring-1 ring-blue-300' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-blue-200'}`}>
                                         <User size={9} className="inline mr-0.5 -mt-0.5" />Comum
                                     </button>
                                 </div>
