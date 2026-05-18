@@ -184,6 +184,9 @@ function OrdemServicoContent() {
     const [searchItensDisp, setSearchItensDisp] = useState('');
     const [itensSelecionados, setItensSelecionados] = useState<Set<number>>(new Set());
     const [salvandoItens, setSalvandoItens] = useState(false);
+    // Seleção de itens da OS aberta (para excluir em lote)
+    const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(new Set());
+    const [deletandoSelecionados, setDeletandoSelecionados] = useState(false);
     const [cloneTags, setCloneTags] = useState<DropdownOption[]>([]);
     const [loadingCloneTags, setLoadingCloneTags] = useState(false);
     const [cloneTagsEmpty, setCloneTagsEmpty] = useState(false);
@@ -336,6 +339,49 @@ function OrdemServicoContent() {
             }
         } catch (err: any) {
             addToast({ type: 'error', title: 'Erro', message: err.message });
+        }
+    };
+
+    // Toggle item selection
+    const toggleItemSelection = (itemId: number) => {
+        setSelectedItemIds(prev => {
+            const next = new Set(prev);
+            if (next.has(itemId)) next.delete(itemId);
+            else next.add(itemId);
+            return next;
+        });
+    };
+
+    // Delete all selected items (only if OS not liberada)
+    const handleDeleteSelected = async (osId: number) => {
+        if (selectedItemIds.size === 0) return;
+        if (!window.confirm(`Deseja excluir ${selectedItemIds.size} item(s) selecionado(s)?`)) return;
+        setDeletandoSelecionados(true);
+        let erros = 0;
+        for (const itemId of Array.from(selectedItemIds)) {
+            try {
+                const res = await fetch(`${API_BASE}/ordemservicoitem/${itemId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setOrdensItens(prev => ({
+                        ...prev,
+                        [osId]: (prev[osId] || []).filter(i => i.IdOrdemServicoItem !== itemId)
+                    }));
+                } else {
+                    erros++;
+                    addToast({ type: 'error', title: 'Falha', message: data.message });
+                }
+            } catch {
+                erros++;
+            }
+        }
+        setSelectedItemIds(new Set());
+        setDeletandoSelecionados(false);
+        if (erros === 0) {
+            addToast({ type: 'success', title: 'Concluído', message: 'Itens excluídos com sucesso!' });
         }
     };
 
@@ -539,6 +585,7 @@ function OrdemServicoContent() {
 
         const toggleOS = useCallback(async (osId: number) => {
         setSelectedOSId(osId);
+        setSelectedItemIds(new Set()); // reset selection when changing OS
         if (!ordensItens[osId]) {
             fetchItens(osId);
         }
@@ -1528,8 +1575,25 @@ function OrdemServicoContent() {
                                 </div>
                             ) : (
                                 <div className="px-4 py-2">
-                                    <div className="text-xs font-semibold text-primary mb-2 pl-2">
-                                        Itens da OS ({itens.length})
+                                    <div className="flex items-center justify-between mb-2 pl-2">
+                                        <span className="text-xs font-semibold text-primary">
+                                            Itens da OS ({itens.length})
+                                            {selectedItemIds.size > 0 && (
+                                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">
+                                                    {selectedItemIds.size} selecionado(s)
+                                                </span>
+                                            )}
+                                        </span>
+                                        {selectedItemIds.size > 0 && os.Liberado_Engenharia !== 'S' && os.Liberado_Engenharia !== 'SIM' && (
+                                            <button
+                                                onClick={() => handleDeleteSelected(os.IdOrdemServico)}
+                                                disabled={deletandoSelecionados}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors shadow disabled:opacity-50 mr-2"
+                                            >
+                                                {deletandoSelecionados ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                                                Excluir Selecionados ({selectedItemIds.size})
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 pl-6 py-1 text-[10px] font-medium text-gray-400 uppercase">
@@ -1555,12 +1619,20 @@ function OrdemServicoContent() {
                                              <span className="w-8 shrink-0 mr-2"></span>
                                         </div>
 
-                                        {itens.map((item) => (
+                                        {itens.map((item) => {
+                                            const isSelected = selectedItemIds.has(item.IdOrdemServicoItem);
+                                            const osLiberada = os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM';
+                                            return (
                                             <div
                                                 key={item.IdOrdemServicoItem}
+                                                onClick={() => !osLiberada && toggleItemSelection(item.IdOrdemServicoItem)}
                                                 className={`flex items-center gap-2 pl-6 py-2 rounded-lg transition-colors group ${
-                                                    item.ProdutoPrincipal === 'SIM' ? 'bg-amber-50/60 hover:bg-amber-100/60' : 'hover:bg-white'
-                                                }`}
+                                                    isSelected
+                                                        ? 'bg-blue-50 border border-blue-200 shadow-sm'
+                                                        : item.ProdutoPrincipal === 'SIM'
+                                                            ? 'bg-amber-50/60 hover:bg-amber-100/60'
+                                                            : 'hover:bg-white'
+                                                } ${!osLiberada ? 'cursor-pointer' : ''}`}
                                             >
                                                 <div className="flex gap-1 shrink-0" style={{ width: '11.5rem' }}>
                                                     {item.EnderecoArquivo ? (
@@ -1707,7 +1779,8 @@ function OrdemServicoContent() {
                                                     </button>
                                                 )}
                                             </div>
-                                        ))}
+                                        );
+                                        })}
                                     </div>
                                 </div>
                             )}

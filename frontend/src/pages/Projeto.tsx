@@ -868,13 +868,7 @@ export default function ProjetoPage() {
                                             {projeto.DescStatus || 'Ativo'}
                                         </span>
 
-                                        {/* Tags Count Badge */}
-                                        {projectTags[projeto.IdProjeto!] && (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-[#E0E800]/20 text-[#32423D]">
-                                                <TagIcon size={12} />
-                                                {tags.length}
-                                            </span>
-                                        )}
+
 
                                         {/* Actions */}
                                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
@@ -958,14 +952,16 @@ export default function ProjetoPage() {
                                                     <div className="pl-10 pr-4 py-2 space-y-1">
                                                         {/* Tags Header */}
                                                         <div className="flex items-center gap-3 pl-6 py-1 text-xs font-medium text-gray-400 uppercase">
-                                                            <span className="w-16">ID</span>
-                                                            <span className="flex-1">Tag</span>
-                                                            <span className="w-24 hidden sm:block">Prev. Entrega</span>
-                                                            <span className="w-32 hidden sm:block">Tipo</span>
-                                                            <span className="w-16 text-center">Qtde</span>
-                                                            <span className="w-16 text-center">Lib.</span>
-                                                            <span className="w-16 text-center">Saldo</span>
-                                                            <span className="w-20"></span>
+                                                            <div className="w-4 shrink-0"></div>
+                                                            <div className="w-7 shrink-0"></div>
+                                                            <span className="shrink-0" style={{width:'40px'}}>ID</span>
+                                                            <span className="flex-1 min-w-0">Tag</span>
+                                                            <span className="hidden sm:block shrink-0 text-center" style={{width:'96px'}}>Prev. Entrega</span>
+                                                            <span className="hidden sm:block shrink-0" style={{width:'128px'}}>Tipo</span>
+                                                            <span className="shrink-0 text-center" style={{width:'64px'}}>Qtde</span>
+                                                            <span className="shrink-0 text-center" style={{width:'64px'}}>Lib.</span>
+                                                            <span className="shrink-0 text-center" style={{width:'64px'}}>Saldo</span>
+                                                            <span className="shrink-0" style={{width:'80px'}}></span>
                                                         </div>
 
                                                         {/* Tag Rows */}
@@ -984,15 +980,15 @@ export default function ProjetoPage() {
                                                                     <TagIcon size={12} />
                                                                 </div>
 
-                                                                <span className="w-10 text-xs text-gray-400 font-mono">{tag.IdTag}</span>
-                                                                <span className="flex-1 text-sm font-medium text-gray-800 truncate">{tag.Tag}</span>
-                                                                <span className="w-24 text-xs text-gray-500 truncate hidden sm:block">
+                                                                <span className="shrink-0 text-xs text-gray-400 font-mono" style={{width:'40px'}}>{tag.IdTag}</span>
+                                                                <span className="flex-1 min-w-0 text-sm font-medium text-gray-800 truncate">{tag.Tag}</span>
+                                                                <span className="hidden sm:block shrink-0 text-xs text-gray-500 truncate text-center" style={{width:'96px'}}>
                                                                     {formatToBRDate(tag.DataPrevisao)}
                                                                 </span>
-                                                                <span className="w-32 text-xs text-gray-500 truncate hidden sm:block">{tag.TipoProduto || '-'}</span>
-                                                                <span className="w-16 text-sm text-gray-600 text-center">{tag.QtdeTag || '-'}</span>
-                                                                <span className="w-16 text-sm text-gray-600 text-center">{tag.QtdeLiberada || '-'}</span>
-                                                                <span className="w-16 text-sm text-gray-600 text-center">{tag.SaldoTag || '-'}</span>
+                                                                <span className="hidden sm:block shrink-0 text-xs text-gray-500 truncate" style={{width:'128px'}}>{tag.TipoProduto || '-'}</span>
+                                                                <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeTag || '-'}</span>
+                                                                <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeLiberada || '-'}</span>
+                                                                <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.SaldoTag || '-'}</span>
 
                                                                 {/* Tag Actions */}
                                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
