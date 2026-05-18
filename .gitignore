@@ -37,3 +37,14 @@ playwright-report/
 # IDE
 .vscode/
 .idea/
+
+# Scripts temporários de desenvolvimento (patch/fix/sync na raiz)
+patch_*.js
+fix_*.js
+sync_*.js
+check_*.js
+insert_modal_*.js
+_check.txt
+
+# Diretório de scripts de rascunho
+scratch/
