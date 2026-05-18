@@ -6734,7 +6734,17 @@ app.post('/api/ordemservico/:id/incluir-itens', async (req, res) => {
                 `SELECT IdOrdemServicoItem FROM ordemservicoitem WHERE IdOrdemServico = ? AND CodMatFabricante = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
                 [osId, original.CodMatFabricante]
             );
-            if (existRows.length > 0) continue; 
+            if (existRows.length > 0) continue;
+
+            // Validar: item deve ter Espessura e MaterialSW preenchidos
+            const semEspessura = !original.Espessura || String(original.Espessura).trim() === '';
+            const semMaterialSW = !original.MaterialSW || String(original.MaterialSW).trim() === '';
+            if (semEspessura || semMaterialSW) {
+                const campos = [];
+                if (semEspessura) campos.push('Espessura');
+                if (semMaterialSW) campos.push('MaterialSW');
+                throw new Error('Item "' + (original.CodMatFabricante || original.IdOrdemServicoItem) + '" não possui ' + campos.join(' e ') + ' preenchido(s). Verifique o cadastro do material antes de incluir na OS.');
+            } 
 
             const colsToCopy = [
                 'IdProjeto', 'Projeto', 'IdTag', 'Tag', 'DescTag', 'IdMaterial', 'DescResumo', 'DescDetal', 'Autor',
@@ -9793,7 +9803,7 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
         
         const [updateRes] = await connection.execute(
             `UPDATE ordemservicoitem 
-             SET d_e_l_e_t_e = '*', UsuÃƒÂ¡riod_e_l_e_t_e = ?, datad_e_l_e_t_e = NOW() 
+             SET d_e_l_e_t_e = '*', UsuarioD_E_L_E_T_E = ?, datad_e_l_e_t_e = NOW() 
              WHERE IdOrdemServicoItem = ?`,
             [usuarioDesc, id]
         );

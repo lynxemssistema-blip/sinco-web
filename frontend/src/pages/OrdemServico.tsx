@@ -2617,7 +2617,12 @@ function OrdemServicoContent() {
                                         checked={itensDisponiveis.length > 0 && itensSelecionados.size === itensDisponiveis.length}
                                         onChange={e => {
                                             if (e.target.checked) {
-                                                setItensSelecionados(new Set(itensDisponiveis.map(i => i.IdOrdemServicoItem)));
+                                                // Seleciona apenas itens com Espessura e MaterialSW preenchidos
+                                                setItensSelecionados(new Set(
+                                                    itensDisponiveis
+                                                        .filter(i => i.Espessura && String(i.Espessura).trim() !== '' && i.MaterialSW && String(i.MaterialSW).trim() !== '')
+                                                        .map(i => i.IdOrdemServicoItem)
+                                                ));
                                             } else {
                                                 setItensSelecionados(new Set());
                                             }
@@ -2658,52 +2663,71 @@ function OrdemServicoContent() {
                                             {itensDisponiveis.map(item => {
                                                 const sel = itensSelecionados.has(item.IdOrdemServicoItem);
                                                 return (
-                                                    <tr
-                                                        key={item.IdOrdemServicoItem}
-                                                        onClick={() => {
-                                                            setItensSelecionados(prev => {
-                                                                const n = new Set(prev);
-                                                                sel ? n.delete(item.IdOrdemServicoItem) : n.add(item.IdOrdemServicoItem);
-                                                                return n;
-                                                            });
-                                                        }}
-                                                        className={`border-b border-gray-100 cursor-pointer transition-colors ${sel ? 'bg-teal-50 hover:bg-teal-100/70' : 'hover:bg-gray-50'}`}
-                                                    >
-                                                        <td className="px-4 py-2 text-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={sel}
-                                                                readOnly
-                                                                className="w-4 h-4 accent-teal-600 cursor-pointer"
-                                                            />
-                                                        </td>
-                                                        <td className="px-3 py-2">
-                                                            <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded text-[11px]">
-                                                                {item.CodMatFabricante || '-'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-3 py-2 text-gray-700 max-w-xs">
-                                                            <div className="truncate" title={item.DescDetal || item.DescResumo}>
-                                                                {item.DescResumo || '-'}
-                                                            </div>
-                                                            {item.DescDetal && item.DescDetal !== item.DescResumo && (
-                                                                <div className="text-gray-400 truncate text-[10px]">{item.DescDetal}</div>
-                                                            )}
-                                                        </td>
-                                                        <td className="px-3 py-2 text-gray-500 hidden md:table-cell">
-                                                            <div className="font-medium">{item.Projeto || '-'}</div>
-                                                            {item.Tag && <div className="text-[10px] text-gray-400">{item.Tag}</div>}
-                                                        </td>
-                                                        <td className="px-3 py-2 text-center text-gray-600 hidden lg:table-cell">
-                                                            {item.Espessura || '-'}
-                                                        </td>
-                                                        <td className="px-3 py-2 text-center text-gray-600 hidden lg:table-cell">
-                                                            {item.MaterialSW || '-'}
-                                                        </td>
-                                                        <td className="px-3 py-2 text-center text-gray-600 font-medium">
-                                                            {item.Peso ? `${item.Peso}` : '-'}
-                                                        </td>
-                                                    </tr>
+                                                    {(() => {
+                                                        const semEsp = !item.Espessura || String(item.Espessura).trim() === '';
+                                                        const semMat = !item.MaterialSW || String(item.MaterialSW).trim() === '';
+                                                        const invalido = semEsp || semMat;
+                                                        return (
+                                                        <tr
+                                                            key={item.IdOrdemServicoItem}
+                                                            onClick={() => {
+                                                                if (invalido) return; // bloqueia seleção de itens inválidos
+                                                                setItensSelecionados(prev => {
+                                                                    const n = new Set(prev);
+                                                                    sel ? n.delete(item.IdOrdemServicoItem) : n.add(item.IdOrdemServicoItem);
+                                                                    return n;
+                                                                });
+                                                            }}
+                                                            title={invalido ? 'Item bloqueado: ' + (semEsp ? 'Espessura ' : '') + (semMat ? 'MaterialSW ' : '') + 'não preenchido(s)' : ''}
+                                                            className={'border-b border-gray-100 transition-colors ' + (invalido ? 'bg-amber-50 opacity-80 cursor-not-allowed' : sel ? 'bg-teal-50 hover:bg-teal-100/70 cursor-pointer' : 'hover:bg-gray-50 cursor-pointer')}
+                                                        >
+                                                            <td className="px-4 py-2 text-center">
+                                                                {invalido ? (
+                                                                    <AlertTriangle size={14} className="text-amber-500 mx-auto" />
+                                                                ) : (
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={sel}
+                                                                        readOnly
+                                                                        className="w-4 h-4 accent-teal-600 cursor-pointer"
+                                                                    />
+                                                                )}
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <span className={'font-bold px-2 py-0.5 rounded text-[11px] ' + (invalido ? 'text-amber-700 bg-amber-100' : 'text-primary bg-primary/10')}>
+                                                                    {item.CodMatFabricante || '-'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-gray-700 max-w-xs">
+                                                                <div className="truncate" title={item.DescDetal || item.DescResumo}>
+                                                                    {item.DescResumo || '-'}
+                                                                </div>
+                                                                {item.DescDetal && item.DescDetal !== item.DescResumo && (
+                                                                    <div className="text-gray-400 truncate text-[10px]">{item.DescDetal}</div>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-3 py-2 text-gray-500 hidden md:table-cell">
+                                                                <div className="font-medium">{item.Projeto || '-'}</div>
+                                                                {item.Tag && <div className="text-[10px] text-gray-400">{item.Tag}</div>}
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center hidden lg:table-cell">
+                                                                {semEsp
+                                                                    ? <span className="text-amber-600 font-semibold text-[11px]">⚠ Ausente</span>
+                                                                    : <span className="text-gray-600">{item.Espessura}</span>
+                                                                }
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center hidden lg:table-cell">
+                                                                {semMat
+                                                                    ? <span className="text-amber-600 font-semibold text-[11px]">⚠ Ausente</span>
+                                                                    : <span className="text-gray-600">{item.MaterialSW}</span>
+                                                                }
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center text-gray-600 font-medium">
+                                                                {item.Peso ? item.Peso : '-'}
+                                                            </td>
+                                                        </tr>
+                                                        );
+                                                    })()}
                                                 );
                                             })}
                                         </tbody>
@@ -2713,9 +2737,15 @@ function OrdemServicoContent() {
 
                             {/* Footer */}
                             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
-                                <span className="text-xs text-gray-500">
-                                    {itensDisponiveis.length} item(ns) disponível(-eis) · {itensSelecionados.size} selecionado(s)
-                                </span>
+                                <div className="text-xs text-gray-500 flex flex-col gap-0.5">
+                                    <span>{itensDisponiveis.length} item(ns) disponível(-eis) · {itensSelecionados.size} selecionado(s)</span>
+                                    {itensDisponiveis.some(i => !i.Espessura || !i.MaterialSW) && (
+                                        <span className="flex items-center gap-1 text-amber-600 font-medium">
+                                            <AlertTriangle size={12} />
+                                            Itens em amarelo estão bloqueados por falta de Espessura ou MaterialSW.
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setShowModalIncluirItens(null)}
