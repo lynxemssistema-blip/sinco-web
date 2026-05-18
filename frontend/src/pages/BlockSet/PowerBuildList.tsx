@@ -3,7 +3,7 @@ import {
     FileSpreadsheet, Search, Filter, Calendar, 
     ChevronRight, ArrowRight, RefreshCw, Loader2,
     Database, Tag as TagIcon, LayoutGrid, CheckSquare, 
-    Square, Trash2, Save, AlertCircle, FileText
+    Square, Trash2, Save, AlertCircle, FileText, Info, XCircle, CheckCircle
 } from 'lucide-react';
 import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -80,6 +80,29 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
         };
         fetchProjetos();
     }, []);
+
+    // Persist selected Projeto+Tag to localStorage so other pages (e.g. Clonar OS) can read it
+    useEffect(() => {
+        if (selectedProjeto) {
+            const nome = projetos.find(p => p.IdProjeto.toString() === selectedProjeto)?.Projeto || '';
+            localStorage.setItem('powerbuild_selected_idprojeto', selectedProjeto);
+            localStorage.setItem('powerbuild_selected_nomprojeto', nome);
+        } else {
+            localStorage.removeItem('powerbuild_selected_idprojeto');
+            localStorage.removeItem('powerbuild_selected_nomprojeto');
+        }
+    }, [selectedProjeto, projetos]);
+
+    useEffect(() => {
+        if (selectedTag) {
+            const nome = tags.find(t => t.IdTag.toString() === selectedTag)?.NomeTag || '';
+            localStorage.setItem('powerbuild_selected_idtag', selectedTag);
+            localStorage.setItem('powerbuild_selected_nomtag', nome);
+        } else {
+            localStorage.removeItem('powerbuild_selected_idtag');
+            localStorage.removeItem('powerbuild_selected_nomtag');
+        }
+    }, [selectedTag, tags]);
 
     // Load Tags when Project changes
     useEffect(() => {
@@ -159,6 +182,10 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
     const handleSearch = async () => {
         if (!selectedProjeto || !selectedTag || !selectedPlanilha) {
             showAlert('Selecione Projeto, Tag e Planilha.', 'warning');
+            return;
+        }
+        if (!selectedOS) {
+            showAlert('Selecione a Ordem de Serviço de destino antes de pesquisar os itens.', 'warning');
             return;
         }
 
@@ -250,6 +277,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
         setSelectedRevisao(-1);
         setSelectedOS('');
         setCodMatFilter('');
+        setOsDestinoList([]);
         setItems([]);
     };
 
@@ -282,14 +310,15 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                 <div className="max-w-7xl mx-auto space-y-6 pb-8">
 
                 {/* Filters Section */}
-                {/* Filters Section */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6">
+
+                    {/* Row 1: Projeto, Tag, Planilha, Revisão */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Projeto</label>
                             <select 
                                 value={selectedProjeto}
-                                onChange={e => { setSelectedProjeto(e.target.value); setSelectedTag(''); }}
+                                onChange={e => { setSelectedProjeto(e.target.value); setSelectedTag(''); setSelectedOS(''); setOsDestinoList([]); }}
                                 className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
                             >
                                 <option value="">Selecione o Projeto</option>
@@ -297,10 +326,10 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tag / OS</label>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tag</label>
                             <select 
                                 value={selectedTag}
-                                onChange={e => setSelectedTag(e.target.value)}
+                                onChange={e => { setSelectedTag(e.target.value); setSelectedOS(''); }}
                                 disabled={!selectedProjeto}
                                 className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
                             >
@@ -334,7 +363,88 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                         </div>
                     </div>
 
+                    {/* Row 2: OS Destino (required) + Código filter + Buttons */}
                     <div className="flex flex-col md:flex-row gap-4 items-end">
+
+                        {/* OS de Destino — OBRIGATÓRIO */}
+                        <div className="w-full md:w-auto md:min-w-[360px] space-y-1">
+                            <div className="flex items-center gap-2">
+                                <label className={`text-[10px] font-bold uppercase tracking-wider ${
+                                    !selectedOS && selectedTag ? 'text-red-600' : 'text-gray-500'
+                                }`}>
+                                    OS de Destino
+                                </label>
+                                {!selectedOS && selectedTag && (
+                                    <span className="text-[10px] font-semibold text-red-500 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                                        ⚠ Obrigatório antes de pesquisar
+                                    </span>
+                                )}
+                            </div>
+                            <select 
+                                value={selectedOS}
+                                onChange={e => setSelectedOS(e.target.value)}
+                                disabled={!selectedTag}
+                                title="Exibe apenas OS não liberadas e não finalizadas da tag selecionada"
+                                className={`w-full border rounded-xl px-4 py-2.5 outline-none transition-all text-sm shadow-sm disabled:opacity-50 ${
+                                    !selectedOS && selectedTag
+                                        ? 'bg-red-50 border-red-300 text-red-800 focus:border-red-500'
+                                        : 'bg-gray-50 border-gray-300 text-gray-800 focus:border-[#32423D]'
+                                }`}
+                            >
+                                <option value="">— Selecione a OS de Destino —</option>
+                                {osDestinoList.length === 0 && selectedTag && (
+                                    <option disabled>Nenhuma OS disponível para esta Tag</option>
+                                )}
+                                {osDestinoList.map(os => (
+                                    <option
+                                        key={os.IdOrdemServico}
+                                        value={os.IdOrdemServico}
+                                        title={os.DescricaoOS}
+                                    >
+                                        {os.DescricaoOS}
+                                    </option>
+                                ))}
+                            </select>
+                            {/* Painel de critérios de seleção da OS */}
+                            {selectedTag && (
+                                <div className="mt-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+                                    <div className="flex items-center gap-1.5 mb-2">
+                                        <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                        <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                                            Critérios de exibição das OS disponíveis
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="inline-flex items-center gap-1 bg-white border border-blue-200 text-blue-800 text-[10px] font-semibold px-2 py-1 rounded-lg">
+                                            <TagIcon className="w-3 h-3 text-blue-500" />
+                                            Vinculada à Tag selecionada
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 bg-white border border-orange-200 text-orange-700 text-[10px] font-semibold px-2 py-1 rounded-lg">
+                                            <XCircle className="w-3 h-3 text-orange-500" />
+                                            Não liberada à Engenharia
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 bg-white border border-green-200 text-green-700 text-[10px] font-semibold px-2 py-1 rounded-lg">
+                                            <CheckCircle className="w-3 h-3 text-green-500" />
+                                            Não finalizada
+                                        </span>
+                                    </div>
+                                    {osDestinoList.length === 0 && (
+                                        <p className="mt-2 text-[10px] text-red-500 font-medium flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" />
+                                            Nenhuma OS encontrada para esta Tag com estes critérios.
+                                        </p>
+                                    )}
+                                    {osDestinoList.length > 0 && (
+                                        <p className="mt-2 text-[10px] text-green-600 font-medium flex items-center gap-1">
+                                            <CheckCircle className="w-3 h-3" />
+                                            {osDestinoList.length} OS disponível(is) para esta Tag.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Filtrar por Código */}
                         <div className="flex-1 space-y-2 w-full">
                             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Filtrar por Código</label>
                             <div className="relative">
@@ -348,11 +458,14 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                                 />
                             </div>
                         </div>
+
+                        {/* Action buttons */}
                         <div className="flex gap-2 w-full md:w-auto">
                             <button 
                                 onClick={handleSearch}
-                                disabled={loading || !selectedPlanilha}
+                                disabled={loading || !selectedPlanilha || !selectedOS}
                                 className="flex-1 md:flex-none bg-[#32423D] hover:bg-[#32423D]/80 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                                title={!selectedOS ? 'Selecione a OS de destino antes de pesquisar' : ''}
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                 Pesquisar
@@ -370,18 +483,15 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
 
                 {/* Processing Controls (Visible after search) */}
                 {items.length > 0 && (
-                    <div className="bg-[#E0E800]/20 border border-blue-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
-                            <div className="space-y-2 w-full md:w-80">
-                                <label className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">OS de Destino</label>
-                                <select 
-                                    value={selectedOS}
-                                    onChange={e => setSelectedOS(e.target.value)}
-                                    className="w-full bg-white border border-blue-300 rounded-xl px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 shadow-sm"
-                                >
-                                    <option value="">Selecione a OS Destino</option>
-                                    {osDestinoList.map(os => <option key={os.IdOrdemServico} value={os.IdOrdemServico}>{os.DescricaoOS}</option>)}
-                                </select>
+                    <div className="bg-[#E0E800]/20 border border-yellow-300 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                        {/* OS selecionada — somente leitura como confirmação */}
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center gap-2 bg-white border border-green-300 rounded-xl px-4 py-2.5 shadow-sm">
+                                <CheckSquare className="w-4 h-4 text-green-600 shrink-0" />
+                                <span className="text-xs font-bold text-gray-500 uppercase mr-1">OS:</span>
+                                <span className="text-sm font-bold text-green-700">
+                                    {osDestinoList.find(o => o.IdOrdemServico.toString() === selectedOS.toString())?.DescricaoOS || `OS #${selectedOS}`}
+                                </span>
                             </div>
                             <div className="flex flex-wrap gap-3">
                                 <button 
@@ -413,7 +523,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
                         </div>
                         <button 
                             onClick={handleSave}
-                            disabled={processing || !selectedOS}
+                            disabled={processing}
                             className="w-full md:w-auto bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
                         >
                             {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}

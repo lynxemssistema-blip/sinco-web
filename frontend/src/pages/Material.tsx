@@ -129,7 +129,8 @@ export default function MaterialPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const finalValue = (name === 'DescResumo' || name === 'DescDetal') ? value.toUpperCase() : value;
+        setFormData(prev => ({ ...prev, [name]: finalValue }));
     };
 
     const inputBaseClass = "w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
@@ -292,26 +293,28 @@ export default function MaterialPage() {
                             initial={{ opacity: 0, y: -20, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                            className="bg-white rounded-xl shadow-xl w-full max-w-3xl my-8"
+                            className="bg-white rounded-xl shadow-xl w-full max-w-3xl my-8 flex flex-col max-h-[85vh] overflow-hidden"
                         >
-                            <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-[#32423D] text-white flex items-center justify-center">
-                                        <Package size={20} />
+                            <form onSubmit={handleSubmit} className="flex flex-col h-full min-h-0">
+                                <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-[#32423D] text-white flex items-center justify-center">
+                                            <Package size={20} />
+                                        </div>
+                                        <h2 className="text-lg font-semibold text-[#32423D]">
+                                            {isEditing ? 'Editar Material' : 'Novo Material'}
+                                        </h2>
                                     </div>
-                                    <h2 className="text-lg font-semibold text-[#32423D]">
-                                        {isEditing ? 'Editar Material' : 'Novo Material'}
-                                    </h2>
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                                    >
+                                        <X size={20} />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={resetForm}
-                                    className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
 
-                            <form onSubmit={handleSubmit} className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+                                <div className="p-5 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
                                 {/* ID Field (readonly when editing) */}
                                 {isEditing && (
                                     <div className="grid grid-cols-3 gap-4">
@@ -660,25 +663,30 @@ export default function MaterialPage() {
                                     </div>
                                 </div>
 
-                                {/* Required fields note */}
-                                <p className="text-xs text-gray-400 pt-2">
-                                    <span className="text-red-500 font-bold">*</span> Campos obrigatórios
-                                </p>
+                                    {/* Required fields note */}
+                                    <p className="text-xs text-gray-400 pt-2">
+                                        <span className="text-red-500 font-bold">*</span> Campos obrigatórios
+                                    </p>
+                                </div>
 
-                                {/* Actions */}
-                                {document.getElementById('page-actions-portal') ? createPortal(
-                <motion.button
+                                {/* Modal Footer with Cancel & Save buttons */}
+                                <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-100 shrink-0 bg-gray-50 rounded-b-xl">
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
                                         type="submit"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium text-sm hover:bg-[#3d4f49] transition-colors disabled:opacity-50"
                                         disabled={saving}
+                                        className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] hover:bg-[#E0E800]/100 hover:text-gray-900 text-white font-bold text-sm transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                         {isEditing ? 'Atualizar' : 'Salvar'}
-                                    </motion.button>,
-                document.getElementById('page-actions-portal')
-            ) : null}
+                                    </button>
+                                </div>
                             </form>
                         </motion.div>
                     </motion.div>

@@ -58,7 +58,7 @@ exports.getProjetos = async (req, res) => {
             SELECT IdProjeto, Projeto 
             FROM projetos 
             WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-              AND (LIBERADO = 'S') 
+              AND (LIBERADO IS NULL OR LIBERADO <> 'S')
               AND (Finalizado IS NULL OR Finalizado = '')
             ORDER BY Projeto
         `);

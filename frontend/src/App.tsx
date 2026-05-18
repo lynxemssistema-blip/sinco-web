@@ -405,7 +405,7 @@ function AppContent() {
         return <PowerBuildRevisionPage />;
       case 'visualizacao-aglutinacao':
       case 'powerbuild-agglutination':
-        return <PowerBuildAgglutinationPage />;
+        return <PowerBuildAgglutinationPage onNavigate={handleNavigate} />;
       default:
         // Handle custom pages or IDs dynamically if needed, for now fallback to Dashboard
         return <DashboardPage onNavigate={handleNavigate} />;

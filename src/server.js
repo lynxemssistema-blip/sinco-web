@@ -2739,6 +2739,26 @@ app.get('/api/pj/:id', async (req, res) => {
     }
 });
 
+
+// Helper: Parse double/float robustly (especially handling Portuguese commas)
+const parseDoubleOrNull = (val) => {
+    if (val === undefined || val === null) return null;
+    let s = val.toString().trim();
+    if (s === '') return null;
+    s = s.replace(',', '.');
+    const parsed = parseFloat(s);
+    return isNaN(parsed) ? null : parsed;
+};
+
+// Helper: Parse integer robustly
+const parseIntOrNull = (val) => {
+    if (val === undefined || val === null) return null;
+    let s = val.toString().trim();
+    if (s === '') return null;
+    const parsed = parseInt(s, 10);
+    return isNaN(parsed) ? null : parsed;
+};
+
 // CREATE (Insert) with File Upload
 app.post('/api/pj', upload.single('Logo'), async (req, res) => {
     const data = req.body;
@@ -3280,12 +3300,12 @@ app.post('/api/material', async (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 data.CodMatFabricante?.trim(),
-                data.DescResumo?.trim() || null,
-                data.DescDetal?.trim() || null,
+                data.DescResumo?.trim().toUpperCase() || null,
+                data.DescDetal?.trim().toUpperCase() || null,
                 data.NumeroRP?.trim() || null,
-                data.FamiliaMat || null,
+                parseIntOrNull(data.FamiliaMat),
                 data.CodigoJuridicoMat || null,
-                data.Peso || null,
+                parseDoubleOrNull(data.Peso),
                 data.Unidade || null,
                 data.Altura || null,
                 data.Largura || null,
@@ -3335,12 +3355,12 @@ app.put('/api/material/:id', async (req, res) => {
             WHERE IdMaterial = ?`,
             [
                 data.CodMatFabricante?.trim(),
-                data.DescResumo?.trim() || null,
-                data.DescDetal?.trim() || null,
+                data.DescResumo?.trim().toUpperCase() || null,
+                data.DescDetal?.trim().toUpperCase() || null,
                 data.NumeroRP?.trim() || null,
-                data.FamiliaMat || null,
+                parseIntOrNull(data.FamiliaMat),
                 data.CodigoJuridicoMat || null,
-                data.Peso || null,
+                parseDoubleOrNull(data.Peso),
                 data.Unidade || null,
                 data.Altura || null,
                 data.Largura || null,
@@ -4842,7 +4862,7 @@ app.post('/api/tag', async (req, res) => {
     const data = req.body;
 
     if (!data.Tag || !data.IdProjeto) {
-        return res.status(400).json({ success: false, message: 'Tag e Projeto sÃ¯Â¿Â½o obrigatÃ¯Â¿Â½rios' });
+        return res.status(400).json({ success: false, message: 'Tag e Projeto são obrigatórios' });
     }
 
     try {
@@ -4869,6 +4889,20 @@ app.post('/api/tag', async (req, res) => {
                 'Sistema'
             ]
         );
+
+        // Recalcula QtdeTags no projeto após inserir a nova tag
+        await pool.execute(
+            `UPDATE projetos
+             SET QtdeTags = (
+                 SELECT COUNT(*) FROM tags
+                 WHERE IdProjeto = ?
+                   AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+             )
+             WHERE IdProjeto = ?`,
+            [data.IdProjeto, data.IdProjeto]
+        );
+        console.log(`[TAG] QtdeTags recalculado para Projeto ${data.IdProjeto} após inserção de nova tag.`);
+
         res.json({ success: true, message: 'Tag cadastrada com sucesso', id: result.insertId });
     } catch (error) {
         console.error('Error creating tag:', error);
@@ -4921,11 +4955,33 @@ app.delete('/api/tag/:id', async (req, res) => {
         const { usuario } = req.body;
         const now = getCurrentDateTimeBR();
 
+        // Descobre o IdProjeto antes de deletar (para recalcular QtdeTags)
+        const [[tagRow]] = await pool.execute(
+            'SELECT IdProjeto FROM tags WHERE IdTag = ?',
+            [req.params.id]
+        );
+
         await pool.execute(
             "UPDATE tags SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdTag = ?",
             [now, usuario || 'Sistema', req.params.id]
         );
-        res.json({ success: true, message: 'Tag excluÃ¯Â¿Â½da' });
+
+        // Recalcula QtdeTags no projeto após a exclusão
+        if (tagRow?.IdProjeto) {
+            await pool.execute(
+                `UPDATE projetos
+                 SET QtdeTags = (
+                     SELECT COUNT(*) FROM tags
+                     WHERE IdProjeto = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+                 )
+                 WHERE IdProjeto = ?`,
+                [tagRow.IdProjeto, tagRow.IdProjeto]
+            );
+            console.log(`[TAG] QtdeTags recalculado para Projeto ${tagRow.IdProjeto} após exclusão de tag ${req.params.id}.`);
+        }
+
+        res.json({ success: true, message: 'Tag excluída' });
     } catch (error) {
         console.error('Error deleting tag:', error);
         res.status(500).json({ success: false, message: 'Erro ao excluir' });
@@ -6779,7 +6835,32 @@ app.post('/api/ordemservico/:id/incluir-itens', async (req, res) => {
                 'Comprimentocaixadelimitadora', 'Larguracaixadelimitadora', 'Espessuracaixadelimitadora',
                 'AreaPinturaUnitario', 'PesoUnitario', 'txtItemEstoque', 'ProdutoPrincipal', 'IdEmpresa', 'DescEmpresa', 'NumeroOpOmie'
             ];
-            
+
+            // ── Busca caminho base SolidWorks nas configuracoes do tenant ──────────
+            // Chave esperada: 'path_solidworks'  |  Fallback: padrao do banco lynxlocal
+            let swBasePath = 'G:\\MEU DRIVE\\04-ARQUIVOS SOLIDWORKS';
+            try {
+                const [cfgRows] = await conn.execute(
+                    `SELECT valor FROM configuracoes_internas WHERE chave = 'path_solidworks' LIMIT 1`
+                );
+                if (cfgRows.length > 0 && cfgRows[0].valor) {
+                    swBasePath = cfgRows[0].valor.trim().replace(/[\\/]+$/, ''); // remove trailing slash
+                }
+            } catch(e) { /* tabela pode nao existir em todos os tenants — usa fallback */ }
+
+            // Determina sufixo: CONJUNTO → .SLDASM, demais → .SLDPRT
+            const tipoDesenho = (original.txtTipoDesenho || '').trim().toUpperCase();
+            const sufixoSW = (tipoDesenho === 'CONJUNTO') ? '.SLDASM' : '.SLDPRT';
+            const codMat = (original.CodMatFabricante || '').trim();
+
+            // Gera o EnderecoArquivo calculado
+            const enderecoCalculado = codMat
+                ? `${swBasePath}\\${codMat}${sufixoSW}`
+                : null;
+
+            console.log(`[INCLUIR-ITEM] ${codMat} | TipoDesenho: "${tipoDesenho}" | Sufixo: ${sufixoSW} | Endereco: ${enderecoCalculado}`);
+            // ─────────────────────────────────────────────────────────────────────
+
             const cols = colsToCopy.filter(c => original[c] !== undefined);
             const vals = cols.map(c => {
                 if (c === 'PesoUnitario') {
@@ -6800,6 +6881,13 @@ app.post('/api/ordemservico/:id/incluir-itens', async (req, res) => {
                     const fatorMultiplier = fator <= 0 ? 1 : fator;
                     return areaUnit * qtdeTotal * fatorMultiplier;
                 }
+                // ── Gera EnderecoArquivo se vazio ou marcador de importacao ───────
+                if (c === 'EnderecoArquivo') {
+                    const atual = original[c] || '';
+                    const invalido = !atual || atual.trim() === '' || atual.trim().toUpperCase() === 'IMPORTADO DA PLANILHA';
+                    return invalido ? enderecoCalculado : atual;
+                }
+                // ─────────────────────────────────────────────────────────────────
                 return original[c];
             });
             
@@ -11970,6 +12058,7 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
             await connection.execute(`
                 UPDATE projetos p
                 SET 
+                    QtdeTags = (SELECT COUNT(*) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
                     QtdePecasTags = (SELECT COALESCE(SUM(t.QtdePecasOS), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
                     QtdePecasExecutadas = (SELECT COALESCE(SUM(t.QtdePecasExecutadas), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
                     PesoTotal = (SELECT COALESCE(SUM(t.PesoTotal), 0) FROM tags t WHERE t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')),
@@ -12038,5 +12127,263 @@ app.listen(PORT, '0.0.0.0', async () => {
         connection.release();
     } catch (err) {
         console.error('Failed to connect to database on startup:', err.message);
+    }
+});
+// ─── ENDPOINT DE MANUTENCAO: Recalcula QtdeTags para todos os projetos ────
+// Chame via: GET /api/manutencao/fix-qtdetags?key=sinco-manut-2026
+// REMOVER APOS EXECUTAR UMA VEZ.
+app.get('/api/manutencao/fix-qtdetags', async (req, res) => {
+    if (req.query.key !== 'sinco-manut-2026') {
+        return res.status(403).json({ success: false, message: 'Chave invalida' });
+    }
+    try {
+        const [result] = await pool.execute(`
+            UPDATE projetos p
+            SET QtdeTags = (
+                SELECT COUNT(*) FROM tags t
+                WHERE t.IdProjeto = p.IdProjeto
+                  AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+            )
+            WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '')
+        `);
+        console.log(`[MANUTENCAO] QtdeTags recalculado para ${result.affectedRows} projetos.`);
+
+        const [[p84]] = await pool.execute(
+            'SELECT IdProjeto, Projeto, QtdeTags FROM projetos WHERE IdProjeto = 84'
+        );
+
+        const [divs] = await pool.execute(`
+            SELECT p.IdProjeto, p.Projeto, p.QtdeTags, COUNT(t.IdTag) as CountReal
+            FROM projetos p
+            LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto
+                AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+            WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '')
+            GROUP BY p.IdProjeto
+            HAVING CAST(COALESCE(p.QtdeTags, 0) AS UNSIGNED) != COUNT(t.IdTag)
+        `);
+
+        res.json({
+            success: true,
+            projetosAtualizados: result.affectedRows,
+            projeto84: p84,
+            divergenciasRestantes: divs.length,
+            divergencias: divs
+        });
+    } catch (e) {
+        console.error('[MANUTENCAO] Erro:', e);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ─── ENDPOINT ANALISE: Padrao EnderecoArquivo ───────────────────────────────
+app.get('/api/manutencao/analise-endereco', async (req, res) => {
+    if (req.query.key !== 'sinco-manut-2026') {
+        return res.status(403).json({ success: false, message: 'Chave invalida' });
+    }
+    try {
+        // 1. Amostras de EnderecoArquivo existentes
+        const [amostras] = await pool.execute(`
+            SELECT EnderecoArquivo, CodMatFabricante
+            FROM ordemservicoitem
+            WHERE EnderecoArquivo IS NOT NULL AND EnderecoArquivo <> ''
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            ORDER BY IdOrdemServicoItem DESC
+            LIMIT 30
+        `);
+
+        // 2. Padroes de pasta base (tudo antes do ultimo separador)
+        const bases = [...new Set(amostras.map(r => {
+            const p = r.EnderecoArquivo;
+            const idx = Math.max(p.lastIndexOf('\\'), p.lastIndexOf('/'));
+            return idx > 0 ? p.substring(0, idx) : p;
+        }))];
+
+        // 3. Sufixos distintos de arquivo
+        const sufixos = [...new Set(amostras.map(r => {
+            const p = r.EnderecoArquivo;
+            const idx = Math.max(p.lastIndexOf('\\'), p.lastIndexOf('/'));
+            const arquivo = idx > 0 ? p.substring(idx + 1) : p;
+            const dotIdx = arquivo.lastIndexOf('.');
+            return dotIdx > 0 ? arquivo.substring(dotIdx).toUpperCase() : '';
+        }))];
+
+        // 4. Verifica configuracoes_internas por chave de caminho
+        let configPath = null;
+        try {
+            const [cfg] = await pool.execute(
+                `SELECT chave, valor FROM configuracoes_internas
+                 WHERE chave LIKE '%solidworks%' OR chave LIKE '%endereco%'
+                    OR chave LIKE '%path%' OR chave LIKE '%arquivo%'
+                 LIMIT 10`
+            );
+            configPath = cfg;
+        } catch(e) { configPath = 'Tabela configuracoes_internas nao encontrada ou sem registros'; }
+
+        // 5. Estatisticas: com/sem EnderecoArquivo
+        const [[stats]] = await pool.execute(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN EnderecoArquivo IS NOT NULL AND EnderecoArquivo <> '' THEN 1 ELSE 0 END) as com_endereco,
+                SUM(CASE WHEN EnderecoArquivo IS NULL OR EnderecoArquivo = '' THEN 1 ELSE 0 END) as sem_endereco
+            FROM ordemservicoitem
+            WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = ''
+        `);
+
+        res.json({
+            success: true,
+            estatisticas: stats,
+            basesEncontradas: bases,
+            sufixosEncontrados: sufixos,
+            amostras10: amostras.slice(0, 10),
+            configuracoes: configPath
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ─── ENDPOINT ANALISE: Correlacao txtTipoDesenho x sufixo arquivo ───────────
+app.get('/api/manutencao/analise-tipoarquivo', async (req, res) => {
+    if (req.query.key !== 'sinco-manut-2026') {
+        return res.status(403).json({ success: false, message: 'Chave invalida' });
+    }
+    try {
+        const [rows] = await pool.execute(`
+            SELECT 
+                txtTipoDesenho,
+                EnderecoArquivo,
+                CodMatFabricante,
+                CASE 
+                    WHEN EnderecoArquivo LIKE '%.SLDASM' THEN 'SLDASM'
+                    WHEN EnderecoArquivo LIKE '%.SLDPRT' THEN 'SLDPRT'
+                    ELSE 'OUTRO'
+                END as Sufixo
+            FROM ordemservicoitem
+            WHERE EnderecoArquivo IS NOT NULL AND EnderecoArquivo <> ''
+              AND EnderecoArquivo <> 'IMPORTADO DA PLANILHA'
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            LIMIT 50
+        `);
+
+        // Agrupa por tipoDesenho x sufixo
+        const correlacao = rows.reduce((acc, r) => {
+            const tipo = r.txtTipoDesenho || '(vazio)';
+            if (!acc[tipo]) acc[tipo] = { SLDPRT: 0, SLDASM: 0, OUTRO: 0 };
+            acc[tipo][r.Sufixo]++;
+            return acc;
+        }, {});
+
+        res.json({ success: true, correlacao, amostras: rows.slice(0, 15) });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ─── ENDPOINT MANUTENCAO: Corrige EnderecoArquivo = 'IMPORTADO DA PLANILHA' ─
+// GET /api/manutencao/fix-endereco-importado?key=sinco-manut-2026
+app.get('/api/manutencao/fix-endereco-importado', async (req, res) => {
+    if (req.query.key !== 'sinco-manut-2026') {
+        return res.status(403).json({ success: false, message: 'Chave invalida' });
+    }
+    try {
+        // 1. Busca caminho base configurado (ou usa fallback padrao lynxlocal)
+        let swBasePath = 'G:\\MEU DRIVE\\04-ARQUIVOS SOLIDWORKS';
+        try {
+            const [cfgRows] = await pool.execute(
+                `SELECT valor FROM configuracoes_internas WHERE chave = 'path_solidworks' LIMIT 1`
+            );
+            if (cfgRows.length > 0 && cfgRows[0].valor) {
+                swBasePath = cfgRows[0].valor.trim().replace(/[\\/]+$/, '');
+            }
+        } catch(e) { /* usa fallback */ }
+
+        // 2. Busca todos os itens com EnderecoArquivo = 'IMPORTADO DA PLANILHA'
+        const [itens] = await pool.execute(`
+            SELECT IdOrdemServicoItem, CodMatFabricante, txtTipoDesenho
+            FROM ordemservicoitem
+            WHERE EnderecoArquivo = 'IMPORTADO DA PLANILHA'
+              AND CodMatFabricante IS NOT NULL AND CodMatFabricante <> ''
+              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+        `);
+
+        if (itens.length === 0) {
+            return res.json({ success: true, message: 'Nenhum registro com IMPORTADO DA PLANILHA encontrado.', atualizados: 0 });
+        }
+
+        // 3. Atualiza cada registro com o caminho calculado
+        let atualizados = 0;
+        const detalhes = [];
+
+        for (const item of itens) {
+            const tipoDesenho = (item.txtTipoDesenho || '').trim().toUpperCase();
+            const sufixo = (tipoDesenho === 'CONJUNTO') ? '.SLDASM' : '.SLDPRT';
+            const codMat = (item.CodMatFabricante || '').trim();
+            const novoEndereco = `${swBasePath}\\${codMat}${sufixo}`;
+
+            await pool.execute(
+                `UPDATE ordemservicoitem SET EnderecoArquivo = ? WHERE IdOrdemServicoItem = ?`,
+                [novoEndereco, item.IdOrdemServicoItem]
+            );
+
+            detalhes.push({ id: item.IdOrdemServicoItem, codMat, tipoDesenho, novoEndereco });
+            atualizados++;
+        }
+
+        console.log(`[MANUTENCAO] fix-endereco-importado: ${atualizados} registros corrigidos. Base: ${swBasePath}`);
+
+        res.json({
+            success: true,
+            message: `${atualizados} registros corrigidos com sucesso.`,
+            basePath: swBasePath,
+            atualizados,
+            detalhes
+        });
+    } catch (e) {
+        console.error('[MANUTENCAO] fix-endereco-importado erro:', e);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ─── ENDPOINT DIAGNOSTICO: Inspeciona item por ID ───────────────────────────
+app.get('/api/manutencao/inspecionar-item', async (req, res) => {
+    if (req.query.key !== 'sinco-manut-2026') {
+        return res.status(403).json({ success: false, message: 'Chave invalida' });
+    }
+    const { id } = req.query;
+    if (!id) return res.status(400).json({ success: false, message: 'Parametro id obrigatorio' });
+    try {
+        const [rows] = await pool.execute(
+            `SELECT IdOrdemServicoItem, IdOrdemServico, CodMatFabricante,
+                    EnderecoArquivo, txtTipoDesenho, D_E_L_E_T_E, DescResumo
+             FROM ordemservicoitem WHERE IdOrdemServicoItem = ?`,
+            [id]
+        );
+        if (rows.length === 0) {
+            return res.json({ success: false, message: 'Item ' + id + ' nao encontrado.' });
+        }
+        const item = rows[0];
+        const endAtual = (item.EnderecoArquivo || '').trim();
+        const motivos = [];
+
+        if (item.D_E_L_E_T_E && item.D_E_L_E_T_E !== '') {
+            motivos.push('DELETADO: D_E_L_E_T_E = "' + item.D_E_L_E_T_E + '"');
+        }
+        if (!item.CodMatFabricante || item.CodMatFabricante.trim() === '') {
+            motivos.push('CodMatFabricante vazio/nulo — filtro exige codigo preenchido');
+        }
+        if (endAtual !== 'IMPORTADO DA PLANILHA') {
+            motivos.push('EnderecoArquivo nao bate exatamente com "IMPORTADO DA PLANILHA"');
+            motivos.push('Valor atual: "' + endAtual + '" | Comprimento: ' + endAtual.length + ' chars');
+            // Mostra char codes para detectar espacos/caracteres ocultos
+            const charCodes = [...endAtual].slice(0, 30).map(c => c.charCodeAt(0));
+            motivos.push('Primeiros char codes: [' + charCodes.join(',') + ']');
+        }
+        if (motivos.length === 0) {
+            motivos.push('Nenhum motivo detectado — item deveria ter sido atualizado anteriormente');
+        }
+
+        res.json({ success: true, item, motivos_nao_atualizado: motivos });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
     }
 });

@@ -523,6 +523,13 @@ function OrdemServicoContent() {
                     if (json.success) {
                         setCloneTags(json.data);
                         setCloneTagsEmpty(json.data.length === 0);
+                        // Aplica tag pendente do Power Build (se existir e pertencer a este projeto)
+                        const pendingTag = sessionStorage.getItem('_pending_clone_tag');
+                        if (pendingTag && json.data.some((t: any) => t.value.toString() === pendingTag)) {
+                            setCloneTagId(pendingTag);
+                        }
+                        sessionStorage.removeItem('_pending_clone_tag');
+                        sessionStorage.removeItem('_pending_clone_tag_nome');
                     }
                 })
                 .finally(() => setLoadingCloneTags(false));
@@ -784,6 +791,38 @@ function OrdemServicoContent() {
         } finally {
             setLiberandoOS(null);
         }
+    };
+
+    // Abre o modal de clonar OS e pré-preenche Projeto/Tag do PowerBuild (via localStorage)
+    const handleAbrirModalClonar = (os: OrdemServico) => {
+        const savedProjetoId = localStorage.getItem('powerbuild_selected_idprojeto') || '';
+        const savedTagId     = localStorage.getItem('powerbuild_selected_idtag')     || '';
+        const savedProjetoNm = localStorage.getItem('powerbuild_selected_nomprojeto') || '';
+        const savedTagNm     = localStorage.getItem('powerbuild_selected_nomtag')     || '';
+
+        setCloneDescricao('');
+        setCloneFator(1);
+
+        if (savedProjetoId) {
+            setCloneProjetoId(savedProjetoId);
+            // A tag só é setada se for do mesmo projeto — o useEffect de cloneProjetoId
+            // carrega as tags; depois de montar, pré-setamos a tag via flag auxiliar
+            if (savedTagId) {
+                // Salva tag para ser aplicada após o useEffect de tags carregar
+                sessionStorage.setItem('_pending_clone_tag', savedTagId);
+                sessionStorage.setItem('_pending_clone_tag_nome', savedTagNm);
+            }
+            addToast({
+                type: 'info',
+                title: 'Projeto/Tag pré-selecionados',
+                message: `Pré-preenchido com: ${savedProjetoNm}${savedTagNm ? ' / ' + savedTagNm : ''} (do Power Build)`
+            });
+        } else {
+            setCloneProjetoId('');
+            setCloneTagId('');
+        }
+
+        setShowModalClonar(os);
     };
 
     const handleAtualizarArquivos = async (os: OrdemServico) => {
@@ -1239,8 +1278,31 @@ function OrdemServicoContent() {
     const handleOpenClonarOS = (os: OrdemServico) => {
         setCloneDescricao(os.Descricao || '');
         setCloneFator(1);
-        setCloneProjetoId(os.IdProjeto || '');
-        setCloneTagId(os.IdTag || '');
+
+        // Tenta pré-preencher com a seleção do Power Build (Lista de Itens da Planilha)
+        const pbProjetoId = localStorage.getItem('powerbuild_selected_idprojeto') || '';
+        const pbTagId     = localStorage.getItem('powerbuild_selected_idtag')     || '';
+        const pbProjetoNm = localStorage.getItem('powerbuild_selected_nomprojeto') || '';
+        const pbTagNm     = localStorage.getItem('powerbuild_selected_nomtag')     || '';
+
+        if (pbProjetoId) {
+            setCloneProjetoId(pbProjetoId);
+            if (pbTagId) {
+                // Guardamos a tag pendente — será aplicada após o useEffect de cloneProjetoId carregar as tags
+                sessionStorage.setItem('_pending_clone_tag', pbTagId);
+                sessionStorage.setItem('_pending_clone_tag_nome', pbTagNm);
+            }
+            addToast({
+                type: 'info',
+                title: 'Pré-preenchido pelo Power Build',
+                message: `Projeto: ${pbProjetoNm}${pbTagNm ? ' · Tag: ' + pbTagNm : ''}`
+            });
+        } else {
+            // Fallback: usa o próprio projeto/tag da OS sendo clonada
+            setCloneProjetoId(os.IdProjeto || '');
+            setCloneTagId(os.IdTag || '');
+        }
+
         setShowModalClonar(os);
     };
 

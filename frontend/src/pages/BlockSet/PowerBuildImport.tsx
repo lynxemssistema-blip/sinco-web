@@ -351,8 +351,8 @@ const PowerBuildImport: React.FC = () => {
                                         <div className={`p-4 rounded-2xl ${file ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-[#32423D]'}`}>
                                             <FileSpreadsheet className="w-10 h-10" />
                                         </div>
-                                        <div className="text-center">
-                                            <p className={`font-bold ${file ? 'text-emerald-600' : 'text-gray-700'}`}>
+                                        <div className="text-center w-full">
+                                            <p className={`font-bold ${file ? 'text-emerald-600' : 'text-gray-700'} break-all max-w-full px-4`}>
                                                 {file ? file.name : 'Clique ou arraste a planilha Excel'}
                                             </p>
                                             <p className="text-xs text-gray-500 mt-1">Formato suportado: .xlsx, .xls</p>
