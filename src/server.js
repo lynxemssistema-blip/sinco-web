@@ -2692,6 +2692,48 @@ app.post('/api/admin/schema/sync', authenticateAdmin, async (req, res) => {
     }
 });
 
+// ══════════════════════════════════════════════════════════════════════════════
+// MANUTENÇÃO: Recalcular QtdeOS e QtdeOSExecutadas em todas as tags
+// POST /api/manutencao/recalcular-qtde-os
+// Body: { chave: 'SincoMasterKey2026!' }
+// ══════════════════════════════════════════════════════════════════════════════
+app.post('/api/manutencao/recalcular-qtde-os', async (req, res) => {
+    const MANUT_KEY = 'SincoMasterKey2026!';
+    const { chave } = req.body;
+
+    if (chave !== MANUT_KEY) {
+        return res.status(403).json({ success: false, message: 'Chave inválida.' });
+    }
+
+    try {
+        const queryPool = req.tenantDbPool || pool;
+
+        // Atualiza QtdeOS e QtdeOSExecutadas em TODAS as tags de uma vez
+        const [result] = await queryPool.execute(`
+            UPDATE tags t
+            SET
+                QtdeOS = (
+                    SELECT COUNT(*) FROM ordemservico os
+                    WHERE os.IdTag = t.IdTag
+                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+                ),
+                QtdeOSExecutadas = (
+                    SELECT COUNT(*) FROM ordemservico os
+                    WHERE os.IdTag = t.IdTag
+                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+                      AND TRIM(COALESCE(os.OrdemServicoFinalizado,'')) = 'C'
+                )
+            WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+        `);
+
+        console.log(`[MANUTENCAO] recalcular-qtde-os | Tags atualizadas: ${result.affectedRows}`);
+        res.json({ success: true, message: `QtdeOS e QtdeOSExecutadas recalculados em ${result.affectedRows} tags com sucesso.`, tagsAtualizadas: result.affectedRows });
+
+    } catch (e) {
+        console.error('[MANUTENCAO] Erro ao recalcular QtdeOS:', e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
 // --- CRUD: Pessoa JurÃ¯Â¿Â½dica ---
 
 // LIST (Read All)
@@ -7010,10 +7052,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             params.push(`%${tag}%`, `%${tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por descrição da OS (LIKE)
+        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
         if (os) {
-            whereClause += ' AND os.Descricao LIKE ?';
-            params.push(`%${os}%`);
+            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
+            params.push(os, `%${os}%`);
         }
 
         if (item) {
@@ -7181,10 +7223,10 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             params.push(`%${req.query.tag}%`, `%${req.query.tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por descrição da OS (LIKE)
+        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
         if (req.query.os) {
-            whereClause += ' AND os.Descricao LIKE ?';
-            params.push(`%${req.query.os}%`);
+            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
+            params.push(req.query.os, `%${req.query.os}%`);
         }
 
         // Filtro Cliente: busca por descrição (LIKE)
@@ -7235,6 +7277,11 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             osi.txtsolda as txtSolda,
             osi.txtpintura as txtPintura,
             osi.txtmontagem as TxtMontagem,
+            osi.CorteTotalExecutado,
+            osi.DobraTotalExecutado,
+            osi.SoldaTotalExecutado,
+            osi.PinturaTotalExecutado,
+            osi.MontagemTotalExecutado,
             osi.ProdutoPrincipal as IsProdutoPrincipal,
             (SELECT DescResumo FROM ordemservicoitem WHERE IdOrdemServico = osi.IdOrdemServico AND ProdutoPrincipal = 'sim' LIMIT 1) as NomeProdutoPrincipal,
             COALESCE(history.QtdeProduzidaHistory, 0) as QtdeProduzidaHistory
@@ -12022,6 +12069,8 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
             await connection.execute(`
                 UPDATE tags t
                 SET 
+                    QtdeOS = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    QtdeOSExecutadas = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '') AND TRIM(COALESCE(os.OrdemServicoFinalizado,'')) = 'C'),
                     QtdePecasOS = (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
                     QtdePecasExecutadas = (SELECT COALESCE(SUM(os.QtdePecasExecutadas), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
                     PesoTotal = (SELECT COALESCE(SUM(os.PesoTotal), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),

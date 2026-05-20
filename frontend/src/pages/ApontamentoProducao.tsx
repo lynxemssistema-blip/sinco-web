@@ -97,7 +97,7 @@ type Setor = 'mapa' | 'corte' | 'dobra' | 'solda' | 'pintura' | 'montagem' | 'ma
 
 const setores: { id: Setor; label: string; icon: typeof Scissors; color: string }[] = [
     { id: 'mapa', label: 'Mapa', icon: Settings2, color: 'bg-gray-700' },
-    { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-[#E0E800]/200' },
+    { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-yellow-500' },
     { id: 'dobra', label: 'Dobra', icon: Wrench, color: 'bg-purple-500' },
     { id: 'solda', label: 'Solda', icon: Flame, color: 'bg-orange-500' },
     { id: 'pintura', label: 'Pintura', icon: Paintbrush, color: 'bg-green-500' },
@@ -139,9 +139,6 @@ export default function ApontamentoProducaoPage() {
     const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
         if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
         
-        // Se já existe saldo a executar no setor atual (visão por setor), permite apontar independente do predecessor
-        if ((item as any).TotalExecutar > 0) return { allowed: true };
-        
         const sequence: Setor[] = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
         const currentIndex = sequence.indexOf(currentSetor);
         
@@ -151,22 +148,22 @@ export default function ApontamentoProducaoPage() {
         for (let i = currentIndex - 1; i >= 0; i--) {
             const pred = sequence[i];
             const isActive = 
-                (pred === 'corte' && item.txtCorte === '1') ||
-                (pred === 'dobra' && item.txtDobra === '1') ||
-                (pred === 'solda' && item.txtSolda === '1') ||
-                (pred === 'pintura' && item.txtPintura === '1') ||
-                (pred === 'montagem' && item.TxtMontagem === '1');
+                (pred === 'corte' && (item.txtCorte === '1' || item.txtcorte === '1')) ||
+                (pred === 'dobra' && (item.txtDobra === '1' || item.txtdobra === '1')) ||
+                (pred === 'solda' && (item.txtSolda === '1' || item.txtsolda === '1')) ||
+                (pred === 'pintura' && (item.txtPintura === '1' || item.txtpintura === '1')) ||
+                (pred === 'montagem' && (item.TxtMontagem === '1' || item.txtmontagem === '1'));
 
             if (isActive) {
                 const totalExec = 
-                    (pred === 'corte' && (item.CorteTotalExecutado || 0)) ||
-                    (pred === 'dobra' && (item.DobraTotalExecutado || 0)) ||
-                    (pred === 'solda' && (item.SoldaTotalExecutado || 0)) ||
-                    (pred === 'pintura' && (item.PinturaTotalExecutado || 0)) ||
-                    (pred === 'montagem' && (item.MontagemTotalExecutado || 0)) || 0;
+                    (pred === 'corte' && Number(item.CorteTotalExecutado || item.cortetotalexecutado || 0)) ||
+                    (pred === 'dobra' && Number(item.DobraTotalExecutado || item.dobratotalexecutado || 0)) ||
+                    (pred === 'solda' && Number(item.SoldaTotalExecutado || item.soldatotalexecutado || 0)) ||
+                    (pred === 'pintura' && Number(item.PinturaTotalExecutado || item.pinturatotalexecutado || 0)) ||
+                    (pred === 'montagem' && Number(item.MontagemTotalExecutado || item.montagemtotalexecutado || 0)) || 0;
 
                 return { 
-                    allowed: totalExec > 0, 
+                    allowed: totalExec >= Number(item.QtdeTotal || 0), 
                     predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
                 };
             }
@@ -175,7 +172,7 @@ export default function ApontamentoProducaoPage() {
         return { allowed: true };
     };
 
-    const [showFilters, setShowFilters] = useState(false);
+    const [showFilters, setShowFilters] = useState(true);
 
     // Modal
     const [modalOpen, setModalOpen] = useState(false);
@@ -301,7 +298,6 @@ export default function ApontamentoProducaoPage() {
     useEffect(() => {
         if (openRncId && pendenciasHistorico.length > 0 && pendenciaModalOpen) {
             const p = pendenciasHistorico.find(x => x.IDRNC.toString() === openRncId);
-            // Wait for loadPendenciaForEdit to be available (it is defined below, so we might need to duplicate its essential parts or just use it if it's hoisted. Wait, const arrows are not hoisted!)
             if (p) {
                 setIdRncEdicao(p.IDRNC);
                 setTipoRnc('RNC');
@@ -355,11 +351,9 @@ export default function ApontamentoProducaoPage() {
 
         if (openOs) {
             setOsFilter(openOs);
-            setSearchTerm(openOs);
         }
         if (openItem) {
             setItemFilter(openItem);
-            setSearchTerm(openItem);
         }
     }, []);
 
@@ -438,9 +432,16 @@ export default function ApontamentoProducaoPage() {
     // Auto-load removido intencionalmente para performance
     // Só carrega se houver page load de outra tela (com params) ou se o usuário clicar em pesquisar
     useEffect(() => {
-        // Se a página mudou via paginação, busca automaticamente
-        if (hasActiveFilters) {
+        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter];
+        const filledFieldsCount = fields.filter(f => f.trim().length > 0).length;
+
+        // Se a página mudou via paginação, busca automaticamente se houver filtros válidos ou se uma busca já foi iniciada
+        if (filledFieldsCount >= 1 || hasSearched) {
+            setHasSearched(true);
             fetchItens();
+        } else {
+            setItens([]);
+            setHasSearched(false);
         }
         return () => {
             if (abortControllerRef.current) {
@@ -450,20 +451,6 @@ export default function ApontamentoProducaoPage() {
     }, [page, setorAtivo]);
 
     const handleSearch = () => {
-        // Contar quantos filtros de "texto" foram preenchidos
-        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter];
-        const filledFieldsCount = fields.filter(f => f.trim().length > 0).length;
-
-        if (filledFieldsCount < 2) {
-            addToast({
-                type: 'error',
-                title: 'Busca Bloqueada',
-                message: 'Para garantir a performance, por favor preencha pelo menos 2 campos de filtro para pesquisar.',
-                duration: 6000
-            });
-            return;
-        }
-
         setHasSearched(true);
         setPage(1);
         fetchItens();
@@ -478,6 +465,9 @@ export default function ApontamentoProducaoPage() {
         setItemFilter('');
         setStatusFilter('pendente');
         setClienteFilter('');
+        
+        setItens([]);
+        setHasSearched(false);
     }, []);
 
     // Check if any filter is active
@@ -879,7 +869,7 @@ export default function ApontamentoProducaoPage() {
     const setorInfo = setores.find(s => s.id === setorAtivo) || setores[0];
 
     return (
-        <div className="space-y-4 h-full flex flex-col min-h-0">
+        <div className={`space-y-4 flex flex-col min-h-0 min-w-0 overflow-hidden ${fromGlobal ? 'h-full' : 'h-[calc(100vh-80px)] w-full'}`}>
             {!fromGlobal ? (
                 <>
             {/* Header */}
@@ -919,7 +909,7 @@ export default function ApontamentoProducaoPage() {
                             : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        Pesquisar
+                        {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
                         {hasActiveFilters && (
                             <span className="w-2 h-2 rounded-full bg-[#E0E800]" />
                         )}
@@ -982,7 +972,7 @@ export default function ApontamentoProducaoPage() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden"
+                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden shrink-0"
                     >
                         <div className="flex flex-wrap items-end gap-3">
                             {/* Plano de Corte Filter */}
@@ -1135,20 +1125,20 @@ export default function ApontamentoProducaoPage() {
             )}
 
             {/* Content Container */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[400px]">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[150px] flex-1 overflow-auto relative">
                 
                 {/* Empty State Inicial */}
                 {!loading && !hasSearched && itens.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                         <Search size={48} className="mb-4 text-gray-300" />
                         <h3 className="text-lg font-bold text-gray-500">Pronto para buscar</h3>
-                        <p className="text-sm mt-2">Preencha pelo menos 2 filtros acima e clique em "Pesquisar" para exibir os apontamentos.</p>
+                        <p className="text-sm mt-2">Preencha pelo menos 1 filtro acima e clique em "Pesquisar" para exibir os apontamentos.</p>
                     </div>
                 )}
                 
                 {/* Loader */}
                 {/* Primary Table Header - Movido para dentro do container com sticky */}
-                {!loading && hasSearched && itens.length > 0 && setorAtivo !== 'mapa' && (
+                {!loading && itens.length > 0 && setorAtivo !== 'mapa' && (
                     <div className="bg-gray-100 px-2 py-1.5 flex items-center gap-1.5 text-[9px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200 shadow-sm min-w-max">
                         <span className="w-5 shrink-0"></span>
                         <span className="w-6 shrink-0 text-center">PDF</span>
@@ -1223,7 +1213,7 @@ export default function ApontamentoProducaoPage() {
                         </div>
 
                         {/* Mapa Items */}
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-gray-100 min-w-max">
                             {itens.map((item) => {
                                 const passaCorte = item.txtCorte === '1';
                                 const passaDobra = item.txtDobra === '1';
@@ -1366,13 +1356,13 @@ export default function ApontamentoProducaoPage() {
                         {Object.entries(groupedItens).map(([groupKey, items]) => (
                             <div key={groupKey}>
                                 {/* Group Header */}
-                                <div className={`px-4 py-1 sticky top-0 z-10 ${setorInfo.color} text-white flex items-center justify-between shadow-sm`}>
-                                    <span className="font-medium text-sm">{groupKey}</span>
-                                    <span className="text-xs opacity-80">{items.length} itens</span>
+                                <div className="px-4 py-1 sticky top-0 z-10 bg-gray-100 border-b border-gray-200 text-[#32423D] flex items-center justify-between shadow-sm min-w-max">
+                                    <span className="font-bold text-sm uppercase">{groupKey}</span>
+                                    <span className="text-xs font-medium text-gray-500">{items.length} itens</span>
                                 </div>
 
                                 {/* Items */}
-                                <div className="divide-y divide-gray-100">
+                                <div className="divide-y divide-gray-100 min-w-max">
                                     {items.map((item) => {
                                         const qtdeProduzida = Number(item.QtdeProduzidaSetor) || 0;
                                         const qtdeTotal = Number(item.QtdeTotal) || 0;
