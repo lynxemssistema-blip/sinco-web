@@ -374,7 +374,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
             )}
 
             {/* Item Context Card - Premium Horizontal Layout */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="font-bold text-[#32423D] flex items-center gap-2 text-sm">
                         <Layers size={16} className="text-[#E0E800]" />
@@ -461,7 +461,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
             </div>
 
             {/* Main Form */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="bg-[#32423D] px-6 py-4 text-white flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
                         <Save size={18} />

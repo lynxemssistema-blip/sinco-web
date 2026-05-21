@@ -592,24 +592,6 @@ app.get('/api/romaneio', async (req, res) => {
     }
 });
 
-// GET /api/romaneio/:id - Get single romaneio details
-app.get('/api/romaneio/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [rows] = await pool.execute(
-            "SELECT * FROM romaneio WHERE idRomaneio = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')",
-            [id]
-        );
-        if (rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Romaneio nÃ¯Â¿Â½o encontrado' });
-        }
-        res.json({ success: true, data: rows[0] });
-    } catch (error) {
-        console.error(`Error fetching romaneio #${id}:`, error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar detalhes do romaneio' });
-    }
-});
-
 // GET /api/romaneio/v-itens-projeto-aberto - Search available items from project
 app.get('/api/romaneio/v-itens-projeto-aberto', async (req, res) => {
     const { projeto, tag, resumo, detalhe, codFabricante, mostrarEnviados, mostrarFinalizados } = req.query;
@@ -658,6 +640,24 @@ app.get('/api/romaneio/v-itens-projeto-aberto', async (req, res) => {
     } catch (error) {
         console.error('Error fetching v-itens-projeto-aberto:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar itens disponÃ¯Â¿Â½veis.' });
+    }
+});
+
+// GET /api/romaneio/:id - Get single romaneio details
+app.get('/api/romaneio/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await pool.execute(
+            "SELECT * FROM romaneio WHERE idRomaneio = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')",
+            [id]
+        );
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Romaneio nÃ¯Â¿Â½o encontrado' });
+        }
+        res.json({ success: true, data: rows[0] });
+    } catch (error) {
+        console.error(`Error fetching romaneio #${id}:`, error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar detalhes do romaneio' });
     }
 });
 
@@ -895,6 +895,27 @@ app.get('/api/files/open-3d/:idRomaneioItem', async (req, res) => {
     } catch (error) {
         console.error('[FILES] Fatal error opening 3D:', error);
         res.status(500).json({ success: false, message: 'Erro interno ao processar desenho 3D.' });
+    }
+});
+// PUT /api/romaneio/item/:idRomaneioItem/observacao - Update observation
+app.put('/api/romaneio/item/:idRomaneioItem/observacao', async (req, res) => {
+    let connection = null;
+    try {
+        const { observacao } = req.body;
+        const { idRomaneioItem } = req.params;
+        connection = await pool.getConnection();
+        
+        await connection.execute(
+            "UPDATE romaneioitem SET Observacao = ? WHERE IdRomaneioItem = ?",
+            [observacao, idRomaneioItem]
+        );
+        
+        res.json({ success: true, message: 'Observação atualizada com sucesso.' });
+    } catch (err) {
+        console.error('Erro ao atualizar observacao:', err);
+        res.status(500).json({ success: false, message: err.message });
+    } finally {
+        if (connection) connection.release();
     }
 });
 
@@ -4203,6 +4224,32 @@ app.get('/api/visao-geral-engenharia/tags', async (req, res) => {
     }
 });
 
+// GET: Buscar TODAS as tags globalmente (para a tela de Visão Geral Global Tags)
+app.get('/api/visao-geral/tags-globais', async (req, res) => {
+    try {
+        const [rows] = await pool.executeOnDefault(`
+            SELECT 
+                t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao,
+                t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual,
+                t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual,
+                t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual,
+                t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual,
+                t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual,
+                p.Projeto as Projeto,
+                p.DescProjeto as ProjetoDescricao,
+                p.Finalizado as ProjetoFinalizado
+            FROM tags t
+            LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto
+            WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*')
+            ORDER BY t.IdTag DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching tags-globais:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar tags globais: ' + error.message });
+    }
+});
+
 // PUT lote update dates for Visao Geral Engenharia
 app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
     try {
@@ -4611,6 +4658,48 @@ app.put('/api/visao-geral/tag/:idTag/data-previsao', async (req, res) => {
     } catch (error) {
         console.error('Error updating Tag DataPrevisao:', error);
         res.status(500).json({ success: false, message: 'Erro ao atualizar data da tag: ' + error.message });
+    }
+});
+
+// PUT: Atualizar data planejada em lote para todas as tags sem planejamento de um projeto
+app.put('/api/visao-geral/projeto/:id/bulk-update-planning', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { updates } = req.body;
+        
+        if (!updates || !Array.isArray(updates)) {
+            return res.status(400).json({ success: false, message: 'Updates invalidos.' });
+        }
+
+        const sectorFieldMap = {
+            'Corte': { pi: 'PlanejadoInicioCorte', pf: 'PlanejadoFinalCorte' },
+            'Dobra': { pi: 'PlanejadoInicioDobra', pf: 'PlanejadoFinalDobra' },
+            'Solda': { pi: 'PlanejadoInicioSolda', pf: 'PlanejadoFinalSolda' },
+            'Pintura': { pi: 'PlanejadoInicioPintura', pf: 'PlanejadoFinalPintura' },
+            'Montagem': { pi: 'PlanejadoInicioMontagem', pf: 'PlanejadoFinalMontagem' }
+        };
+
+        for (const update of updates) {
+            const { sectorKey, dataInicio, dataFim } = update;
+            const fields = sectorFieldMap[sectorKey];
+            if (!fields) continue;
+
+            const valIni = dataInicio || '';
+            const valFim = dataFim || '';
+
+            await pool.executeOnDefault(
+                `UPDATE tags 
+                 SET ${fields.pi} = CASE WHEN IFNULL(${fields.pi}, '') = '' AND ? != '' THEN ? ELSE ${fields.pi} END,
+                     ${fields.pf} = CASE WHEN IFNULL(${fields.pf}, '') = '' AND ? != '' THEN ? ELSE ${fields.pf} END
+                 WHERE ProjetoId = ?`,
+                [valIni, valIni, valFim, valFim, id]
+            );
+        }
+
+        res.json({ success: true, message: 'Planejamento em lote aplicado com sucesso!' });
+    } catch (error) {
+        console.error('Error in bulk-update-planning:', error);
+        res.status(500).json({ success: false, message: 'Erro interno: ' + error.message });
     }
 });
 
@@ -6927,7 +7016,7 @@ app.post('/api/ordemservico/:id/incluir-itens', async (req, res) => {
                 if (c === 'EnderecoArquivo') {
                     const atual = original[c] || '';
                     const invalido = !atual || atual.trim() === '' || atual.trim().toUpperCase() === 'IMPORTADO DA PLANILHA';
-                    return invalido ? enderecoCalculado : atual;
+                    return (invalido ? enderecoCalculado : atual).toUpperCase();
                 }
                 // ─────────────────────────────────────────────────────────────────
                 return original[c];
@@ -10025,6 +10114,7 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
     let connection = null;
     try {
         const id = req.params.id;
+        const confirmCascade = req.query.confirmCascade === 'true';
         connection = await (req.tenantDbPool || pool).getConnection();
         
         const [rows] = await connection.execute("SELECT Liberado_Engenharia, IdOrdemServico FROM ordemservicoitem WHERE IdOrdemServicoItem = ?", [id]);
@@ -10040,6 +10130,16 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Item não pode ser excluido pois possui apontamentos de produção vinculados.' });
         }
         
+        // Check if exists in romaneio
+        const [romaneioItens] = await connection.execute("SELECT COUNT(*) as cnt FROM romaneioitem WHERE IDOrdemServicoITEM = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')", [id]);
+        if (romaneioItens[0].cnt > 0 && !confirmCascade) {
+            return res.status(400).json({ 
+                success: false, 
+                requiresConfirmation: true, 
+                message: 'Atenção: Este item já se encontra inserido em um ou mais Romaneios.\nDeseja realmente prosseguir com a exclusão? Isso irá remover o item do histórico de envios (Romaneio).' 
+            });
+        }
+
         const usuarioDesc = req.user?.nome || 'Sistema';
         
         const [updateRes] = await connection.execute(
@@ -10050,13 +10150,22 @@ app.delete('/api/ordemservicoitem/:id', async (req, res) => {
         );
         
         if (updateRes.affectedRows === 0) {
-            return res.status(400).json({ success: false, message: 'Item nÃƒÂ£o excluÃƒÂ­do, verifique.' });
+            return res.status(400).json({ success: false, message: 'Item não excluído, verifique.' });
+        }
+
+        if (romaneioItens[0].cnt > 0) {
+            await connection.execute(
+                `UPDATE romaneioitem 
+                 SET D_E_L_E_T_E = '*', UsuarioD_E_L_E_T_E = ?, DataD_E_L_E_T_E = NOW() 
+                 WHERE IDOrdemServicoITEM = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')`,
+                [usuarioDesc, id]
+            );
         }
         
         // Recalcular as quantidades porque o item foi deletado
         await recalcularQuantidadesTotais(rows[0].IdOrdemServico, connection);
         
-        res.json({ success: true, message: 'Item excluÃƒÂ­do com sucesso.' });
+        res.json({ success: true, message: 'Item excluído com sucesso.' });
     } catch (err) {
         console.error('Erro ao excluir item OS:', err);
         res.status(500).json({ success: false, message: err.message });

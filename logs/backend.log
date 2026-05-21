@@ -1,2 +1,2022 @@
 [dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  enable debug logging with { debug: true }
 [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (220ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 200 (263ms)
+[API] 200 (284ms)
+
+[API] GET /api/acompanhamento/projetos?liberados=1&limit=100
+[API]    QUERY: {"liberados":"1","limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.liberado,'')) = 'S'
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/acompanhamento/projetos?liberados=1&limit=100
+[API]    QUERY: {"liberados":"1","limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.liberado,'')) = 'S'
+[API] 200 (200ms)
+[API] 200 (123ms)
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 79
+[API] 200 (168ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (327ms | rows:79): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 79
+[API] 200 (331ms)
+[API] 200 (64ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (183ms)
+[API] 304 (98ms)
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (24ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (94ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (124ms)
+[API] 304 (182ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (69ms)
+
+[API] GET /api/acompanhamento/projeto/78/tags?t=1778774112711&limit=100
+[API]    QUERY: {"t":"1778774112711","limit":"100"}
+[API] 200 (54ms)
+
+[API] GET /api/visao-geral/pendencias/74?origem=VISAOGERALPROJ&t=1778774135543&limit=100
+[API]    QUERY: {"origem":"VISAOGERALPROJ","t":"1778774135543","limit":"100"}
+[API] 200 (53ms)
+
+[API] GET /api/visao-geral/projeto/15/ordens-servico?t=1778774153735&limit=100
+[API]    QUERY: {"t":"1778774153735","limit":"100"}
+[API] Fetching OS for project ID: 15
+[API] Returning 1 OSes for project 15 (Projeto Name: 010799)
+[API] 200 (104ms)
+
+[API] GET /api/visao-geral/projeto/14/ordens-servico?t=1778774162951&limit=100
+[API]    QUERY: {"t":"1778774162951","limit":"100"}
+[API] Fetching OS for project ID: 14
+[API] Returning 4 OSes for project 14 (Projeto Name: 010469)
+[API] 200 (45ms)
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (234ms | rows:448): SELECT IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico, PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao, PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, Realizado
+[API] 200 (239ms)
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (74ms)
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1546ms | rows:448): SELECT IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico, PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao, PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, Realizado
+[API] 304 (1596ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (364ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (333ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] ⚠️  SLOW QUERY (363ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 200 (358ms)
+[API] 200 (472ms)
+[API] 200 (414ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (406ms | rows:448): SELECT IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico, PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao, PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, Realizado
+[DB] [lynxlocal] ⚠️  SLOW QUERY (415ms | rows:448): SELECT IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico, PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao, PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, Realizado
+[API] 200 (414ms)
+[API] 200 (420ms)
+[API] 304 (52ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (48ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+
+[API] GET /api/medida?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (70ms)
+
+[API] GET /api/medida?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (29ms)
+
+[API] GET /api/todas-pendencias?exibirFinalizadas=false&limit=100
+[API]    QUERY: {"exibirFinalizadas":"false","limit":"100"}
+[API] 200 (112ms)
+
+[API] GET /api/todas-pendencias?exibirFinalizadas=false&limit=100
+[API]    QUERY: {"exibirFinalizadas":"false","limit":"100"}
+[API] 304 (93ms)
+
+[API] GET /api/tipoproduto?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/medida/options?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (47ms)
+[API] 200 (130ms)
+
+[API] GET /api/tipoproduto?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/medida/options?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (135ms)
+[API] 304 (43ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (46ms)
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/tarefas?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (48ms)
+[API] 304 (95ms)
+[API] 200 (141ms)
+[API] 304 (123ms)
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (44ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/tarefas?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+[API] 304 (118ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1713ms | rows:2): SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[API] 200 (1714ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1759ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1903ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 200 (1812ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1917ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 200 (1969ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1846ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[API] 200 (1848ms)
+[API] 200 (1966ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1967ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[API] 200 (1972ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (50ms)
+
+[API] GET /api/tarefas?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/tarefas?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (70ms)
+[API] 200 (60ms)
+[API] 200 (72ms)
+[API] 200 (49ms)
+[API] 200 (190ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (51ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (67ms)
+
+[API] GET /api/acompanhamento/projetos?liberados=1&limit=100
+[API]    QUERY: {"liberados":"1","limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.liberado,'')) = 'S'
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (47ms)
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 79
+[API] 304 (73ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (24ms)
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/acompanhamento/projetos?liberados=1&limit=100
+[API]    QUERY: {"liberados":"1","limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.liberado,'')) = 'S'
+[API] 304 (52ms)
+
+[API] GET /api/config/tipostarefa?limit=100
+[API]    QUERY: {"limit":"100"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 79
+[API] 304 (78ms)
+[API] 304 (25ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (48ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (47ms)
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (423ms | rows:448): SELECT IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico, PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao, PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, Realizado
+[API] 304 (430ms)
+
+[API] GET /api/visao-geral-engenharia/tags?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (184ms)
+
+[API] GET /api/todas-pendencias?exibirFinalizadas=false&limit=100
+[API]    QUERY: {"exibirFinalizadas":"false","limit":"100"}
+[API] 304 (113ms)
+
+[API] GET /api/todas-pendencias?exibirFinalizadas=false&limit=100
+[API]    QUERY: {"exibirFinalizadas":"false","limit":"100"}
+[API] 304 (85ms)
+
+[API] GET /api/apontamentos-parciais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (70ms)
+
+[API] GET /api/apontamentos-parciais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (27ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (118ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/espessuras?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/materiais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (49ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (160ms)
+[API] 200 (175ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (72ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/espessuras?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/materiais?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (33ms)
+[API] 304 (54ms)
+[API] 304 (45ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (23ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (23ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (35ms)
+
+[API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+[API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+[API] 200 (183ms)
+
+[API] GET /api/acompanhamento/projetos?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 200 (116ms)
+
+[API] GET /api/acompanhamento/projetos?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (23ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[TenantMiddleware] No token provided for /config?limit=100
+[API] 401 (39ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[TenantMiddleware] No token provided for /config?limit=100
+[API] 401 (1ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Central user found. Switching to tenant DB: lynxlocal
+[DB] Pool already exists for lynxlocal. Re-using.
+[API] 200 (1283ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (96ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (36ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (57ms)
+[API] 304 (153ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (48ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"superadmin","password":"SincoMaster2026!"}
+[ADMIN AUTH] Raw Body: { username: 'superadmin', password: 'SincoMaster2026!' }
+[ADMIN AUTH] Check: 'superadmin' (len=10) vs 'superadmin'
+[ADMIN AUTH] Password Len: 16
+[ADMIN AUTH] Database Success: superadmin
+[API] 200 (209ms)
+
+[API] GET /api/admin/databases?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (146ms)
+
+[API] GET /api/admin/users?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (171ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"alfatec2"}
+[API] 200 (1ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+[DB] [DEFAULT] 🟢 OK - Rows: 1
+[DB] Additional Pool initialized for: alfatec2
+[Tenant] Lazy-loaded pool for: alfatec2
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (1734ms)
+[DB] [alfatec2] ⚠️  SLOW QUERY (972ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 200 (973ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (1805ms | rows:24): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 304 (23ms)
+[API] 200 (1906ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (23ms)
+[API] 304 (45ms)
+
+[API] GET /api/apontamentos-parciais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API Apontamentos Parciais] Base de dados legada não possui TipoApontamento, retornando array vazio.
+[API] 200 (25ms)
+
+[API] GET /api/apontamentos-parciais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API Apontamentos Parciais] Base de dados legada não possui TipoApontamento, retornando array vazio.
+[API] 304 (24ms)
+
+[API] GET /api/apontamentos-parciais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API Apontamentos Parciais] Base de dados legada não possui TipoApontamento, retornando array vazio.
+[API] 304 (24ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/materiais?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/espessuras?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (65ms)
+[API] 200 (65ms)
+[API] 200 (129ms)
+[DB] 🔴 ERROR: Table 'alfatec2.espessura' doesn't exist
+Error: Table 'alfatec2.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'alfatec2.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.espessura' doesn't exist"
+}
+[API] 500 (130ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (45ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/materiais?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+[API] 304 (47ms)
+
+[API] GET /api/config/espessuras?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Table 'alfatec2.espessura' doesn't exist
+Error: Table 'alfatec2.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'alfatec2.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8430:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.espessura' doesn't exist"
+}
+[API] 500 (22ms)
+[API] 304 (41ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (129ms)
+
+[API] GET /api/config/setores?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (21ms)
+
+[API] GET /api/config/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (25ms)
+
+[API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+[API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (545ms | rows:1): SELECT COUNT(*) as total FROM ordemservicoitem osi INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico WHERE osi.txtCorte = '1' AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*') AND osi.Liberado_engenharia = 'S' AND(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T
+[DB] [alfatec2] ⚠️  SLOW QUERY (959ms | rows:100): SELECT osi.IdOrdemServicoItem, osi.IdOrdemServico, osi.CodMatFabricante, osi.DescResumo, osi.DescDetal, osi.QtdeTotal, osi.Peso, osi.EnderecoArquivo, osi.EnderecoArquivoItemOrdemServico, osi.IdPlanodecorte as PlanoCorte, osi.MaterialSW, osi.Espessura, CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE
+[API] 200 (1508ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (43ms)
+[API] 304 (128ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (31ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (44ms)
+
+[API] GET /api/processosfabricacao?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+Error: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8364:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao",
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'CodigoProcessoFabricacao' in 'field list'"
+}
+Error fetching processos: Error: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8364:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao",
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'CodigoProcessoFabricacao' in 'field list'"
+}
+[API] 500 (27ms)
+
+[API] GET /api/rnc/sectors?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/admin/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/processosfabricacao?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+Error: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8364:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao",
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'CodigoProcessoFabricacao' in 'field list'"
+}
+Error fetching processos: Error: Unknown column 'CodigoProcessoFabricacao' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8364:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao",
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'CodigoProcessoFabricacao' in 'field list'"
+}
+[API] 500 (33ms)
+[API] 200 (100ms)
+[API] 200 (100ms)
+
+[API] GET /api/rnc/sectors?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/admin/usuarios?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (23ms)
+[API] 304 (23ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (26ms)
+[API] 304 (97ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:8116:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (29ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (46ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"pintura\",\"montagem\",\"solda\"]","maxRegistros":100}
+[DB] 🔴 ERROR: Unknown column 'id' in 'field list'
+Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7665:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+Config save error: Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7665:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+[API] 500 (75ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"pintura\",\"montagem\",\"solda\"]","maxRegistros":100}
+[DB] 🔴 ERROR: Unknown column 'id' in 'field list'
+Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7665:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+Config save error: Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7665:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+[API] 500 (46ms)
+
+[API] GET /api/romaneio-retorno/items?romaneio=15&projeto=&tag=&numDoc=&mostrarConcluidos=false&limit=100
+[API]    QUERY: {"romaneio":"15","projeto":"","tag":"","numDoc":"","mostrarConcluidos":"false","limit":"100"}
+[API] 200 (71ms)
+
+[API] GET /api/romaneio-retorno/items?romaneio=15&projeto=&tag=&numDoc=&mostrarConcluidos=false&limit=100
+[API]    QUERY: {"romaneio":"15","projeto":"","tag":"","numDoc":"","mostrarConcluidos":"false","limit":"100"}
+[API] 304 (26ms)
+
+[API] GET /api/romaneio-retorno/items?romaneio=15&projeto=&tag=&numDoc=&mostrarConcluidos=true&limit=100
+[API]    QUERY: {"romaneio":"15","projeto":"","tag":"","numDoc":"","mostrarConcluidos":"true","limit":"100"}
+[API] 200 (50ms)
+
+[API] POST /api/blockset/init-db
+
+[API] POST /api/blockset/init-db
+
+[API] GET /api/projeto?liberado=S&finalizado=N&limit=100
+[API]    QUERY: {"liberado":"S","finalizado":"N","limit":"100"}
+[DB] 🔴 ERROR: Duplicate column name 'NomeProjeto'
+Error: Duplicate column name 'NomeProjeto'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeProjeto'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeProjeto'
+Error: Duplicate column name 'NomeProjeto'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeProjeto'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeTag'
+Error: Duplicate column name 'NomeTag'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeTag'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeTag'
+Error: Duplicate column name 'NomeTag'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeTag'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Revisao'
+Error: Duplicate column name 'Revisao'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Revisao'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Revisao'
+Error: Duplicate column name 'Revisao'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Revisao'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia'
+Error: Duplicate column name 'Referencia'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia'
+Error: Duplicate column name 'Referencia'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia_P'
+Error: Duplicate column name 'Referencia_P'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia_P'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia_P'
+Error: Duplicate column name 'Referencia_P'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE pixeasy ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia_P'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeProjeto'
+Error: Duplicate column name 'NomeProjeto'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeProjeto'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeProjeto'
+Error: Duplicate column name 'NomeProjeto'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeProjeto'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeTag'
+Error: Duplicate column name 'NomeTag'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeTag'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'NomeTag'
+Error: Duplicate column name 'NomeTag'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'NomeTag'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Revisao'
+Error: Duplicate column name 'Revisao'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Revisao'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Revisao'
+Error: Duplicate column name 'Revisao'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Revisao'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia'
+Error: Duplicate column name 'Referencia'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia'
+Error: Duplicate column name 'Referencia'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia_P'
+Error: Duplicate column name 'Referencia_P'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia_P'"
+}
+[DB] 🔴 ERROR: Duplicate column name 'Referencia_P'
+Error: Duplicate column name 'Referencia_P'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_DUP_FIELDNAME',
+  errno: 1060,
+  sql: 'ALTER TABLE AglutinacaoPixeasy ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S21',
+  sqlMessage: "Duplicate column name 'Referencia_P'"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.DadosBlockSet' doesn't exist
+Error: Table 'alfatec2.DadosBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE DadosBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.DadosBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+Error: Table 'alfatec2.PlanilhasBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE PlanilhasBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.PlanilhasBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN NomeProjeto VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN NomeTag VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Revisao INT DEFAULT 0',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Referencia VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.itenspendentes' doesn't exist
+Error: Table 'alfatec2.itenspendentes' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:161:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE itenspendentes ADD COLUMN NomePlanilha VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.itenspendentes' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+Error: Table 'alfatec2.AglutinacaoBlockSet' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:153:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE AglutinacaoBlockSet ADD COLUMN Referencia_P VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.AglutinacaoBlockSet' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.itenspendentes' doesn't exist
+Error: Table 'alfatec2.itenspendentes' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:162:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE itenspendentes ADD COLUMN Revisao VARCHAR(50)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.itenspendentes' doesn't exist"
+}
+[API] 200 (1281ms)
+[DB] 🔴 ERROR: Table 'alfatec2.itenspendentes' doesn't exist
+Error: Table 'alfatec2.itenspendentes' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:161:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE itenspendentes ADD COLUMN NomePlanilha VARCHAR(255)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.itenspendentes' doesn't exist"
+}
+[DB] 🔴 ERROR: Table 'alfatec2.itenspendentes' doesn't exist
+Error: Table 'alfatec2.itenspendentes' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at exports.initImportStructure (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\controllers\blocksetController.js:162:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'ALTER TABLE itenspendentes ADD COLUMN Revisao VARCHAR(50)',
+  sqlState: '42S02',
+  sqlMessage: "Table 'alfatec2.itenspendentes' doesn't exist"
+}
+[API] 200 (1376ms)
+
+[API] GET /api/admin/check-auth?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (1ms)
+
+[API] GET /api/admin/check-auth?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (2ms)
+
+[API] GET /api/admin/users?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/admin/databases?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (378ms)
+[API] 304 (402ms)
+
+[API] GET /api/admin/databases?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/admin/users?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (115ms)
+[API] 304 (136ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"lynxlocal"}
+[API] 200 (2ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (182ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (137ms)
+[API] 304 (46ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (43ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (28ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (43ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (48ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (86ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (23ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Sim","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\",\"solda\"]","maxRegistros":100}
+[API] 200 (134ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (86ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Sim","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\",\"solda\"]","maxRegistros":100}
+[API] 200 (64ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (45ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+[DB] [alfatec2] ⚠️  SLOW QUERY (50343ms | rows:163): SELECT p.*, (SELECT COUNT(*) FROM ordemservicoitemcontrole c INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*') ) AS te
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Sim","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\",\"solda\"]","maxRegistros":100}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (346ms | rows:2): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema' AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis')
+[API] 200 (431ms)
+
+[API] GET /api/config?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (116ms)
+
+[API] GET /api/config/menu?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (46ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (41ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)
+
+[API] GET /api/pj?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 200 (67ms)
+
+[API] GET /api/pj?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (25ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (23ms)
+
+[API] GET /api/dashboard/stats?limit=100
+[API]    QUERY: {"limit":"100"}
+[API] 304 (22ms)

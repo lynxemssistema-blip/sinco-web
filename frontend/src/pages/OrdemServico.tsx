@@ -326,24 +326,33 @@ function OrdemServicoContent() {
         
         if (!window.confirm("Deseja excluir o registro selecionado?")) return;
         
-        try {
-            const res = await fetch(`${API_BASE}/ordemservicoitem/${item.IdOrdemServicoItem}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.success) {
-                addToast({ type: 'success', title: 'Sucesso', message: 'Item excluído com sucesso!' });
-                setOrdensItens(prev => ({
-                    ...prev,
-                    [osId]: prev[osId].filter(i => i.IdOrdemServicoItem !== item.IdOrdemServicoItem)
-                }));
-            } else {
-                addToast({ type: 'error', title: 'Falha', message: data.message });
+        const doDelete = async (confirmCascade = false) => {
+            try {
+                const url = `${API_BASE}/ordemservicoitem/${item.IdOrdemServicoItem}${confirmCascade ? '?confirmCascade=true' : ''}`;
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    addToast({ type: 'success', title: 'Sucesso', message: 'Item excluído com sucesso!' });
+                    setOrdensItens(prev => ({
+                        ...prev,
+                        [osId]: prev[osId].filter(i => i.IdOrdemServicoItem !== item.IdOrdemServicoItem)
+                    }));
+                } else if (data.requiresConfirmation) {
+                    if (window.confirm(data.message)) {
+                        await doDelete(true);
+                    }
+                } else {
+                    addToast({ type: 'error', title: 'Falha', message: data.message });
+                }
+            } catch (err: any) {
+                addToast({ type: 'error', title: 'Erro', message: err.message });
             }
-        } catch (err: any) {
-            addToast({ type: 'error', title: 'Erro', message: err.message });
-        }
+        };
+        
+        await doDelete();
     };
 
     // ── Modal Excluir Itens ──────────────────────────────────────────────────
@@ -374,17 +383,27 @@ function OrdemServicoContent() {
         setExcluindoItens(true);
         let sucesso = 0; let falhas = 0;
         for (const itemId of ids) {
-            try {
-                const res = await fetch(API_BASE + '/ordemservicoitem/' + itemId, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const data = await res.json();
-                if (data.success) {
-                    sucesso++;
-                    setOrdensItens(prev => ({ ...prev, [os.IdOrdemServico]: (prev[os.IdOrdemServico] || []).filter(i => i.IdOrdemServicoItem !== itemId) }));
-                } else { falhas++; addToast({ type: 'error', title: 'Item ' + itemId, message: data.message }); }
-            } catch { falhas++; addToast({ type: 'error', title: 'Erro de conexão', message: 'Falha ao excluir item ' + itemId }); }
+            const doDelete = async (confirmCascade = false) => {
+                try {
+                    const url = `${API_BASE}/ordemservicoitem/${itemId}${confirmCascade ? '?confirmCascade=true' : ''}`;
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        sucesso++;
+                        setOrdensItens(prev => ({ ...prev, [os.IdOrdemServico]: (prev[os.IdOrdemServico] || []).filter(i => i.IdOrdemServicoItem !== itemId) }));
+                    } else if (data.requiresConfirmation) {
+                        if (window.confirm(data.message)) {
+                            await doDelete(true);
+                        } else {
+                            falhas++;
+                        }
+                    } else { falhas++; addToast({ type: 'error', title: 'Item ' + itemId, message: data.message }); }
+                } catch { falhas++; addToast({ type: 'error', title: 'Erro de conexão', message: 'Falha ao excluir item ' + itemId }); }
+            };
+            await doDelete();
         }
         setExcluindoItens(false);
         setExcluirItemChecks(new Set());
@@ -412,24 +431,34 @@ function OrdemServicoContent() {
         setDeletandoSelecionados(true);
         let erros = 0;
         for (const itemId of Array.from(selectedItemIds)) {
-            try {
-                const res = await fetch(`${API_BASE}/ordemservicoitem/${itemId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (data.success) {
-                    setOrdensItens(prev => ({
-                        ...prev,
-                        [osId]: (prev[osId] || []).filter(i => i.IdOrdemServicoItem !== itemId)
-                    }));
-                } else {
+            const doDelete = async (confirmCascade = false) => {
+                try {
+                    const url = `${API_BASE}/ordemservicoitem/${itemId}${confirmCascade ? '?confirmCascade=true' : ''}`;
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        setOrdensItens(prev => ({
+                            ...prev,
+                            [osId]: (prev[osId] || []).filter(i => i.IdOrdemServicoItem !== itemId)
+                        }));
+                    } else if (data.requiresConfirmation) {
+                        if (window.confirm(data.message)) {
+                            await doDelete(true);
+                        } else {
+                            erros++;
+                        }
+                    } else {
+                        erros++;
+                        addToast({ type: 'error', title: 'Falha', message: data.message });
+                    }
+                } catch {
                     erros++;
-                    addToast({ type: 'error', title: 'Falha', message: data.message });
                 }
-            } catch {
-                erros++;
-            }
+            };
+            await doDelete();
         }
         setSelectedItemIds(new Set());
         setDeletandoSelecionados(false);
@@ -1918,7 +1947,7 @@ function OrdemServicoContent() {
                                                     </span>
                                                 )}
                                                 <span className="w-12 text-xs text-gray-600 text-center">{item.QtdeTotal || '-'}</span>
-                                                <span className="w-14 text-xs text-gray-600 text-center">{item.Peso ? `${item.Peso}kg` : '-'}</span>
+                                                <span className="w-14 text-xs text-gray-600 text-center">{item.Peso ? `${parseFloat(String(item.Peso)).toFixed(2)}kg` : '-'}</span>
                                                 {visibleSetores.includes('corte') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.CortePercentual} label="Corte" /></div>}
                                                 {visibleSetores.includes('dobra') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.DobraPercentual} label="Dobra" /></div>}
                                                 {visibleSetores.includes('solda') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.SoldaPercentual} label="Solda" /></div>}
@@ -1934,7 +1963,7 @@ function OrdemServicoContent() {
                                                     <ShieldAlert size={16} />
                                                 </button>
 
-                                                {!(os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') && !(item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM') && (
+                                                {!(os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') && !(item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM') ? (
                                                     <button
                                                         onClick={(e) => handleDeleteItem(e, item, os.IdOrdemServico)}
                                                         className="w-8 h-8 rounded flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors mr-2"
@@ -1942,6 +1971,8 @@ function OrdemServicoContent() {
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
+                                                ) : (
+                                                    <div className="w-8 h-8 shrink-0 mr-2" />
                                                 )}
                                             </div>
                                         );

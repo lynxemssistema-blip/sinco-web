@@ -2116,3 +2116,1233 @@
 12/05/2026 21:07:24: (Use `node --trace-deprecation ...` to show where the warning was created)
 12/05/2026 21:12:06: (node:32232) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 12/05/2026 21:12:06: (Use `node --trace-deprecation ...` to show where the warning was created)
+15/05/2026 08:44:00: (node:21456) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+15/05/2026 08:44:00: (Use `node --trace-deprecation ...` to show where the warning was created)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:21: [2m16:22:21[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:22:21: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:21:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:22:23: [2m16:22:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=todos[39m
+15/05/2026 16:22:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:22:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:08: [2m16:23:08[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:08: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:08:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:08: [2m16:23:08[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:08: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:08:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:08: [2m16:23:08[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:23:08: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:08:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:09: [2m16:23:09[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:23:09: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:09:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:12: [2m16:23:12[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:23:12: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:12:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:13: [2m16:23:13[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:13: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:13:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:14: [2m16:23:14[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:14: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:14:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:17: [2m16:23:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:23:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:27: [2m16:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pesquisar-desenho?limit=100[39m
+15/05/2026 16:23:27: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:27:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:27: [2m16:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pesquisar-desenho?limit=100[39m
+15/05/2026 16:23:27: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:27:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:39: [2m16:23:39[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:39: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:39:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:45: [2m16:23:45[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:23:45: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:45:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:46: [2m16:23:46[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:23:46: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:46:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:46: [2m16:23:46[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:23:46: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:46:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:23:46: [2m16:23:46[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:23:46: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:23:46:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:23: [2m16:25:23[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:25:23: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:23:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:25:24: [2m16:25:24[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:25:24: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:25:24:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:53: [2m16:26:53[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:26:53: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:53:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:26:54: [2m16:26:54[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:26:54: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:26:54:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:25: [2m16:27:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:27:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:27:26: [2m16:27:26[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:27:26: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:27:26:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:19: [2m16:28:19[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:28:19: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:19:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:20: [2m16:28:20[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:20: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:20:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:20: [2m16:28:20[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:28:20: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:20:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:20: [2m16:28:20[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:28:20: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:20:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/tags?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico/projetos-clonagem?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/setores?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/usuarios?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/espessuras?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:25: [2m16:28:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/materiais?limit=100[39m
+15/05/2026 16:28:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:26: [2m16:28:26[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:26: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:26:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:26: [2m16:28:26[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:28:26: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:26:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:26: [2m16:28:26[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=100[39m
+15/05/2026 16:28:26: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:26:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:30: [2m16:28:30[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/ordemservico?page=1&limit=50&filter=liberados[39m
+15/05/2026 16:28:30: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:30:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/material?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/familia/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/medida/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 16:28:33: [2m16:28:33[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/pj/options?limit=100[39m
+15/05/2026 16:28:33: Error: connect ECONNREFUSED 127.0.0.1:3000
+15/05/2026 16:28:33:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+15/05/2026 17:08:08: [2m17:08:08[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\OrdemServico.tsx: Unexpected token (1:13)
+15/05/2026 17:08:08: 
+15/05/2026 17:08:08: [0m[31m[1m>[22m[31m[90m 1 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+15/05/2026 17:08:08:  [90m   |[31m              [31m[1m^[22m[31m
+15/05/2026 17:08:08:  [90m 2 |[31m
+15/05/2026 17:08:08:  [90m 3 |[31m             {[90m/* Filters Bar */[31m}
+15/05/2026 17:08:08:  [90m 4 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"bg-white rounded-xl shadow-sm border border-gray-100 p-4 shrink-0"[31m[33m>[31m[0m[39m
+15/05/2026 17:08:08:   Plugin: [35mvite:react-babel[39m
+15/05/2026 17:08:08:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/OrdemServico.tsx[39m:1:13
+15/05/2026 17:08:08: [33m  1  |              </div>
+15/05/2026 17:08:08:      |               ^
+15/05/2026 17:08:08:   2  |  
+15/05/2026 17:08:08:   3  |              {/* Filters Bar */}[39m
+15/05/2026 17:08:08:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.unexpected (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6619:16)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseIdentifier (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4569:12)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseNamespacedName (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4576:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseElementName (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4585:21)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseOpeningElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4661:22)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4686:33)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+15/05/2026 17:08:08:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+15/05/2026 17:08:08:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12885:23)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseModuleItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12734:17)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:36)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseProgram (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12612:10)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parseTopLevel (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12602:25)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:14478:25)
+15/05/2026 17:08:08:       at TypeScriptParserMixin.parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10116:18)
+15/05/2026 17:08:08:       at parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:14512:38)
+15/05/2026 17:08:08:       at parser (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+15/05/2026 17:08:08:       at parser.next (<anonymous>)
+15/05/2026 17:08:08:       at normalizeFile (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+15/05/2026 17:08:08:       at normalizeFile.next (<anonymous>)
+15/05/2026 17:08:08:       at run (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+15/05/2026 17:08:08:       at run.next (<anonymous>)
+15/05/2026 17:08:08:       at transform (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+15/05/2026 17:08:08:       at transform.next (<anonymous>)
+15/05/2026 17:08:08:       at step (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:261:32)
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:273:13
+15/05/2026 17:08:08:       at async.call.result.err.err (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:223:11)
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:189:28
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+15/05/2026 17:08:08:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:113:33
+15/05/2026 17:22:09: [2m17:22:09[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\OrdemServico.tsx: Expected corresponding JSX closing tag for <motion.div>. (1758:56)
+15/05/2026 17:22:09: 
+15/05/2026 17:22:09: [0m [90m 1756 |[31m                                                         [33m>[31m
+15/05/2026 17:22:09:  [90m 1757 |[31m                                                             [33m<[31m[33mFileText[31m size[33m=[31m{[35m14[31m} [33m/[31m[33m>[31m
+15/05/2026 17:22:09: [31m[1m>[22m[31m[90m 1758 |[31m                                                         [33m<[31m[33m/[31m[33mbutton[31m[33m>[31m
+15/05/2026 17:22:09:  [90m      |[31m                                                         [31m[1m^[22m[31m
+15/05/2026 17:22:09:  [90m 1759 |[31m                                                     ) [33m:[31m (
+15/05/2026 17:22:09:  [90m 1760 |[31m                                                         [33m<[31m[33mdiv[31m className[33m=[31m[32m"w-8 h-8 rounded flex items-center justify-center bg-gray-50 text-gray-300"[31m[33m>[31m
+15/05/2026 17:22:09:  [90m 1761 |[31m                                                             [33m<[31m[33mFileText[31m size[33m=[31m{[35m14[31m} [33m/[31m[33m>[31m[0m[39m
+15/05/2026 17:22:09:   Plugin: [35mvite:react-babel[39m
+15/05/2026 17:22:09:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/OrdemServico.tsx[39m:1758:56
+15/05/2026 17:22:09: [33m  1779 |                                                      {item.EnderecoArquivo ? (
+15/05/2026 17:22:09:   1780 |                                                          <button
+15/05/2026 17:22:09:   1781 |                                                              onClick={(e) => handleOpenFile(e, item.EnderecoArquivo ||...
+15/05/2026 17:22:09:        |        ^
+15/05/2026 17:22:09:   1782 |                                                              className="w-8 h-8 rounded flex items-center justify-cent...
+15/05/2026 17:22:09:   1783 |                                                              title={`Download 3D: ${item.CodMatFabricante}`}[39m
+15/05/2026 17:22:09:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4727:16)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+15/05/2026 17:22:09:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+15/05/2026 17:22:09:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+15/05/2026 17:22:09:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+15/05/2026 17:22:09:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+15/05/2026 17:22:09:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+15/05/2026 17:22:09:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseReturnStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13132:28)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12788:21)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseFunctionBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12090:24)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseArrowExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12065:10)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11677:12)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+15/05/2026 17:22:09:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+15/05/2026 17:38:06: (node:5476) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+15/05/2026 17:38:06: (Use `node --trace-deprecation ...` to show where the warning was created)
+19/05/2026 13:28:22: (node:11284) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+19/05/2026 13:28:22: (Use `node --trace-deprecation ...` to show where the warning was created)
+19/05/2026 16:30:55: ^C
+19/05/2026 16:31:01: (node:13400) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+19/05/2026 16:31:01: (Use `node --trace-deprecation ...` to show where the warning was created)
+19/05/2026 17:00:59: ^C
+21/05/2026 08:11:27: (node:27636) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+21/05/2026 08:11:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+21/05/2026 09:46:45: [2m09:46:45[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\MontagemPlanoCorte.tsx: Expected corresponding JSX closing tag for <div>. (1003:24)
+21/05/2026 09:46:45: 
+21/05/2026 09:46:45: [0m [90m 1001 |[31m                             [33m<[31m[33mth[31m className[33m=[31m[32m"px-2 py-1.5 font-black whitespace-nowrap"[31m[33m>[31m[33mDesc[31m[33m.[31m [33mResumo[31m[33m<[31m[33m/[31m[33mth[31m[33m>[31m
+21/05/2026 09:46:45:  [90m 1002 |[31m                             [33m<[31m[33mth[31m className[33m=[31m[32m"px-2 py-1.5 font-black text-center whitespace-nowrap"[31m[33m>[31m[33mAções[31m[33m<[31m[33m/[31m[33mth[31m[33m>[31m
+21/05/2026 09:46:45: [31m[1m>[22m[31m[90m 1003 |[31m                         [33m<[31m[33m/[31m[33mtr[31m[33m>[31m
+21/05/2026 09:46:45:  [90m      |[31m                         [31m[1m^[22m[31m
+21/05/2026 09:46:45:  [90m 1004 |[31m                     [33m<[31m[33m/[31m[33mthead[31m[33m>[31m
+21/05/2026 09:46:45:  [90m 1005 |[31m                     [33m<[31m[33mtbody[31m[33m>[31m
+21/05/2026 09:46:45:  [90m 1006 |[31m                         {filtered[33m.[31mlength [33m>[31m [35m0[31m [33m?[31m filtered[33m.[31mmap((item[33m,[31m idx) [33m=>[31m {[0m[39m
+21/05/2026 09:46:45:   Plugin: [35mvite:react-babel[39m
+21/05/2026 09:46:45:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/MontagemPlanoCorte.tsx[39m:1003:24
+21/05/2026 09:46:45: [33m  1015 |                                      }`}>
+21/05/2026 09:46:45:   1016 |                                      <td className="px-2 py-1" onClick={e => e.stopPropagation()}>
+21/05/2026 09:46:45:   1017 |                                          <input type="checkbox"
+21/05/2026 09:46:45:        |    ^
+21/05/2026 09:46:45:   1018 |                                              checked={isSelected}
+21/05/2026 09:46:45:   1019 |                                              onChange={() => handleToggleRow(item.IdOrdemServicoItem)}[39m
+21/05/2026 09:46:45:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4727:16)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 09:46:45:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+21/05/2026 09:46:45:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+21/05/2026 09:46:45:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+21/05/2026 09:46:45:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+21/05/2026 09:46:45:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+21/05/2026 09:46:45:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseReturnStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13132:28)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12788:21)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseFunctionBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12090:24)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12076:10)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9172:18)
+21/05/2026 09:46:45:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13435:12
+21/05/2026 09:46:45:       at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12393:14)
+21/05/2026 09:46:45:       at TypeScriptParserMixin.parseFunction (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13434:10)
+21/05/2026 09:47:15: [2m09:47:15[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\MontagemPlanoCorte.tsx: Unexpected token (987:32)
+21/05/2026 09:47:15: 
+21/05/2026 09:47:15: [0m [90m 985 |[31m                         [33m<[31m[33mdiv[31m key[33m=[31m{ph} className[33m=[31m{[32m`flex items-center bg-slate-50 border border-slate-200 rounded px-1.5 focus-within:border-indigo-400 ${w}`[31m}[33m>[31m
+21/05/2026 09:47:15:  [90m 986 |[31m                             [33m<[31m[33minput[31m type[33m=[31m[32m"text"[31m placeholder[33m=[31m{ph} value[33m=[31m{val}
+21/05/2026 09:47:15: [31m[1m>[22m[31m[90m 987 |[31m                                 [33m<[31m[33m/[31m[33mtd[31m[33m>[31m
+21/05/2026 09:47:15:  [90m     |[31m                                 [31m[1m^[22m[31m
+21/05/2026 09:47:15:  [90m 988 |[31m                             [33m<[31m[33m/[31m[33mtr[31m[33m>[31m
+21/05/2026 09:47:15:  [90m 989 |[31m                         )}
+21/05/2026 09:47:15:  [90m 990 |[31m                     [33m<[31m[33m/[31m[33mtbody[31m[33m>[31m[0m[39m
+21/05/2026 09:47:15:   Plugin: [35mvite:react-babel[39m
+21/05/2026 09:47:15:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/MontagemPlanoCorte.tsx[39m:987:32
+21/05/2026 09:47:15: [33m  1011|      const [fOS, setFOS] = useState('');
+21/05/2026 09:47:15:   1012|      const [fEsp, setFEsp] = useState('');
+21/05/2026 09:47:15:   1013|      const [fProjeto, setFProjeto] = useState('');
+21/05/2026 09:47:15:       |                                                   ^
+21/05/2026 09:47:15:   1014|      const [fTag, setFTag] = useState('');
+21/05/2026 09:47:15:   1015|      const [fCod, setFCod] = useState('');[39m
+21/05/2026 09:47:15:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.unexpected (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6619:16)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseIdentifier (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4569:12)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseNamespacedName (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4576:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseAttribute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4652:22)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseOpeningElementAfterName (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4667:28)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseOpeningElementAfterName (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10033:18)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseOpeningElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4662:17)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4686:33)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 09:47:15:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+21/05/2026 09:47:15:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+21/05/2026 09:47:15:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+21/05/2026 09:47:15:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseFunctionBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12083:24)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseArrowExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12065:10)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11677:12)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 09:47:15:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 13:06:47: (node:15776) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+21/05/2026 13:06:47: (Use `node --trace-deprecation ...` to show where the warning was created)
+21/05/2026 13:12:19: [2m13:12:19[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 2 errors:
+21/05/2026 13:12:19: C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/Romaneio.tsx:1066:16: ERROR: The character "}" is not valid inside a JSX element
+21/05/2026 13:12:19: C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/Romaneio.tsx:1275:16: ERROR: The character "}" is not valid inside a JSX element[39m
+21/05/2026 13:12:19:   Plugin: [35mvite:esbuild[39m
+21/05/2026 13:12:19:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/Romaneio.tsx[39m:1066:0
+21/05/2026 13:12:19: [33m  
+21/05/2026 13:12:19:   [33mThe character "}" is not valid inside a JSX element[33m
+21/05/2026 13:12:19:   1064 |            document.body
+21/05/2026 13:12:19:   1065 |          )}
+21/05/2026 13:12:19:   1066 |                  }
+21/05/2026 13:12:19:        |                  ^
+21/05/2026 13:12:19:   1067 |                  {/* INSERTED ITEMS VIEW MODAL */}
+21/05/2026 13:12:19:   1068 |                  {showInsertedModal && createPortal(
+21/05/2026 13:12:19:   
+21/05/2026 13:12:19:   [33mThe character "}" is not valid inside a JSX element[33m
+21/05/2026 13:12:19:   1273 |            document.body
+21/05/2026 13:12:19:   1274 |          )}
+21/05/2026 13:12:19:   1275 |                  }
+21/05/2026 13:12:19:        |                  ^
+21/05/2026 13:12:19:   1276 |              </div>);
+21/05/2026 13:12:19:   1277 |  
+21/05/2026 13:12:19:   [39m
+21/05/2026 13:12:19:       at failureErrorWithLog (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\esbuild\lib\main.js:1467:15)
+21/05/2026 13:12:19:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\esbuild\lib\main.js:736:50
+21/05/2026 13:12:19:       at responseCallbacks.<computed> (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\esbuild\lib\main.js:603:9)
+21/05/2026 13:12:19:       at handleIncomingPacket (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\esbuild\lib\main.js:658:12)
+21/05/2026 13:12:19:       at Socket.readFromStdout (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\esbuild\lib\main.js:581:7)
+21/05/2026 13:12:19:       at Socket.emit (node:events:508:28)
+21/05/2026 13:12:19:       at addChunk (node:internal/streams/readable:559:12)
+21/05/2026 13:12:19:       at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+21/05/2026 13:12:19:       at Readable.push (node:internal/streams/readable:390:5)
+21/05/2026 13:12:19:       at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+21/05/2026 13:31:22: [2m13:31:22[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\Romaneio.tsx: Expected corresponding JSX closing tag for <button>. (893:40)
+21/05/2026 13:31:22: 
+21/05/2026 13:31:22: [0m [90m 891 |[31m                                     [33m<[31m[33mbutton[31m onClick[33m=[31m{() [33m=>[31m setShowItemsModal([36mfalse[31m)} className[33m=[31m[32m"text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-full transition-all"[31m[33m>[31m
+21/05/2026 13:31:22:  [90m 892 |[31m                                             [33m/[31m[33m>[31m
+21/05/2026 13:31:22: [31m[1m>[22m[31m[90m 893 |[31m                                         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+21/05/2026 13:31:22:  [90m     |[31m                                         [31m[1m^[22m[31m
+21/05/2026 13:31:22:  [90m 894 |[31m                                         [33m<[31m[33mdiv[31m className[33m=[31m[32m"flex items-end"[31m[33m>[31m
+21/05/2026 13:31:22:  [90m 895 |[31m                                             [33m<[31m[33mbutton[31m
+21/05/2026 13:31:22:  [90m 896 |[31m                                                 onClick[33m=[31m{fetchAvailableItems}[0m[39m
+21/05/2026 13:31:22:   Plugin: [35mvite:react-babel[39m
+21/05/2026 13:31:22:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/Romaneio.tsx[39m:893:40
+21/05/2026 13:31:22: [33m  902 |                                              </button>
+21/05/2026 13:31:22:   903 |                                          </div>
+21/05/2026 13:31:22:   904 |                                      </div>
+21/05/2026 13:31:22:       |                        ^
+21/05/2026 13:31:22:   905 |                                      <div className="mt-3 flex items-center gap-4">
+21/05/2026 13:31:22:   906 |                                          <div className="flex items-center gap-2">[39m
+21/05/2026 13:31:22:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4727:16)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 13:31:22:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+21/05/2026 13:31:22:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+21/05/2026 13:31:22:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+21/05/2026 13:31:22:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12165:18)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseCallExpressionArguments (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11242:22)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11176:29)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseSubscript (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11110:19)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseSubscript (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9272:18)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11084:19)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11075:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOpBaseRightExpr (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10976:34)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOpRightExpr (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10971:21)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOp (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10937:27)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOp (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9306:18)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10898:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+21/05/2026 13:31:22:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+21/05/2026 13:31:22:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseExpressionContainer (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4632:31)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4711:36)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 13:31:22:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 13:44:00: [2m13:44:00[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\Romaneio.tsx: Expected corresponding JSX closing tag for <thead>. (1009:40)
+21/05/2026 13:44:00: 
+21/05/2026 13:44:00: [0m [90m 1007 |[31m                                                 ))
+21/05/2026 13:44:00:  [90m 1008 |[31m                                             )}
+21/05/2026 13:44:00: [31m[1m>[22m[31m[90m 1009 |[31m                                         [33m<[31m[33m/[31m[33mtbody[31m[33m>[31m
+21/05/2026 13:44:00:  [90m      |[31m                                         [31m[1m^[22m[31m
+21/05/2026 13:44:00:  [90m 1010 |[31m                                     [33m<[31m[33m/[31m[33mtable[31m[33m>[31m
+21/05/2026 13:44:00:  [90m 1011 |[31m                                 [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+21/05/2026 13:44:00:  [90m 1012 |[31m[0m[39m
+21/05/2026 13:44:00:   Plugin: [35mvite:react-babel[39m
+21/05/2026 13:44:00:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/Romaneio.tsx[39m:1009:40
+21/05/2026 13:44:00: [33m  1029 |  
+21/05/2026 13:44:00:   1030 |      if (view === 'report' && reportData) {
+21/05/2026 13:44:00:   1031 |          return (
+21/05/2026 13:44:00:        |   ^
+21/05/2026 13:44:00:   1032 |              <div className="space-y-6 w-full max-w-[1920px] mx-auto">
+21/05/2026 13:44:00:   1033 |                  {/* Print Header - Hidden on screen */}[39m
+21/05/2026 13:44:00:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4727:16)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 13:44:00:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+21/05/2026 13:44:00:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+21/05/2026 13:44:00:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+21/05/2026 13:44:00:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOpBaseRightExpr (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10976:34)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOpRightExpr (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10971:21)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOp (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10937:27)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOp (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9306:18)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10898:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+21/05/2026 13:44:00:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+21/05/2026 13:44:00:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseExpressionContainer (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4632:31)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4711:36)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 13:44:00:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 14:10:35: [2m14:10:35[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\VisaoGeralProducao.tsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (123:63)
+21/05/2026 14:10:35: 
+21/05/2026 14:10:35: [0m [90m 121 |[31m                 setSelProj(p)[33m;[31m
+21/05/2026 14:10:35:  [90m 122 |[31m                 fetchRncs(p[33m.[31m[33mIdProjeto[31m[33m,[31m origem)[33m;[31m
+21/05/2026 14:10:35: [31m[1m>[22m[31m[90m 123 |[31m                                     [33m<[31m[33mCalendarDays[31m size[33m=[31m{[35m16[31m} [33m/[31m[33m>[31m [33m<[31m[33mspan[31m[33m>[31m[33mPlan[31m[33m.[31m em [33mLote[31m[33m<[31m[33m/[31m[33mspan[31m[33m>[31m
+21/05/2026 14:10:35:  [90m     |[31m                                                                [31m[1m^[22m[31m
+21/05/2026 14:10:35:  [90m 124 |[31m                                 [33m<[31m[33m/[31m[33mbutton[31m[33m>[31m
+21/05/2026 14:10:35:  [90m 125 |[31m                                 [33m<[31m[33mbutton[31m onClick[33m=[31m{() [33m=>[31m setShowDetailsModal([36mfalse[31m)} className[33m=[31m[32m"bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0"[31m[33m>[31m
+21/05/2026 14:10:35:  [90m 126 |[31m                                     [33m<[31m[33mX[31m size[33m=[31m{[35m16[31m} [33m/[31m[33m>[31m [33mFechar[31m[0m[39m
+21/05/2026 14:10:35:   Plugin: [35mvite:react-babel[39m
+21/05/2026 14:10:35:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralProducao.tsx[39m:123:63
+21/05/2026 14:10:35: [33m  123 |                                      <CalendarDays size={16} /> <span>Plan. em Lote</span>
+21/05/2026 14:10:35:   124 |                                  </button>
+21/05/2026 14:10:35:   125 |                                  <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-...
+21/05/2026 14:10:35:       |                                                       ^
+21/05/2026 14:10:35:   126 |                                      <X size={16} /> Fechar
+21/05/2026 14:10:35:   127 |                                  </button>[39m
+21/05/2026 14:10:35:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4742:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 14:10:35:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+21/05/2026 14:10:35:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+21/05/2026 14:10:35:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+21/05/2026 14:10:35:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12885:23)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12848:21)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12747:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseIfStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13120:28)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12786:21)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12848:21)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12747:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseIfStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13120:28)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12786:21)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 14:53:39: (node:22936) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+21/05/2026 14:53:39: (Use `node --trace-deprecation ...` to show where the warning was created)

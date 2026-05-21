@@ -592,7 +592,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
     if (view === 'list') {
         return (
-        <div className="space-y-6 h-full flex flex-col min-h-0">
+        <div className="gap-6 flex-1 flex flex-col min-h-0">
                 {/* Header & Main Actions */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div className="flex items-center gap-4">
@@ -651,7 +651,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                 )}
 
                 {/* List */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex gap-4 items-center">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -1077,28 +1077,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                                 {/* SEARCH FILTERS */}
                                 <div className="p-6 bg-white border-b border-gray-100">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Projeto</label>
-                                            <input
-                                                type="text"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-cyan-500/20 outline-none uppercase"
-                                                placeholder="PROJETO..."
-                                                value={insertedFilters.projeto}
-                                                onChange={(e) => setInsertedFilters(prev => ({ ...prev, projeto: e.target.value.toUpperCase() }))}
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Tag</label>
-                                            <input
-                                                type="text"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-cyan-500/20 outline-none uppercase"
-                                                placeholder="TAG..."
-                                                value={insertedFilters.tag}
-                                                onChange={(e) => setInsertedFilters(prev => ({ ...prev, tag: e.target.value.toUpperCase() }))}
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div className="flex flex-col gap-1 col-span-1 md:col-span-1 lg:col-span-2">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
                                             <input
                                                 type="text"
@@ -1106,16 +1086,6 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                 placeholder="RESUMO..."
                                                 value={insertedFilters.resumo}
                                                 onChange={(e) => setInsertedFilters(prev => ({ ...prev, resumo: e.target.value.toUpperCase() }))}
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Cod. FabricANTE</label>
-                                            <input
-                                                type="text"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-cyan-500/20 outline-none uppercase"
-                                                placeholder="CÓDIGO..."
-                                                value={insertedFilters.codFabricante}
-                                                onChange={(e) => setInsertedFilters(prev => ({ ...prev, codFabricante: e.target.value.toUpperCase() }))}
                                             />
                                         </div>
                                         <div className="flex items-end">
@@ -1203,8 +1173,6 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     <table className="w-full text-sm">
                                         <thead className="sticky top-0 bg-white border-b border-gray-200 z-10">
                                             <tr className="text-gray-500 font-bold uppercase text-[10px] tracking-wider">
-                                                <th className="px-4 py-3 text-left">Projeto</th>
-                                                <th className="px-4 py-3 text-left">Tag</th>
                                                 <th className="px-4 py-3 text-left">Descrição</th>
                                                 <th className="px-4 py-3 text-center">Unidade</th>
                                                 <th className="px-4 py-3 text-right">Qtde Romaneio</th>
@@ -1214,9 +1182,9 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingInserted ? (
-                                                <tr><td colSpan={7} className="py-20 text-center text-gray-400 font-medium">Buscando itens...</td></tr>
+                                                <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-medium">Buscando itens...</td></tr>
                                             ) : insertedItems.length === 0 ? (
-                                                <tr><td colSpan={7} className="py-20 text-center text-gray-400 font-medium">Nenhum item encontrado no romaneio.</td></tr>
+                                                <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-medium">Nenhum item encontrado no romaneio.</td></tr>
                                             ) : (
                                                 insertedItems.map((item, idx) => (
                                                     <tr
@@ -1229,8 +1197,6 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                 : 'border-transparent hover:border-cyan-200'}
                                                         `}
                                                     >
-                                                        <td className="px-4 py-3 font-semibold text-gray-700">{item.Projeto}</td>
-                                                        <td className="px-4 py-3 text-gray-600 font-mono text-xs">{item.Tag}</td>
                                                         <td className="px-4 py-3">
                                                             <div className="flex flex-col">
                                                                 <span className="font-medium text-gray-800">{item.DescResumo}</span>

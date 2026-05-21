@@ -988,8 +988,11 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
                                 className="w-full text-[10px] py-1 outline-none bg-transparent text-slate-700 placeholder:text-slate-400" />
                         </div>
                     ))}
-                    <button onClick={handleLimpar} className="flex items-center gap-0.5 px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-600 text-[10px] font-bold rounded">
+                    <button onClick={handleLimpar} className="flex items-center gap-0.5 px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-600 text-[10px] font-bold rounded mr-2">
                         <X size={10} />Limpar
+                    </button>
+                    <button onClick={handleToggleAll} className="flex items-center gap-1 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded border border-indigo-200 transition-colors ml-auto">
+                        <CheckCircle2 size={12} /> {todosSelec ? 'Desmarcar Todos' : 'Selecionar Todos'}
                     </button>
                 </div>
             </div>
@@ -1000,13 +1003,7 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
                 <table className="w-full text-left">
                     <thead className="text-[9px] text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 border-b border-slate-200">
                         <tr>
-                            <th className="px-2 py-1.5 w-6">
-                                <input type="checkbox"
-                                    checked={todosSelec}
-                                    ref={el => { if (el) el.indeterminate = parcialSelec; }}
-                                    onChange={handleToggleAll}
-                                    className="cursor-pointer accent-indigo-600" />
-                            </th>
+                            <th className="px-2 py-1.5 w-6"></th>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">OS / Item</th>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">Projeto</th>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">Tag</th>

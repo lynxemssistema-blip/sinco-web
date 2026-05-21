@@ -3,7 +3,8 @@ import {
     FileSpreadsheet, Search, Filter, Calendar, 
     ChevronRight, ArrowRight, RefreshCw, Loader2,
     Database, Tag as TagIcon, LayoutGrid, CheckSquare, 
-    Square, Trash2, Save, AlertCircle, FileText, Info, XCircle, CheckCircle
+    Square, Trash2, Save, AlertCircle, FileText, Info, XCircle, CheckCircle,
+    BookOpen, ChevronDown, ChevronUp, FolderOpen, Hash
 } from 'lucide-react';
 import { useAlert } from '../../contexts/AlertContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -308,6 +309,88 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
 
             <div className="flex-1 overflow-auto custom-scrollbar">
                 <div className="max-w-7xl mx-auto space-y-6 pb-8">
+
+                {/* ── Painel de Critérios de Exibição ─────────────────────────── */}
+                <div className="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
+                    <div className="flex items-center gap-3 px-5 py-3 bg-indigo-50 border-b border-indigo-200">
+                        <BookOpen className="w-4 h-4 text-indigo-600 shrink-0" />
+                        <span className="text-xs font-bold text-indigo-800 uppercase tracking-wider">
+                            Lembrete — Critérios para exibição de Projeto, Tag e OS de Destino
+                        </span>
+                        <span className="ml-auto text-[10px] text-indigo-500 italic">Todos os critérios devem ser atendidos</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                        {/* Critério: Projeto */}
+                        <div className="p-4 space-y-2">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
+                                    <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+                                </div>
+                                <span className="text-xs font-black text-gray-800 uppercase tracking-wide">Projeto</span>
+                            </div>
+                            <ul className="space-y-1.5">
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não excluído <span className="font-mono bg-gray-100 px-1 rounded">D_E_L_E_T_E = null</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não liberado <span className="font-mono bg-gray-100 px-1 rounded">LIBERADO ≠ 'S'</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-yellow-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não finalizado <span className="font-mono bg-gray-100 px-1 rounded">Finalizado = null</span></span>
+                                </li>
+                            </ul>
+                        </div>
+                        {/* Critério: Tag */}
+                        <div className="p-4 space-y-2">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                    <TagIcon className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <span className="text-xs font-black text-gray-800 uppercase tracking-wide">Tag</span>
+                            </div>
+                            <ul className="space-y-1.5">
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Vinculada ao projeto selecionado <span className="font-mono bg-gray-100 px-1 rounded">IdProjeto</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não excluída <span className="font-mono bg-gray-100 px-1 rounded">D_E_L_E_T_E = null</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <Info className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Buscada na tabela <span className="font-mono bg-gray-100 px-1 rounded">tags</span> + planilhas importadas</span>
+                                </li>
+                            </ul>
+                        </div>
+                        {/* Critério: OS */}
+                        <div className="p-4 space-y-2">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center">
+                                    <Hash className="w-3.5 h-3.5 text-orange-600" />
+                                </div>
+                                <span className="text-xs font-black text-gray-800 uppercase tracking-wide">OS de Destino</span>
+                            </div>
+                            <ul className="space-y-1.5">
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Vinculada à Tag selecionada <span className="font-mono bg-gray-100 px-1 rounded">IdTag</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não liberada à engenharia <span className="font-mono bg-gray-100 px-1 rounded">Liberado_Engenharia ≠ 'S'</span></span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                                    <span className="text-[11px] text-gray-600">Não finalizada e não excluída <span className="font-mono bg-gray-100 px-1 rounded">D_E_L_E_T_E ≠ '*'</span></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Filters Section */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6">

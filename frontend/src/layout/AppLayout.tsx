@@ -304,13 +304,13 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
 
             {/* Main Content Area */}
             <main className={cn(
-                "pt-16 md:pt-0 h-full w-full flex flex-col transition-all duration-400 ease-in-out bg-background relative",
+                "pt-16 md:pt-0 h-full flex-1 flex flex-col min-h-0 transition-all duration-400 ease-in-out bg-background relative z-40 overflow-hidden",
                 isSidebarCollapsed ? "md:ml-20" : "md:ml-72"
             )}>
                 {/* Floating Decorative Blur */}
                 <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[30%] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="p-3 md:p-4 w-full h-full flex flex-col max-w-full mx-auto relative z-10 overflow-hidden">
+                <div className="p-3 md:p-4 w-full flex-1 flex flex-col min-h-0 max-w-full mx-auto relative z-10 overflow-hidden">
                     {/* Header Desktop (Breadcrumb/Title) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 shrink-0">
                         <div className="flex items-start gap-3">
@@ -322,7 +322,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                                 <Menu size={20} strokeWidth={2} />
                             </button>
                             <div>
-                                <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-tight">{activeLabel}</h1>
+                                <h1 id="main-page-title" className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-tight">{activeLabel}</h1>
                                 <p className="text-muted-foreground text-xs mt-0 font-medium">Plataforma de Gerenciamento Especializado</p>
                             </div>
                         </div>
@@ -330,7 +330,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                     </div>
 
                     {/* Dashboard/Page Content Slot */}
-                    <div className="flex-1 flex flex-col min-h-0 h-full w-full relative">
+                    <div className="flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                         {children}
                     </div>
                 </div>

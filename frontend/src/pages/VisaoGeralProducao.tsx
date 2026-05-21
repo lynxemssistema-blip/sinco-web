@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList } from 'lucide-react';
+import VisaoGeralTagsGlobais from './VisaoGeralTagsGlobais';
 
 const API_BASE = '/api';
 
@@ -81,13 +82,14 @@ export default function VisaoGeralProducaoPage() {
     const [rncPanel, setRncPanel] = useState(false); const [fTag, setFTag] = useState('');
     const [fDataEntradaIni, setFDataEntradaIni] = useState(''); const [fDataEntradaFim, setFDataEntradaFim] = useState('');
     const [fDataPrevIni, setFDataPrevIni] = useState(''); const [fDataPrevFim, setFDataPrevFim] = useState('');
+    const [fDataPlanIni, setFDataPlanIni] = useState(''); const [fDataPlanFim, setFDataPlanFim] = useState('');
     const [fProjCriacaoIni, setFProjCriacaoIni] = useState(''); const [fProjCriacaoFim, setFProjCriacaoFim] = useState('');
     const [fProjPrevIni, setFProjPrevIni] = useState(''); const [fProjPrevFim, setFProjPrevFim] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
 
     // State Persistence
-    const [viewMode, setViewMode] = useState<'card' | 'list'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list') || 'card');
+    const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list' | 'tags') || 'card');
     const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
     const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(
         () => (localStorage.getItem('vgp_statusFilter') as 'finalizados'|'liberados'|'todos'|null) || null
@@ -128,6 +130,7 @@ export default function VisaoGeralProducaoPage() {
 
     // Modais e Ações
     const [actionModal, setActionModal] = useState<'dateProj' | 'dateTagGlobal' | 'dateTagSetores' | 'fin' | 'cancelFin' | 'addRnc' | 'addTask' | 'planejarProjetista' | 'alterarQtdeLiberada' | 'finTag' | 'bulkDateTags' | null>(null);
+    const [viewModeTags, setViewModeTags] = useState<'detailed' | 'list'>('list');
     const [rncForm, setRncForm] = useState<{idRnc?: number, idTag?: number, tag?: string, estatus?: string, descricao: string, setor: string, usuario: string, tipoTarefa: string, dataExec: string, usuarioFin?: string, dataFin?: string, setorFin?: string, descFin?: string, wantsToFinalize?: boolean}>({ descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false });
     const [planejarProjetistaForm, setPlanejarProjetistaForm] = useState<{ projetistaPlanejado: string, planejadoInicioEngenharia: string, planejadoFinalEngenharia: string }>({ projetistaPlanejado: '', planejadoInicioEngenharia: '', planejadoFinalEngenharia: '' });
     const [qtdeLiberadaForm, setQtdeLiberadaForm] = useState<{ qtdeLiberada: string }>({ qtdeLiberada: '' });
@@ -656,6 +659,34 @@ export default function VisaoGeralProducaoPage() {
         if (fDataEntradaFim && tEntrada && tEntrada > fDataEntradaFim) return false;
         if (fDataPrevIni && tPrev && tPrev < fDataPrevIni) return false;
         if (fDataPrevFim && tPrev && tPrev > fDataPrevFim) return false;
+
+        if (fDataPlanIni || fDataPlanFim) {
+            const sectors = [
+                { i: t.PlanejadoInicioCorte, f: t.PlanejadoFinalCorte },
+                { i: t.PlanejadoInicioDobra, f: t.PlanejadoFinalDobra },
+                { i: t.PlanejadoInicioSolda, f: t.PlanejadoFinalSolda },
+                { i: t.PlanejadoInicioPintura, f: t.PlanejadoFinalPintura },
+                { i: t.PlanejadoInicioMontagem, f: t.PlanejadoFinalMontagem }
+            ];
+            
+            const hasOverlappingPlanning = sectors.some(s => {
+                const sIni = s.i ? brToIso(s.i) : '';
+                const sFim = s.f ? brToIso(s.f) : '';
+                
+                if (!sIni && !sFim) return false;
+
+                const sectorStart = sIni || sFim;
+                const sectorEnd = sFim || sIni;
+                
+                const filterStart = fDataPlanIni || '0000-01-01';
+                const filterEnd = fDataPlanFim || '9999-12-31';
+
+                return (sectorStart <= filterEnd) && (sectorEnd >= filterStart);
+            });
+
+            if (!hasOverlappingPlanning) return false;
+        }
+
         return true;
     });
     const filteredRncs = rncs.filter(r => showFinalizedRncs || r.Estatus !== 'FINALIZADO');
@@ -736,8 +767,15 @@ export default function VisaoGeralProducaoPage() {
 
                                 {/* View Mode */}
                                 <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner">
-                                    <button onClick={() => setViewMode('card')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><LayoutGrid size={12} /> Cards</button>
-                                    <button onClick={() => setViewMode('list')} className={`px-2.5 py-1 rounded-md flex items-center gap-1 text-[10px] font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><List size={12} /> Lista</button>
+                                    <button onClick={() => setViewMode('card')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                        <LayoutGrid size={14} /> Cards
+                                    </button>
+                                    <button onClick={() => setViewMode('list')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                        <List size={14} /> Lista
+                                    </button>
+                                    <button onClick={() => setViewMode('tags')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'tags' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                        <TagIcon size={14} /> Tags Globais
+                                    </button>
                                 </div>
                                 <button onClick={() => fetchProj(statusFilter)} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#32423D] text-white font-bold text-[10px] hover:bg-[#32423D]/80 transition shadow-sm"><Search size={12} /> Pesquisar</button>
                             </div>
@@ -781,10 +819,14 @@ export default function VisaoGeralProducaoPage() {
                             </div>
                         ) : filteredProj.length === 0 ? (
                             <div className="text-center mt-20 text-slate-400 font-medium">Nenhum projeto encontrado.</div>
+                        ) : viewMode === 'tags' ? (
+                            <div className="px-6 pb-6 h-full flex flex-col">
+                                <VisaoGeralTagsGlobais onVoltar={() => setViewMode('card')} />
+                            </div>
                         ) : viewMode === 'list' ? (
                             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-auto min-w-full">
                                 <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[800px]">
-                                    <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                                    <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                                         <tr>
                                             <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
@@ -920,7 +962,7 @@ export default function VisaoGeralProducaoPage() {
                                         <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest border-b border-slate-200 pb-2">
                                             {client} <span className="text-xs ml-2 text-slate-500 font-normal normal-case">({projs.length} projetos)</span>
                                         </h3>
-                                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-4">
                                             {projs.map(p => {
                                     const isFin = p.Finalizado?.trim() === 'C'; 
                                     const isLib = p.liberado?.trim() === 'S';
@@ -929,15 +971,15 @@ export default function VisaoGeralProducaoPage() {
                                         <div key={p.IdProjeto} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col relative overflow-hidden group">
                                             
                                             {/* Header do Card */}
-                                            <div className={`p-5 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? 'opacity-80' : 'hover:bg-slate-50/50 cursor-pointer'}`} onClick={() => { if (p.QtdeTags > 0) openDetailsModal(p); }}>
+                                            <div className={`p-3 border-b border-slate-100 flex items-start justify-between bg-gradient-to-r transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? 'opacity-80' : 'hover:bg-slate-50/50 cursor-pointer'}`} onClick={() => { if (p.QtdeTags > 0) openDetailsModal(p); }}>
                                                 <div className="flex-1 mr-4">
                                                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
                                                         <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
                                                         {isFin && <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded uppercase leading-none border border-emerald-200">Finalizado</span>}
                                                         {isLib && !isFin && <span className="text-[9px] font-bold text-[#32423D] bg-blue-100 px-1.5 py-0.5 rounded uppercase leading-none border border-blue-200">Liberado</span>}
                                                     </div>
-                                                    <h3 className={`font-black text-slate-800 text-lg leading-tight mb-1 transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? '' : 'group-hover:text-[#32423D]/70'}`} title={p.Projeto}>{p.Projeto}</h3>
-                                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
+                                                    <h3 className={`font-black text-slate-800 text-base leading-tight mb-1 transition-colors ${(!p.QtdeTags || p.QtdeTags === 0) ? '' : 'group-hover:text-[#32423D]/70'}`} title={p.Projeto}>{p.Projeto}</h3>
+                                                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
                                                 </div>
                                                 <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`p-2 rounded-lg transition-colors border shadow-sm shrink-0 ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`} title="Ver Tags Detalhadas">
                                                     <ArrowRight size={18} className="pointer-events-none" />
@@ -945,7 +987,7 @@ export default function VisaoGeralProducaoPage() {
                                             </div>
 
                                             {/* Body do Card (KPIs e Progresso) */}
-                                            <div className="p-5 flex-1 flex flex-col gap-5">
+                                            <div className="p-3 flex-1 flex flex-col gap-3">
                                                 
                                                 {/* Quadro de KPIs */}
                                                 <div className="grid grid-cols-2 gap-2">
@@ -1005,7 +1047,7 @@ export default function VisaoGeralProducaoPage() {
                                             </div>
 
                                             {/* Footer do Card com Datas (Editaveis via botao) */}
-                                            <div className="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex gap-4 justify-between items-center sm:flex-row flex-col sm:items-center">
+                                            <div className="bg-slate-50/80 border-t border-slate-100 px-3 py-2 flex gap-3 justify-between items-center sm:flex-row flex-col sm:items-center">
                                                 <div className="flex gap-6 w-full sm:w-auto">
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
@@ -1021,8 +1063,8 @@ export default function VisaoGeralProducaoPage() {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-6 shrink-0 items-start">
-                                                    <div className="flex gap-4 w-full">
+                                                <div className="flex flex-col gap-1 w-full sm:w-auto border-l border-slate-200 pl-3 shrink-0 items-start">
+                                                    <div className="flex gap-2 w-full flex-wrap">
                                                         {!isFin ? (
                                                             <button type="button" onClick={() => { setSelProj(p); setMsg(null); setActionModal('fin'); }} className="text-[10px] text-emerald-600 hover:text-emerald-800 font-bold uppercase underline decoration-emerald-300 flex items-center gap-1 transition-colors"><CheckCircle size={12} className="pointer-events-none"/> Finalizar Projeto</button>
                                                         ) : (
@@ -1079,9 +1121,9 @@ export default function VisaoGeralProducaoPage() {
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         <span className="text-[11px] font-mono font-bold text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded leading-none">#{selProj.IdProjeto}</span>
-                                        <h2 className="text-lg font-black text-slate-800 leading-tight">Lista de Tags: {selProj.Projeto}</h2>
+                                        <h2 className="text-lg font-black text-slate-800 leading-tight">Projeto: {selProj.Projeto}</h2>
                                     </div>
-                                    <p className="text-xs text-slate-500 truncate max-w-xl">{selProj.DescProjeto}</p>
+                                    <p className="text-xs font-bold text-slate-600 truncate max-w-xl uppercase">Descrição: {selProj.DescProjeto}</p>
                                 </div>
                             </div>
                             
@@ -1102,12 +1144,26 @@ export default function VisaoGeralProducaoPage() {
                                     <Search size={14} className="text-slate-400 mr-2 shrink-0" />
                                     <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
                                 </div>
-                                {(fTag || fDataEntradaIni || fDataEntradaFim || fDataPrevIni || fDataPrevFim) && (
-                                    <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0" title="Limpar filtros">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Plan:</span>
+                                    <input type="date" value={fDataPlanIni} onChange={e => setFDataPlanIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
+                                    <input type="date" value={fDataPlanFim} onChange={e => setFDataPlanFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                </div>
+                                {(fTag || fDataEntradaIni || fDataEntradaFim || fDataPrevIni || fDataPrevFim || fDataPlanIni || fDataPlanFim) && (
+                                    <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); setFDataPlanIni(''); setFDataPlanFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0" title="Limpar filtros">
                                         <X size={14} /> <span>Limpar</span>
                                     </button>
                                 )}
                                 <div className="h-6 w-px bg-slate-300 hidden sm:block shrink-0"></div>
+                                <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 shadow-inner">
+                                    <button onClick={() => setViewModeTags('detailed')} className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 ${viewModeTags === 'detailed' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                        <LayoutGrid size={12} /> Detalhado
+                                    </button>
+                                    <button onClick={() => setViewModeTags('list')} className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all flex items-center gap-1.5 ${viewModeTags === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                                        <List size={12} /> Lista Limpa
+                                    </button>
+                                </div>
                                 <button 
                                     onClick={() => { setBulkSectorDates({}); setMsg(null); setActionModal('bulkDateTags'); }} 
                                     className="bg-indigo-600 hover:bg-indigo-700 p-2 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2 font-bold text-xs shrink-0"
@@ -1137,7 +1193,11 @@ export default function VisaoGeralProducaoPage() {
                                             <th className="px-4 py-3 border-r border-slate-200 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
                                             <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Cronograma</th>
                                             <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Detalhes</th>
-                                            {filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-slate-200 text-center min-w-[280px]">Setor: {s.k}</th>)}
+                                            {viewModeTags === 'detailed' ? (
+                                                filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-slate-200 text-center min-w-[280px]">Setor: {s.k}</th>)
+                                            ) : (
+                                                <th className="px-3 py-3 border-r border-slate-200 text-center min-w-[180px]">Progresso de Setores</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -1256,46 +1316,47 @@ export default function VisaoGeralProducaoPage() {
                                                     </td>
 
                                                     {/* SETORES */}
-                                                    {filteredTagSectors.map(s => {
-                                                        const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
-                                                        const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
-                                                        const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
-                                                        return (
-                                                            <td key={s.k} className="px-4 py-3 align-top border-r border-slate-100 hover:bg-slate-50/80 transition-colors">
-                                                                <div className="flex flex-col w-full h-full justify-between">
-                                                                    {/* Progresso Cima */}
-                                                                    <div className="flex justify-between items-end mb-1">
-                                                                        <span className="text-[10px] font-black text-slate-700">{pct}%</span>
-                                                                        <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">Ex: {e} / {tot}</span>
-                                                                    </div>
-                                                                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner mb-3">
-                                                                        <div className={`h-full ${s.c} rounded-full transition-all duration-300`} style={{ width: `${pct}%` }} />
-                                                                    </div>
-                                                                    
-                                                                    {/* Datas Embaixo (Planejado em coluna, Realizado em coluna) */}
-                                                                    <div className="grid grid-cols-2 gap-1.5 flex-1 items-end mt-auto pt-1.5 border-t border-slate-100/30 min-w-0">
-                                                                        <div 
-                                                                            className="flex flex-col gap-1 border border-slate-200/70 rounded p-1 bg-white relative hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all group/edit"
-                                                                            title={`Criado em: ${selProj?.DataCriacao || '—'} (Clique para editar planejamento)`}
-                                                                            onClick={() => { 
-                                                                                setSelTag(t); 
-                                                                                setTagSectorDates({
-                                                                                    PlanejadoInicioCorte: brToIso(t.PlanejadoInicioCorte), PlanejadoFinalCorte: brToIso(t.PlanejadoFinalCorte),
-                                                                                    PlanejadoInicioDobra: brToIso(t.PlanejadoInicioDobra), PlanejadoFinalDobra: brToIso(t.PlanejadoFinalDobra),
-                                                                                    PlanejadoInicioSolda: brToIso(t.PlanejadoInicioSolda), PlanejadoFinalSolda: brToIso(t.PlanejadoFinalSolda),
-                                                                                    PlanejadoInicioPintura: brToIso(t.PlanejadoInicioPintura), PlanejadoFinalPintura: brToIso(t.PlanejadoFinalPintura),
-                                                                                    PlanejadoInicioMontagem: brToIso(t.PlanejadoInicioMontagem), PlanejadoFinalMontagem: brToIso(t.PlanejadoFinalMontagem),
-                                                                                });
-                                                                                setMsg(null); setActionModal('dateTagSetores'); 
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex items-center justify-between gap-0.5">
-                                                                                <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. In.</span>
-                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pIni ? 'text-slate-300 border-dashed border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>{pIni || 'Definir'}</span>
-                                                                            </div>
-                                                                            <div className="flex items-center justify-between gap-0.5">
-                                                                                <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. Fim</span>
-                                                                                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pFim ? 'text-slate-300 border-dashed border-slate-200' : (businessDaysUntil(pFim) === -1 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-50 text-slate-600 border-slate-200')}`}>{pFim || 'Definir'}</span>
+                                                    {viewModeTags === 'detailed' ? (
+                                                        filteredTagSectors.map(s => {
+                                                            const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
+                                                            const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
+                                                            const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
+                                                            return (
+                                                                <td key={s.k} className="px-4 py-3 align-top border-r border-slate-100 hover:bg-slate-50/80 transition-colors">
+                                                                    <div className="flex flex-col w-full h-full justify-between">
+                                                                        {/* Progresso Cima */}
+                                                                        <div className="flex justify-between items-end mb-1">
+                                                                            <span className="text-[10px] font-black text-slate-700">{pct}%</span>
+                                                                            <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">Ex: {e} / {tot}</span>
+                                                                        </div>
+                                                                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner mb-3">
+                                                                            <div className={`h-full ${s.c} rounded-full transition-all duration-300`} style={{ width: `${pct}%` }} />
+                                                                        </div>
+                                                                        
+                                                                        {/* Datas Embaixo (Planejado em coluna, Realizado em coluna) */}
+                                                                        <div className="grid grid-cols-2 gap-1.5 flex-1 items-end mt-auto pt-1.5 border-t border-slate-100/30 min-w-0">
+                                                                            <div 
+                                                                                className="flex flex-col gap-1 border border-slate-200/70 rounded p-1 bg-white relative hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all group/edit"
+                                                                                title={`Criado em: ${selProj?.DataCriacao || '—'} (Clique para editar planejamento)`}
+                                                                                onClick={() => { 
+                                                                                    setSelTag(t); 
+                                                                                    setTagSectorDates({
+                                                                                        PlanejadoInicioCorte: brToIso(t.PlanejadoInicioCorte), PlanejadoFinalCorte: brToIso(t.PlanejadoFinalCorte),
+                                                                                        PlanejadoInicioDobra: brToIso(t.PlanejadoInicioDobra), PlanejadoFinalDobra: brToIso(t.PlanejadoFinalDobra),
+                                                                                        PlanejadoInicioSolda: brToIso(t.PlanejadoInicioSolda), PlanejadoFinalSolda: brToIso(t.PlanejadoFinalSolda),
+                                                                                        PlanejadoInicioPintura: brToIso(t.PlanejadoInicioPintura), PlanejadoFinalPintura: brToIso(t.PlanejadoFinalPintura),
+                                                                                        PlanejadoInicioMontagem: brToIso(t.PlanejadoInicioMontagem), PlanejadoFinalMontagem: brToIso(t.PlanejadoFinalMontagem),
+                                                                                    });
+                                                                                    setMsg(null); setActionModal('dateTagSetores'); 
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex items-center justify-between gap-0.5">
+                                                                                    <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. In.</span>
+                                                                                    <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pIni ? 'text-slate-300 border-dashed border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>{pIni || 'Definir'}</span>
+                                                                                </div>
+                                                                                <div className="flex items-center justify-between gap-0.5">
+                                                                                    <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. Fim</span>
+                                                                                    <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pFim ? 'text-slate-300 border-dashed border-slate-200' : (businessDaysUntil(pFim) === -1 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-50 text-slate-600 border-slate-200')}`}>{pFim || 'Definir'}</span>
                                                                             </div>
                                                                         </div>
                                                                         <div className="flex flex-col gap-1 border border-emerald-100/40 rounded p-1 bg-emerald-50/20 relative">
@@ -1312,7 +1373,43 @@ export default function VisaoGeralProducaoPage() {
                                                                 </div>
                                                             </td>
                                                         )
-                                                    })}
+                                                    })
+                                                    ) : (
+                                                        <td className="px-4 py-3 align-top border-r border-slate-100">
+                                                            <div className="flex flex-col gap-2 h-full justify-start">
+                                                                <button 
+                                                                    onClick={() => { 
+                                                                        setSelTag(t); 
+                                                                        setTagSectorDates({
+                                                                            PlanejadoInicioCorte: brToIso(t.PlanejadoInicioCorte), PlanejadoFinalCorte: brToIso(t.PlanejadoFinalCorte),
+                                                                            PlanejadoInicioDobra: brToIso(t.PlanejadoInicioDobra), PlanejadoFinalDobra: brToIso(t.PlanejadoFinalDobra),
+                                                                            PlanejadoInicioSolda: brToIso(t.PlanejadoInicioSolda), PlanejadoFinalSolda: brToIso(t.PlanejadoFinalSolda),
+                                                                            PlanejadoInicioPintura: brToIso(t.PlanejadoInicioPintura), PlanejadoFinalPintura: brToIso(t.PlanejadoFinalPintura),
+                                                                            PlanejadoInicioMontagem: brToIso(t.PlanejadoInicioMontagem), PlanejadoFinalMontagem: brToIso(t.PlanejadoFinalMontagem),
+                                                                        });
+                                                                        setMsg(null); setActionModal('dateTagSetores'); 
+                                                                    }}
+                                                                    className="w-full text-[9px] bg-slate-100 hover:bg-[#32423D] hover:text-white border border-slate-200 text-slate-500 font-bold py-1.5 rounded flex items-center justify-center gap-1 transition-colors mb-1"
+                                                                >
+                                                                    <CalendarDays size={10} /> Planejar Setores
+                                                                </button>
+                                                                {filteredTagSectors.map(s => {
+                                                                    const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
+                                                                    return (
+                                                                        <div key={s.k} className="flex flex-col gap-1 w-full bg-slate-50/50 p-1.5 rounded border border-slate-100 shadow-sm hover:border-slate-300 transition-colors">
+                                                                            <div className="flex justify-between items-end pb-0.5">
+                                                                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${s.c}`} />{s.k}</span>
+                                                                                <span className={`text-[10px] font-black ${pct >= 100 && tot > 0 ? "text-emerald-600" : "text-slate-700"}`}>{pct}% <span className="text-[8px] text-slate-400 font-normal ml-0.5">({e}/{tot})</span></span>
+                                                                            </div>
+                                                                            <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                                                                                <div className={`h-full ${s.c} transition-all duration-300`} style={{ width: `${pct}%` }} />
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             )
                                         })}
@@ -1402,7 +1499,7 @@ export default function VisaoGeralProducaoPage() {
                         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
                             <div>
                                 <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={20} className="text-indigo-600" /> Planejamento em Lote (Projeto)</h3>
-                                <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Projeto: {selProj.Projeto}</p>
+                                <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Projeto: {selProj.Projeto} - Descrição: {selProj.DescProjeto}</p>
                             </div>
                             <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
                         </div>
