@@ -3346,3 +3346,190 @@
 21/05/2026 14:10:35:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
 21/05/2026 14:53:39: (node:22936) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 21/05/2026 14:53:39: (Use `node --trace-deprecation ...` to show where the warning was created)
+21/05/2026 15:10:52: [2m15:10:52[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\VisaoGeralProducao.tsx: 'import' and 'export' may only appear at the top level. (90:0)
+21/05/2026 15:10:52: 
+21/05/2026 15:10:52: [0m [90m 88 |[31m     [36mconst[31m [fromGlobal[33m,[31m setFromGlobal] [33m=[31m useState([36mfalse[31m)[33m;[31m
+21/05/2026 15:10:52:  [90m 89 |[31m
+21/05/2026 15:10:52: [31m[1m>[22m[31m[90m 90 |[31m [36mimport[31m [33mVisaoGeralTagsGlobais[31m [36mfrom[31m [32m'./VisaoGeralTagsGlobais'[31m[33m;[31m
+21/05/2026 15:10:52:  [90m    |[31m [31m[1m^[22m[31m
+21/05/2026 15:10:52:  [90m 91 |[31m
+21/05/2026 15:10:52:  [90m 92 |[31m     [90m// State Persistence[31m
+21/05/2026 15:10:52:  [90m 93 |[31m     [36mconst[31m [viewMode[33m,[31m setViewMode] [33m=[31m useState[33m<[31m[32m'card'[31m [33m|[31m [32m'list'[31m [33m|[31m [32m'tags'[31m[33m>[31m(() [33m=>[31m (localStorage[33m.[31mgetItem([32m'vgp_viewMode'[31m) [36mas[31m [32m'card'[31m [33m|[31m [32m'list'[31m [33m|[31m [32m'tags'[31m) [33m||[31m [32m'card'[31m)[33m;[31m[0m[39m
+21/05/2026 15:10:52:   Plugin: [35mvite:react-babel[39m
+21/05/2026 15:10:52:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralProducao.tsx[39m:90:0
+21/05/2026 15:10:52: [33m  91 |  
+21/05/2026 15:10:52:   92 |      // State Persistence
+21/05/2026 15:10:52:   93 |      const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as...
+21/05/2026 15:10:52:      |    ^
+21/05/2026 15:10:52:   94 |      const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
+21/05/2026 15:10:52:   95 |      const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>([39m
+21/05/2026 15:10:52:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12861:18)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseFunctionBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12090:24)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12076:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9172:18)
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13435:12
+21/05/2026 15:10:52:       at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12393:14)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseFunction (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13434:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseExportDefaultExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13897:19)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseExportDefaultExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9402:18)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseExport (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13818:25)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseExport (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9385:20)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12868:27)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseModuleItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12734:17)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:36)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseProgram (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12612:10)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parseTopLevel (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12602:25)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:14478:25)
+21/05/2026 15:10:52:       at TypeScriptParserMixin.parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10116:18)
+21/05/2026 15:10:52:       at parse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:14512:38)
+21/05/2026 15:10:52:       at parser (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+21/05/2026 15:10:52:       at parser.next (<anonymous>)
+21/05/2026 15:10:52:       at normalizeFile (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+21/05/2026 15:10:52:       at normalizeFile.next (<anonymous>)
+21/05/2026 15:10:52:       at run (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+21/05/2026 15:10:52:       at run.next (<anonymous>)
+21/05/2026 15:10:52:       at transform (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+21/05/2026 15:10:52:       at transform.next (<anonymous>)
+21/05/2026 15:10:52:       at step (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:261:32)
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:273:13
+21/05/2026 15:10:52:       at async.call.result.err.err (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:223:11)
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:189:28
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:113:33
+21/05/2026 15:10:52:       at step (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:287:14)
+21/05/2026 15:10:52:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:273:13
+21/05/2026 15:10:52:       at async.call.result.err.err (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\gensync\index.js:223:11)
+21/05/2026 15:11:57: [2m15:11:57[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "../types" from "src/pages/VisaoGeralProducao.tsx". Does the file exist?[39m
+21/05/2026 15:11:57:   Plugin: [35mvite:import-analysis[39m
+21/05/2026 15:11:57:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralProducao.tsx[39m:3:28
+21/05/2026 15:11:57: [33m  3  |  import React, { useState, useEffect } from "react";
+21/05/2026 15:11:57:   4  |  import { createPortal } from "react-dom";
+21/05/2026 15:11:57:   5  |  import { TiposTarefa } from "../types";
+21/05/2026 15:11:57:      |                               ^
+21/05/2026 15:11:57:   6  |  import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, Ar...
+21/05/2026 15:11:57:   7  |  import VisaoGeralTagsGlobais from "./VisaoGeralTagsGlobais";[39m
+21/05/2026 15:11:57:       at TransformPluginContext._formatLog (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28999:43)
+21/05/2026 15:11:57:       at TransformPluginContext.error (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28996:14)
+21/05/2026 15:11:57:       at normalizeUrl (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27119:18)
+21/05/2026 15:11:57:       at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+21/05/2026 15:11:57:       at async file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27177:32
+21/05/2026 15:11:57:       at async Promise.all (index 3)
+21/05/2026 15:11:57:       at async TransformPluginContext.transform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27145:4)
+21/05/2026 15:11:57:       at async EnvironmentPluginContainer.transform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28797:14)
+21/05/2026 15:11:57:       at async loadAndTransform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:22670:26)
+21/05/2026 15:11:57:       at async viteTransformMiddleware (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:24542:20)
+21/05/2026 15:11:57: [2m15:11:57[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to resolve import "../types" from "src/pages/VisaoGeralTagsGlobais.tsx". Does the file exist?
+21/05/2026 15:11:57:   Plugin: [35mvite:import-analysis[39m
+21/05/2026 15:11:57:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralTagsGlobais.tsx[39m:6:20
+21/05/2026 15:11:57: [33m  17 |    ArrowRight
+21/05/2026 15:11:57:   18 |  } from "lucide-react";
+21/05/2026 15:11:57:   19 |  import { Tag } from "../types";
+21/05/2026 15:11:57:      |                       ^
+21/05/2026 15:11:57:   20 |  const API_BASE = "/api";
+21/05/2026 15:11:57:   21 |  const SECTORS = [[39m
+21/05/2026 15:12:37: [2m15:12:37[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to resolve import "../types" from "src/pages/VisaoGeralTagsGlobais.tsx". Does the file exist?
+21/05/2026 15:12:37:   Plugin: [35mvite:import-analysis[39m
+21/05/2026 15:12:37:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralTagsGlobais.tsx[39m:6:20
+21/05/2026 15:12:37: [33m  17 |    ArrowRight
+21/05/2026 15:12:37:   18 |  } from "lucide-react";
+21/05/2026 15:12:37:   19 |  import { Tag } from "../types";
+21/05/2026 15:12:37:      |                       ^
+21/05/2026 15:12:37:   20 |  const API_BASE = "/api";
+21/05/2026 15:12:37:   21 |  const SECTORS = [[39m
+21/05/2026 15:12:37: [2m15:12:37[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "../types" from "src/pages/VisaoGeralTagsGlobais.tsx". Does the file exist?[39m
+21/05/2026 15:12:37:   Plugin: [35mvite:import-analysis[39m
+21/05/2026 15:12:37:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralTagsGlobais.tsx[39m:6:20
+21/05/2026 15:12:37: [33m  17 |    ArrowRight
+21/05/2026 15:12:37:   18 |  } from "lucide-react";
+21/05/2026 15:12:37:   19 |  import { Tag } from "../types";
+21/05/2026 15:12:37:      |                       ^
+21/05/2026 15:12:37:   20 |  const API_BASE = "/api";
+21/05/2026 15:12:37:   21 |  const SECTORS = [[39m
+21/05/2026 15:12:37:       at TransformPluginContext._formatLog (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28999:43)
+21/05/2026 15:12:37:       at TransformPluginContext.error (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28996:14)
+21/05/2026 15:12:37:       at normalizeUrl (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27119:18)
+21/05/2026 15:12:37:       at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+21/05/2026 15:12:37:       at async file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27177:32
+21/05/2026 15:12:37:       at async Promise.all (index 3)
+21/05/2026 15:12:37:       at async TransformPluginContext.transform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:27145:4)
+21/05/2026 15:12:37:       at async EnvironmentPluginContainer.transform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:28797:14)
+21/05/2026 15:12:37:       at async loadAndTransform (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:22670:26)
+21/05/2026 15:12:37:       at async viteTransformMiddleware (file:///C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/node_modules/vite/dist/node/chunks/config.js:24542:20)
+21/05/2026 15:13:32: [2m15:13:32[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\pages\VisaoGeralTagsGlobais.tsx: Unexpected token (152:9)
+21/05/2026 15:13:32: 
+21/05/2026 15:13:32: [0m [90m 150 |[31m
+21/05/2026 15:13:32:  [90m 151 |[31m             [36mreturn[31m [36mtrue[31m[33m;[31m
+21/05/2026 15:13:32: [31m[1m>[22m[31m[90m 152 |[31m         })[33m;[31m
+21/05/2026 15:13:32:  [90m     |[31m          [31m[1m^[22m[31m
+21/05/2026 15:13:32:  [90m 153 |[31m     }[33m,[31m [tags[33m,[31m fProjeto[33m,[31m fTag[33m,[31m fSetor[33m,[31m fDataPrevIni[33m,[31m fDataPrevFim[33m,[31m fDataPlanIni[33m,[31m fDataPlanFim[33m,[31m fDataRealIni[33m,[31m fDataRealFim])[33m;[31m
+21/05/2026 15:13:32:  [90m 154 |[31m
+21/05/2026 15:13:32:  [90m 155 |[31m     [36mconst[31m limparFiltros [33m=[31m () [33m=>[31m {[0m[39m
+21/05/2026 15:13:32:   Plugin: [35mvite:react-babel[39m
+21/05/2026 15:13:32:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/VisaoGeralTagsGlobais.tsx[39m:152:9
+21/05/2026 15:13:32: [33m  150 |  
+21/05/2026 15:13:32:   151 |              return true;
+21/05/2026 15:13:32:   152 |          });
+21/05/2026 15:13:32:       |           ^
+21/05/2026 15:13:32:   153 |      }, [tags, fProjeto, fTag, fSetor, fDataPrevIni, fDataPrevFim, fDataPlanIni, fDataPlanFim, fDataRealIni, fDataReal...
+21/05/2026 15:13:32:   154 |  [39m
+21/05/2026 15:13:32:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.unexpected (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6619:16)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11432:22)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+21/05/2026 15:13:32:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+21/05/2026 15:13:32:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12885:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13306:61)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseBlockBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13299:10)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseBlock (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13287:10)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseFunctionBody (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12090:24)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseArrowExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12065:10)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11428:25)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+21/05/2026 15:13:32:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+21/05/2026 15:13:32:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12165:18)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseCallExpressionArguments (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11242:22)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11176:29)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseSubscript (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11110:19)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseSubscript (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9272:18)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11084:19)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11075:17)
+21/05/2026 15:13:32:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)

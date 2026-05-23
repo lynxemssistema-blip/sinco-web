@@ -1501,3 +1501,36 @@
 21/05/2026 14:50:09: [2m14:50:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
 21/05/2026 14:53:11: [2m14:53:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
 21/05/2026 14:53:39: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+21/05/2026 14:53:41: 
+21/05/2026 14:53:41:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m358[22m[2m[0m ms[22m
+21/05/2026 14:53:41: 
+21/05/2026 14:53:41:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+21/05/2026 14:53:41:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+21/05/2026 14:53:48: 
+21/05/2026 14:53:48: PWA v1.2.0
+21/05/2026 14:53:48: mode      generateSW
+21/05/2026 14:53:48: precache  2 entries (0.12 KiB)
+21/05/2026 14:53:48: files generated
+21/05/2026 14:53:48:   dev-dist/sw.js
+21/05/2026 14:53:48:   dev-dist/workbox-5a5d9309.js
+21/05/2026 15:10:51: [2m15:10:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
+21/05/2026 15:11:57: [2m15:11:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
+21/05/2026 15:12:36: [2m15:12:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+21/05/2026 15:12:47: [2m15:12:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralProducao.tsx[22m
+21/05/2026 15:12:56: [2m15:12:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 15:13:21: [2m15:13:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 15:13:32: [2m15:13:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 15:13:42: [2m15:13:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 15:33:48: [2m15:33:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
+21/05/2026 15:34:01: [2m15:34:01[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 15:34:09: [2m15:34:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 16:22:58: [2m16:22:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 16:30:54: [2m16:30:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 16:52:32: [2m16:52:32[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
+21/05/2026 16:52:45: [2m16:52:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 18:54:39: [2m18:54:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/layout/AppLayout.tsx, /src/index.css[22m
+21/05/2026 18:55:10: [2m18:55:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 18:56:23: [2m18:56:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/VisaoGeralTagsGlobais.tsx[22m
+21/05/2026 18:57:37: [2m18:57:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ApontamentoProducao.tsx, /src/index.css[22m
+21/05/2026 18:58:05: [2m18:58:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/VisaoGeralProducao.tsx, /src/index.css[22m
+21/05/2026 19:03:33: [2m19:03:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ApontamentoProducao.tsx, /src/index.css[22m

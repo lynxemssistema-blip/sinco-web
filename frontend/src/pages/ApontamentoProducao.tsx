@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X, ArrowLeft,
     Scissors, Wrench, Flame, Paintbrush, Settings2, Plus, History, AlertCircle, Filter, XCircle, Star, Map,
-    PenTool, Box, AlertTriangle
+    PenTool, Box, AlertTriangle, Calendar
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { useAppConfig } from '../contexts/AppConfigContext';
+import PlanejamentoProducaoPage from './PlanejamentoProducao';
 
 const API_BASE = '/api';
 
@@ -93,10 +94,11 @@ interface SelectOption {
     label: string;
 }
 
-type Setor = 'mapa' | 'corte' | 'dobra' | 'solda' | 'pintura' | 'montagem' | 'mapaproducao';
+type Setor = 'mapa' | 'corte' | 'dobra' | 'solda' | 'pintura' | 'montagem' | 'mapaproducao' | 'planejamento';
 
 const setores: { id: Setor; label: string; icon: typeof Scissors; color: string }[] = [
     { id: 'mapa', label: 'Mapa', icon: Settings2, color: 'bg-gray-700' },
+    { id: 'planejamento', label: 'Planejamento', icon: Calendar as any, color: 'bg-teal-600' },
     { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-yellow-500' },
     { id: 'dobra', label: 'Dobra', icon: Wrench, color: 'bg-purple-500' },
     { id: 'solda', label: 'Solda', icon: Flame, color: 'bg-orange-500' },
@@ -111,8 +113,8 @@ export default function ApontamentoProducaoPage() {
     // visibleSetores is derived from the global config (replaces per-component state)
     const visibleSetores: string[] = processosVisiveis;
     // filteredSetores: the tabs to show (always include 'mapa' + 'mapaproducao', filter sectors by config)
-    const filteredSetores = setores.filter(s => s.id === 'mapa' || s.id === 'mapaproducao' || processosVisiveis.includes(s.id));
-    const [setorAtivo, setSetorAtivo] = useState<Setor>('corte');
+    const filteredSetores = setores.filter(s => s.id === 'mapa' || s.id === 'mapaproducao' || s.id === 'planejamento' || processosVisiveis.includes(s.id));
+    const [setorAtivo, setSetorAtivo] = useState<Setor>('mapa');
     const [itens, setItens] = useState<ApontamentoItem[]>([]);
     const abortControllerRef = useRef<AbortController | null>(null);
     const [loading, setLoading] = useState(false);
@@ -332,7 +334,7 @@ export default function ApontamentoProducaoPage() {
 
     // Config for visible sectors (fetched via context)
     useEffect(() => {
-        if (visibleSetores.length > 0 && !visibleSetores.includes(setorAtivo) && setorAtivo !== 'mapa') {
+        if (visibleSetores.length > 0 && !visibleSetores.includes(setorAtivo as any) && !['mapa', 'planejamento', 'mapaproducao'].includes(setorAtivo)) {
             setSetorAtivo('mapa');
         }
     }, [visibleSetores, setorAtivo]);
@@ -574,7 +576,7 @@ export default function ApontamentoProducaoPage() {
                 setTimeout(() => {
                     fetchItens();
                 }, 300); // Small delay to ensure DB propagation and UI smoothness
-                addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento registrado com sucesso!' });
+                // addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento registrado com sucesso!' });
             } else {
                 addToast({
                     type: 'error',
@@ -619,7 +621,7 @@ export default function ApontamentoProducaoPage() {
                 setQtdeReposicao('');
                 setMotivoReposicao('');
                 fetchItens();
-                addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Reposição gerada com sucesso!' });
+                // addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Reposição gerada com sucesso!' });
             } else {
                 addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar reposição' });
             }
@@ -707,7 +709,7 @@ export default function ApontamentoProducaoPage() {
                     // Na verdade, ao invés de limpar tudo, ele continua na tela. 
                 }
                 fetchItens();
-                addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Operação realizada com sucesso.' });
+                // addToast({ type: 'success', title: 'Sucesso', message: json.message || 'Operação realizada com sucesso.' });
             } else {
                 addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao gerar pendência.' });
             }
@@ -872,6 +874,8 @@ export default function ApontamentoProducaoPage() {
         <div className={`space-y-4 flex flex-col min-h-0 min-w-0 overflow-hidden ${fromGlobal ? 'h-full' : 'h-[calc(100vh-80px)] w-full'}`}>
             {!fromGlobal ? (
                 <>
+            {setorAtivo !== 'planejamento' && (
+                <>
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -964,7 +968,15 @@ export default function ApontamentoProducaoPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            </>
+            )}
 
+            {setorAtivo === 'planejamento' ? (
+                <div className="flex-1 min-h-0 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50/30">
+                    <PlanejamentoProducaoPage onBack={() => setSetorAtivo('mapa')} />
+                </div>
+            ) : (
+                <>
             {/* Filters Panel */}
             <AnimatePresence>
                 {showFilters && (
@@ -1724,6 +1736,8 @@ export default function ApontamentoProducaoPage() {
                     )}
                 </AnimatePresence>
             </div>
+                </>
+            )}
             </>
             ) : (
                 <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white rounded-2xl border border-gray-200 p-8 shadow-sm relative overflow-hidden">
@@ -2693,7 +2707,6 @@ export default function ApontamentoProducaoPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
         </div>
     );
 }

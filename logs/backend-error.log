@@ -41487,3 +41487,614 @@
 21/05/2026 16:43:12: [DB] [lynxlocal] ⚠️  SLOW QUERY (699ms | rows:82): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
 21/05/2026 16:49:11: [DB] [lynxlocal] ⚠️  SLOW QUERY (270ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
 21/05/2026 16:49:11: [DB] [lynxlocal] ⚠️  SLOW QUERY (258ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 16:54:20: [DB] [lynxlocal] ⚠️  SLOW QUERY (1287ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 16:54:20: [DB] [lynxlocal] ⚠️  SLOW QUERY (1379ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 16:54:20: [DB] [lynxlocal] ⚠️  SLOW QUERY (1285ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 16:54:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (1571ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 16:54:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (1684ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 16:54:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (342ms | rows:1): SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros, MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 16:54:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (337ms | rows:2): SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+21/05/2026 17:18:02: [DB] [lynxlocal] ⚠️  SLOW QUERY (1116ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 17:18:02: [DB] [lynxlocal] ⚠️  SLOW QUERY (1252ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 17:18:03: [DB] [lynxlocal] ⚠️  SLOW QUERY (1173ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 17:18:03: [DB] [lynxlocal] ⚠️  SLOW QUERY (1271ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 17:18:03: [DB] [lynxlocal] ⚠️  SLOW QUERY (1192ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 17:18:03: [DB] [lynxlocal] ⚠️  SLOW QUERY (1268ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1301ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1457ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1475ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1365ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1454ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 17:44:41: [DB] [lynxlocal] ⚠️  SLOW QUERY (1375ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 17:52:58: [DB] [lynxlocal] ⚠️  SLOW QUERY (1426ms | rows:3): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 18:01:57: [DB] [lynxlocal] ⚠️  SLOW QUERY (1484ms | rows:1): SELECT IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag, QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas, qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngen
+21/05/2026 18:02:32: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:02:32:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:02:32:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:02:32:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:02:32:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:02:32:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:02:32:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:02:32:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:02:32:   errno: 1146,
+21/05/2026 18:02:32:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:02:32:   sqlState: '42S02',
+21/05/2026 18:02:32:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:02:32: }
+21/05/2026 18:02:32: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:02:32:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:02:32:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:02:32:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:02:32:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:02:32:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:02:32:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:02:32:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:02:32:   errno: 1146,
+21/05/2026 18:02:32:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:02:32:   sqlState: '42S02',
+21/05/2026 18:02:32:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:02:32: }
+21/05/2026 18:02:32: [DB] [lynxlocal] ⚠️  SLOW QUERY (521ms | rows:40): SELECT idMaterialSw, MaterialSw FROM materialsw ORDER BY MaterialSw ASC
+21/05/2026 18:02:32: [DB] [lynxlocal] ⚠️  SLOW QUERY (524ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 18:02:32: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:02:32:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:02:32:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:02:32:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:02:32:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:02:32:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:02:32:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:02:32:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:02:32:   errno: 1146,
+21/05/2026 18:02:32:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:02:32:   sqlState: '42S02',
+21/05/2026 18:02:32:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:02:32: }
+21/05/2026 18:02:32: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:02:32:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:02:32:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:02:32:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:02:32:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:02:32:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:02:32:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:02:32:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:02:32:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:02:32:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:02:32:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:02:32:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:02:32:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:02:32:   errno: 1146,
+21/05/2026 18:02:32:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:02:32:   sqlState: '42S02',
+21/05/2026 18:02:32:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:02:32: }
+21/05/2026 18:03:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (201ms | rows:2): SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+21/05/2026 18:03:36: [DB] [lynxlocal] ⚠️  SLOW QUERY (203ms | rows:1): SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros, MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 18:41:21: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:41:21:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:41:21:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:41:21:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:41:21:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:41:21:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:41:21:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:41:21:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:41:21:   errno: 1146,
+21/05/2026 18:41:21:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:41:21:   sqlState: '42S02',
+21/05/2026 18:41:21:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:41:21: }
+21/05/2026 18:41:21: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:41:21:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:41:21:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:41:21:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:41:21:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:41:21:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:41:21:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:41:21:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:41:21:   errno: 1146,
+21/05/2026 18:41:21:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:41:21:   sqlState: '42S02',
+21/05/2026 18:41:21:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:41:21: }
+21/05/2026 18:41:21: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:41:21:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:41:21:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:41:21:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:41:21:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:41:21:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:41:21:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:41:21:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:41:21:   errno: 1146,
+21/05/2026 18:41:21:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:41:21:   sqlState: '42S02',
+21/05/2026 18:41:21:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:41:21: }
+21/05/2026 18:41:21: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:41:21:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:41:21:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:41:21:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:41:21:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:41:21:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:41:21:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:41:21:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:41:21:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:41:21:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:41:21:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:41:21:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:41:21:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:41:21:   errno: 1146,
+21/05/2026 18:41:21:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:41:21:   sqlState: '42S02',
+21/05/2026 18:41:21:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:41:21: }
+21/05/2026 18:41:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (766ms | rows:12): SELECT Setor FROM setor WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Setor
+21/05/2026 18:41:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (770ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 18:41:21: [DB] [lynxlocal] ⚠️  SLOW QUERY (796ms | rows:40): SELECT idMaterialSw, MaterialSw FROM materialsw ORDER BY MaterialSw ASC
+21/05/2026 18:48:28: [DB] [lynxlocal] ⚠️  SLOW QUERY (399ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 18:48:28: [DB] [lynxlocal] ⚠️  SLOW QUERY (453ms | rows:82): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.Des
+21/05/2026 18:52:35: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:52:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:52:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:52:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:52:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:52:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:52:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:52:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:52:35:   errno: 1146,
+21/05/2026 18:52:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:52:35:   sqlState: '42S02',
+21/05/2026 18:52:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:52:35: }
+21/05/2026 18:52:35: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:52:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:52:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:52:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:52:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:52:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:52:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:52:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:52:35:   errno: 1146,
+21/05/2026 18:52:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:52:35:   sqlState: '42S02',
+21/05/2026 18:52:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:52:35: }
+21/05/2026 18:52:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (1289ms | rows:12): SELECT Setor FROM setor WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Setor
+21/05/2026 18:52:35: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:52:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:52:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:52:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:52:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:52:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:52:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:52:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:52:35:   errno: 1146,
+21/05/2026 18:52:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:52:35:   sqlState: '42S02',
+21/05/2026 18:52:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:52:35: }
+21/05/2026 18:52:35: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 18:52:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 18:52:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 18:52:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 18:52:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 18:52:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 18:52:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 18:52:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 18:52:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 18:52:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 18:52:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 18:52:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 18:52:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 18:52:35:   errno: 1146,
+21/05/2026 18:52:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 18:52:35:   sqlState: '42S02',
+21/05/2026 18:52:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 18:52:35: }
+21/05/2026 18:52:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (1297ms | rows:40): SELECT idMaterialSw, MaterialSw FROM materialsw ORDER BY MaterialSw ASC
+21/05/2026 18:52:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (1301ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (608ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (622ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (546ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (673ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 19:00:35: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:35:   errno: 1146,
+21/05/2026 19:00:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:35:   sqlState: '42S02',
+21/05/2026 19:00:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:35: }
+21/05/2026 19:00:35: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:35:   errno: 1146,
+21/05/2026 19:00:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:35:   sqlState: '42S02',
+21/05/2026 19:00:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:35: }
+21/05/2026 19:00:35: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:35:   errno: 1146,
+21/05/2026 19:00:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:35:   sqlState: '42S02',
+21/05/2026 19:00:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:35: }
+21/05/2026 19:00:35: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:35:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:35:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:35:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:35:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:35:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:35:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:35:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:35:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:35:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:35:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:35:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:35:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:35:   errno: 1146,
+21/05/2026 19:00:35:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:35:   sqlState: '42S02',
+21/05/2026 19:00:35:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:35: }
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (660ms | rows:40): SELECT idMaterialSw, MaterialSw FROM materialsw ORDER BY MaterialSw ASC
+21/05/2026 19:00:35: [DB] [lynxlocal] ⚠️  SLOW QUERY (678ms | rows:12): SELECT Setor FROM setor WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Setor
+21/05/2026 19:00:58: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:58:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:58:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:58:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:58:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:58:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:58:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:58:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:58:   errno: 1146,
+21/05/2026 19:00:58:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:58:   sqlState: '42S02',
+21/05/2026 19:00:58:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:58: }
+21/05/2026 19:00:58: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:58:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:58:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:58:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:58:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:58:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:58:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:58:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:58:   errno: 1146,
+21/05/2026 19:00:58:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:58:   sqlState: '42S02',
+21/05/2026 19:00:58:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:58: }
+21/05/2026 19:00:58: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:58:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:58:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:58:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:58:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:58:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:58:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:58:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:58:   errno: 1146,
+21/05/2026 19:00:58:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:58:   sqlState: '42S02',
+21/05/2026 19:00:58:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:58: }
+21/05/2026 19:00:58: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:00:58:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:00:58:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:00:58:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:00:58:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:00:58:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:00:58:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:00:58:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:00:58:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:00:58:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:00:58:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:00:58:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:00:58:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:00:58:   errno: 1146,
+21/05/2026 19:00:58:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:00:58:   sqlState: '42S02',
+21/05/2026 19:00:58:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:00:58: }
+21/05/2026 19:08:23: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:08:23:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:08:23:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:08:23:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:08:23:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:08:23:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:08:23:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:08:23:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:08:23:   errno: 1146,
+21/05/2026 19:08:23:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:08:23:   sqlState: '42S02',
+21/05/2026 19:08:23:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:08:23: }
+21/05/2026 19:08:23: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:08:23:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:08:23:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:08:23:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:08:23:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:08:23:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:08:23:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:08:23:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:08:23:   errno: 1146,
+21/05/2026 19:08:23:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:08:23:   sqlState: '42S02',
+21/05/2026 19:08:23:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:08:23: }
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (757ms | rows:12): SELECT Setor FROM setor WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Setor
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (754ms | rows:7): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (883ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (886ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (854ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+21/05/2026 19:08:23: [DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:08:23:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:08:23:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:08:23:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:08:23:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:08:23:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:08:23:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:08:23:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:08:23:   errno: 1146,
+21/05/2026 19:08:23:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:08:23:   sqlState: '42S02',
+21/05/2026 19:08:23:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:08:23: }
+21/05/2026 19:08:23: Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+21/05/2026 19:08:23:     at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+21/05/2026 19:08:23:     at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:9072:35
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+21/05/2026 19:08:23:     at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+21/05/2026 19:08:23:     at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+21/05/2026 19:08:23:     at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+21/05/2026 19:08:23:     at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+21/05/2026 19:08:23:     at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+21/05/2026 19:08:23:     at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+21/05/2026 19:08:23:     at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+21/05/2026 19:08:23:     at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+21/05/2026 19:08:23:     at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+21/05/2026 19:08:23:   code: 'ER_NO_SUCH_TABLE',
+21/05/2026 19:08:23:   errno: 1146,
+21/05/2026 19:08:23:   sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+21/05/2026 19:08:23:   sqlState: '42S02',
+21/05/2026 19:08:23:   sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+21/05/2026 19:08:23: }
+21/05/2026 19:08:23: [DB] [lynxlocal] ⚠️  SLOW QUERY (212ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+21/05/2026 19:08:25: [DB] [lynxlocal] ⚠️  SLOW QUERY (202ms | rows:1): SELECT COUNT(*) as total FROM ordemservicoitem osi INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto WHERE osi.txtCorte = '1' AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*') AND osi.Liberado_engenhar
+21/05/2026 19:08:26: [DB] [lynxlocal] ⚠️  SLOW QUERY (270ms | rows:6): SELECT osi.IdOrdemServicoItem, osi.IdOrdemServico, osi.CodMatFabricante, osi.DescResumo, osi.DescDetal, osi.QtdeTotal, osi.Peso, osi.EnderecoArquivo, osi.EnderecoArquivoItemOrdemServico, osi.IdPlanodecorte as PlanoCorte, osi.MaterialSW, osi.Espessura, CASE WHEN osi.QtdeTotal > 0 THEN ROUND((COALESCE

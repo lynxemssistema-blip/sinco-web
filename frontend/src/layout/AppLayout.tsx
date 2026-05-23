@@ -93,10 +93,36 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         }, []);
     };
 
-    const filteredMenuItems = useMemo(
-        () => filterMenuItems(menuItems, sidebarSearch),
-        [menuItems, sidebarSearch]
-    );
+    const filteredMenuItems = useMemo(() => {
+        // Items desativados globalmente
+        const hiddenIds = ['calendario', 'camera', 'cipa', 'sgq', 'sst', 'config-sistema'];
+        
+        // Usuarios Administrativos só para lynxlocal
+        // Fallback local (!user?.dbName) implicitamente é lynxlocal
+        const isLynxLocal = user?.dbName === 'lynxlocal' || !user?.dbName;
+        if (!isLynxLocal) {
+            hiddenIds.push('usuarios');
+        }
+        
+        const filterVisibility = (items: MenuItem[]): MenuItem[] => {
+            return items.reduce<MenuItem[]>((acc, item) => {
+                if (hiddenIds.includes(item.id)) return acc;
+                
+                if (item.children) {
+                    const filteredChildren = filterVisibility(item.children);
+                    // Oculta a pasta se todos os seus filhos foram ocultados pela regra acima
+                    if (item.children.length > 0 && filteredChildren.length === 0) return acc;
+                    acc.push({ ...item, children: filteredChildren });
+                } else {
+                    acc.push(item);
+                }
+                return acc;
+            }, []);
+        };
+        
+        const visibleItems = filterVisibility(menuItems);
+        return filterMenuItems(visibleItems, sidebarSearch);
+    }, [menuItems, sidebarSearch, user?.dbName]);
 
     const renderMenuItem = (item: MenuItem, depth = 0, isMobile = false, isCollapsed = false) => {
         const Icon = getIcon(item.icon);

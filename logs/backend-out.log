@@ -41966,3 +41966,916 @@
 21/05/2026 16:51:01: [DB] 🔵 EXEC (DEFAULT): SELECT t.*, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
 21/05/2026 16:51:01: [DB] [DEFAULT] 🟢 OK - Rows: 450
 21/05/2026 16:51:01: [API] 304 (162ms)
+21/05/2026 16:52:59: [dotenv@17.2.3] injecting env (12) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+21/05/2026 16:52:59: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+21/05/2026 16:53:00: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+21/05/2026 16:53:00: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+21/05/2026 16:53:02: Connected to MySQL database
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config/menu?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config/usuarios?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config/usuarios?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: [API] 200 (356ms)
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 16:54:19: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 16:54:19: [API] 200 (146ms)
+21/05/2026 16:54:19: 
+21/05/2026 16:54:19: [API] GET /api/config/menu?limit=100
+21/05/2026 16:54:19: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:19: [API] 200 (85ms)
+21/05/2026 16:54:20: 
+21/05/2026 16:54:20: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 16:54:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:20: [API] 304 (161ms)
+21/05/2026 16:54:20: 
+21/05/2026 16:54:20: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 16:54:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:20: [API] 304 (43ms)
+21/05/2026 16:54:20: [API] 200 (1289ms)
+21/05/2026 16:54:20: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 16:54:20: [API] 200 (1288ms)
+21/05/2026 16:54:20: 
+21/05/2026 16:54:20: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 16:54:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:21: [API] 200 (1573ms)
+21/05/2026 16:54:21: [API] 304 (337ms)
+21/05/2026 16:54:21: [API] 200 (1688ms)
+21/05/2026 16:54:21: [API] 200 (1726ms)
+21/05/2026 16:54:21: 
+21/05/2026 16:54:21: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 16:54:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:21: 
+21/05/2026 16:54:21: [API] GET /api/config?limit=100
+21/05/2026 16:54:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:21: [API] 304 (79ms)
+21/05/2026 16:54:21: [API] 304 (102ms)
+21/05/2026 16:54:21: 
+21/05/2026 16:54:21: [API] GET /api/config?limit=100
+21/05/2026 16:54:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:21: [API] 304 (205ms)
+21/05/2026 16:54:23: 
+21/05/2026 16:54:23: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 16:54:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:23: 
+21/05/2026 16:54:23: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 16:54:24: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 16:54:24: [API] 200 (275ms)
+21/05/2026 16:54:24: 
+21/05/2026 16:54:24: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 16:54:24: [API]    QUERY: {"limit":"100"}
+21/05/2026 16:54:24: 
+21/05/2026 16:54:24: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 16:54:24: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 16:54:24: [API] 304 (196ms)
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/config?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/config?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/config/menu?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/config/usuarios?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: 
+21/05/2026 17:18:01: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:18:01: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:01: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:18:02: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:18:02: [API] 200 (1127ms)
+21/05/2026 17:18:02: 
+21/05/2026 17:18:02: [API] GET /api/config/usuarios?limit=100
+21/05/2026 17:18:02: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 200 (1175ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 200 (48ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:18:03: [API] 200 (1196ms)
+21/05/2026 17:18:03: [API] 200 (1273ms)
+21/05/2026 17:18:03: [API] 200 (1336ms)
+21/05/2026 17:18:03: [API] 200 (1317ms)
+21/05/2026 17:18:03: [API] 304 (43ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 304 (44ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 304 (21ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/config/menu?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/config?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 304 (24ms)
+21/05/2026 17:18:03: [API] 304 (47ms)
+21/05/2026 17:18:03: 
+21/05/2026 17:18:03: [API] GET /api/config?limit=100
+21/05/2026 17:18:03: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:18:03: [API] 304 (64ms)
+21/05/2026 17:18:03: [API] 304 (47ms)
+21/05/2026 17:22:49: 
+21/05/2026 17:22:49: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 17:22:49: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:22:49: 
+21/05/2026 17:22:49: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 17:22:50: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 17:22:50: [API] 304 (1088ms)
+21/05/2026 17:22:50: 
+21/05/2026 17:22:50: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 17:22:50: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:22:50: 
+21/05/2026 17:22:50: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 17:22:51: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 17:22:51: [API] 304 (167ms)
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/config?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/config?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/config/menu?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/config/usuarios?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:44:39: 
+21/05/2026 17:44:39: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:44:39: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:39: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:44:41: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:44:41: [API] 200 (1303ms)
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config/usuarios?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: [API] 200 (43ms)
+21/05/2026 17:44:41: [API] 200 (1501ms)
+21/05/2026 17:44:41: [API] 200 (1367ms)
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: [API] 200 (1456ms)
+21/05/2026 17:44:41: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:44:41: [API] 200 (1377ms)
+21/05/2026 17:44:41: [API] 200 (1529ms)
+21/05/2026 17:44:41: [API] 304 (46ms)
+21/05/2026 17:44:41: [API] 304 (44ms)
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config/menu?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: [API] 304 (71ms)
+21/05/2026 17:44:41: [API] 304 (75ms)
+21/05/2026 17:44:41: [API] 304 (72ms)
+21/05/2026 17:44:41: [API] 304 (96ms)
+21/05/2026 17:44:41: 
+21/05/2026 17:44:41: [API] GET /api/config?limit=100
+21/05/2026 17:44:41: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:41: [API] 304 (47ms)
+21/05/2026 17:44:52: 
+21/05/2026 17:44:52: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:44:52: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:44:52: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:44:52: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:44:52: [API] 304 (26ms)
+21/05/2026 17:44:55: 
+21/05/2026 17:44:55: [API] GET /api/acompanhamento/projeto/84/tags?t=1779396295402&limit=100
+21/05/2026 17:44:55: [API]    QUERY: {"t":"1779396295402","limit":"100"}
+21/05/2026 17:44:55: [API] 200 (77ms)
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoFinalCorte","value":"16/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoFinalCorte = ? WHERE IdTag = ?
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoInicioSolda","value":"18/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoInicioSolda = ? WHERE IdTag = ?
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoFinalDobra","value":"20/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoFinalDobra = ? WHERE IdTag = ?
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoInicioCorte","value":"06/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoInicioCorte = ? WHERE IdTag = ?
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoInicioDobra","value":"14/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoInicioDobra = ? WHERE IdTag = ?
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoFinalSolda","value":"04/05/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoFinalSolda = ? WHERE IdTag = ?
+21/05/2026 17:46:48: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:48: [API] 200 (57ms)
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoInicioPintura","value":""}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoInicioPintura = ? WHERE IdTag = ?
+21/05/2026 17:46:48: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:48: [API] 200 (81ms)
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoFinalPintura","value":""}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoFinalPintura = ? WHERE IdTag = ?
+21/05/2026 17:46:48: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:48: [API] 200 (55ms)
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:48: [API]    BODY: {"field":"PlanejadoInicioMontagem","value":"27/04/2026"}
+21/05/2026 17:46:48: 
+21/05/2026 17:46:48: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoInicioMontagem = ? WHERE IdTag = ?
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (49ms)
+21/05/2026 17:46:49: 
+21/05/2026 17:46:49: [API] PUT /api/visao-geral/tag/452/setor-data
+21/05/2026 17:46:49: [API]    BODY: {"field":"PlanejadoFinalMontagem","value":"12/05/2026"}
+21/05/2026 17:46:49: 
+21/05/2026 17:46:49: [DB] 🔵 EXEC (DEFAULT): UPDATE tags SET PlanejadoFinalMontagem = ? WHERE IdTag = ?
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (58ms)
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (925ms)
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (925ms)
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (924ms)
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (928ms)
+21/05/2026 17:46:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+21/05/2026 17:46:49: [API] 200 (929ms)
+21/05/2026 17:46:49: 
+21/05/2026 17:46:49: [API] GET /api/acompanhamento/projeto/84/tags?t=1779396409711&limit=100
+21/05/2026 17:46:49: [API]    QUERY: {"t":"1779396409711","limit":"100"}
+21/05/2026 17:46:49: [API] 200 (98ms)
+21/05/2026 17:47:25: 
+21/05/2026 17:47:25: [API] PUT /api/acompanhamento/tags/452/observacao
+21/05/2026 17:47:25: [API]    BODY: {"observacao":"datas planejadas ja cadastradas","usuario":"Sistema"}
+21/05/2026 17:47:25: [API] 200 (63ms)
+21/05/2026 17:47:43: 
+21/05/2026 17:47:43: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 17:47:43: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:47:43: 
+21/05/2026 17:47:43: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 17:47:43: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 17:47:43: [API] 200 (199ms)
+21/05/2026 17:47:43: 
+21/05/2026 17:47:43: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 17:47:43: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:47:43: 
+21/05/2026 17:47:43: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 17:47:43: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 17:47:43: [API] 304 (110ms)
+21/05/2026 17:48:14: 
+21/05/2026 17:48:14: [API] GET /api/acompanhamento/projeto/84/tags?t=1779396494826&limit=100
+21/05/2026 17:48:14: [API]    QUERY: {"t":"1779396494826","limit":"100"}
+21/05/2026 17:48:14: [API] 200 (39ms)
+21/05/2026 17:52:57: 
+21/05/2026 17:52:57: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 17:52:57: [API]    QUERY: {"limit":"100"}
+21/05/2026 17:52:57: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 17:52:58: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 17:52:58: [API] 200 (1429ms)
+21/05/2026 17:53:10: 
+21/05/2026 17:53:10: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 17:53:10: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 17:53:10: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 17:53:10: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 17:53:10: [API] 200 (118ms)
+21/05/2026 17:53:17: 
+21/05/2026 17:53:17: [API] GET /api/acompanhamento/projeto/62/tags?t=1779396797459&limit=100
+21/05/2026 17:53:17: [API]    QUERY: {"t":"1779396797459","limit":"100"}
+21/05/2026 17:53:17: [API] 200 (47ms)
+21/05/2026 17:53:58: 
+21/05/2026 17:53:58: [API] GET /api/acompanhamento/projeto/78/tags?t=1779396838402&limit=100
+21/05/2026 17:53:58: [API]    QUERY: {"t":"1779396838402","limit":"100"}
+21/05/2026 17:53:58: [API] 200 (27ms)
+21/05/2026 18:01:55: 
+21/05/2026 18:01:55: [API] GET /api/acompanhamento/projeto/1/tags?t=1779397315603&limit=100
+21/05/2026 18:01:55: [API]    QUERY: {"t":"1779397315603","limit":"100"}
+21/05/2026 18:01:57: [API] 200 (1485ms)
+21/05/2026 18:02:31: 
+21/05/2026 18:02:31: [API] GET /api/config/setores?limit=100
+21/05/2026 18:02:31: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:31: 
+21/05/2026 18:02:31: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:02:31: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:31: 
+21/05/2026 18:02:31: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:02:31: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:31: 
+21/05/2026 18:02:31: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:02:31: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (47ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/setores?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (27ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/setores?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (22ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/setores?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (27ms)
+21/05/2026 18:02:32: [API] 500 (510ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (521ms)
+21/05/2026 18:02:32: [API] 304 (524ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 500 (27ms)
+21/05/2026 18:02:32: [API] 304 (43ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (57ms)
+21/05/2026 18:02:32: [API] 304 (21ms)
+21/05/2026 18:02:32: 
+21/05/2026 18:02:32: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:02:32: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:02:32: [API] 304 (23ms)
+21/05/2026 18:02:49: 
+21/05/2026 18:02:49: [API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+21/05/2026 18:02:49: [API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+21/05/2026 18:02:50: [API] 304 (210ms)
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:03:35: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:35: [API] 304 (35ms)
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:35: [API] 304 (85ms)
+21/05/2026 18:03:35: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:03:35: [API] 304 (136ms)
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:03:35: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:03:35: [API] 304 (202ms)
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:35: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:03:35: [API] 304 (127ms)
+21/05/2026 18:03:35: [API] 304 (39ms)
+21/05/2026 18:03:35: 
+21/05/2026 18:03:35: [API] GET /api/config?limit=100
+21/05/2026 18:03:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:36: [API] 304 (263ms)
+21/05/2026 18:03:36: 
+21/05/2026 18:03:36: [API] GET /api/config?limit=100
+21/05/2026 18:03:36: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:03:36: [API] 304 (55ms)
+21/05/2026 18:03:44: 
+21/05/2026 18:03:44: [API] GET /api/acompanhamento/projeto/65/tags?t=1779397424284&limit=100
+21/05/2026 18:03:44: [API]    QUERY: {"t":"1779397424284","limit":"100"}
+21/05/2026 18:03:44: [API] 200 (61ms)
+21/05/2026 18:05:13: 
+21/05/2026 18:05:13: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:05:13: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:05:13: 
+21/05/2026 18:05:13: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:05:13: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:05:13: [API] 304 (186ms)
+21/05/2026 18:05:13: 
+21/05/2026 18:05:13: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:05:13: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:05:13: 
+21/05/2026 18:05:13: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:05:13: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:05:13: [API] 304 (110ms)
+21/05/2026 18:06:18: 
+21/05/2026 18:06:18: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:06:18: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:06:18: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:06:18: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:06:18: [API] 304 (95ms)
+21/05/2026 18:06:28: 
+21/05/2026 18:06:28: [API] GET /api/acompanhamento/projetos?limit=100
+21/05/2026 18:06:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:06:28: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
+21/05/2026 18:06:28: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 3
+21/05/2026 18:06:28: [API] 304 (50ms)
+21/05/2026 18:06:30: 
+21/05/2026 18:06:30: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:06:30: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:06:30: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:06:31: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:06:31: [API] 304 (51ms)
+21/05/2026 18:06:33: 
+21/05/2026 18:06:33: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:06:33: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:06:33: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:06:33: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:06:33: [API] 304 (73ms)
+21/05/2026 18:06:49: 
+21/05/2026 18:06:49: [API] GET /api/acompanhamento/projeto/7/tags?t=1779397609891&limit=100
+21/05/2026 18:06:49: [API]    QUERY: {"t":"1779397609891","limit":"100"}
+21/05/2026 18:06:49: [API] 200 (40ms)
+21/05/2026 18:08:36: 
+21/05/2026 18:08:36: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:08:36: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:08:36: 
+21/05/2026 18:08:36: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:08:36: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:08:36: [API] 304 (140ms)
+21/05/2026 18:08:36: 
+21/05/2026 18:08:36: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:08:36: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:08:36: 
+21/05/2026 18:08:36: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:08:36: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:08:36: [API] 304 (126ms)
+21/05/2026 18:41:20: 
+21/05/2026 18:41:20: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:41:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:20: 
+21/05/2026 18:41:20: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:41:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:20: 
+21/05/2026 18:41:20: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:41:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:20: 
+21/05/2026 18:41:20: [API] GET /api/config/setores?limit=100
+21/05/2026 18:41:20: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 500 (697ms)
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 500 (45ms)
+21/05/2026 18:41:21: [API] 304 (769ms)
+21/05/2026 18:41:21: [API] 304 (772ms)
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/setores?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 304 (813ms)
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 304 (28ms)
+21/05/2026 18:41:21: [API] 304 (57ms)
+21/05/2026 18:41:21: [API] 304 (55ms)
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/setores?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 304 (22ms)
+21/05/2026 18:41:21: [API] 304 (23ms)
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/setores?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: 
+21/05/2026 18:41:21: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:41:21: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:21: [API] 304 (22ms)
+21/05/2026 18:41:21: [API] 304 (24ms)
+21/05/2026 18:41:23: 
+21/05/2026 18:41:23: [API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+21/05/2026 18:41:23: [API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+21/05/2026 18:41:23: [API] 304 (158ms)
+21/05/2026 18:41:34: 
+21/05/2026 18:41:34: [API] GET /api/apontamento/item/32890/corte?limit=100
+21/05/2026 18:41:34: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:41:34: [API] Fetching item details for ID: 32890, Processo: corte 
+21/05/2026 18:41:34: [API] Sending details for item 32890
+21/05/2026 18:41:34: [API] 200 (119ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:48:28: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:48:28: [API] 304 (401ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: [API] 304 (31ms)
+21/05/2026 18:48:28: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:48:28: [API] 304 (456ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"finalizados":"1","liberados":"1","limit":"100"}
+21/05/2026 18:48:28: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = ''
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:48:28: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 82
+21/05/2026 18:48:28: [API] 304 (55ms)
+21/05/2026 18:48:28: [API] 304 (132ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config/tipostarefa?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: [API] 304 (24ms)
+21/05/2026 18:48:28: [API] 304 (101ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/config?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:48:28: [API] 304 (198ms)
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:48:28: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:28: 
+21/05/2026 18:48:28: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:48:29: [API] 304 (48ms)
+21/05/2026 18:48:29: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:48:29: [API] 304 (105ms)
+21/05/2026 18:48:54: 
+21/05/2026 18:48:54: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:48:54: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:54: 
+21/05/2026 18:48:54: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:48:54: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:48:54: [API] 304 (286ms)
+21/05/2026 18:48:54: 
+21/05/2026 18:48:54: [API] GET /api/visao-geral/tags-globais?limit=100
+21/05/2026 18:48:54: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:48:54: 
+21/05/2026 18:48:54: [DB] 🔵 EXEC (DEFAULT): SELECT t.IdTag, t.IdProjeto, t.Tag, t.DescTag, DATE_FORMAT(t.DataPrevisao, '%d/%m/%Y') AS DataPrevisao, t.PlanejadoInicioCorte, t.PlanejadoFinalCorte, t.RealizadoInicioCorte, t.RealizadoFinalCorte, t.CorteTotalExecutar, t.CorteTotalExecutado, t.CortePercentual, t.PlanejadoInicioDobra, t.PlanejadoFinalDobra, t.RealizadoInicioDobra, t.RealizadoFinalDobra, t.DobraTotalExecutar, t.DobraTotalExecutado, t.DobraPercentual, t.PlanejadoInicioSolda, t.PlanejadoFinalSolda, t.RealizadoInicioSolda, t.RealizadoFinalSolda, t.SoldaTotalExecutar, t.SoldaTotalExecutado, t.SoldaPercentual, t.PlanejadoInicioPintura, t.PlanejadoFinalPintura, t.RealizadoInicioPintura, t.RealizadoFinalPintura, t.PinturaTotalExecutar, t.PinturaTotalExecutado, t.PinturaPercentual, t.PlanejadoInicioMontagem, t.PlanejadoFinalMontagem, t.RealizadoInicioMontagem, t.RealizadoFinalMontagem, t.MontagemTotalExecutar, t.MontagemTotalExecutado, t.MontagemPercentual, p.Projeto as Projeto, p.DescProjeto as ProjetoDescricao, p.Finalizado as ProjetoFinalizado FROM tags t LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*') ORDER BY t.IdTag DESC
+21/05/2026 18:48:54: [DB] [DEFAULT] 🟢 OK - Rows: 450
+21/05/2026 18:48:54: [API] 304 (177ms)
+21/05/2026 18:52:34: 
+21/05/2026 18:52:34: [API] GET /api/config/setores?limit=100
+21/05/2026 18:52:34: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:34: 
+21/05/2026 18:52:34: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:52:34: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:34: 
+21/05/2026 18:52:34: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:52:34: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:34: 
+21/05/2026 18:52:34: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:52:34: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 500 (1264ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/espessuras?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (1291ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/setores?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 500 (27ms)
+21/05/2026 18:52:35: [API] 304 (1298ms)
+21/05/2026 18:52:35: [API] 304 (1303ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/materiais?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (28ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/setores?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (21ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/setores?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (54ms)
+21/05/2026 18:52:35: [API] 304 (55ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (26ms)
+21/05/2026 18:52:35: [API] 304 (28ms)
+21/05/2026 18:52:35: 
+21/05/2026 18:52:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 18:52:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 18:52:35: [API] 304 (25ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/menu?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (637ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (547ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (665ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 500 (28ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (47ms)
+21/05/2026 19:00:35: [API] 200 (755ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (44ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (44ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (27ms)
+21/05/2026 19:00:35: [API] 500 (26ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/config/menu?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (26ms)
+21/05/2026 19:00:35: [API] 200 (663ms)
+21/05/2026 19:00:35: [API] 200 (681ms)
+21/05/2026 19:00:35: [API] 200 (48ms)
+21/05/2026 19:00:35: [API] 304 (66ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 200 (120ms)
+21/05/2026 19:00:35: [API] 304 (47ms)
+21/05/2026 19:00:35: 
+21/05/2026 19:00:35: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:00:35: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:35: [API] 304 (22ms)
+21/05/2026 19:00:42: 
+21/05/2026 19:00:42: [API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+21/05/2026 19:00:42: [API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+21/05/2026 19:00:42: [API] 304 (105ms)
+21/05/2026 19:00:47: 
+21/05/2026 19:00:47: [API] GET /api/apontamento/item/32890/all?limit=100
+21/05/2026 19:00:47: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:47: [API] Fetching item details for ID: 32890, Processo: all 
+21/05/2026 19:00:48: [API] Sending details for item 32890
+21/05/2026 19:00:48: [API] 200 (104ms)
+21/05/2026 19:00:52: 
+21/05/2026 19:00:52: [API] GET /api/apontamento/item/32890/corte?limit=100
+21/05/2026 19:00:52: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:52: [API] Fetching item details for ID: 32890, Processo: corte 
+21/05/2026 19:00:52: [API] Sending details for item 32890
+21/05/2026 19:00:52: [API] 304 (82ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/menu?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 200 (62ms)
+21/05/2026 19:00:58: [API] 200 (127ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 200 (80ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 200 (25ms)
+21/05/2026 19:00:58: [API] 200 (24ms)
+21/05/2026 19:00:58: [API] 500 (24ms)
+21/05/2026 19:00:58: [API] 200 (25ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 500 (27ms)
+21/05/2026 19:00:58: [API] 200 (54ms)
+21/05/2026 19:00:58: [API] 200 (29ms)
+21/05/2026 19:00:58: [API] 200 (50ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/setores?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 200 (55ms)
+21/05/2026 19:00:58: [API] 200 (55ms)
+21/05/2026 19:00:58: [API] 200 (26ms)
+21/05/2026 19:00:58: 
+21/05/2026 19:00:58: [API] GET /api/config/menu?limit=100
+21/05/2026 19:00:58: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:58: [API] 200 (49ms)
+21/05/2026 19:00:58: [API] 304 (47ms)
+21/05/2026 19:00:59: 
+21/05/2026 19:00:59: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:00:59: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:59: [API] 304 (87ms)
+21/05/2026 19:00:59: 
+21/05/2026 19:00:59: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:00:59: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:00:59: [API] 304 (55ms)
+21/05/2026 19:01:01: 
+21/05/2026 19:01:01: [API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+21/05/2026 19:01:01: [API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+21/05/2026 19:01:01: [API] 304 (93ms)
+21/05/2026 19:01:06: 
+21/05/2026 19:01:06: [API] GET /api/apontamento/item/32918/corte?limit=100
+21/05/2026 19:01:06: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:01:06: [API] Fetching item details for ID: 32918, Processo: corte 
+21/05/2026 19:01:06: [API] Sending details for item 32918
+21/05/2026 19:01:06: [API] 200 (101ms)
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config/menu?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config/setores?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:22: 
+21/05/2026 19:08:22: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:08:22: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 500 (670ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/setores?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 200 (758ms)
+21/05/2026 19:08:23: [API] 200 (755ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 200 (99ms)
+21/05/2026 19:08:23: [API] 200 (857ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/setores?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 200 (59ms)
+21/05/2026 19:08:23: [API] 200 (34ms)
+21/05/2026 19:08:23: [API] 200 (61ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/espessuras?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/materiais?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/setores?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 500 (26ms)
+21/05/2026 19:08:23: [API] 200 (58ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/usuarios?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 200 (59ms)
+21/05/2026 19:08:23: [API] 200 (61ms)
+21/05/2026 19:08:23: [API] 200 (1013ms)
+21/05/2026 19:08:23: [API] 200 (1021ms)
+21/05/2026 19:08:23: [API] 200 (110ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/config/menu?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:23: [API] 304 (90ms)
+21/05/2026 19:08:23: [API] 304 (212ms)
+21/05/2026 19:08:23: 
+21/05/2026 19:08:23: [API] GET /api/dashboard/stats?limit=100
+21/05/2026 19:08:23: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:24: [API] 304 (196ms)
+21/05/2026 19:08:25: 
+21/05/2026 19:08:25: [API] GET /api/apontamento/corte?status=pendente&page=1&limit=100
+21/05/2026 19:08:25: [API]    QUERY: {"status":"pendente","page":"1","limit":"100"}
+21/05/2026 19:08:26: [API] 304 (473ms)
+21/05/2026 19:08:30: 
+21/05/2026 19:08:30: [API] GET /api/apontamento/item/32889/corte?limit=100
+21/05/2026 19:08:30: [API]    QUERY: {"limit":"100"}
+21/05/2026 19:08:30: [API] Fetching item details for ID: 32889, Processo: corte 
+21/05/2026 19:08:30: [API] Sending details for item 32889
+21/05/2026 19:08:30: [API] 200 (287ms)

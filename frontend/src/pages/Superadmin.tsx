@@ -458,8 +458,8 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     }
 
     return (
-        <div className="space-y-6 w-full max-w-[1920px] mx-auto pb-20">
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 text-white shadow-2xl relative overflow-hidden">
+        <div className="space-y-4 w-full h-full overflow-y-auto max-w-[1920px] mx-auto pb-20 px-2 md:px-4">
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-5 text-white shadow-xl relative overflow-hidden shrink-0 mt-2">
                 <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="relative z-10 flex justify-between items-center">
                     <div>
@@ -499,10 +499,10 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
             </div>
 
             {activeTab === 'tenants' && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-4 animate-fade-in">
                     {/* Add Tenant Form */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800"><Plus size={20} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-800"><Plus size={18} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input placeholder="Nome do Cliente" className="border p-2 rounded" value={newTenant.nome_cliente} onChange={e => setNewTenant({ ...newTenant, nome_cliente: e.target.value })} />
                             <input placeholder="Host" className="border p-2 rounded" value={newTenant.db_host} onChange={e => setNewTenant({ ...newTenant, db_host: e.target.value })} />
@@ -527,24 +527,24 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                     </div>
 
                     {/* Tenant List */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {tenants.map(tenant => (
-                            <motion.div key={tenant.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="p-2 bg-[#E0E800]/20 rounded-lg"><Server className="text-[#32423D]" size={24} /></div>
-                                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${tenant.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{tenant.ativo ? 'ATIVO' : 'INATIVO'}</span>
+                            <motion.div key={tenant.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-blue-300 transition-colors flex flex-col">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="p-1.5 bg-[#E0E800]/20 rounded-md"><Server className="text-[#32423D]" size={20} /></div>
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${tenant.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{tenant.ativo ? 'ATIVO' : 'INATIVO'}</span>
                                 </div>
-                                <h4 className="font-bold text-lg text-gray-800">{tenant.nome_cliente}</h4>
-                                <p className="text-gray-500 text-xs mb-1 font-mono">{tenant.db_host} / {tenant.db_name}</p>
+                                <h4 className="font-bold text-base text-gray-800 truncate">{tenant.nome_cliente}</h4>
+                                <p className="text-gray-500 text-[10px] mb-1 font-mono truncate">{tenant.db_host} / {tenant.db_name}</p>
                                 {tenant.copia_banco_dados && (
-                                    <p className="text-[#32423D] text-[10px] italic truncate mb-4" title={tenant.copia_banco_dados}>
+                                    <p className="text-[#32423D] text-[10px] italic truncate mb-2" title={tenant.copia_banco_dados}>
                                         Backup: {tenant.copia_banco_dados}
                                     </p>
                                 )}
-                                <div className="space-y-2 mt-4">
-                                    <button onClick={() => handleAccessTenant(tenant)} className="w-full py-2 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm"><ArrowRight size={16} /> Acessar Banco</button>
-                                    <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-2 ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'} rounded-lg flex items-center justify-center gap-2 transition-colors font-medium`}><ShieldCheck size={16} /> {tenant.ativo ? 'Desativar Acesso' : 'Ativar Acesso'}</button>
-                                    <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 flex items-center justify-center gap-2 transition-colors"><Users size={16} /> {loading ? 'Sincronizando...' : 'Sincronizar Usuários'}</button>
+                                <div className="mt-auto pt-3 space-y-1.5">
+                                    <button onClick={() => handleAccessTenant(tenant)} className="w-full py-1.5 text-sm bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium shadow-sm"><ArrowRight size={14} /> Acessar</button>
+                                    <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-1.5 text-sm ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-100' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-100'} rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium`}><ShieldCheck size={14} /> {tenant.ativo ? 'Desativar' : 'Ativar'}</button>
+                                    <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-1.5 text-sm bg-white hover:bg-gray-50 text-gray-700 rounded-md border border-gray-200 flex items-center justify-center gap-1.5 transition-colors"><Users size={14} /> {loading ? 'Sincronizando...' : 'Usuários'}</button>
                                 </div>
                             </motion.div>
                         ))}

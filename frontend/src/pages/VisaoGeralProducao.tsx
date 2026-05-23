@@ -89,7 +89,7 @@ export default function VisaoGeralProducaoPage() {
     const [fromGlobal, setFromGlobal] = useState(false);
 
     // State Persistence
-    const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list' | 'tags') || 'card');
+    const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list' | 'tags') || 'list');
     const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
     const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(
         () => (localStorage.getItem('vgp_statusFilter') as 'finalizados'|'liberados'|'todos'|null) || null
@@ -754,17 +754,6 @@ export default function VisaoGeralProducaoPage() {
                                     </button>
                                 </div>
 
-                                {/* Limpar */}
-                                <button onClick={() => {
-                                    setStatusFilter(null);
-                                    setFProj('');
-                                    setFProjCriacaoIni(''); setFProjCriacaoFim('');
-                                    setFProjPrevIni(''); setFProjPrevFim('');
-                                    fetchProj(null);
-                                }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
-                                    <X size={11} /> Limpar
-                                </button>
-
                                 {/* View Mode */}
                                 <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner">
                                     <button onClick={() => setViewMode('card')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
@@ -778,6 +767,17 @@ export default function VisaoGeralProducaoPage() {
                                     </button>
                                 </div>
                                 <button onClick={() => fetchProj(statusFilter)} className="flex-1 md:flex-none flex justify-center items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#32423D] text-white font-bold text-[10px] hover:bg-[#32423D]/80 transition shadow-sm"><Search size={12} /> Pesquisar</button>
+                                
+                                {/* Limpar */}
+                                <button onClick={() => {
+                                    setStatusFilter(null);
+                                    setFProj('');
+                                    setFProjCriacaoIni(''); setFProjCriacaoFim('');
+                                    setFProjPrevIni(''); setFProjPrevFim('');
+                                    fetchProj(null);
+                                }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
+                                    <X size={11} /> Limpar
+                                </button>
                             </div>
                         </div>
 
