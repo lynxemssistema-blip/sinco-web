@@ -58,7 +58,7 @@ exports.getProjetos = async (req, res) => {
             SELECT IdProjeto, Projeto 
             FROM projetos 
             WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-              AND (LIBERADO = 'S') 
+              AND (LIBERADO IS NULL OR LIBERADO <> 'S')
               AND (Finalizado IS NULL OR Finalizado = '')
             ORDER BY Projeto
         `);
@@ -329,15 +329,29 @@ exports.importPlanilha = async (req, res) => {
 exports.getTagsByProjeto = async (req, res) => {
     const { idProjeto } = req.params;
     try {
+        // Busca tags de 3 fontes e unifica:
+        // 1. Tabela principal 'tags' (fonte de verdade — sempre presente)
+        // 2. DadosBlockSet (planilhas BlockSet já importadas)
+        // 3. pixeasy (planilhas PixEasy já importadas)
         const [rows] = await db.query(`
-            SELECT DISTINCT IdTag, NomeTag 
+            SELECT DISTINCT IdTag, NomeTag
             FROM (
-                SELECT IdTag, NomeTag FROM DadosBlockSet WHERE IdProjeto = ?
+                SELECT IdTag, Tag AS NomeTag
+                FROM tags
+                WHERE IdProjeto = ?
+                  AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
                 UNION
-                SELECT IdTag, NomeTag FROM pixeasy WHERE IdProjeto = ?
-            ) as t
+                SELECT IdTag, NomeTag
+                FROM DadosBlockSet
+                WHERE IdProjeto = ?
+                UNION
+                SELECT IdTag, NomeTag
+                FROM pixeasy
+                WHERE IdProjeto = ?
+            ) AS t
+            WHERE IdTag IS NOT NULL
             ORDER BY NomeTag
-        `, [idProjeto, idProjeto]);
+        `, [idProjeto, idProjeto, idProjeto]);
         res.json({ success: true, data: rows });
     } catch (error) {
         console.error('Erro ao buscar tags por projeto:', error);
@@ -435,6 +449,13 @@ exports.processItems = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Dados insuficientes para processamento.' });
     }
 
+    // Detectar banco ativo (tenant) via AsyncLocalStorage
+    const store = db.asyncLocalStorage ? db.asyncLocalStorage.getStore() : null;
+    const dbAtivo = (store && store.dbName) ? store.dbName : null;
+
+    // Caminho base para amceletrica (Blokset NAS)
+    const AMCELETRICA_BASE_PATH = '\\\\192.168.231.4\\nas_server\\BKP_Completo_NAS\\F\\PRODUTOS D\\D\\PRODUTOS\\11-030- BLOKSET 2023\\BLOKSET DESENHOS 3D';
+
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
@@ -493,7 +514,7 @@ exports.processItems = async (req, res) => {
             }
 
             // CHECK MATERIAL
-            const [matRows] = await connection.query("SELECT IdMaterial, DescResumo, DescDetal, Unidade FROM material WHERE CodMatFabricante = ? LIMIT 1", [item.Part_Reference]);
+            const [matRows] = await connection.query("SELECT IdMaterial, DescResumo, DescDetal, Unidade, txtTipoDesenho FROM material WHERE CodMatFabricante = ? LIMIT 1", [item.Part_Reference]);
             
             if (matRows.length === 0) {
                 missingMaterials.push(item.Part_Reference);
@@ -510,17 +531,26 @@ exports.processItems = async (req, res) => {
                 const typeDesc = isDelta ? `Delta: ${processQty}` : "Total";
                 const descDetalhada = `${idOSDestino} [Rev ${item.Revisao} - ${typeDesc}]`;
 
+                // Montar EnderecoArquivo conforme banco ativo
+                let enderecoArquivo = 'IMPORTADO DA PLANILHA';
+                if (dbAtivo === 'amceletrica') {
+                    const cod    = (item.Part_Reference || '').trim();
+                    const tipo   = (mat.txtTipoDesenho || '').trim().toUpperCase();
+                    const sufixo = tipo === 'CONJUNTO' ? '.SLDASM' : '.SLDPRT';
+                    if (cod) enderecoArquivo = `${AMCELETRICA_BASE_PATH}\\${cod}${sufixo}`;
+                }
+
                 // INSERT INTO ordemservicoitem
                 await connection.query(`
                     INSERT INTO ordemservicoitem (
                         IdOrdemServico, IdProjeto, Projeto, IdTag, Tag, DescTag, 
                         IdMaterial, CodMatFabricante, DescResumo, DescDetal, qtde, QtdeTotal, Unidade, 
                         DtCad, UsuarioCriacao, Liberado_Engenharia, EnderecoArquivo, Data_Liberacao_Engenharia
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, 'S', 'IMPORTADO DA PLANILHA', NOW())
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, 'S', ?, NOW())
                 `, [
                     idOSDestino, osInfo.IdProjeto, osInfo.Projeto, osInfo.IdTag, osInfo.Tag, osInfo.DescTag,
                     mat.IdMaterial, item.Part_Reference, mat.DescResumo, mat.DescDetal, processPdQty, processQty, mat.Unidade,
-                    usuario
+                    usuario, enderecoArquivo
                 ]);
 
                 // UPDATE SOURCE TABLES
@@ -553,8 +583,115 @@ exports.processItems = async (req, res) => {
 
                 itensProcessados++;
                 totalPecasIncluidas += processQty;
-            }
-        }
+
+                // ═══════════════════════════════════════════════════════════════════
+                // EXPANSÃO montapeca: Se o material PAI possui componentes filhos
+                // cadastrados em montapeca, cada filho é incluído como item
+                // independente na OS, respeitando as operações matemáticas:
+                //
+                //   QtdeTotal_filho = processQty × PecaQtde
+                //   Peso_filho      = PesoUnitario_filho × QtdeTotal_filho
+                //   AreaPintura_f   = AreaPintura_filho  × QtdeTotal_filho
+                //   TotalExecutar   = QtdeTotal_filho (atribuído ao 1º setor ativo)
+                // ═══════════════════════════════════════════════════════════════════
+                if (mat.IdMaterial) {
+                    const [filhosMP] = await connection.query(`
+                        SELECT
+                            mp.IdMaterialPeca, mp.PecaQtde,
+                            f.CodMatFabricante AS FilhoCodMat,
+                            f.IdMaterial       AS FilhoIdMaterial,
+                            f.DescResumo       AS FilhoDescResumo,
+                            f.DescDetal        AS FilhoDescDetal,
+                            f.Unidade          AS FilhoUnidade,
+                            f.txtTipoDesenho   AS FilhoTipoDesenho,
+                            f.txtCorte         AS FilhoCorte,
+                            f.txtDobra         AS FilhoDobra,
+                            f.txtSolda         AS FilhoSolda,
+                            f.txtPintura       AS FilhoPintura,
+                            f.TxtMontagem      AS FilhoMontagem,
+                            f.Espessura        AS FilhoEspessura,
+                            f.MaterialSW       AS FilhoMaterialSW,
+                            f.Peso             AS FilhoPesoUnit,
+                            f.AreaPintura      AS FilhoAreaUnit,
+                            f.txtItemEstoque   AS FilhoItemEstoque,
+                            f.ProdutoPrincipal AS FilhoProdutoPrincipal
+                        FROM montapeca mp
+                        INNER JOIN material f ON f.IdMaterial = mp.IdMaterialPeca
+                        WHERE mp.IdMaterial = ?
+                          AND (mp.D_E_L_E_T_E IS NULL OR mp.D_E_L_E_T_E = '')
+                          AND mp.IdMaterialPeca IS NOT NULL
+                          AND mp.IdMaterialPeca > 0
+                    `, [mat.IdMaterial]);
+
+                    console.log(`[MONTAPECA] PAI=${item.Part_Reference} (IdMaterial=${mat.IdMaterial}) → ${filhosMP.length} filho(s)`);
+
+                    for (const f of filhosMP) {
+                        const pecaQtde = Number(f.PecaQtde) || 0;
+                        if (pecaQtde <= 0) continue;
+
+                        const filhoQtdeTotal = processQty * pecaQtde;
+                        const filhoPesoUnit  = Number(f.FilhoPesoUnit) || 0;
+                        const filhoAreaUnit  = Number(f.FilhoAreaUnit) || 0;
+                        const filhoPesoTotal = filhoPesoUnit * filhoQtdeTotal;
+                        const filhoAreaTotal = filhoAreaUnit * filhoQtdeTotal;
+
+                        let filhoEndereco = 'IMPORTADO DA PLANILHA';
+                        if (dbAtivo === 'amceletrica') {
+                            const codF = (f.FilhoCodMat || '').trim();
+                            const tipoF = (f.FilhoTipoDesenho || '').trim().toUpperCase();
+                            const sufF = tipoF === 'CONJUNTO' ? '.SLDASM' : '.SLDPRT';
+                            if (codF) filhoEndereco = `${AMCELETRICA_BASE_PATH}\\${codF}${sufF}`;
+                        }
+
+                        const [filhoRes] = await connection.query(`
+                            INSERT INTO ordemservicoitem (
+                                IdOrdemServico, IdProjeto, Projeto, IdTag, Tag, DescTag,
+                                IdMaterial, CodMatFabricante, DescResumo, DescDetal,
+                                qtde, QtdeTotal, Fator,
+                                Peso, PesoUnitario, AreaPintura, AreaPinturaUnitario,
+                                Unidade, EnderecoArquivo,
+                                txtTipoDesenho, txtCorte, txtDobra, txtSolda, txtPintura, TxtMontagem,
+                                Espessura, MaterialSW, txtItemEstoque, ProdutoPrincipal,
+                                DtCad, UsuarioCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia
+                            ) VALUES (
+                                ?,?,?,?,?,?,  ?,?,?,?,  ?,?,?,  ?,?,?,?,  ?,?,
+                                ?,?,?,?,?,?,  ?,?,?,?,  NOW(),?,?,'S',NOW()
+                            )
+                        `, [
+                            idOSDestino, osInfo.IdProjeto, osInfo.Projeto, osInfo.IdTag, osInfo.Tag, osInfo.DescTag,
+                            f.FilhoIdMaterial, f.FilhoCodMat, f.FilhoDescResumo, f.FilhoDescDetal,
+                            pecaQtde, filhoQtdeTotal, processQty,
+                            filhoPesoTotal, filhoPesoUnit, filhoAreaTotal, filhoAreaUnit,
+                            f.FilhoUnidade, filhoEndereco,
+                            f.FilhoTipoDesenho, f.FilhoCorte, f.FilhoDobra, f.FilhoSolda, f.FilhoPintura, f.FilhoMontagem,
+                            f.FilhoEspessura, f.FilhoMaterialSW, f.FilhoItemEstoque, f.FilhoProdutoPrincipal,
+                            usuario, usuario
+                        ]);
+
+                        // Inicializar 1º setor ativo do filho (Corte→Dobra→Solda→Pintura→Montagem)
+                        const fItemId = filhoRes.insertId;
+                        const setorCol = f.FilhoCorte    === '1' ? 'CorteTotalExecutar'    :
+                                         f.FilhoDobra    === '1' ? 'DobraTotalExecutar'    :
+                                         f.FilhoSolda    === '1' ? 'SoldaTotalExecutar'    :
+                                         f.FilhoPintura  === '1' ? 'PinturaTotalExecutar'  :
+                                         f.FilhoMontagem === '1' ? 'MontagemTotalExecutar' : null;
+                        if (setorCol) {
+                            await connection.query(
+                                `UPDATE ordemservicoitem SET ${setorCol} = ? WHERE IdOrdemServicoItem = ?`,
+                                [filhoQtdeTotal, fItemId]
+                            );
+                        }
+
+                        itensProcessados++;
+                        totalPecasIncluidas += filhoQtdeTotal;
+
+                        console.log(`[MONTAPECA] ✅ Filho: ${f.FilhoCodMat} | QtdeTotal=${filhoQtdeTotal} (${processQty}×${pecaQtde}) | Peso=${filhoPesoTotal.toFixed(4)} | 1ºSetor=${setorCol || 'nenhum'}`);
+                    }
+                } // fim if (mat.IdMaterial) — expansão montapeca
+
+            } // fim else (material encontrado)
+
+        } // fim for (const item of items)
 
         // 3. Update OS Totals
         await connection.query("UPDATE ordemservico SET QtdeTotalItens = ?, QtdeTotalPecas = ? WHERE IdOrdemServico = ?", [itensProcessados, totalPecasIncluidas, idOSDestino]);
@@ -572,5 +709,49 @@ exports.processItems = async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro ao processar itens: ' + error.message });
     } finally {
         connection.release();
+    }
+};
+
+exports.getAgglutinationSummary = async (req, res) => {
+    const { idProjeto, idTag, nomePlanilha, revisao, codMatFilter } = req.body;
+    try {
+        let filter = "";
+        const params = [];
+
+        if (idProjeto) { filter += " AND tbl.IdProjeto = ?"; params.push(idProjeto); }
+        if (idTag) { filter += " AND tbl.IdTag = ?"; params.push(idTag); }
+        if (nomePlanilha) { filter += " AND tbl.NomePlanilha = ?"; params.push(nomePlanilha); }
+        if (revisao !== undefined && revisao !== -1) { filter += " AND tbl.Revisao = ?"; params.push(revisao); }
+        if (codMatFilter) { filter += " AND tbl.CodMatFabricante LIKE ?"; params.push(`%${codMatFilter}%`); }
+
+        // AglutinacaoBlockSet columns: IdAglutinacao, CodMatFabricante, PD_qty, Part_total_qty, DataAglutinacao, IdProjeto, IdTag, NomeProjeto, NomeTag, NomePlanilha, Revisao
+        // AglutinacaoPixeasy columns: IdAglutinacao, CodMatFabricante, UG_SBU_Quantity, Reference_quantity, DataAglutinacao, IdProjeto, IdTag, NomeProjeto, NomeTag, NomePlanilha, Revisao
+        const query = `
+            SELECT 
+                tbl.CodMatFabricante, 
+                SUM(tbl.QtdeUnitaria) as QtdeUnitaria, 
+                SUM(tbl.QtdeTotal) as QtdeTotal, 
+                MAX(tbl.DataAglutinacao) as DataAglutinacao,
+                tbl.Revisao, 
+                MAX(tbl.IdProjeto) as IdProjeto, 
+                MAX(tbl.IdTag) as IdTag, 
+                MAX(tbl.NomeProjeto) as NomeProjeto, 
+                MAX(tbl.NomeTag) as NomeTag, 
+                MAX(tbl.NomePlanilha) as NomePlanilha 
+            FROM (
+                SELECT CodMatFabricante, PD_qty as QtdeUnitaria, Part_total_qty as QtdeTotal, DataAglutinacao, IdProjeto, IdTag, NomeProjeto, NomeTag, NomePlanilha, Revisao FROM AglutinacaoBlockSet 
+                UNION ALL 
+                SELECT CodMatFabricante, UG_SBU_Quantity as QtdeUnitaria, Reference_quantity as QtdeTotal, DataAglutinacao, IdProjeto, IdTag, NomeProjeto, NomeTag, NomePlanilha, Revisao FROM AglutinacaoPixeasy 
+            ) AS tbl 
+            WHERE 1=1 ${filter}
+            GROUP BY tbl.CodMatFabricante, tbl.Revisao
+            ORDER BY tbl.Revisao DESC, tbl.CodMatFabricante ASC
+        `;
+
+        const [rows] = await db.query(query, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Erro ao buscar resumo da aglutinação:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar dados.' });
     }
 };

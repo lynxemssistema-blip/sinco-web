@@ -40,4 +40,7 @@ router.post('/processable-items', blocksetController.getProcessableItems);
 // Process selected items
 router.post('/process-items', blocksetController.processItems);
 
+// Get agglutination summary (Resumo Fabricação)
+router.post('/agglutination-summary', blocksetController.getAgglutinationSummary);
+
 module.exports = router;

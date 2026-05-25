@@ -12,7 +12,7 @@ const tenantMiddleware = async (req, res, next) => {
     }
 
     // Public routes that don't need tenant context (e.g., login)
-    if (req.originalUrl === '/api/login' || req.originalUrl === '/api/admin/login' || req.originalUrl.startsWith('/api/public') || req.originalUrl.startsWith('/api/pdf') || req.originalUrl.startsWith('/api/download')) {
+    if (req.originalUrl === '/api/login' || req.originalUrl === '/api/admin/login' || req.originalUrl.startsWith('/api/public') || req.originalUrl.startsWith('/api/pdf') || req.originalUrl.startsWith('/api/download') || req.originalUrl.startsWith('/api/manutencao')) {
         return next();
     }
 
