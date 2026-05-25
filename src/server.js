@@ -4627,7 +4627,7 @@ app.put('/api/visao-geral/projeto/:id/data-previsao', async (req, res) => {
 
         if (atualizarTags) {
             await pool.executeOnDefault(
-                `UPDATE tags SET DataPrevisao = ? WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                `UPDATE tags SET DataPrevisao = ? WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (Finalizado IS NULL OR Finalizado != 'C')`,
                 [dataPrevisao, id]
             );
         }
@@ -4650,7 +4650,7 @@ app.put('/api/visao-geral/tag/:idTag/data-previsao', async (req, res) => {
         }
 
         await pool.executeOnDefault(
-            `UPDATE tags SET DataPrevisao = ? WHERE IdTag = ?`,
+            `UPDATE tags SET DataPrevisao = ? WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
             [dataPrevisao, idTag]
         );
 
@@ -4691,21 +4691,21 @@ app.put('/api/visao-geral/projeto/:id/bulk-update-planning', async (req, res) =>
                 `UPDATE tags 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
-                 WHERE IdProjeto = ?`,
+                 WHERE IdProjeto = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
             await pool.executeOnDefault(
                 `UPDATE ordemservico 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
-                 WHERE IdProjeto = ?`,
+                 WHERE IdProjeto = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
             await pool.executeOnDefault(
                 `UPDATE ordemservicoitem 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
-                 WHERE IdProjeto = ?`,
+                 WHERE IdProjeto = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
         }
@@ -4736,15 +4736,15 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
         }
 
         await pool.executeOnDefault(
-            `UPDATE tags SET ${field} = ? WHERE IdTag = ?`,
+            `UPDATE tags SET ${field} = ? WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
             [value, idTag]
         );
         await pool.executeOnDefault(
-            `UPDATE ordemservico SET ${field} = ? WHERE IdTag = ?`,
+            `UPDATE ordemservico SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
             [value, idTag]
         );
         await pool.executeOnDefault(
-            `UPDATE ordemservicoitem SET ${field} = ? WHERE IdTag = ?`,
+            `UPDATE ordemservicoitem SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
             [value, idTag]
         );
 
