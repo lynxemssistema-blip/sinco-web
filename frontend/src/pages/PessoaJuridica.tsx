@@ -598,8 +598,8 @@ export default function PessoaJuridicaPage() {
                                 </p>
 
                                 {/* Actions */}
-                                {document.getElementById('page-actions-portal') ? createPortal(
-                <motion.button
+                                <div className="pt-2 flex justify-end w-full">
+<motion.button
                                         type="submit"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -608,9 +608,8 @@ export default function PessoaJuridicaPage() {
                                     >
                                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                         {isEditing ? 'Atualizar' : 'Salvar'}
-                                    </motion.button>,
-                document.getElementById('page-actions-portal')
-            ) : null}
+                                    </motion.button>
+</div>
                             </form>
                         </motion.div>
                     </motion.div>

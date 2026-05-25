@@ -12,11 +12,8 @@ interface DashboardProps {
 
 const quickAccessItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard', desc: 'Visão geral' },
-    { icon: Calendar, label: 'Calendário', page: 'calendario', desc: 'Agendamentos' },
     { icon: Building2, label: 'Pessoa Jurídica', page: 'pessoa-juridica', desc: 'Gestão de clientes' },
     { icon: FileText, label: 'Relatórios', page: 'relatorios', desc: 'Análise de dados' },
-    { icon: ShieldCheck, label: 'SST', page: 'sst', desc: 'Segurança trabalho' },
-    { icon: ClipboardCheck, label: 'SGQ', page: 'sgq', desc: 'Controle qualidade' },
 ];
 
 function AnimatedCounter({ value, isPercent = false }: { value: number, isPercent?: boolean }) {

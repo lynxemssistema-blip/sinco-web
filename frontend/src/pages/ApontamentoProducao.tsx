@@ -1688,7 +1688,7 @@ export default function ApontamentoProducaoPage() {
                                         <table className="w-full text-left border-collapse bg-white">
                                             <thead className="sticky top-0 z-10">
                                                 <tr className="bg-gray-100 text-[10px] uppercase tracking-wider font-bold text-gray-600 border-b border-gray-200">
-                                                    <th className="px-3 py-2">ID</th>
+                                                    
                                                     <th className="px-3 py-2">Criado</th>
                                                     <th className="px-3 py-2">Data / Hora</th>
                                                     <th className="px-3 py-2">Cód. Fabrica</th>
@@ -1705,7 +1705,7 @@ export default function ApontamentoProducaoPage() {
                                             <tbody className="divide-y divide-gray-100">
                                                 {itemDetails.historico.map((h: any) => (
                                                     <tr key={h.idordemservicoitemControle} className="hover:bg-[#E0E800]/10/30 transition-colors">
-                                                        <td className="px-3 py-2 text-[10px] text-gray-500">{h.idordemservicoitemControle}</td>
+                                                        
                                                         <td className="px-3 py-2 text-[10px] text-gray-700 truncate max-w-[80px]" title={h.CriadoPor}>{h.CriadoPor}</td>
                                                         <td className="px-3 py-2 text-[10px] font-medium text-gray-500 whitespace-nowrap">{formatDate(h.DataCriacao)}</td>
                                                         <td className="px-3 py-2 text-[10px] font-bold text-[#32423D] bg-yellow-50">{h.Codmatfabricante || '-'}</td>
@@ -2650,8 +2650,8 @@ export default function ApontamentoProducaoPage() {
                                                                     </td>
                                                                     <td className="px-2 py-1 text-center font-medium bg-gray-50">{p.IDRNC}</td>
                                                                     <td className="px-2 py-1 font-bold truncate max-w-[120px]" title={p.CodMatFabricante}>{p.CodMatFabricante}</td>
-                                                                    <td className="px-2 py-1 bg-gray-50 text-center">{p.IdOrdemServico}</td>
-                                                                    <td className="px-2 py-1 bg-gray-50 text-center">{p.IdOrdemServicoItem}</td>
+                                                                    
+                                                                    
                                                                     <td className="px-2 py-1 truncate max-w-[100px]" title={p.Projeto}>{p.Projeto}</td>
                                                                     <td className="px-2 py-1 truncate max-w-[100px]" title={p.Tag}>{p.Tag}</td>
                                                                     <td className="px-2 py-1 truncate max-w-[120px]" title={p.DescResumo}>{p.DescResumo}</td>

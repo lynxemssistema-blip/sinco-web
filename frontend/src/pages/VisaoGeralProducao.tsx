@@ -1833,7 +1833,7 @@ export default function VisaoGeralProducaoPage() {
                                         <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                                             <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200">
                                             <tr>
-                                                <th className="px-3 py-2.5">ID</th>
+                                                
                                                 <th className="px-3 py-2.5">Status</th>
                                                 <th className="px-3 py-2.5">Descrição</th>
                                                 <th className="px-3 py-2.5">Responsável</th>
@@ -2025,7 +2025,7 @@ export default function VisaoGeralProducaoPage() {
                                         <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                                             <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200">
                                             <tr>
-                                                <th className="px-3 py-2.5">ID</th>
+                                                
                                                 <th className="px-3 py-2.5">Status</th>
                                                 <th className="px-3 py-2.5">Descrição</th>
                                                 <th className="px-3 py-2.5">Responsável</th>

@@ -954,7 +954,7 @@ export default function ProjetoPage() {
                                                         <div className="flex items-center gap-3 pl-6 py-1 text-xs font-medium text-gray-400 uppercase">
                                                             <div className="w-4 shrink-0"></div>
                                                             <div className="w-7 shrink-0"></div>
-                                                            <span className="shrink-0" style={{width:'40px'}}>ID</span>
+                                                            
                                                             <span className="flex-1 min-w-0">Tag</span>
                                                             <span className="hidden sm:block shrink-0 text-center" style={{width:'96px'}}>Prev. Entrega</span>
                                                             <span className="hidden sm:block shrink-0" style={{width:'128px'}}>Tipo</span>
@@ -1135,12 +1135,7 @@ export default function ProjetoPage() {
                                                             <FolderKanban size={12} /> Identificação do Projeto
                                                         </h3>
                                                         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                                                            {isEditingProjeto && (
-                                                                <div className="md:col-span-1">
-                                                                    <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">ID</label>
-                                                                    <input type="text" value={projetoFormData.IdProjeto || ''} readOnly className="w-full px-3 py-2 bg-gray-100 border border-gray-200 text-sm font-mono text-gray-400 cursor-not-allowed rounded" />
-                                                                </div>
-                                                            )}
+                                                            
                                                             <div className={isEditingProjeto ? "md:col-span-5" : "md:col-span-6"}>
                                                                 <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Nome Projeto <span className="text-red-500">*</span></label>
                                                                 <input type="text" name="Projeto" value={projetoFormData.Projeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" required />
@@ -1510,12 +1505,7 @@ export default function ProjetoPage() {
                                 </div>
 
                                 <form onSubmit={handleTagSubmit} className="p-5 space-y-4">
-                                    {isEditingTag && (
-                                        <div className="w-24">
-                                            <label className="block text-xs font-medium text-gray-500 mb-1">ID</label>
-                                            <input type="text" value={tagFormData.IdTag || ''} readOnly className={`${inputOptional} bg-gray-100 cursor-not-allowed`} />
-                                        </div>
-                                    )}
+                                    
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Descrição Tag <span className="text-red-500">*</span></label>
@@ -1604,13 +1594,12 @@ export default function ProjetoPage() {
                                         <label className="block text-xs font-medium text-gray-500 mb-1">Descrição</label>
                                         <textarea name="DescTag" value={tagFormData.DescTag || ''} onChange={handleTagInputChange} rows={3} className={inputOptional} />
                                     </div>
-                                    {document.getElementById('page-actions-portal') ? createPortal(
-                <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium disabled:opacity-50" disabled={saving}>
+                                    <div className="pt-2 flex justify-end w-full">
+<motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium disabled:opacity-50" disabled={saving}>
                                             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                             {isEditingTag ? 'Atualizar' : 'Salvar'}
-                                        </motion.button>,
-                document.getElementById('page-actions-portal')
-            ) : null}
+                                        </motion.button>
+</div>
                                 </form>
                             </motion.div>
                         </motion.div>

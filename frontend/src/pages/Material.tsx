@@ -318,15 +318,7 @@ export default function MaterialPage() {
                                 {/* ID Field (readonly when editing) */}
                                 {isEditing && (
                                     <div className="grid grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-500 mb-1">ID</label>
-                                            <input
-                                                type="text"
-                                                value={formData.IdMaterial || ''}
-                                                readOnly
-                                                className={`${inputOptional} bg-gray-100 cursor-not-allowed`}
-                                            />
-                                        </div>
+                                        
                                     </div>
                                 )}
 
@@ -705,7 +697,7 @@ export default function MaterialPage() {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 border-b border-gray-100">
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">ID</th>
+                                    
                                     <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Img</th>
                                     <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Código</th>
                                     <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
@@ -739,9 +731,7 @@ export default function MaterialPage() {
                                             transition={{ delay: idx * 0.02 }}
                                             className="hover:bg-gray-50/50 transition-colors"
                                         >
-                                            <td className="px-3 py-3 text-sm text-gray-500 font-mono">
-                                                {material.IdMaterial}
-                                            </td>
+                                            
                                             <td className="px-3 py-3">
                                                 <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
                                                     {material.ImagemProduto ? (

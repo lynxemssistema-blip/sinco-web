@@ -327,8 +327,8 @@ export default function ListaReposicaoPage() {
                                             <td className="px-3 py-2">
                                                 {sttxt === 'C' ? <span className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold border border-emerald-200">CONCLUÍDO</span> : <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold border border-amber-200">PENDENTE</span>}
                                             </td>
-                                            <td className="px-3 py-2 font-mono text-slate-600">{item.IdOrdemServico}</td>
-                                            <td className="px-3 py-2 font-mono text-slate-600">{item.IdOrdemServicoItem}</td>
+                                            
+                                            
                                             <td className="px-3 py-2 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
                                             <td className="px-3 py-2 font-bold text-slate-700">{item.Projeto}</td>
                                             <td className="px-3 py-2 font-bold text-[#32423D]">{item.Tag}</td>

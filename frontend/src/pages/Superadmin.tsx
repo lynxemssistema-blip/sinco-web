@@ -561,7 +561,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                             <table className="w-full text-sm text-left text-gray-500">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3">ID</th>
+                                        
                                         <th className="px-6 py-3">Login</th>
                                         <th className="px-6 py-3">Superadmin</th>
                                         <th className="px-6 py-3">Tenant (Vínculo)</th>
@@ -571,7 +571,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                                 <tbody>
                                     {users.map(user => (
                                         <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
-                                            <td className="px-6 py-4">{user.id}</td>
+                                            
                                             <td className="px-6 py-4 font-medium text-gray-900">{user.login}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.superadmin === 'S' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>

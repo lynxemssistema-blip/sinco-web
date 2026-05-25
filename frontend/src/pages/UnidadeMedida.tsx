@@ -237,17 +237,7 @@ export default function UnidadeMedidaPage() {
 
                             <form onSubmit={handleSubmit} className="p-5 space-y-5">
                                 {/* ID Field (readonly when editing) */}
-                                {isEditing && (
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-500 mb-1">ID</label>
-                                        <input
-                                            type="text"
-                                            value={formData.IdMedida || ''}
-                                            readOnly
-                                            className={`${inputOptional} bg-gray-100 cursor-not-allowed`}
-                                        />
-                                    </div>
-                                )}
+                                
 
                                 {/* TipoMedida */}
                                 <div>
@@ -287,8 +277,8 @@ export default function UnidadeMedidaPage() {
                                 </p>
 
                                 {/* Actions */}
-                                {document.getElementById('page-actions-portal') ? createPortal(
-                <motion.button
+                                <div className="pt-2 flex justify-end w-full">
+<motion.button
                                         type="submit"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -297,9 +287,8 @@ export default function UnidadeMedidaPage() {
                                     >
                                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                         {isEditing ? 'Atualizar' : 'Salvar'}
-                                    </motion.button>,
-                document.getElementById('page-actions-portal')
-            ) : null}
+                                    </motion.button>
+</div>
                             </form>
                         </motion.div>
                     </motion.div>
@@ -318,7 +307,7 @@ export default function UnidadeMedidaPage() {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 border-b border-gray-100">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">ID</th>
+                                    
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Unidade</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
                                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Ações</th>
@@ -349,9 +338,7 @@ export default function UnidadeMedidaPage() {
                                             transition={{ delay: idx * 0.03 }}
                                             className="hover:bg-gray-50/50 transition-colors"
                                         >
-                                            <td className="px-4 py-3 text-sm text-gray-500 font-mono">
-                                                {unidade.IdMedida}
-                                            </td>
+                                            
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center font-bold text-sm">

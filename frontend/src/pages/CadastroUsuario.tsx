@@ -423,7 +423,7 @@ export default function CadastroUsuarioPage() {
 
                         {/* Col 2: Dados Pessoais */}
                         <div className="flex-1 grid grid-cols-4 gap-x-4 gap-y-1.5 min-w-0">
-                            {!isNewMode && <EditableField icon={<AtSign size={12} />} label="ID" value={String(form.idUsuario || '')} readOnly />}
+
                             <EditableField icon={<User size={12} />} label="Nome Completo" value={form.NomeCompleto} onChange={v => updateField('NomeCompleto', v)} />
 
                             {/* Login */}
@@ -530,7 +530,7 @@ export default function CadastroUsuarioPage() {
                                         <table className="w-full text-[11px]">
                                             <thead className="bg-slate-50 sticky top-0">
                                                 <tr>
-                                                    <th className="px-3 py-1.5 text-left font-black text-slate-500 border-b border-slate-100 text-[10px] uppercase tracking-wider">ID</th>
+                                                    
                                                     <th className="px-3 py-1.5 text-left font-black text-slate-500 border-b border-slate-100 text-[10px] uppercase tracking-wider">Processo</th>
                                                     <th className="px-3 py-1.5 text-left font-black text-slate-500 border-b border-slate-100 text-[10px] uppercase tracking-wider">Código</th>
                                                     <th className="px-3 py-1.5 border-b border-slate-100 w-8"></th>
@@ -543,7 +543,7 @@ export default function CadastroUsuarioPage() {
                                                     <tr key={p.IdProcessoFabricacao} 
                                                         className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
                                                     >
-                                                        <td className="px-3 py-1 font-black text-indigo-600">{p.IdProcessoFabricacao}</td>
+                                                        
                                                         <td className="px-3 py-1 text-slate-700 font-medium">{p.ProcessoFabricacao}</td>
                                                         <td className="px-3 py-1 text-slate-500 font-mono text-[10px]">{p.CodigoProcessoFabricacao}</td>
                                                         <td className="px-3 py-1 text-right">
@@ -577,7 +577,7 @@ export default function CadastroUsuarioPage() {
                                         <table className="w-full text-[11px]">
                                             <thead className="bg-amber-50 sticky top-0">
                                                 <tr>
-                                                    <th className="px-3 py-1.5 text-left font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider">ID</th>
+                                                    
                                                     <th className="px-3 py-1.5 text-left font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider">Processo</th>
                                                     <th className="px-3 py-1.5 text-right font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider w-8"></th>
                                                 </tr>
@@ -587,7 +587,7 @@ export default function CadastroUsuarioPage() {
                                                     <tr><td colSpan={3} className="py-6 text-center text-slate-400 text-[11px]">Nenhum processo vinculado a este usuário</td></tr>
                                                 ) : userProcessos.map(p => (
                                                     <tr key={p.IdUsuarioprocessofabricacao} className="border-b border-amber-50 hover:bg-amber-100 transition-colors">
-                                                        <td className="px-3 py-1 font-black text-amber-700">{p.IdUsuarioprocessofabricacao}</td>
+                                                        
                                                         <td className="px-3 py-1 text-slate-700 font-medium">{p.ProcessoFabricacao}</td>
                                                         <td className="px-3 py-1 text-right">
                                                             <button 
@@ -636,7 +636,7 @@ export default function CadastroUsuarioPage() {
                                     return (
                                         <tr key={u.idUsuario} onClick={() => handleSelectUser(u)}
                                             className={`cursor-pointer transition-colors border-b border-slate-50 ${selected ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-200' : 'hover:bg-slate-50'}`}>
-                                            <td className="px-4 py-2 text-center font-black text-indigo-600">{u.idUsuario}</td>
+                                            
                                             <td className="px-4 py-2">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-[10px] shrink-0">

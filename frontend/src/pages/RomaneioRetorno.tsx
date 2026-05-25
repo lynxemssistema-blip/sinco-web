@@ -234,7 +234,7 @@ export default function RomaneioRetornoPage() {
                                                     <RefreshCw className="w-4 h-4 text-blue-400" />
                                                 }
                                             </td>
-                                            <td className="px-4 py-2 font-mono">{item.IdRomaneio}</td>
+                                            
                                             <td className="px-4 py-2">{item.PROJETO}</td>
                                             <td className="px-4 py-2 font-semibold text-blue-900">{item.TAG}</td>
                                             <td className="px-4 py-2 font-bold">{item.QtdeRomaneio}</td>

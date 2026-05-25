@@ -153,15 +153,7 @@ export default function MatrizAdmin() {
                     </h3>
                     <form onSubmit={handleSave} className="flex gap-4 items-end">
                         {originalId !== null && (
-                            <div className="w-24">
-                                <label className="block text-sm font-medium text-foreground mb-1">ID</label>
-                                <input
-                                    type="number"
-                                    value={formData.Id || ''}
-                                    disabled={true}
-                                    className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-muted-foreground focus:outline-none disabled:opacity-60 cursor-not-allowed"
-                                />
-                            </div>
+                            
                         )}
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-foreground mb-1">Descrição da Nova Matriz</label>
@@ -221,7 +213,7 @@ export default function MatrizAdmin() {
                             ) : (
                                 matrizes.map((matriz) => (
                                     <tr key={matriz.Id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                                        <td className="p-4 text-foreground font-mono font-medium">{matriz.Id}</td>
+                                        
                                         <td className="p-4 text-foreground font-medium uppercase">{matriz.Descricao}</td>
                                         <td className="p-4 text-center space-x-2 whitespace-nowrap">
                                             <button

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Loader, Edit3, Save, X, CalendarDays } from 'lucide-react';
+import { Search, Loader, Edit3, Save, X, CalendarDays, Maximize2, Minimize2 } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -101,6 +101,7 @@ export default function VisaoGeralEngenharia() {
     const [, setError] = useState<string | null>(null);
 
     const [activeSectors, setActiveSectors] = useState<Set<SectorType>>(new Set());
+    const [isExpanded, setIsExpanded] = useState(false);
     
     // Filters — individual
     const [fProjeto, setFProjeto] = useState('');
@@ -333,6 +334,7 @@ export default function VisaoGeralEngenharia() {
     return (
         <div className="h-full flex flex-col font-sans bg-gray-50 text-xs overflow-hidden pt-12">
             {/* Header / Filters Block */}
+            {!isExpanded && (
             <div className="border-b border-gray-300 bg-white px-3 py-2 shrink-0 flex flex-col gap-2">
 
                 {/* Title bar */}
@@ -491,11 +493,15 @@ export default function VisaoGeralEngenharia() {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Main Tags Grid Toolbar */}
             <div className="px-2 py-1 border-b border-gray-300 flex items-center justify-between bg-white shrink-0">
                 <div className="text-gray-700 font-bold flex items-center gap-2">
                     {selectedIds.size > 0 && <span className="font-bold text-[#32423D] bg-[#E0E800]/40 px-2 py-0.5 rounded border border-[#E0E800]">{selectedIds.size} tags selecionadas</span>}
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition-colors" title={isExpanded ? "Restaurar tamanho" : "Expandir grid"}>
+                        {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                    </button>
                 </div>
                 <div>
                     {!batchEditing ? (
@@ -648,6 +654,7 @@ export default function VisaoGeralEngenharia() {
             </div>
 
             {/* Summary Grid (Tela Numero 3 format) */}
+            {!isExpanded && (
             <div className="p-2 shrink-0 overflow-x-auto bg-gray-50 border-t border-gray-300">
                 <table className="w-full max-w-4xl text-left bg-white border border-gray-300">
                     <thead className="bg-gray-200 text-gray-700 border-b border-gray-300">
@@ -677,6 +684,7 @@ export default function VisaoGeralEngenharia() {
                     </tbody>
                 </table>
             </div>
+            )}
         </div>
     );
 }

@@ -13,9 +13,7 @@ export const defaultMenuItems: MenuItem[] = [
             { id: 'cadastro-de-usuario', icon: 'UserCheck', label: 'Cadastro de Usuario', href: '/cadastro-de-usuario' },
         ]
     },
-    { id: 'calendario', icon: 'Calendar', label: 'Calendário', href: '/calendario' },
     { id: 'camera', icon: 'Camera', label: 'Câmera', href: '/camera' },
-    { id: 'cipa', icon: 'HardHat', label: 'CIPA - Segurança', href: '/cipa' },
     { id: 'config-sistema', icon: 'Database', label: 'Config. Sistema', href: '/config-sistema' },
     { id: 'config', icon: 'Settings', label: 'Configurações', href: '/config' },
     { id: 'controle-expedicao', icon: 'PackageCheck', label: 'Controle Expedição', href: '/controle-expedicao' },
@@ -57,8 +55,7 @@ export const defaultMenuItems: MenuItem[] = [
             { id: 'romaneio-retorno', icon: 'ArrowLeftCircle', label: 'Romaneio-Retorno', href: '/romaneio-retorno' },
         ]
     },
-    { id: 'sgq', icon: 'ClipboardCheck', label: 'SGQ - Qualidade', href: '/sgq' },
-    { id: 'sst', icon: 'ShieldCheck', label: 'SST - Segurança', href: '/sst' },
+
     { id: 'superadmin', icon: 'ShieldAlert', label: 'Superadmin', href: '/superadmin' },
     { id: 'tarefas', icon: 'ListTodo', label: 'Tarefas', href: '/tarefas' },
     { id: 'teste-final-montagem', icon: 'ClipboardCheck', label: 'Teste Final Montagem', href: '/teste-final-montagem' },

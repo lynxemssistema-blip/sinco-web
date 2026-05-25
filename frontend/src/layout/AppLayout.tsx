@@ -356,7 +356,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                     </div>
 
                     {/* Dashboard/Page Content Slot */}
-                    <div className="flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
+                    <div className="flex-1 flex flex-col min-h-0 w-full relative overflow-auto custom-scrollbar">
                         {children}
                     </div>
                 </div>

@@ -478,7 +478,7 @@ export default function ProducaoPlanoCorte() {
                     <table className="w-full text-[11px] text-left border-separate border-spacing-0">
                         <thead className="bg-slate-50 sticky top-0 z-10">
                             <tr className="border-b border-slate-200">
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">ID</th>
+                                
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Descrição</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Espessura</th>
                                 <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Material SW</th>
@@ -497,7 +497,7 @@ export default function ProducaoPlanoCorte() {
                                     onClick={()=>setPlanoSel(p)}
                                     className={`group cursor-pointer transition-colors border-b border-slate-50 ${planoSel?.IdPlanodecorte === p.IdPlanodecorte ? 'bg-[#E0E800]/20/80 ring-1 ring-inset ring-blue-100' : 'hover:bg-slate-50'}`}
                                 >
-                                    <td className="px-3 py-1.5 font-black text-[#32423D]">{p.IdPlanodecorte}</td>
+                                    
                                     <td className="px-3 py-1.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
                                     <td className="px-3 py-1.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
                                     <td className="px-3 py-1.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>

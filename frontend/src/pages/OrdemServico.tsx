@@ -2123,8 +2123,8 @@ function OrdemServicoContent() {
                 </motion.div>
             )}
 
-            {document.getElementById('page-actions-portal') ? createPortal(
-                <motion.button
+            <div className="pt-2 flex justify-end w-full">
+<motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => fetchOrdens(1)}
@@ -2133,9 +2133,8 @@ function OrdemServicoContent() {
                 >
                     <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                     Atualizar
-                </motion.button>,
-                document.getElementById('page-actions-portal')
-            ) : null}
+                </motion.button>
+</div>
 
             {/* Filters Bar */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
@@ -3259,8 +3258,8 @@ function OrdemServicoContent() {
                                                                     </td>
                                                                     <td className="px-2 py-1 text-center font-medium bg-gray-50">{p.IDRNC}</td>
                                                                     <td className="px-2 py-1 font-bold truncate max-w-[120px]" title={p.CodMatFabricante}>{p.CodMatFabricante}</td>
-                                                                    <td className="px-2 py-1 bg-gray-50 text-center">{p.IdOrdemServico}</td>
-                                                                    <td className="px-2 py-1 bg-gray-50 text-center">{p.IdOrdemServicoItem}</td>
+                                                                    
+                                                                    
                                                                     <td className="px-2 py-1 truncate max-w-[100px]" title={p.Projeto}>{p.Projeto}</td>
                                                                     <td className="px-2 py-1 truncate max-w-[100px]" title={p.Tag}>{p.Tag}</td>
                                                                     <td className="px-2 py-1 truncate max-w-[120px]" title={p.DescResumo}>{p.DescResumo}</td>

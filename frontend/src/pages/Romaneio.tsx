@@ -674,7 +674,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                         <table className="w-full">
                             <thead className="bg-gray-50 text-gray-500 text-sm font-medium uppercase tracking-wider">
                                 <tr>
-                                    <th className="px-6 py-4 text-left w-20">ID</th>
+                                    
                                     <th className="px-6 py-4 text-left">Status</th>
                                     <th className="px-6 py-4 text-left">Cliente</th>
                                     <th className="px-6 py-4 text-left hidden xl:table-cell">Motorista</th>
