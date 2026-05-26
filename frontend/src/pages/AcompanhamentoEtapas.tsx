@@ -26,6 +26,13 @@ interface EtapasRow {
     OkAcabamento: number;
     FaltaExpedicao: number;
     OkExpedicao: number;
+    Observacao?: string;
+    PlanMedicao?: string; RealMedicao?: string;
+    PlanIsometrico?: string; RealIsometrico?: string;
+    PlanEngenharia?: string; RealEngenharia?: string;
+    PlanAprovacao?: string; RealAprovacao?: string;
+    PlanAcabamento?: string; RealAcabamento?: string;
+    PlanExpedicao?: string; RealExpedicao?: string;
 }
 
 export default function AcompanhamentoEtapas() {
@@ -54,6 +61,37 @@ export default function AcompanhamentoEtapas() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editForm, setEditForm] = useState<any>({});
     const [saving, setSaving] = useState(false);
+    
+    // Tag Selection for Modal
+    const [projetoTags, setProjetoTags] = useState<any[]>([]);
+    const [selectedTagIds, setSelectedTagIds] = useState<Set<number>>(new Set());
+    const [loadingTags, setLoadingTags] = useState(false);
+
+    // Linhas mostrando datas
+    const [viewDatesRows, setViewDatesRows] = useState<Set<number>>(new Set());
+
+    const toggleDatesView = (idProjeto: number) => {
+        setViewDatesRows(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(idProjeto)) newSet.delete(idProjeto);
+            else newSet.add(idProjeto);
+            return newSet;
+        });
+    };
+
+    const updateObservacao = async (idProjeto: number, novaObs: string) => {
+        try {
+            const response = await fetch(`/api/acompanhamento/projeto/${idProjeto}/observacao`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ observacao: novaObs })
+            });
+            if (!response.ok) throw new Error('Erro ao salvar');
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao salvar a observação.');
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -85,7 +123,7 @@ export default function AcompanhamentoEtapas() {
         fetchData();
     };
 
-    const openEditModal = (row: EtapasRow) => {
+    const openEditModal = async (row: EtapasRow) => {
         setSelectedProjeto(row);
         // Em um caso real, buscaríamos as datas atuais do projeto.
         // Aqui estamos apenas inicializando vazio para que o usuário insira as novas datas que irão sobrepor em lote
@@ -98,6 +136,21 @@ export default function AcompanhamentoEtapas() {
             PlanejadoInicioExpedicao: '', PlanejadoFinalExpedicao: '', RealizadoInicioExpedicao: '', realizadoFinalExpedicao: ''
         });
         setIsModalOpen(true);
+        setLoadingTags(true);
+        try {
+            const res = await fetch(`/api/acompanhamento/projeto/${row.IdProjeto}/tags`);
+            const json = await res.json();
+            if (json.success) {
+                setProjetoTags(json.data);
+                setSelectedTagIds(new Set(json.data.map((t: any) => t.IdTag)));
+            } else {
+                setProjetoTags([]);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingTags(false);
+        }
     };
 
     const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,18 +173,30 @@ export default function AcompanhamentoEtapas() {
                 return;
             }
 
+            if (selectedTagIds.size === 0) {
+                alert('Selecione ao menos uma tag para atualizar.');
+                setSaving(false);
+                return;
+            }
+
+            let usuarioLogado = 'Sistema';
+            try {
+                const u = JSON.parse(localStorage.getItem('sinco_user') || '{}');
+                usuarioLogado = u.username || u.name || u.NomeCompleto || 'Sistema';
+            } catch (e) {}
+
             const response = await fetch(`/api/acompanhamento-etapas/projeto/${selectedProjeto.IdProjeto}/bulk-update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ payload, usuario: usuarioLogado, tagIds: Array.from(selectedTagIds) })
             });
-            const data = await response.json();
+            const resData = await response.json();
             if (!response.ok) {
-                throw new Error(data.message || 'Erro ao atualizar datas');
+                throw new Error(resData.message || 'Erro ao atualizar datas');
             }
-            alert('Datas atualizadas com sucesso em todas as tags deste projeto!');
+            alert(resData.message || 'Datas atualizadas com sucesso em todas as tags deste projeto!');
             setIsModalOpen(false);
             fetchData();
         } catch (err: any) {
@@ -149,21 +214,21 @@ export default function AcompanhamentoEtapas() {
             <div className="col-span-2 grid grid-cols-2 gap-2 border-r border-gray-200 pr-2">
                 <div>
                     <label className="text-[10px] text-gray-500">Plan. Início</label>
-                    <input type="text" placeholder="DD/MM/YYYY" name={`PlanejadoInicio${sulfixo}`} value={editForm[`PlanejadoInicio${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
+                    <input type="date" name={`PlanejadoInicio${sulfixo}`} value={editForm[`PlanejadoInicio${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
                 </div>
                 <div>
                     <label className="text-[10px] text-gray-500">Plan. Fim</label>
-                    <input type="text" placeholder="DD/MM/YYYY" name={`PlanejadoFinal${sulfixo}`} value={editForm[`PlanejadoFinal${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
+                    <input type="date" name={`PlanejadoFinal${sulfixo}`} value={editForm[`PlanejadoFinal${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
                 </div>
             </div>
             <div className="col-span-2 grid grid-cols-2 gap-2 pl-2">
                 <div>
                     <label className="text-[10px] text-gray-500">Real. Início</label>
-                    <input type="text" placeholder="DD/MM/YYYY" name={`RealizadoInicio${sulfixo}`} value={editForm[`RealizadoInicio${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
+                    <input type="date" name={`RealizadoInicio${sulfixo}`} value={editForm[`RealizadoInicio${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
                 </div>
                 <div>
                     <label className="text-[10px] text-gray-500">Real. Fim</label>
-                    <input type="text" placeholder="DD/MM/YYYY" name={sulfixo === 'Expedicao' ? 'realizadoFinalExpedicao' : `RealizadoFinal${sulfixo}`} value={editForm[sulfixo === 'Expedicao' ? 'realizadoFinalExpedicao' : `RealizadoFinal${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
+                    <input type="date" name={sulfixo === 'Expedicao' ? 'realizadoFinalExpedicao' : `RealizadoFinal${sulfixo}`} value={editForm[sulfixo === 'Expedicao' ? 'realizadoFinalExpedicao' : `RealizadoFinal${sulfixo}`] || ''} onChange={handleEditChange} className="w-full text-xs p-1 border rounded" />
                 </div>
             </div>
         </div>
@@ -173,27 +238,19 @@ export default function AcompanhamentoEtapas() {
         <div className={`flex flex-col bg-gray-50 transition-all duration-300 ${isExpanded ? 'fixed inset-0 z-50 overflow-hidden' : 'h-[calc(100vh-4rem)]'}`}>
                 
                 {/* HEADER & FILTERS */}
-                <div className={`bg-white shadow-sm transition-all duration-300 ${(!showFilters && isExpanded) ? 'h-0 overflow-hidden opacity-0 p-0 m-0' : 'p-4 border-b border-gray-200'}`}>
-                    <div className="flex justify-between items-center mb-3">
-                        <div>
-                            <h1 className="text-xl font-bold text-[#32423D] flex items-center gap-2">
-                                <Briefcase className="text-[#03624C]" />
-                                Acompanhamento de Etapas
-                            </h1>
-                            <p className="text-xs text-gray-500">Visão Geral de Projetos: Monitoramento de Áreas Complementares</p>
-                        </div>
+                <div className={`bg-white shadow-sm transition-all duration-300 ${!showFilters ? 'p-2 border-b border-gray-200' : 'p-4 border-b border-gray-200'}`}>
+                    <div className={`flex justify-end items-center ${showFilters ? 'mb-3' : ''}`}>
                         <div className="flex items-center gap-2">
-                            <button onClick={() => setShowFilters(!showFilters)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-[#03624C] transition-colors border px-2 py-1 rounded bg-gray-50">
+                            <button type="button" onClick={() => setShowFilters(!showFilters)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-[#03624C] transition-colors border px-2 py-1 rounded bg-gray-50">
                                 <Filter size={14} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
                             </button>
-                            <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 text-gray-500 hover:text-[#03624C] transition-colors rounded border bg-gray-50" title={isExpanded ? "Restaurar" : "Maximizar"}>
+                            <button type="button" onClick={() => setIsExpanded(!isExpanded)} className="p-1 text-gray-500 hover:text-[#03624C] transition-colors rounded border bg-gray-50" title={isExpanded ? "Restaurar" : "Maximizar"}>
                                 {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                             </button>
                         </div>
                     </div>
 
-                    {showFilters && (
-                        <form onSubmit={handleSearch} className="bg-gray-50 p-3 rounded-md border border-gray-100">
+                    <form onSubmit={handleSearch} className={`bg-gray-50 p-3 rounded-md border border-gray-100 ${!showFilters ? 'hidden' : 'block'}`}>
                             <div className="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-6 gap-3 mb-3">
                                 {/* Campos Textuais */}
                                 <div>
@@ -247,24 +304,24 @@ export default function AcompanhamentoEtapas() {
                                 </button>
                             </div>
                         </form>
-                    )}
                 </div>
 
                 {/* GRID SECTION */}
-                <div className="flex-1 overflow-auto p-4 relative">
+                <div className="flex-1 overflow-hidden p-4 relative flex flex-col">
                     {loading ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-50">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03624C]"></div>
                         </div>
                     ) : (
-                        <div className="bg-white shadow-sm border border-gray-200 rounded-md overflow-hidden">
+                        <div className="bg-white shadow-sm border border-gray-200 rounded-md overflow-auto flex-1 relative">
                             <table className="w-full text-left border-collapse min-w-[1200px]">
-                                <thead>
+                                <thead className="sticky top-0 z-40 bg-gray-100 shadow-sm">
                                     {/* CABEÇALHO PRINCIPAL */}
                                     <tr className="bg-gray-100 text-gray-700 text-[10px] uppercase tracking-wider border-b-2 border-gray-300">
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 sticky left-0 bg-gray-100 z-10 w-[80px]">Doc/Proj</th>
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 sticky left-[80px] bg-gray-100 z-10 max-w-[200px]">Obra/Cliente</th>
+                                        <th rowSpan={2} className="p-2 border-r border-gray-300 sticky left-0 bg-gray-100 z-50 w-[80px]">Doc/Proj</th>
+                                        <th rowSpan={2} className="p-2 border-r border-gray-300 sticky left-[80px] bg-gray-100 z-50 max-w-[200px]">Obra/Cliente</th>
                                         <th rowSpan={2} className="p-2 border-r border-gray-300 text-center">Região</th>
+                                        <th rowSpan={2} className="p-2 border-r border-gray-300 text-center min-w-[150px]">Observação</th>
                                         <th rowSpan={2} className="p-2 border-r border-gray-300 text-center">Status</th>
                                         <th rowSpan={2} className="p-2 border-r-4 border-gray-400 text-center">Data Fim</th>
                                         
@@ -274,14 +331,14 @@ export default function AcompanhamentoEtapas() {
                                         <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-indigo-50">Aprovação</th>
                                         <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-blue-50">Acabamento</th>
                                         <th colSpan={2} className="p-2 text-center bg-indigo-50">Expedição</th>
-                                        <th rowSpan={2} className="p-2 border-l border-gray-300 text-center sticky right-0 bg-gray-100 z-10">Ações</th>
+                                        <th rowSpan={2} className="p-2 border-l border-gray-300 text-center sticky right-0 bg-gray-100 z-50">Ações</th>
                                     </tr>
                                     {/* SUB-CABEÇALHO (Falta/Ok) */}
                                     <tr className="text-[10px] uppercase text-gray-600 border-b border-gray-300">
                                         {Array.from({length: 6}).map((_, i) => (
                                             <React.Fragment key={i}>
-                                                <th className="p-1.5 text-center border-r border-gray-200 bg-red-50 text-red-700 font-bold w-[50px]">Falta</th>
-                                                <th className="p-1.5 text-center border-r-2 border-gray-400 bg-green-50 text-green-700 font-bold w-[50px]">Ok</th>
+                                                <th className="p-1.5 text-center border-r border-gray-200 bg-red-50 text-red-700 font-bold min-w-[70px]">Falta <span className="text-gray-400 font-normal">/ Plan.</span></th>
+                                                <th className="p-1.5 text-center border-r-2 border-gray-400 bg-green-50 text-green-700 font-bold min-w-[70px]">Ok <span className="text-gray-400 font-normal">/ Real.</span></th>
                                             </React.Fragment>
                                         ))}
                                     </tr>
@@ -292,11 +349,23 @@ export default function AcompanhamentoEtapas() {
                                             <td colSpan={18} className="p-8 text-center text-gray-500">Nenhum projeto encontrado.</td>
                                         </tr>
                                     ) : (
-                                        data.map(row => (
-                                            <tr key={row.IdProjeto} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                                <td className="p-2 border-r border-gray-200 sticky left-0 bg-white group-hover:bg-gray-50 font-medium text-[#03624C]">{row.Projeto || row.IdProjeto}</td>
-                                                <td className="p-2 border-r border-gray-200 sticky left-[80px] bg-white group-hover:bg-gray-50 truncate max-w-[200px]" title={row.Cliente}>{row.Cliente}</td>
+                                        data.map(row => {
+                                            const showDates = viewDatesRows.has(row.IdProjeto);
+                                            return (
+                                            <React.Fragment key={row.IdProjeto}>
+                                            <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+                                                <td className="p-2 border-r border-gray-200 sticky left-0 z-10 bg-white group-hover:bg-gray-50 font-medium text-[#03624C]">{row.Projeto || row.IdProjeto}</td>
+                                                <td className="p-2 border-r border-gray-200 sticky left-[80px] z-10 bg-white group-hover:bg-gray-50 truncate max-w-[200px]" title={row.Cliente}>{row.Cliente}</td>
                                                 <td className="p-2 border-r border-gray-200 text-center">{row.EstadoOrigem}</td>
+                                                <td className="p-2 border-r border-gray-200 text-center">
+                                                    <input 
+                                                        type="text" 
+                                                        defaultValue={row.Observacao || ''} 
+                                                        onBlur={(e) => updateObservacao(row.IdProjeto, e.target.value)}
+                                                        className="w-full min-w-[150px] text-xs p-1 border border-transparent hover:border-gray-300 focus:border-[#03624C] focus:ring-1 focus:ring-[#03624C] rounded outline-none bg-transparent focus:bg-white transition-colors"
+                                                        placeholder="Adicionar obs..."
+                                                    />
+                                                </td>
                                                 <td className="p-2 border-r border-gray-200 text-center">
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${row.StatusProj?.toUpperCase() === 'CONCLUIDO' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
                                                         {row.StatusProj}
@@ -326,16 +395,52 @@ export default function AcompanhamentoEtapas() {
                                                 
                                                 {/* EXPEDICAO */}
                                                 <td className="p-2 border-r border-gray-200 text-center font-semibold text-red-600 bg-red-50/30">{row.FaltaExpedicao}</td>
-                                                <td className="p-2 text-center font-semibold text-green-600 bg-green-50/30">{row.OkExpedicao}</td>
+                                                <td className="p-2 text-center font-semibold text-green-600 bg-green-50/30 border-r-2 border-gray-400">{row.OkExpedicao}</td>
 
                                                 {/* AÇÕES */}
-                                                <td className="p-2 border-l border-gray-200 text-center sticky right-0 bg-white group-hover:bg-gray-50">
+                                                <td className="p-2 border-l border-gray-200 text-center sticky right-0 z-10 bg-white group-hover:bg-gray-50 flex items-center justify-center gap-1 h-full min-h-[40px]">
+                                                    <button onClick={() => toggleDatesView(row.IdProjeto)} className={`p-1 rounded transition-colors ${showDates ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`} title="Alternar Datas/Quantidades">
+                                                        <Calendar size={16} />
+                                                    </button>
                                                     <button onClick={() => openEditModal(row)} className="text-[#03624C] hover:text-[#024a3a] p-1 bg-teal-50 hover:bg-teal-100 rounded transition-colors" title="Editar Datas Lote">
                                                         <Edit3 size={16} />
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))
+                                            {showDates && (
+                                                <tr className="bg-indigo-50/30 border-b-2 border-indigo-200">
+                                                    <td colSpan={6} className="p-2 border-r-4 border-gray-400 text-right pr-4 text-[10px] font-bold text-indigo-700 sticky left-0 z-10 bg-indigo-50/80">DATAS (Plan. / Real.):</td>
+                                                    
+                                                    {/* MEDIÇÃO */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.PlanMedicao || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.RealMedicao || '-'}</td>
+                                                    
+                                                    {/* ISOMETRICO */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.PlanIsometrico || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.RealIsometrico || '-'}</td>
+                                                    
+                                                    {/* ENGENHARIA */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.PlanEngenharia || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.RealEngenharia || '-'}</td>
+                                                    
+                                                    {/* APROVACAO */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.PlanAprovacao || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.RealAprovacao || '-'}</td>
+                                                    
+                                                    {/* ACABAMENTO */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.PlanAcabamento || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-blue-50/80">{row.RealAcabamento || '-'}</td>
+                                                    
+                                                    {/* EXPEDICAO */}
+                                                    <td className="p-2 border-r border-indigo-200 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.PlanExpedicao || '-'}</td>
+                                                    <td className="p-2 border-r-2 border-gray-400 text-center text-[10px] text-indigo-900 bg-indigo-50/80">{row.RealExpedicao || '-'}</td>
+
+                                                    <td className="p-2 border-l border-gray-200 sticky right-0 z-10 bg-indigo-50/80"></td>
+                                                </tr>
+                                            )}
+                                            </React.Fragment>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>
@@ -364,21 +469,76 @@ export default function AcompanhamentoEtapas() {
                             </div>
 
                             {/* Modal Body */}
-                            <div className="p-5 flex-1 overflow-y-auto">
-                                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 rounded mb-4 flex items-start gap-2">
+                            <div className="p-5 flex-1 overflow-y-auto flex flex-col gap-4">
+                                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 rounded flex items-start gap-2">
                                     <AlertCircle className="text-amber-500 flex-shrink-0 mt-0.5" size={16} />
                                     <p className="text-xs text-amber-800">
-                                        As datas informadas abaixo serão aplicadas a <strong>todas as {selectedProjeto.TotalTags} Tags</strong> deste projeto, sobrescrevendo valores antigos. Deixe em branco o que não quiser alterar.
+                                        As datas informadas serão aplicadas <strong>às Tags selecionadas</strong> deste projeto, sobrescrevendo valores antigos. Deixe em branco o que não quiser alterar.
                                     </p>
                                 </div>
 
-                                <div className="bg-white border border-gray-200 rounded-md p-4">
-                                    {renderFormRow('Medição', 'Medicao')}
-                                    {renderFormRow('Isométrico', 'Isometrico')}
-                                    {renderFormRow('Engenharia', 'Engenharia')}
-                                    {renderFormRow('Aprovação', 'Aprovacao')}
-                                    {renderFormRow('Acabamento', 'Acabamento')}
-                                    {renderFormRow('Expedição', 'Expedicao')}
+                                <div className="flex gap-4">
+                                    {/* SELEÇÃO DE TAGS */}
+                                    <div className="w-1/3 flex flex-col bg-white border border-gray-200 rounded-md p-3">
+                                        <div className="flex justify-between items-center mb-2 pb-2 border-b">
+                                            <h3 className="font-semibold text-gray-700 text-sm">Tags a atualizar</h3>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => {
+                                                    if (selectedTagIds.size === projetoTags.length && projetoTags.length > 0) {
+                                                        setSelectedTagIds(new Set());
+                                                    } else {
+                                                        setSelectedTagIds(new Set(projetoTags.map(t => t.IdTag)));
+                                                    }
+                                                }} 
+                                                className="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-700 hover:bg-gray-200"
+                                            >
+                                                {selectedTagIds.size === projetoTags.length && projetoTags.length > 0 ? 'Desmarcar' : 'Selecionar Todas'}
+                                            </button>
+                                        </div>
+                                        {loadingTags ? (
+                                            <div className="text-xs text-gray-500 text-center py-4">Carregando tags...</div>
+                                        ) : (
+                                            <div className="flex-1 overflow-y-auto max-h-[500px] flex flex-col gap-1 pr-2 custom-scrollbar">
+                                                {projetoTags.length === 0 ? (
+                                                    <span className="text-xs text-gray-400">Nenhuma tag encontrada.</span>
+                                                ) : (
+                                                    projetoTags.map(tag => (
+                                                        <label key={tag.IdTag} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200 transition-colors">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                className="rounded text-[#03624C] focus:ring-[#03624C]"
+                                                                checked={selectedTagIds.has(tag.IdTag)}
+                                                                onChange={(e) => {
+                                                                    const newSet = new Set(selectedTagIds);
+                                                                    if (e.target.checked) newSet.add(tag.IdTag);
+                                                                    else newSet.delete(tag.IdTag);
+                                                                    setSelectedTagIds(newSet);
+                                                                }}
+                                                            />
+                                                            <div className="flex flex-col">
+                                                                <span className="text-xs font-semibold text-gray-800 leading-tight">{tag.Tag}</span>
+                                                                <span className="text-[10px] text-gray-500 truncate max-w-[180px]" title={tag.DescTag}>{tag.DescTag}</span>
+                                                            </div>
+                                                        </label>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
+                                        <div className="mt-2 pt-2 border-t text-[10px] text-gray-500 font-medium">
+                                            {selectedTagIds.size} de {projetoTags.length} tags selecionadas
+                                        </div>
+                                    </div>
+
+                                    {/* FORMULÁRIO DE DATAS */}
+                                    <div className="w-2/3 bg-white border border-gray-200 rounded-md p-4">
+                                        {renderFormRow('Medição', 'Medicao')}
+                                        {renderFormRow('Isométrico', 'Isometrico')}
+                                        {renderFormRow('Engenharia', 'Engenharia')}
+                                        {renderFormRow('Aprovação', 'Aprovacao')}
+                                        {renderFormRow('Acabamento', 'Acabamento')}
+                                        {renderFormRow('Expedição', 'Expedicao')}
+                                    </div>
                                 </div>
                             </div>
 

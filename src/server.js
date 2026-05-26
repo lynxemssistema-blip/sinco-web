@@ -12526,6 +12526,7 @@ app.get('/api/acompanhamento-etapas', async (req, res) => {
             SELECT 
                 p.IdProjeto, 
                 p.Projeto, 
+                p.Observacao,
                 p.DataPrevisao,
                 p.DataTermino as DataFinal,
                 p.DescEmpresa as Cliente,
@@ -12534,21 +12535,27 @@ app.get('/api/acompanhamento-etapas', async (req, res) => {
                 COUNT(t.IdTag) as TotalTags,
                 SUM(CASE WHEN t.RealizadoFinalMedicao IS NULL OR TRIM(t.RealizadoFinalMedicao) = '' THEN 1 ELSE 0 END) as FaltaMedicao,
                 SUM(CASE WHEN t.RealizadoFinalMedicao IS NOT NULL AND TRIM(t.RealizadoFinalMedicao) != '' THEN 1 ELSE 0 END) as OkMedicao,
+                MAX(t.PlanejadoInicioMedicao) as PlanMedicao, MAX(t.RealizadoFinalMedicao) as RealMedicao,
                 
                 SUM(CASE WHEN t.RealizadoFinalIsometrico IS NULL OR TRIM(t.RealizadoFinalIsometrico) = '' THEN 1 ELSE 0 END) as FaltaIsometrico,
                 SUM(CASE WHEN t.RealizadoFinalIsometrico IS NOT NULL AND TRIM(t.RealizadoFinalIsometrico) != '' THEN 1 ELSE 0 END) as OkIsometrico,
+                MAX(t.PlanejadoInicioIsometrico) as PlanIsometrico, MAX(t.RealizadoFinalIsometrico) as RealIsometrico,
                 
                 SUM(CASE WHEN t.RealizadoFinalEngenharia IS NULL OR TRIM(t.RealizadoFinalEngenharia) = '' THEN 1 ELSE 0 END) as FaltaEngenharia,
                 SUM(CASE WHEN t.RealizadoFinalEngenharia IS NOT NULL AND TRIM(t.RealizadoFinalEngenharia) != '' THEN 1 ELSE 0 END) as OkEngenharia,
+                MAX(t.PlanejadoInicioEngenharia) as PlanEngenharia, MAX(t.RealizadoFinalEngenharia) as RealEngenharia,
                 
                 SUM(CASE WHEN t.RealizadoFinalAprovacao IS NULL OR TRIM(t.RealizadoFinalAprovacao) = '' THEN 1 ELSE 0 END) as FaltaAprovacao,
                 SUM(CASE WHEN t.RealizadoFinalAprovacao IS NOT NULL AND TRIM(t.RealizadoFinalAprovacao) != '' THEN 1 ELSE 0 END) as OkAprovacao,
+                MAX(t.PlanejadoInicioAprovacao) as PlanAprovacao, MAX(t.RealizadoFinalAprovacao) as RealAprovacao,
                 
                 SUM(CASE WHEN t.RealizadoFinalAcabamento IS NULL OR TRIM(t.RealizadoFinalAcabamento) = '' THEN 1 ELSE 0 END) as FaltaAcabamento,
                 SUM(CASE WHEN t.RealizadoFinalAcabamento IS NOT NULL AND TRIM(t.RealizadoFinalAcabamento) != '' THEN 1 ELSE 0 END) as OkAcabamento,
+                MAX(t.PlanejadoInicioAcabamento) as PlanAcabamento, MAX(t.RealizadoFinalAcabamento) as RealAcabamento,
                 
                 SUM(CASE WHEN t.realizadoFinalExpedicao IS NULL OR TRIM(t.realizadoFinalExpedicao) = '' THEN 1 ELSE 0 END) as FaltaExpedicao,
-                SUM(CASE WHEN t.realizadoFinalExpedicao IS NOT NULL AND TRIM(t.realizadoFinalExpedicao) != '' THEN 1 ELSE 0 END) as OkExpedicao
+                SUM(CASE WHEN t.realizadoFinalExpedicao IS NOT NULL AND TRIM(t.realizadoFinalExpedicao) != '' THEN 1 ELSE 0 END) as OkExpedicao,
+                MAX(t.PlanejadoInicioExpedicao) as PlanExpedicao, MAX(t.realizadoFinalExpedicao) as RealExpedicao
             FROM projetos p
             LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
             WHERE ${whereClause}
@@ -12575,7 +12582,9 @@ app.put('/api/acompanhamento-etapas/projeto/:id/bulk-update', async (req, res) =
         const tenantPool = req.tenantDbPool || pool;
         connection = await tenantPool.getConnection();
 
-        const data = req.body; // Campos contendo as datas
+        const { payload, usuario, tagIds } = req.body;
+        const data = payload || req.body; // retro-compatibility
+        const usuarioLogado = usuario || 'Sistema';
 
         // Lista de campos que podemos atualizar na tabela TAGS
         const camposPermitidos = [
@@ -12592,8 +12601,22 @@ app.put('/api/acompanhamento-etapas/projeto/:id/bulk-update', async (req, res) =
 
         Object.keys(data).forEach(key => {
             if (camposPermitidos.includes(key)) {
+                let val = data[key];
+                // Formata YYYY-MM-DD para DD/MM/YYYY se necessário
+                if (val && val.includes('-') && val.split('-').length === 3 && val.split('-')[0].length === 4) {
+                    const parts = val.split('-');
+                    val = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+
                 updates.push(`${key} = ?`);
-                params.push(data[key]);
+                params.push(val);
+
+                // Adiciona o campo de Usuário correspondente
+                // ex: 'PlanejadoInicioMedicao' -> 'UsuarioPlanejadoInicioMedicao'
+                // Ajusta maiúscula inicial (útil para realizadoFinalExpedicao)
+                const capKey = key.charAt(0).toUpperCase() + key.slice(1);
+                updates.push(`Usuario${capKey} = ?`);
+                params.push(usuarioLogado);
             }
         });
 
@@ -12603,11 +12626,103 @@ app.put('/api/acompanhamento-etapas/projeto/:id/bulk-update', async (req, res) =
 
         params.push(id); // Para o WHERE IdProjeto = ?
 
-        // Atualizamos todas as tags do projeto
-        const [result] = await connection.execute(
-            `UPDATE tags SET ${updates.join(', ')} WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
-            params
-        );
+        let query = `UPDATE tags SET ${updates.join(', ')} WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
+
+        if (Array.isArray(tagIds) && tagIds.length > 0) {
+            const placeholders = tagIds.map(() => '?').join(',');
+            query += ` AND IdTag IN (${placeholders})`;
+            params.push(...tagIds);
+        }
+
+        // Atualizamos as tags do projeto
+        const [result] = await connection.execute(query, params);
+
+        // -- RECALCULAR MIN/MAX DAS DATAS NO PROJETO --
+        try {
+            const queryMinMax = `
+                SELECT 
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioMedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalMedicaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioMedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalMedicaoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioIsometricoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalIsometricoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioIsometricoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalIsometricoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioEngenhariaMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalEngenhariaMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioEngenhariaMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalEngenhariaMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioAprovacaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalAprovacaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioAprovacaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalAprovacaoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioAcabamentoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalAcabamentoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioAcabamentoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalAcabamentoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioExpedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalExpedicaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioExpedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalExpedicaoMax
+                FROM tags 
+                WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `;
+            const [aggRows] = await connection.execute(queryMinMax, [id]);
+            if (aggRows && aggRows.length > 0) {
+                const agg = aggRows[0];
+                const mapFields = {
+                    PlanejadoInicioMedicao: agg.PlanejadoInicioMedicaoMin,
+                    PlanejadoFinalMedicao: agg.PlanejadoFinalMedicaoMax,
+                    RealizadoInicioMedicao: agg.RealizadoInicioMedicaoMin,
+                    RealizadoFinalMedicao: agg.RealizadoFinalMedicaoMax,
+
+                    PlanejadoInicioIsometrico: agg.PlanejadoInicioIsometricoMin,
+                    PlanejadoFinalIsometrico: agg.PlanejadoFinalIsometricoMax,
+                    RealizadoInicioIsometrico: agg.RealizadoInicioIsometricoMin,
+                    RealizadoFinalIsometrico: agg.RealizadoFinalIsometricoMax,
+
+                    PlanejadoInicioEngenharia: agg.PlanejadoInicioEngenhariaMin,
+                    PlanejadoFinalEngenharia: agg.PlanejadoFinalEngenhariaMax,
+                    RealizadoInicioEngenharia: agg.RealizadoInicioEngenhariaMin,
+                    RealizadoFinalEngenharia: agg.RealizadoFinalEngenhariaMax,
+
+                    PlanejadoInicioAprovacao: agg.PlanejadoInicioAprovacaoMin,
+                    PlanejadoFinalAprovacao: agg.PlanejadoFinalAprovacaoMax,
+                    RealizadoInicioAprovacao: agg.RealizadoInicioAprovacaoMin,
+                    RealizadoFinalAprovacao: agg.RealizadoFinalAprovacaoMax,
+
+                    PlanejadoInicioAcabamento: agg.PlanejadoInicioAcabamentoMin,
+                    PlanejadoFinalAcabamento: agg.PlanejadoFinalAcabamentoMax,
+                    RealizadoInicioAcabamento: agg.RealizadoInicioAcabamentoMin,
+                    RealizadoFinalAcabamento: agg.RealizadoFinalAcabamentoMax,
+
+                    PlanejadoInicioExpedicao: agg.PlanejadoInicioExpedicaoMin,
+                    PlanejadoFinalExpedicao: agg.PlanejadoFinalExpedicaoMax,
+                    RealizadoInicioExpedicao: agg.RealizadoInicioExpedicaoMin,
+                    RealizadoFinalExpedicao: agg.RealizadoFinalExpedicaoMax
+                };
+                
+                const updatesProj = [];
+                const paramsProj = [];
+                for (const [f, v] of Object.entries(mapFields)) {
+                    updatesProj.push(`${f} = ?`);
+                    paramsProj.push(v || '');
+                }
+
+                if (updatesProj.length > 0) {
+                    paramsProj.push(id);
+                    await connection.execute(`UPDATE projetos SET ${updatesProj.join(', ')} WHERE IdProjeto = ?`, paramsProj);
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao recalcular limites do projeto:', e);
+        }
 
         res.json({ success: true, message: `Datas atualizadas em ${result.affectedRows} tags do projeto.` });
 
