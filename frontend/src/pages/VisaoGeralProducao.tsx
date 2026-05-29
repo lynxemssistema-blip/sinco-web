@@ -88,18 +88,16 @@ export default function VisaoGeralProducaoPage() {
     const [error, setError] = useState<string | null>(null);
     const [fromGlobal, setFromGlobal] = useState(false);
 
-    // State Persistence
+    // State Persistence — apenas viewMode (preferência de UI)
     const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list' | 'tags') || 'list');
-    const [fProj, setFProj] = useState(() => localStorage.getItem('vgp_fProj') || '');
-    const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(
-        () => (localStorage.getItem('vgp_statusFilter') as 'finalizados'|'liberados'|'todos'|null) || null
-    );
+    // Filtros sempre iniciam vazios (sem restaurar sessão anterior)
+    const [fProj, setFProj] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(null);
 
     useEffect(() => {
         localStorage.setItem('vgp_viewMode', viewMode);
-        localStorage.setItem('vgp_fProj', fProj);
-        localStorage.setItem('vgp_statusFilter', statusFilter || '');
-    }, [viewMode, fProj, statusFilter]);
+        // Não persistimos fProj nem statusFilter para garantir início limpo
+    }, [viewMode]);
 
     // Ler Query Params
     useEffect(() => {

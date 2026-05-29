@@ -2664,7 +2664,7 @@ async function getDatabaseSchema(dbConfig) {
             port: dbConfig.db_port
         });
 
-        const schema = { tables: {}, tableDefinitions: {} };
+        const schema = { tables: {}, tableDefinitions: {}, indexes: {} };
 
         // 1. Get Base Tables Only (No Views)
         const [tables] = await conn.execute(
@@ -2687,6 +2687,10 @@ async function getDatabaseSchema(dbConfig) {
                 [dbConfig.db_name, tableName]
             );
             schema.tables[tableName] = columns.map(c => c.COLUMN_NAME);
+
+            // 2.5 Get Indexes
+            const [indexRows] = await conn.execute(`SHOW INDEX FROM \`${tableName}\``);
+            schema.indexes[tableName] = indexRows;
 
             // 3. Get Full Create Statement (for accurate replication)
             const [createRows] = await conn.execute(`SHOW CREATE TABLE \`${tableName}\``);
@@ -2779,19 +2783,23 @@ app.post('/api/admin/schema/compare', authenticateAdmin, async (req, res) => {
 
 // SYNC (Execute SQL)
 app.post('/api/admin/schema/sync', authenticateAdmin, async (req, res) => {
-    const { destDbId, sqlStatements } = req.body;
+    // Aceita actions[] (novo formato) ou sqlStatements[] (legado)
+    const { destDbId, actions, sqlStatements, usuario, sourceDbName } = req.body;
 
-    if (!destDbId || !Array.isArray(sqlStatements) || sqlStatements.length === 0) {
-        return res.status(400).json({ success: false, message: 'Destination DB and SQL statements are required' });
+    const items = actions || (sqlStatements ? sqlStatements.map(sql => ({ sql, description: sql.substring(0, 80), type: 'sql' })) : []);
+
+    if (!destDbId || !items.length) {
+        return res.status(400).json({ success: false, message: 'destDbId e actions[] são obrigatórios' });
     }
 
-    let conn;
-    try {
-        const destConfig = await getDbConfigById(destDbId);
-        if (!destConfig) {
-            return res.status(404).json({ success: false, message: 'Destination DB not found' });
-        }
+    const destConfig = await getDbConfigById(destDbId);
+    if (!destConfig) return res.status(404).json({ success: false, message: 'Banco destino não encontrado' });
 
+    let conn;
+    let histConn;
+    const results = [];
+
+    try {
         conn = await mysql.createConnection({
             host: destConfig.db_host,
             user: destConfig.db_user,
@@ -2800,19 +2808,94 @@ app.post('/api/admin/schema/sync', authenticateAdmin, async (req, res) => {
             port: destConfig.db_port
         });
 
-        let executedCount = 0;
-        for (const sql of sqlStatements) {
-            await conn.execute(sql);
-            executedCount++;
+        // Conecta ao lynxlocal para histórico
+        try {
+            histConn = await mysql.createConnection({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: 'lynxlocal',
+                port: parseInt(process.env.DB_PORT || '3306')
+            });
+        } catch (he) {
+            console.warn('[SyncHistory] Não foi possível conectar ao histórico:', he.message);
         }
 
-        res.json({ success: true, message: `Successfully executed ${executedCount} statements.` });
+        for (const item of items) {
+            const sql = item.sql || item;
+            const description = item.description || sql.substring(0, 100);
+            const tipo = item.type || 'sql';
+            let status = 'ok';
+            let errorMsg = null;
+
+            try {
+                await conn.execute(sql);
+            } catch (sqlErr) {
+                status = 'erro';
+                errorMsg = sqlErr.message;
+                console.warn('[SyncSchema] Erro (continuando):', sqlErr.message, '| SQL:', sql.substring(0, 80));
+            }
+
+            results.push({ sql, description, type: tipo, status, error: errorMsg });
+
+            // Registrar no histórico
+            if (histConn) {
+                try {
+                    await histConn.execute(
+                        `INSERT INTO sinco_sync_historico
+                            (usuario, banco_origem, banco_destino, tipo_acao, descricao, sql_executado, status, mensagem_erro)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            usuario || 'superadmin',
+                            sourceDbName || 'origem',
+                            destConfig.db_name,
+                            tipo,
+                            description,
+                            sql,
+                            status,
+                            errorMsg
+                        ]
+                    );
+                } catch (he) {
+                    console.warn('[SyncHistory] Erro ao registrar:', he.message);
+                }
+            }
+        }
+
+        const ok = results.filter(r => r.status === 'ok').length;
+        const erros = results.filter(r => r.status === 'erro').length;
+
+        res.json({
+            success: true,
+            message: `${ok} executado(s) com sucesso, ${erros} com erro(s).`,
+            results
+        });
 
     } catch (error) {
         console.error('Schema Sync Error:', error);
-        res.status(500).json({ success: false, message: 'Error executing sync: ' + error.message });
+        res.status(500).json({ success: false, message: 'Erro crítico: ' + error.message });
     } finally {
         if (conn) await conn.end();
+        if (histConn) await histConn.end();
+    }
+});
+
+// GET /api/admin/schema/history — Histórico de sincronizações
+app.get('/api/admin/schema/history', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit || '200');
+        const banco = req.query.banco || null;
+
+        let sql = `SELECT * FROM sinco_sync_historico`;
+        const params = [];
+        if (banco) { sql += ' WHERE banco_destino = ?'; params.push(banco); }
+        sql += ' ORDER BY data_execucao DESC LIMIT ?';
+        params.push(limit);
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -3580,7 +3663,7 @@ app.get('/api/projeto', async (req, res) => {
         const {
             dataInicio, dataFim, projeto, descProjeto, descEmpresa,
             previsaoInicio, previsaoFim, criacaoInicio, criacaoFim,
-            finalizado, liberado
+            finalizado, liberado, cnpj
         } = req.query;
 
         let queryParams = [];
@@ -3641,6 +3724,10 @@ app.get('/api/projeto', async (req, res) => {
         if (descEmpresa) {
             whereClause += " AND DescEmpresa LIKE ?";
             queryParams.push(`%${descEmpresa}%`);
+        }
+        if (cnpj) {
+            whereClause += " AND Cnpj LIKE ?";
+            queryParams.push(`%${cnpj}%`);
         }
 
         const sql = `
@@ -3953,18 +4040,19 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
             condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= '${dataFinalAte}'`);
         }
 
-        if (isFinalizados && isLiberados) {
-            // 'todos' — nenhuma condição extra
-        } else if (isFinalizados) {
-            // 'finalizados'
+        const modo = req.query.modo || 'liberados';
+
+        if (modo === 'todos') {
+            // no conditions
+        } else if (modo === 'finalizados') {
             condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) = 'C'`);
-        } else if (isLiberados) {
-            // 'liberados'
-            condicoes.push(`TRIM(COALESCE(p.liberado,'')) = 'S'`);
-        } else {
-            // 'ativos' padrão
+        } else if (modo === 'nao_liberados') {
+            condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = '' OR TRIM(COALESCE(p.liberado,'')) = 'N')`);
             condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
-            condicoes.push(`TRIM(COALESCE(p.liberado,'')) != 'S'`);
+        } else {
+            // 'liberados' (default)
+            condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = 'S' OR TRIM(COALESCE(p.liberado,'')) = 'SIM')`);
+            condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
         }
 
         const where = condicoes.join(' AND ');
@@ -4060,16 +4148,20 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
         console.log(`[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: ${req.tenantDb}. Rows found: ${rows.length}`);
 
         /* Compute percentages in JS to avoid division-by-zero in SQL */
-        const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+        const pctNormal = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+        const pctSetor = (exec, saldo) => {
+            const total = exec + saldo;
+            return total > 0 ? Math.round((exec / total) * 100) : 0;
+        };
         const enriched = rows.map(r => ({
             ...r,
-            PercentualTags: pct(Number(r.QtdeTagsExecutadas), Number(r.QtdeTags)),
-            PercentualPecas: pct(Number(r.QtdePecasExecutadas), Number(r.QtdePecasTags)),
-            PctCorte: pct(Number(r.ExecCorte), Number(r.TotalCorte)),
-            PctDobra: pct(Number(r.ExecDobra), Number(r.TotalDobra)),
-            PctSolda: pct(Number(r.ExecSolda), Number(r.TotalSolda)),
-            PctPintura: pct(Number(r.ExecPintura), Number(r.TotalPintura)),
-            PctMontagem: pct(Number(r.ExecMontagem), Number(r.TotalMontagem)),
+            PercentualTags: pctNormal(Number(r.QtdeTagsExecutadas), Number(r.QtdeTags)),
+            PercentualPecas: pctNormal(Number(r.QtdePecasExecutadas), Number(r.QtdePecasTags)),
+            PctCorte: pctSetor(Number(r.ExecCorte), Number(r.TotalCorte)),
+            PctDobra: pctSetor(Number(r.ExecDobra), Number(r.TotalDobra)),
+            PctSolda: pctSetor(Number(r.ExecSolda), Number(r.TotalSolda)),
+            PctPintura: pctSetor(Number(r.ExecPintura), Number(r.TotalPintura)),
+            PctMontagem: pctSetor(Number(r.ExecMontagem), Number(r.TotalMontagem)),
         }));
 
 
@@ -7336,9 +7428,9 @@ async function inicializarPrimeiroSetor(conn, id) {
 
 // GET: Mapa da ProduÃ¯Â¿Â½Ã¯Â¿Â½o - visÃ¯Â¿Â½o geral de todos os processos
 app.get('/api/apontamento/mapa/producao', async (req, res) => {
-    const { projeto, tag, os, item, search, status, page = 1, limit = 500 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 500;
+    const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
 
     try {
@@ -7399,11 +7491,15 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             )`;
         }
 
+        let countJoinStr = 'INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico';
+        if (projeto || req.query.cliente) {
+            countJoinStr += ' LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto';
+        }
+
         const [countResult] = await pool.execute(`
-            SELECT COUNT(*) as total
+            SELECT COUNT(osi.IdOrdemServicoItem) as total
             FROM ordemservicoitem osi
-            INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
-            LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto
+            ${countJoinStr}
             WHERE ${whereClause}
         `, params);
         const total = countResult[0].total;
@@ -7622,9 +7718,9 @@ app.get('/api/apontamento/:setor', async (req, res) => {
         });
     }
 
-    const { projeto, tag, os, item, search, status, page = 1, limit = 500 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 500;
+    const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
 
     try {
@@ -8604,14 +8700,27 @@ app.get('/api/config', async (req, res) => {
         if (query) {
             const [rows] = await pool.execute(query);
             if (rows.length > 0) {
-                return res.json({ success: true, config: rows[0] });
+                const row = rows[0];
+                // Sempre garante que setores de engenharia estejam presentes como visíveis,
+                // mesmo em bancos que salvaram apenas os setores de produção.
+                if (row.ProcessosVisiveis) {
+                    try {
+                        const saved = JSON.parse(row.ProcessosVisiveis);
+                        const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
+                        const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
+                        row.ProcessosVisiveis = JSON.stringify(merged);
+                    } catch (e) {
+                        // mantém o valor original se não conseguir parsear
+                    }
+                }
+                return res.json({ success: true, config: row });
             }
         }
 
         // Default config if table empty or no columns found
         res.json({ success: true, config: {
             RestringirApontamentoSemSaldoAnterior: 'Não',
-            ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]',
+            ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']),
             PlanoCorteFiltroDC: 'corte',
             MaxRegistros: 300,
             PermitirRealizadoSemPlanejamento: 'Sim'
@@ -8621,8 +8730,8 @@ app.get('/api/config', async (req, res) => {
         if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
             console.warn('[Config GET] Banco com estrutura legada, usando defaults:', error.message);
             return res.json({ success: true, config: {
-                RestringirApontamentoSemSaldoAnterior: 'NÃƒÂ£o',
-                ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]'
+                RestringirApontamentoSemSaldoAnterior: 'Não',
+                ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'])
             }, _legacyDb: true });
         }
         console.error('Config error:', error);
@@ -8667,11 +8776,11 @@ app.put('/api/config', async (req, res) => {
         }
 
         if (!cols || cols.length === 0) {
-            // Banco legado: nÃƒÂ£o tem as colunas, preferÃƒÂªncias sÃƒÂ³ ficam no localStorage
+            // Banco legado: não tem as colunas, preferências só ficam no localStorage
             return res.json({
                 success: true,
                 _legacyDb: true,
-                message: 'PreferÃƒÂªncias salvas localmente (banco nÃƒÂ£o suporta configuraÃƒÂ§ÃƒÂµes centralizadas)'
+                message: 'Preferências salvas localmente (banco não suporta configurações centralizadas)'
             });
         }
 
@@ -8705,10 +8814,10 @@ app.put('/api/config', async (req, res) => {
             }
         }
         
-        res.json({ success: true, message: 'ConfiguraÃƒÂ§ÃƒÂµes salvas com sucesso!' });
+        res.json({ success: true, message: 'Configurações salvas com sucesso!' });
     } catch (error) {
         console.error('Config save error:', error);
-        res.status(500).json({ success: false, message: 'Erro ao salvar configuraÃƒÂ§ÃƒÂµes' });
+        res.status(500).json({ success: false, message: 'Erro ao salvar configurações' });
     }
 });
 

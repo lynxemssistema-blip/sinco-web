@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2, Trash2, X, Building2, Save,
-    Camera, Loader2, RefreshCw, ImageIcon
+    Camera, Loader2, RefreshCw, ImageIcon, Filter
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -37,7 +37,9 @@ export default function PessoaJuridicaPage() {
     const [empresas, setEmpresas] = useState<PessoaJuridica[]>([]);
     const [formData, setFormData] = useState<PessoaJuridica>(emptyForm);
     const [isEditing, setIsEditing] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchCliente, setSearchCliente] = useState('');
+    const [searchCnpj, setSearchCnpj] = useState('');
+    const [showFilters, setShowFilters] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -72,11 +74,13 @@ export default function PessoaJuridicaPage() {
         fetchEmpresas();
     }, []);
 
-    const filteredEmpresas = empresas.filter(e =>
-        e.RazaoSocial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        e.Cnpj?.includes(searchTerm) ||
-        e.NomeFantasia?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredEmpresas = empresas.filter(e => {
+        const matchCliente = !searchCliente ||
+            e.RazaoSocial?.toLowerCase().includes(searchCliente.toLowerCase()) ||
+            e.NomeFantasia?.toLowerCase().includes(searchCliente.toLowerCase());
+        const matchCnpj = !searchCnpj || e.Cnpj?.includes(searchCnpj);
+        return matchCliente && matchCnpj;
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -296,22 +300,63 @@ export default function PessoaJuridicaPage() {
                 </motion.div>
             )}
 
-            {/* Search Bar */}
-            <div className="relative max-w-md flex items-center gap-2">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                    type="text"
-                    placeholder="Buscar por nome, fantasia ou CNPJ..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all"
-                />
-                </div>
-                {searchTerm && (
-                    <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors" title="Limpar pesquisa">
-                        <X size={18} />
+            {/* Search Filters Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-2 shrink-0">
+                <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100">
+                    <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2 m-0">
+                        <Search size={12} /> Dados para Pesquisa
+                    </h3>
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+                    >
+                        <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
                     </button>
+                </div>
+                {showFilters && (
+                <div className="px-4 pb-3 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {/* Cliente */}
+                        <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Cliente:</label>
+                            <div className="relative">
+                                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <input
+                                    type="search"
+                                    placeholder="Nome ou Razão Social..."
+                                    value={searchCliente}
+                                    onChange={(e) => setSearchCliente(e.target.value)}
+                                    className="w-full pl-7 pr-3 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm"
+                                />
+                            </div>
+                        </div>
+                        {/* CNPJ */}
+                        <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">CNPJ:</label>
+                            <div className="relative">
+                                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <input
+                                    type="search"
+                                    placeholder="00.000.000/0001-00"
+                                    value={searchCnpj}
+                                    onChange={(e) => setSearchCnpj(e.target.value)}
+                                    className="w-full pl-7 pr-3 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    {(searchCliente || searchCnpj) && (
+                    <div className="flex justify-end mt-2">
+                        <button
+                            onClick={() => { setSearchCliente(''); setSearchCnpj(''); }}
+                            className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
+                        >
+                            <X size={11} /> Limpar Filtros
+                        </button>
+                    </div>
+                    )}
+                </div>
                 )}
             </div>
 

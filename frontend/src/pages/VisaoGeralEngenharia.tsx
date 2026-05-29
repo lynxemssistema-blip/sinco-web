@@ -1,5 +1,7 @@
+import { usePersistentState } from '../hooks/usePersistentState';
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Loader, Edit3, Save, X, CalendarDays, Maximize2, Minimize2, ChevronDown, ChevronRight, Flag } from 'lucide-react';
+import { useAppConfig } from '../contexts/AppConfigContext';
+import { Search, Loader, Edit3, Save, X, CalendarDays, Maximize2, Minimize2, ChevronDown, ChevronRight, Flag, Filter } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -45,10 +47,19 @@ interface TagData {
     PlanejadoFinalAprovacao: string;
     RealizadoInicioAprovacao: string;
     RealizadoFinalAprovacao: string;
+    PlanejadoInicioAcabamento: string;
+    PlanejadoFinalAcabamento: string;
+    RealizadoInicioAcabamento: string;
+    RealizadoFinalAcabamento: string;
+
+    PlanejadoInicioExpedicao: string;
+    PlanejadoFinalExpedicao: string;
+    RealizadoInicioExpedicao: string;
+    RealizadoFinalExpedicao: string;
 }
 
-type SectorType = 'Medicao' | 'Isometrico' | 'Engenharia' | 'Aprovacao';
-const SECTORS: SectorType[] = ['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao'];
+type SectorType = 'Medicao' | 'Isometrico' | 'Engenharia' | 'Aprovacao' | 'Acabamento' | 'Expedicao';
+const SECTORS: SectorType[] = ['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao', 'Acabamento', 'Expedicao'];
 
 const SECTOR_INFO: Record<SectorType, { label: string; icon: string; desc: string; steps: string[] }> = {
     Medicao: {
@@ -95,6 +106,18 @@ const SECTOR_INFO: Record<SectorType, { label: string; icon: string; desc: strin
             'Aprovação final e liberação para fabricação/execução',
         ],
     },
+    Acabamento: {
+        label: 'Acabamento',
+        icon: '🎨',
+        desc: 'Tratamento de superfície e testes visuais/END da peça montada.',
+        steps: ['Inspeção visual da solda e preparação da superfície', 'Aplicação de fundo e pintura conforme norma', 'Inspeção de película e aderência', 'Liberação para embalagem']
+    },
+    Expedicao: {
+        label: 'Expedição',
+        icon: '🚚',
+        desc: 'Embalagem, carregamento e liberação logística para entrega no cliente.',
+        steps: ['Separação e conferência dos isométricos', 'Embalagem e marcação de envio', 'Geração de romaneio e notas fiscais', 'Carregamento final no transporte']
+    }
 };
 
 const getSectorColors = (sector: SectorType) => {
@@ -103,13 +126,29 @@ const getSectorColors = (sector: SectorType) => {
         case 'Isometrico': return { head: 'bg-purple-100 text-purple-900 border-purple-200', sub: 'bg-purple-50 text-purple-800 border-purple-200' };
         case 'Engenharia': return { head: 'bg-amber-100 text-amber-900 border-amber-200', sub: 'bg-amber-50 text-amber-800 border-amber-200' };
         case 'Aprovacao': return { head: 'bg-emerald-100 text-emerald-900 border-emerald-200', sub: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
+        case 'Acabamento': return { head: 'bg-pink-100 text-pink-900 border-pink-200', sub: 'bg-pink-50 text-pink-800 border-pink-200' };
+        case 'Expedicao': return { head: 'bg-indigo-100 text-indigo-900 border-indigo-200', sub: 'bg-indigo-50 text-indigo-800 border-indigo-200' };
         default: return { head: 'bg-gray-100 text-gray-900 border-gray-300', sub: 'bg-gray-50 text-gray-800 border-gray-200' };
     }
 };
 
 export default function VisaoGeralEngenharia() {
+    const { processosVisiveis, nomesProcessosEngenharia } = useAppConfig();
+    const visibleSectorsArray = useMemo(() => {
+        return SECTORS.filter(s => {
+            let key = s.toLowerCase();
+            if (key === 'medicao') key = 'medicao';
+            if (key === 'isometrico') key = 'isometrico';
+            if (key === 'aprovacao') key = 'aprovacao';
+            if (key === 'acabamento') key = 'acabamento';
+            if (key === 'expedicao') key = 'expedicao';
+            return processosVisiveis.includes(key);
+        });
+    }, [processosVisiveis]);
+
     const [tags, setTags] = useState<TagData[]>([]);
     const [loading, setLoading] = useState(false);
+    const [showFilters, setShowFilters] = useState(true);
     const [, setError] = useState<string | null>(null);
 
     const [activeSectors, setActiveSectors] = useState<Set<SectorType>>(new Set());
@@ -201,8 +240,8 @@ export default function VisaoGeralEngenharia() {
     };
 
     const toggleAllSectors = () => {
-        if (activeSectors.size === SECTORS.length) setActiveSectors(new Set());
-        else setActiveSectors(new Set(SECTORS));
+        if (activeSectors.size === visibleSectorsArray.length) setActiveSectors(new Set());
+        else setActiveSectors(new Set(visibleSectorsArray));
     };
 
     const execBatchUpdate = async () => {
@@ -366,32 +405,32 @@ export default function VisaoGeralEngenharia() {
         <div className="h-full flex flex-col font-sans bg-gray-50 text-xs overflow-hidden pt-12">
             {/* Header / Filters Block */}
             {!isExpanded && (
-            <div className="border-b border-gray-300 bg-white px-3 py-2 shrink-0 flex flex-col gap-2">
+            <div className="border-b border-gray-300 bg-white shrink-0">
 
                 {/* Title bar */}
-                <div className="flex items-center justify-between">
-                    <div className="font-bold text-gray-800 text-sm">
+                <div className="flex items-center justify-between px-3 py-2 bg-white">
+                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">
                         Visão Engenharia
-                        <span className="ml-2 text-gray-500 font-normal text-xs">({filteredTags.length} de {tags.length} tags)</span>
                     </div>
-                    {(fProjeto || fEmpresa || fTag || fDescTag || fProjetista || fTipo || fPrevIni || fPrevFim) && (
-                        <button
-                            onClick={() => { setFProjeto(''); setFEmpresa(''); setFTag(''); setFDescTag(''); setFProjetista(''); setFTipo(''); setFPrevIni(''); setFPrevFim(''); }}
-                            className="flex items-center gap-1 text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded transition-colors font-bold"
-                        >
-                            <X size={11} /> Limpar Filtros
+                    <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setShowFilters(!showFilters)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-[#03624C] transition-colors border px-2 py-1 rounded bg-gray-50 uppercase font-bold">
+                            <Filter size={14} /> {showFilters ? 'Ocultar' : 'Mostrar'}
                         </button>
-                    )}
+                        <button type="button" onClick={() => { setFProjeto(''); setFEmpresa(''); setFTag(''); setFDescTag(''); setFProjetista(''); setFTipo(''); setFPrevIni(''); setFPrevFim(''); }} className="flex items-center gap-1 text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded transition-colors font-bold"><X size={11} /> Limpar Filtros</button>
+                    </div>
                 </div>
+                {showFilters && (
+                <div>
 
                 {/* Row 1 — Text Filters */}
+                <div className="px-3 pb-3 pt-1 flex flex-col gap-2">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projeto</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             <input
-                                type="text" placeholder="Ex: 010469"
+                                type="search" placeholder="Ex: 010469"
                                 value={fProjeto} onChange={e => setFProjeto(e.target.value)}
                                 className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
@@ -402,7 +441,7 @@ export default function VisaoGeralEngenharia() {
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             <input
-                                type="text" placeholder="Ex: Eletrocentro"
+                                type="search" placeholder="Ex: Eletrocentro"
                                 value={fEmpresa} onChange={e => setFEmpresa(e.target.value)}
                                 className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
@@ -413,7 +452,7 @@ export default function VisaoGeralEngenharia() {
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             <input
-                                type="text" placeholder="Ex: T-001"
+                                type="search" placeholder="Ex: T-001"
                                 value={fTag} onChange={e => setFTag(e.target.value)}
                                 className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
@@ -424,7 +463,7 @@ export default function VisaoGeralEngenharia() {
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             <input
-                                type="text" placeholder="Palavras-chave"
+                                type="search" placeholder="Palavras-chave"
                                 value={fDescTag} onChange={e => setFDescTag(e.target.value)}
                                 className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
@@ -479,29 +518,34 @@ export default function VisaoGeralEngenharia() {
                     <div className="flex flex-wrap items-center gap-3 bg-gray-100 px-2 py-1 rounded border border-gray-200 flex-1">
                         <span className="font-bold text-gray-700 text-[10px] uppercase">Exibir Setores:</span>
                         <label className="flex items-center gap-1 cursor-pointer hover:bg-gray-200 px-1 rounded transition-colors">
-                            <input type="checkbox" checked={activeSectors.size === SECTORS.length} onChange={toggleAllSectors} className="w-3 h-3 cursor-pointer" />
+                            <input type="checkbox" checked={activeSectors.size === visibleSectorsArray.length && visibleSectorsArray.length > 0} onChange={toggleAllSectors} className="w-3 h-3 cursor-pointer" />
                             <span className="text-gray-700 font-medium text-[11px]">Todos</span>
                         </label>
-                        {SECTORS.map(s => {
+                        {visibleSectorsArray.map(s => {
                             let colorClass = 'text-gray-700 hover:bg-gray-200';
                             let tooltipBg = 'bg-gray-800';
                             if (s === 'Medicao')    { colorClass = 'text-blue-800 hover:bg-blue-100/50';     tooltipBg = 'bg-blue-900'; }
                             if (s === 'Isometrico') { colorClass = 'text-purple-800 hover:bg-purple-100/50'; tooltipBg = 'bg-purple-900'; }
                             if (s === 'Engenharia') { colorClass = 'text-amber-800 hover:bg-amber-100/50';   tooltipBg = 'bg-amber-900'; }
                             if (s === 'Aprovacao')  { colorClass = 'text-emerald-800 hover:bg-emerald-100/50'; tooltipBg = 'bg-emerald-900'; }
+                            if (s === 'Acabamento') { colorClass = 'text-pink-800 hover:bg-pink-100/50'; tooltipBg = 'bg-pink-900'; }
+                            if (s === 'Expedicao')  { colorClass = 'text-indigo-800 hover:bg-indigo-100/50'; tooltipBg = 'bg-indigo-900'; }
+                            
                             const info = SECTOR_INFO[s];
+                            const customName = nomesProcessosEngenharia[s.toLowerCase()] || info.label;
+                            
                             return (
                                 <div key={s} className="relative group">
                                     <label className={`flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded transition-colors ${colorClass} ${activeSectors.has(s) ? 'bg-white shadow-sm border border-gray-200/50' : ''}`}>
                                         <input type="checkbox" checked={activeSectors.has(s)} onChange={() => toggleSector(s)} className="w-3 h-3 cursor-pointer" />
-                                        <span className="font-bold text-[11px] uppercase tracking-wide">{s}</span>
+                                        <span className="font-bold text-[11px] uppercase tracking-wide">{customName}</span>
                                     </label>
                                     {/* Tooltip */}
                                     <div className={`absolute bottom-full left-0 mb-2 z-50 w-72 ${tooltipBg} text-white rounded-xl shadow-2xl p-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-left`}>
                                         <div className="flex items-center gap-2 mb-2 border-b border-white/20 pb-2">
                                             <span className="text-lg">{info.icon}</span>
                                             <div>
-                                                <div className="font-black text-sm uppercase tracking-wide">{info.label}</div>
+                                                <div className="font-black text-sm uppercase tracking-wide">{customName}</div>
                                                 <div className="text-[10px] text-white/70 font-medium">Setor de Engenharia</div>
                                             </div>
                                         </div>
@@ -522,7 +566,10 @@ export default function VisaoGeralEngenharia() {
                             );
                         })}
                     </div>
+                    </div>
                 </div>
+                </div>
+                )}
             </div>
             )}
 
@@ -543,7 +590,7 @@ export default function VisaoGeralEngenharia() {
                         <div className="flex flex-wrap items-center gap-2 bg-yellow-50 p-1 rounded border border-yellow-300">
                             <span className="font-bold text-yellow-800">Nova Data em Massa:</span>
                             <select value={batchForm.sector} onChange={e => setBatchForm(p => ({...p, sector: e.target.value as SectorType}))} className="border border-gray-300 rounded p-0.5 text-xs bg-white">
-                                {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
+                                {visibleSectorsArray.map(s => <option key={s} value={s}>{nomesProcessosEngenharia[s.toLowerCase()] || s}</option>)}
                             </select>
                             <input type="date" title="Planejado Início" value={batchForm.pi} onChange={e => setBatchForm({...batchForm, pi: e.target.value})} className="border border-gray-300 rounded p-0.5" />
                             <input type="date" title="Planejado Final" value={batchForm.pf} onChange={e => setBatchForm({...batchForm, pf: e.target.value})} className="border border-gray-300 rounded p-0.5" />
@@ -585,9 +632,10 @@ export default function VisaoGeralEngenharia() {
                             {/* Dynamic Sector Columns Header */}
                             {Array.from(activeSectors).map(s => {
                                 const colors = getSectorColors(s);
+                                const customName = nomesProcessosEngenharia[s.toLowerCase()] || s;
                                 return (
                                     <React.Fragment key={s}>
-                                        <th className={`px-2 py-1.5 border-r border-b ${colors.head} text-center`} colSpan={4}>{s} - Datas</th>
+                                        <th className={`px-2 py-1.5 border-r border-b ${colors.head} text-center`} colSpan={4}>{customName}</th>
                                     </React.Fragment>
                                 );
                             })}

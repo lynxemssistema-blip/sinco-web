@@ -1,3 +1,4 @@
+import { usePersistentState } from '../hooks/usePersistentState';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -127,7 +128,7 @@ export default function ApontamentoProducaoPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const limit = 100; // Itens por página
+    const limit = 50; // Itens por página
 
     // Filters
     const [planoCorteFilter, setPlanoCorteFilter] = useState('');
@@ -136,6 +137,7 @@ export default function ApontamentoProducaoPage() {
     const [osFilter, setOsFilter] = useState('');
     const [clienteFilter, setClienteFilter] = useState('');
     const [itemFilter, setItemFilter] = useState('');
+    const [codMatFabricanteFilter, setCodMatFabricanteFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('pendente');
     const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
     const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
@@ -383,6 +385,7 @@ export default function ApontamentoProducaoPage() {
             if (clienteFilter) params.set('cliente', clienteFilter);
             if (planoCorteFilter) params.set('planoCorte', planoCorteFilter);
             if (itemFilter) params.set('item', itemFilter);
+            if (codMatFabricanteFilter) params.set('codMatFabricante', codMatFabricanteFilter);
             if (statusFilter !== 'todos') params.set('status', statusFilter);
             
             // Paginação
@@ -434,7 +437,7 @@ export default function ApontamentoProducaoPage() {
     // Auto-load removido intencionalmente para performance
     // Só carrega se houver page load de outra tela (com params) ou se o usuário clicar em pesquisar
     useEffect(() => {
-        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter];
+        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter, codMatFabricanteFilter];
         const filledFieldsCount = fields.filter(f => f.trim().length > 0).length;
 
         // Se a página mudou via paginação, busca automaticamente se houver filtros válidos ou se uma busca já foi iniciada
@@ -465,6 +468,7 @@ export default function ApontamentoProducaoPage() {
         setTagFilter('');
         setOsFilter('');
         setItemFilter('');
+        setCodMatFabricanteFilter('');
         setStatusFilter('pendente');
         setClienteFilter('');
         
@@ -473,7 +477,7 @@ export default function ApontamentoProducaoPage() {
     }, []);
 
     // Check if any filter is active
-    const hasActiveFilters = planoCorteFilter || projetoFilter || tagFilter || osFilter || itemFilter || clienteFilter || statusFilter !== 'pendente';
+    const hasActiveFilters = planoCorteFilter || projetoFilter || tagFilter || osFilter || itemFilter || codMatFabricanteFilter || clienteFilter || statusFilter !== 'pendente';
 
     // Fetch item details when opening modal
     const selectItem = async (item: ApontamentoItem) => {
@@ -877,63 +881,17 @@ export default function ApontamentoProducaoPage() {
             {setorAtivo !== 'planejamento' && (
                 <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <div className="flex items-center gap-3">
-                        {fromGlobal && (
-                            <button
-                                onClick={() => window.location.href = '/visao-geral-pendencias'}
-                                className="flex items-center justify-center p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-[#32423D] transition-colors"
-                                title="Voltar para Todas as Pendências"
-                            >
-                                <ArrowLeft size={20} />
-                            </button>
-                        )}
-                        <div className="mb-2"><span className="bg-[#E0E800]/40 text-[#32423D] text-[9px] px-1.5 py-0.5 rounded font-mono uppercase tracking-tighter">PATCH 1.4</span></div>
-                    </div>
-                    <p className="text-gray-500 text-sm mt-1">Registre a produção por setor</p>
+            {fromGlobal && (
+                <div className="mb-2">
+                    <button
+                        onClick={() => window.location.href = '/visao-geral-pendencias'}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors w-fit text-sm font-medium"
+                        title="Voltar para Todas as Pendências"
+                    >
+                        <ArrowLeft size={16} /> Voltar
+                    </button>
                 </div>
-                <div className="flex items-center gap-2">
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setShowTabs(!showTabs)}
-                        className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                        title="Ocultar/Visualizar Abas de Setor"
-                    >
-                        {showTabs ? <X size={18} /> : <Settings2 size={18} />}
-                        <span className="hidden sm:inline">{showTabs ? 'Ocultar Abas' : 'Mostrar Abas'}</span>
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setShowFilters(!showFilters)}
-                        className={`inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-colors ${showFilters || hasActiveFilters
-                            ? 'border-[#E0E800] bg-[#E0E800]/10 text-[#32423D]'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                            }`}
-                    >
-                        {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
-                        {hasActiveFilters && (
-                            <span className="w-2 h-2 rounded-full bg-[#E0E800]" />
-                        )}
-                    </motion.button>
-                    <div className="flex flex-col items-end mr-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Limite de Leitura</span>
-                        <span className="text-xs font-black text-[#32423D] bg-[#E0E800]/20 px-2 py-0.5 rounded border border-blue-100 shadow-sm">{maxRegistros || 300} itens</span>
-                    </div>
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={fetchItens}
-                        className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                        disabled={loading}
-                    >
-                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-                        Atualizar
-                    </motion.button>
-                </div>
-            </div>
+            )}
 
             {/* Setor Tabs */}
             <AnimatePresence>
@@ -989,21 +947,21 @@ export default function ApontamentoProducaoPage() {
                         <div className="flex flex-wrap items-end gap-3">
                             {/* Plano de Corte Filter */}
                             <div className="flex-1 min-w-[200px]">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Plano de Corte</label>
+                                <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Plano de Corte</label>
                                 <div className="flex items-center gap-2">
                                     <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                                         <input
-                                            type="text"
-                                            placeholder="Digite a descrição do plano de corte..."
+                                            type="search"
+                                            placeholder="Digite a descrição..."
                                             value={planoCorteFilter}
                                             onChange={(e) => setPlanoCorteFilter(e.target.value)}
-                                            className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                            className="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
                                         />
                                     </div>
                                     {planoCorteFilter && (
-                                        <button onClick={() => setPlanoCorteFilter('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
-                                            <X size={16} />
+                                        <button onClick={() => setPlanoCorteFilter('')} className="p-1.5 rounded border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+                                            <X size={14} />
                                         </button>
                                     )}
                                 </div>
@@ -1011,25 +969,25 @@ export default function ApontamentoProducaoPage() {
 
                             {/* Projeto Filter */}
                             <div className="min-w-[150px]">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Projeto</label>
+                                <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Projeto</label>
                                 <input
-                                    type="text"
+                                    type="search"
                                     placeholder="Digite o projeto..."
                                     value={projetoFilter}
                                     onChange={(e) => { setProjetoFilter(e.target.value); setTagFilter(''); setOsFilter(''); }}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
                                 />
                             </div>
 
                             {/* Tag Filter */}
                             <div className="min-w-[150px]">
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Tag</label>
+                                <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Tag</label>
                                 <input
-                                    type="text"
+                                    type="search"
                                     placeholder="Digite a tag..."
                                     value={tagFilter}
                                     onChange={(e) => { setTagFilter(e.target.value); setOsFilter(''); }}
-                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
                                 />
                             </div>
 
@@ -1037,23 +995,11 @@ export default function ApontamentoProducaoPage() {
                             <div className="min-w-[120px]">
                                 <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Ordem de Serviço</label>
                                 <input
-                                    type="text"
+                                    type="search"
                                     placeholder="Digite a OS..."
                                     value={osFilter}
                                     onChange={(e) => setOsFilter(e.target.value)}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
-                                />
-                            </div>
-
-                            {/* Item Filter */}
-                            <div className="min-w-[80px]">
-                                <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Item ID</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: 123"
-                                    value={itemFilter}
-                                    onChange={(e) => setItemFilter(e.target.value)}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
                                 />
                             </div>
 
@@ -1061,11 +1007,11 @@ export default function ApontamentoProducaoPage() {
                             <div className="min-w-[120px]">
                                 <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Cliente</label>
                                 <input
-                                    type="text"
+                                    type="search"
                                     placeholder="Digite o cliente..."
                                     value={clienteFilter}
                                     onChange={(e) => setClienteFilter(e.target.value)}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
                                 />
                             </div>
 
@@ -1075,7 +1021,7 @@ export default function ApontamentoProducaoPage() {
                                 <select
                                     value={groupBy}
                                     onChange={(e) => setGroupBy(e.target.value as any)}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs font-bold text-[#32423D] bg-[#E0E800]/20 border-blue-200"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs font-bold text-[#32423D] bg-[#E0E800]/20 border-blue-200"
                                 >
                                     <option value="os">Ordem Serviço</option>
                                     <option value="projeto">Projeto</option>
@@ -1091,7 +1037,7 @@ export default function ApontamentoProducaoPage() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value as 'todos' | 'pendente' | 'concluido')}
-                                    className="w-full px-2 py-1 rounded border border-gray-200 bg-white text-xs"
+                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs"
                                 >
                                     <option value="todos">Todos</option>
                                     <option value="pendente">Pendentes</option>
@@ -1103,9 +1049,9 @@ export default function ApontamentoProducaoPage() {
                             {hasActiveFilters && (
                                 <button
                                     onClick={clearFilters}
-                                    className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded transition-colors"
                                 >
-                                    <XCircle size={16} />
+                                    <XCircle size={14} />
                                     Limpar
                                 </button>
                             )}
@@ -1114,9 +1060,9 @@ export default function ApontamentoProducaoPage() {
                             <button
                                 onClick={handleSearch}
                                 disabled={loading}
-                                className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 disabled:bg-blue-400 rounded-lg shadow-sm transition-colors ml-auto"
+                                className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 disabled:bg-blue-400 rounded shadow-sm transition-colors ml-auto"
                             >
-                                {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                                {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
                                 Pesquisar
                             </button>
                         </div>
@@ -2587,7 +2533,7 @@ export default function ApontamentoProducaoPage() {
                                                 <div className="flex-1 min-w-[200px]">
                                                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 1</label>
                                                     <input
-                                                        type="text"
+                                                        type="search"
                                                         value={searchQuery1}
                                                         onChange={(e) => setSearchQuery1(e.target.value)}
                                                         placeholder="Buscar na descrição..."
@@ -2597,7 +2543,7 @@ export default function ApontamentoProducaoPage() {
                                                 <div className="flex-1 min-w-[200px]">
                                                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 2</label>
                                                     <input
-                                                        type="text"
+                                                        type="search"
                                                         value={searchQuery2}
                                                         onChange={(e) => setSearchQuery2(e.target.value)}
                                                         placeholder="Buscar na descrição..."

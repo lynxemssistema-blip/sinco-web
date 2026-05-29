@@ -6,6 +6,7 @@ const LS_MAX_REG = 'sinco_maxRegistros';
 const LS_PROCESSOS = 'sinco_processosVisiveis';
 const LS_RESTRINGIR = 'sinco_restringirApontamento';
 const LS_POWER_BUILD = 'sinco_mostrarPowerBuild';
+const LS_NOMES_ENGENHARIA = 'sinco_nomesProcessosEngenharia';
 
 interface AppConfig {
     // Da API (regras de negócio persistidas no banco)
@@ -15,6 +16,7 @@ interface AppConfig {
     planoCorteFiltroDC: 'corte' | 'chaparia';
     maxRegistros: number;
     mostrarPowerBuild: boolean;
+    nomesProcessosEngenharia: Record<string, string>;
     loaded: boolean;
 }
 
@@ -23,11 +25,19 @@ interface AppConfigContextValue extends AppConfig {
 }
 
 const defaultConfig: AppConfig = {
-    processosVisiveis: ['corte', 'dobra', 'solda', 'pintura', 'montagem'],
+    processosVisiveis: ['corte', 'dobra', 'solda', 'pintura', 'montagem', 'medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'],
     restringirApontamento: false,
     planoCorteFiltroDC: 'corte',
     maxRegistros: 500,
     mostrarPowerBuild: false,
+    nomesProcessosEngenharia: {
+        medicao: 'Medição',
+        isometrico: 'Isométrico',
+        engenharia: 'Engenharia',
+        aprovacao: 'Aprovação',
+        acabamento: 'Acabamento',
+        expedicao: 'Expedição'
+    },
     loaded: false,
 };;
 
@@ -51,8 +61,10 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
         fetch('/api/config')
             .then(res => res.json())
             .then(data => {
-                let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
-                let restringirApontamento = false;
+        // Setores padrão: TODOS os setores (produção + engenharia) visíveis
+        const ENG_SETORES_DEFAULT = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+        let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem', ...ENG_SETORES_DEFAULT];
+        let restringirApontamento = false;
 
                 // Tenta ler local primeiro caso seja banco legado ou falha na API
                 const localProcessos = localStorage.getItem(LS_PROCESSOS);
@@ -62,11 +74,19 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
                 const localRestringir = localStorage.getItem(LS_RESTRINGIR);
                 if (localRestringir) restringirApontamento = localRestringir === 'Sim';
 
+                let nomesProcessosEngenharia = defaultConfig.nomesProcessosEngenharia;
+                const localNomes = localStorage.getItem(LS_NOMES_ENGENHARIA);
+                if (localNomes) {
+                    try { nomesProcessosEngenharia = { ...nomesProcessosEngenharia, ...JSON.parse(localNomes) }; } catch (_) {}
+                }
+
                 if (data.success && data.config) {
                     const cfg = data.config;
                     try {
                         if (cfg.ProcessosVisiveis) {
-                            processosVisiveis = JSON.parse(cfg.ProcessosVisiveis);
+                            try {
+                                processosVisiveis = JSON.parse(cfg.ProcessosVisiveis);
+                            } catch (_) {}
                         }
                     } catch (_) {}
 
@@ -76,6 +96,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
                         planoCorteFiltroDC,
                         maxRegistros: maxReg,
                         mostrarPowerBuild,
+                        nomesProcessosEngenharia,
                         loaded: true,
                     });
                 } else {
@@ -85,6 +106,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
                         planoCorteFiltroDC,
                         maxRegistros: maxReg,
                         mostrarPowerBuild,
+                        nomesProcessosEngenharia,
                         loaded: true
                     });
                 }
@@ -92,12 +114,22 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
             .catch(() => {
                 // Fallback total se API offline
                 const localProcessos = localStorage.getItem(LS_PROCESSOS);
-                let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
-                if (localProcessos) {
-                    try { processosVisiveis = JSON.parse(localProcessos); } catch (_) {}
-                }
+        // Fallback offline: usa todos os setores como default
+        const ENG_SETORES_DEFAULT_FALLBACK = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+        let processosVisiveis = ['corte', 'dobra', 'solda', 'pintura', 'montagem', ...ENG_SETORES_DEFAULT_FALLBACK];
+        if (localProcessos) {
+            try {
+                processosVisiveis = JSON.parse(localProcessos);
+            } catch (_) {}
+        }
                 const localRestringir = localStorage.getItem(LS_RESTRINGIR);
                 const restringirApontamento = localRestringir === 'Sim';
+
+                let nomesProcessosEngenharia = defaultConfig.nomesProcessosEngenharia;
+                const localNomes = localStorage.getItem(LS_NOMES_ENGENHARIA);
+                if (localNomes) {
+                    try { nomesProcessosEngenharia = { ...nomesProcessosEngenharia, ...JSON.parse(localNomes) }; } catch (_) {}
+                }
 
                 setConfig({
                     processosVisiveis,
@@ -105,6 +137,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
                     planoCorteFiltroDC,
                     maxRegistros: maxReg,
                     mostrarPowerBuild,
+                    nomesProcessosEngenharia,
                     loaded: true,
                 });
             });
@@ -136,6 +169,7 @@ export function saveLocalPrefs(prefs: {
     processosVisiveis?: string[];
     restringirApontamento?: string;
     mostrarPowerBuild?: string;
+    nomesProcessosEngenharia?: Record<string, string>;
 }) {
     if (prefs.planoCorteFiltroDC !== undefined) {
         localStorage.setItem(LS_FILTRO, prefs.planoCorteFiltroDC);
@@ -151,6 +185,9 @@ export function saveLocalPrefs(prefs: {
     }
     if (prefs.mostrarPowerBuild !== undefined) {
         localStorage.setItem(LS_POWER_BUILD, prefs.mostrarPowerBuild);
+    }
+    if (prefs.nomesProcessosEngenharia !== undefined) {
+        localStorage.setItem(LS_NOMES_ENGENHARIA, JSON.stringify(prefs.nomesProcessosEngenharia));
     }
 }
 

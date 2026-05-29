@@ -5,7 +5,7 @@ import {
     Plus, Search, Edit2, Trash2, X, FolderKanban, Save,
     Loader2, RefreshCw, Calendar, Tag as TagIcon, ChevronRight, ChevronDown, FolderOpen, CheckCircle2, RotateCcw,
     Building2, Truck, Banknote
-} from 'lucide-react';
+, Filter} from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
 
 import { formatToBRDate } from '../utils/dateUtils';
@@ -135,6 +135,7 @@ export default function ProjetoPage() {
 
 
     const [activeTab, setActiveTab] = useState<0 | 1 | 2 | 3>(0);
+    const [showFilters, setShowFilters] = useState(true);
     // Projetos state
     const [projetos, setProjetos] = useState<Projeto[]>([]);
     const [projetoFormData, setProjetoFormData] = useState<Projeto>(emptyProjetoForm);
@@ -157,6 +158,7 @@ export default function ProjetoPage() {
         projeto: '',
         descProjeto: '',
         cliente: '',
+        cnpj: '',
         criacaoInicio: '',
         criacaoFim: '',
         previsaoInicio: '',
@@ -199,6 +201,7 @@ export default function ProjetoPage() {
             if (activeFilters.projeto) params.append('projeto', activeFilters.projeto);
             if (activeFilters.descProjeto) params.append('descProjeto', activeFilters.descProjeto);
             if (activeFilters.cliente) params.append('descEmpresa', activeFilters.cliente);
+            if (activeFilters.cnpj) params.append('cnpj', activeFilters.cnpj);
             if (activeFilters.previsaoInicio) {
                 const [y, m, d] = activeFilters.previsaoInicio.split('-');
                 params.append('previsaoInicio', `${d}/${m}/${y}`);
@@ -670,17 +673,28 @@ export default function ProjetoPage() {
             </div>
 
             {/* Search Filters Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 mb-2">
-                <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-3 pb-2 border-b border-gray-100 flex items-center gap-2">
-                    <Search size={12} /> Dados para Pesquisa
-                </h3>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-2 shrink-0">
+                <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100">
+                    <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2 m-0">
+                        <Search size={12} /> Dados para Pesquisa
+                    </h3>
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+                    >
+                        <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+                    </button>
+                </div>
+                {showFilters && (
+                <div className="px-4 pb-3 pt-2">
 
                 {/* Linha 1: Projeto | Descrição | Cliente | Finalizado */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-2 mb-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-x-3 gap-y-2 mb-2">
                     <div>
                         <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Projeto:</label>
                         <input
-                            type="text"
+                            type="search"
                             value={searchFilters.projeto}
                             onChange={(e) => setSearchFilters(prev => ({ ...prev, projeto: e.target.value.toUpperCase() }))}
                             onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
@@ -691,7 +705,7 @@ export default function ProjetoPage() {
                     <div>
                         <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Descrição:</label>
                         <input
-                            type="text"
+                            type="search"
                             value={searchFilters.descProjeto}
                             onChange={(e) => setSearchFilters(prev => ({ ...prev, descProjeto: e.target.value.toUpperCase() }))}
                             onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
@@ -702,12 +716,23 @@ export default function ProjetoPage() {
                     <div>
                         <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Cliente:</label>
                         <input
-                            type="text"
+                            type="search"
                             value={searchFilters.cliente}
                             onChange={(e) => setSearchFilters(prev => ({ ...prev, cliente: e.target.value.toUpperCase() }))}
                             onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
                             className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
                             placeholder="ALFATEC, SIEMENS..."
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">CNPJ:</label>
+                        <input
+                            type="search"
+                            value={searchFilters.cnpj}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, cnpj: e.target.value }))}
+                            onKeyDown={(e) => e.key === 'Enter' && fetchProjetos()}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm"
+                            placeholder="00.000.000/0001-00"
                         />
                     </div>
                     <div>
@@ -777,7 +802,7 @@ export default function ProjetoPage() {
                 <div className="flex justify-end gap-2">
                     <button
                         onClick={() => {
-                            const emptyFilters = { projeto: '', descProjeto: '', cliente: '', previsaoInicio: '', previsaoFim: '', criacaoInicio: '', criacaoFim: '', finalizado: '' };
+                            const emptyFilters = { projeto: '', descProjeto: '', cliente: '', cnpj: '', previsaoInicio: '', previsaoFim: '', criacaoInicio: '', criacaoFim: '', finalizado: '' };
                             setSearchFilters(emptyFilters);
                             fetchProjetos(emptyFilters);
                         }}
@@ -795,6 +820,8 @@ export default function ProjetoPage() {
                         {loading ? 'Buscando...' : 'Pesquisar'}
                     </button>
                 </div>
+                </div>
+                )}
             </div>
 
             {/* Tree View */}

@@ -33,7 +33,16 @@ export default function ConfiguracaoPage() {
     const [restringirApontamento, setRestringirApontamento] = useState('Não');
     const [mostrarPowerBuild, setMostrarPowerBuild] = useState('Não');
     const [permitirRealizadoSemPlanejamento, setPermitirRealizadoSemPlanejamento] = useState(getDefaultPermitirRealizado); // padrão: depende do banco
-    const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
+    const DEFAULT_PROCESSOS_VISIVEIS = ['corte', 'dobra', 'solda', 'pintura', 'montagem', 'medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+    const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(DEFAULT_PROCESSOS_VISIVEIS);
+    const [nomesProcessosEngenharia, setNomesProcessosEngenharia] = useState<Record<string, string>>({
+        medicao: 'Medição',
+        isometrico: 'Isométrico',
+        engenharia: 'Engenharia',
+        aprovacao: 'Aprovação',
+        acabamento: 'Acabamento',
+        expedicao: 'Expedição'
+    });
     const [planoCorteFiltroDC, setPlanoCorteFiltroDC] = useState<'corte' | 'chaparia'>('corte');
     const [maxRegistros, setMaxRegistros] = useState<number>(500);
     const [maxRegistrosCustom, setMaxRegistrosCustom] = useState<string>('');
@@ -81,10 +90,19 @@ export default function ConfiguracaoPage() {
                     setPermitirRealizadoSemPlanejamento(data.config.PermitirRealizadoSemPlanejamento ?? getDefaultPermitirRealizado());
                     if (data.config.ProcessosVisiveis) {
                         try {
-                            setProcessosVisiveis(JSON.parse(data.config.ProcessosVisiveis));
+                            const parsed = JSON.parse(data.config.ProcessosVisiveis);
+                            // Sempre mescla setores de engenharia — garante visibilidade em TODOS os bancos,
+                            // inclusive legados que salvaram apenas os setores de produção.
+                            const engSetores = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+                            const withDefaults = Array.from(new Set([...parsed, ...engSetores.filter(s => !parsed.includes(s))]));
+                            setProcessosVisiveis(withDefaults.length === 0 ? DEFAULT_PROCESSOS_VISIVEIS : withDefaults);
                         } catch (e) {
                             console.error('Erro ao parsear processos visíveis', e);
+                            setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
                         }
+                    } else {
+                        // Banco sem ProcessosVisiveis: usar default completo
+                        setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
                     }
                 }
             })
@@ -102,6 +120,13 @@ export default function ConfiguracaoPage() {
 
         const powerBuildSalvo = localStorage.getItem('sinco_mostrarPowerBuild') || 'Não';
         setMostrarPowerBuild(powerBuildSalvo);
+
+        const localNomes = localStorage.getItem('sinco_nomesProcessosEngenharia');
+        if (localNomes) {
+            try { 
+                setNomesProcessosEngenharia(prev => ({ ...prev, ...JSON.parse(localNomes) })); 
+            } catch(e) {}
+        }
     };
 
     const fetchMenu = () => {
@@ -220,7 +245,7 @@ export default function ConfiguracaoPage() {
             processosVisiveis,
             restringirApontamento,
             mostrarPowerBuild,
-            permitirRealizadoSemPlanejamento
+            nomesProcessosEngenharia
         });
         // Persiste também no localStorage como chave individual (lida pelo VisaoGeralEngenharia)
         localStorage.setItem('sinco_permitirRealizadoSemPlanejamento', permitirRealizadoSemPlanejamento);
@@ -668,6 +693,54 @@ export default function ConfiguracaoPage() {
                             </div>
                             <p className="text-xs text-gray-400 mt-2">
                                 Desmarque os setores que sua fábrica não utiliza. Eles serão ocultados das telas de Apontamento e OS.
+                            </p>
+                        </div>
+
+                        {/* NOVO BLOCO: Setores/Processos Visíveis (ENGENHARIA) */}
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <h3 className="font-medium text-gray-900 mb-4">Setores Visíveis e Rótulos (Engenharia)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'].map(proc => {
+                                    const isVisible = processosVisiveis.includes(proc);
+                                    return (
+                                        <div key={proc} className={`flex flex-col p-3 border rounded-lg transition-all ${isVisible ? 'bg-white border-gray-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-70'}`}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div 
+                                                    className="flex items-center gap-2 cursor-pointer flex-1"
+                                                    onClick={() => {
+                                                        if (isVisible) {
+                                                            setProcessosVisiveis(processosVisiveis.filter(p => p !== proc));
+                                                        } else {
+                                                            setProcessosVisiveis([...processosVisiveis, proc]);
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
+                                                        {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                                                    </div>
+                                                    <span className="capitalize font-medium text-gray-700 text-sm">{proc === 'medicao' ? 'medição' : proc === 'aprovacao' ? 'aprovação' : proc === 'isometrico' ? 'isométrico' : proc === 'expedicao' ? 'expedição' : proc}</span>
+                                                </div>
+                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
+                                                    {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
+                                                </div>
+                                            </div>
+                                            <div className="mt-1">
+                                                <label className="text-[10px] text-gray-500 font-medium ml-1">Rótulo Personalizado</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full border rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-[#E0E800]"
+                                                    value={nomesProcessosEngenharia[proc] || ''}
+                                                    onChange={e => setNomesProcessosEngenharia(prev => ({ ...prev, [proc]: e.target.value }))}
+                                                    placeholder="Nome na grade"
+                                                    disabled={!isVisible}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">
+                                Além de ocultar as colunas na tela Visão Geral Engenharia, você pode renomear os cabeçalhos das colunas preenchendo os campos acima.
                             </p>
                         </div>
 

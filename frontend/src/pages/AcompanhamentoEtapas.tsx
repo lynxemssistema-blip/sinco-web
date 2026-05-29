@@ -1,3 +1,4 @@
+import { usePersistentState } from '../hooks/usePersistentState';
 import React, { useState, useEffect } from 'react';
 
 import { 
@@ -550,33 +551,33 @@ export default function AcompanhamentoEtapas() {
                     ) : (
                         <div className="scrollable-table bg-white shadow-sm border border-gray-200 rounded-md relative">
                             <table className="w-full text-left border-collapse min-w-[1200px]">
-                                <thead className="sticky top-0 z-40 bg-gray-100 shadow-sm">
+                                <thead className="sticky top-0 z-40 bg-[#0B3A2D] shadow-sm">
                                     {/* CABEÇALHO PRINCIPAL */}
-                                    <tr className="bg-gray-100 text-gray-700 text-[10px] uppercase tracking-wider border-b-2 border-gray-300">
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 sticky left-0 bg-gray-100 z-50 w-[80px]">Doc/Proj</th>
-                                        <th rowSpan={2} className="p-2 sticky left-[80px] bg-gray-100 z-50 max-w-[200px]" style={{boxShadow: '2px 0 0 0 #9ca3af'}}>Obra/Cliente</th>
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 text-center">Região</th>
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 text-center min-w-[150px]">Observação</th>
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 text-center">Status</th>
-                                        <th rowSpan={2} className="p-2 border-r border-gray-300 text-center bg-orange-50 text-orange-800 font-bold" title="Prazo de entrega previsto do projeto">
+                                    <tr className="bg-[#0B3A2D] text-white text-[10px] uppercase tracking-wider border-b-2 border-[#1b6351]">
+                                        <th rowSpan={2} className="p-2 border-r border-[#1b6351] sticky left-0 bg-[#0B3A2D] z-50 w-[80px]">Doc/Proj</th>
+                                        <th rowSpan={2} className="p-2 sticky left-[80px] bg-[#0B3A2D] z-50 max-w-[200px]" style={{boxShadow: '2px 0 0 0 #1b6351'}}>Obra/Cliente</th>
+                                        <th rowSpan={2} className="p-2 border-r border-[#1b6351] text-center">Região</th>
+                                        <th rowSpan={2} className="p-2 border-r border-[#1b6351] text-center min-w-[150px]">Observação</th>
+                                        <th rowSpan={2} className="p-2 border-r border-[#1b6351] text-center">Status</th>
+                                        <th rowSpan={2} className="p-2 border-r border-[#1b6351] text-center font-bold" title="Prazo de entrega previsto do projeto">
                                             Prev. Projeto
                                         </th>
-                                        <th rowSpan={2} className="p-2 border-r-4 border-gray-400 text-center">Data Fim</th>
+                                        <th rowSpan={2} className="p-2 border-r-4 border-[#1b6351] text-center">Data Fim</th>
                                         
-                                        <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-blue-50">Medição</th>
-                                        <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-indigo-50">Isométrico</th>
-                                        <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-blue-50">Engenharia</th>
-                                        <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-indigo-50">Aprovação</th>
-                                        <th colSpan={2} className="p-2 text-center border-r-2 border-gray-400 bg-blue-50">Acabamento</th>
-                                        <th colSpan={2} className="p-2 text-center bg-indigo-50">Expedição</th>
-                                        <th rowSpan={2} className="p-2 border-l border-gray-300 text-center sticky right-0 bg-gray-100 z-50">Ações</th>
+                                        {isVisible('medicao') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('medicao', 'Medição')}</th>}
+                                        {isVisible('isometrico') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('isometrico', 'Isométrico')}</th>}
+                                        {isVisible('engenharia') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('engenharia', 'Engenharia')}</th>}
+                                        {isVisible('aprovacao') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('aprovacao', 'Aprovação')}</th>}
+                                        {isVisible('acabamento') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('acabamento', 'Acabamento')}</th>}
+                                        {isVisible('expedicao') && <th colSpan={2} className="p-2 text-center border-r-2 border-[#1b6351]">{customName('expedicao', 'Expedição')}</th>}
+                                        <th rowSpan={2} className="p-2 border-l border-[#1b6351] text-center sticky right-0 bg-[#0B3A2D] z-50">Ações</th>
                                     </tr>
                                     {/* SUB-CABEÇALHO (Falta/Ok) */}
-                                    <tr className="text-[10px] uppercase text-gray-600 border-b border-gray-300">
-                                        {Array.from({length: 6}).map((_, i) => (
+                                    <tr className="text-[10px] uppercase text-white border-b border-[#1b6351]">
+                                        {visibleEngSectors.map((s, i) => (
                                             <React.Fragment key={i}>
-                                                <th className="p-1.5 text-center border-r border-gray-200 bg-red-50 text-red-700 font-bold min-w-[70px]">Falta</th>
-                                                <th className="p-1.5 text-center border-r-2 border-gray-400 bg-green-50 text-green-700 font-bold min-w-[70px]">Ok</th>
+                                                <th className="p-1.5 text-center border-r border-[#1b6351] bg-[#0f4a3b] font-bold min-w-[70px]">Falta</th>
+                                                <th className="p-1.5 text-center border-r-2 border-[#1b6351] bg-[#145d4b] font-bold min-w-[70px]">Ok</th>
                                             </React.Fragment>
                                         ))}
                                     </tr>

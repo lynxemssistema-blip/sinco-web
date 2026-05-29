@@ -1,3 +1,4 @@
+import { usePersistentState } from '../hooks/usePersistentState';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     Search, Filter, X, Loader, Layers, ChevronRight, ArrowLeft,
@@ -164,12 +165,12 @@ const SetorCell = ({ total, exec, pct, color }: { total: number; exec: number; p
                 </div>
                 <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100">
                     <span className="text-[7.5px] font-bold text-slate-400 uppercase">Sal:</span>
-                    <span className="text-[9px] font-bold text-slate-500">{total}</span>
+                    <span className="text-[9px] font-bold text-slate-100">{total}</span>
                 </div>
             </div>
             <div className="mt-1">
                 <MiniBar pct={pct} color={color} />
-                <span className="text-[8px] text-slate-500 font-bold block text-center mt-0.5">{pct}%</span>
+                <span className="text-[8px] text-slate-100 font-bold block text-center mt-0.5">{pct}%</span>
             </div>
         </div>
     );
@@ -306,15 +307,15 @@ function GanttChart({ data, mode }: GanttChartProps) {
             <div className="shrink-0 flex items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-200 flex-wrap">
                 <div className="flex items-center gap-1.5">
                     <div className="w-8 h-3 rounded-sm bg-slate-300 opacity-60" style={{ border: '1px dashed #94a3b8' }} />
-                    <span className="text-[10px] text-slate-500 font-semibold">Planejado</span>
+                    <span className="text-[10px] text-slate-100 font-semibold">Planejado</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-8 h-3 rounded-sm" style={{ background: 'linear-gradient(90deg, #3b82f6 60%, #93c5fd 60%)' }} />
-                    <span className="text-[10px] text-slate-500 font-semibold">Realizado (% exec)</span>
+                    <span className="text-[10px] text-slate-100 font-semibold">Realizado (% exec)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-px h-4 bg-red-500" />
-                    <span className="text-[10px] text-slate-500 font-semibold">Hoje</span>
+                    <span className="text-[10px] text-slate-100 font-semibold">Hoje</span>
                 </div>
                 {SETORES.map(s => (
                     <div key={s.key} className="flex items-center gap-1">
@@ -329,13 +330,13 @@ function GanttChart({ data, mode }: GanttChartProps) {
                     {/* Header: month ticks */}
                     <div className="flex sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
                         <div className="sticky left-0 z-30 bg-white border-r shadow-sm flex items-center px-3" style={{ width: LABEL_WIDTH }}>
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Tag / Setor</span>
+                            <span className="text-[10px] font-black text-slate-100 uppercase tracking-wider">Tag / Setor</span>
                         </div>
                         <div className="flex-1 relative h-10">
                             {months.map((m, i) => (
                                 <div key={i} className="absolute top-0 h-full flex items-center" style={{ left: `${m.leftPct}%` }}>
                                     <div className="absolute top-0 h-full w-px bg-slate-200" />
-                                    <span className="pl-1 text-[9px] font-bold text-slate-500 uppercase whitespace-nowrap">{m.label}</span>
+                                    <span className="pl-1 text-[9px] font-bold text-slate-100 uppercase whitespace-nowrap">{m.label}</span>
                                 </div>
                             ))}
                             {/* Today marker in header */}
@@ -522,7 +523,7 @@ function TagDetailSection({ tag }: { tag: TagDetalhe }) {
                             </span>
                         )}
                     </div>
-                    {tag.DescTag && <p className="text-[10px] text-slate-500 truncate">{tag.DescTag}</p>}
+                    {tag.DescTag && <p className="text-[10px] text-slate-100 truncate">{tag.DescTag}</p>}
                 </div>
                 <div className="flex items-center gap-4 flex-shrink-0">
                     {/* Mini setor bars inline */}
@@ -533,7 +534,7 @@ function TagDetailSection({ tag }: { tag: TagDetalhe }) {
                         if (total === 0) return null;
                         return (
                             <div key={s.key} className="flex flex-col items-center gap-0.5" style={{ minWidth: 44 }}>
-                                <span className="text-[8px] font-bold text-slate-500">{s.label.slice(0,5)}</span>
+                                <span className="text-[8px] font-bold text-slate-100">{s.label.slice(0,5)}</span>
                                 <MiniBar pct={pct} color={s.color} />
                                 <span className="text-[8px] font-bold" style={{ color: s.color }}>{pct}%</span>
                             </div>
@@ -566,15 +567,15 @@ function TagDetailSection({ tag }: { tag: TagDetalhe }) {
                                     </div>
                                     <div className="flex items-end gap-1 mb-1.5">
                                         <span className="text-lg font-black" style={{ color: s.color }}>{exec}</span>
-                                        <span className="text-xs text-slate-500 mb-0.5">/ {total}</span>
+                                        <span className="text-xs text-slate-100 mb-0.5">/ {total}</span>
                                     </div>
                                     <MiniBar pct={pct} color={s.color} />
                                     <div className="mt-1.5 space-y-0.5">
-                                        <div className="flex justify-between text-[9px] text-slate-500">
+                                        <div className="flex justify-between text-[9px] text-slate-100">
                                             <span className="font-semibold">Pl. Ini:</span>
                                             <span>{fmtDate(plIni)}</span>
                                         </div>
-                                        <div className="flex justify-between text-[9px] text-slate-500">
+                                        <div className="flex justify-between text-[9px] text-slate-100">
                                             <span className="font-semibold">Pl. Fin:</span>
                                             <span>{fmtDate(plFin)}</span>
                                         </div>
@@ -655,11 +656,11 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                             <div>
                                 <h1 className="text-lg font-black text-slate-800 leading-tight">
                                     {projeto.Projeto}
-                                    {projeto.DescProjeto && <span className="text-slate-500 font-medium ml-2">— {projeto.DescProjeto}</span>}
+                                    {projeto.DescProjeto && <span className="text-slate-100 font-medium ml-2">— {projeto.DescProjeto}</span>}
                                 </h1>
                                 <div className="flex items-center gap-3 mt-0.5">
                                     {projeto.DescEmpresa && (
-                                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                                        <span className="text-xs text-slate-100 flex items-center gap-1">
                                             <Building2 size={10} /> {projeto.DescEmpresa}
                                         </span>
                                     )}
@@ -677,7 +678,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 viewMode === 'lista'
                                     ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                    : 'text-slate-100 hover:text-slate-700'
                             }`}
                         >
                             <List size={13} /> Lista
@@ -687,14 +688,14 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 viewMode === 'gantt'
                                     ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                    : 'text-slate-100 hover:text-slate-700'
                             }`}
                         >
                             <GanttChartSquare size={13} /> Gantt
                         </button>
                     </div>
 
-                    <span className="text-xs text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                    <span className="text-xs text-slate-100 font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                         {tags.length} Tag{tags.length !== 1 ? 's' : ''}
                     </span>
                 </div>
@@ -703,7 +704,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                 <div className="mt-4 grid grid-cols-5 gap-3">
                     {SETORES.map(s => {
                         const tot = totais[s.key as keyof typeof totais];
-                        const pct = tot[0] > 0 ? Math.round((tot[1] / tot[0]) * 100) : 0;
+                        const pct = (tot[0] + tot[1]) > 0 ? Math.round((tot[1] / (tot[0] + tot[1])) * 100) : 0;
                         const IconComp = s.icon;
                         return (
                             <div key={s.key} className="flex flex-col gap-1.5 p-3 rounded-xl border" style={{ backgroundColor: s.bg, borderColor: s.border }}>
@@ -787,17 +788,18 @@ export default function AcompanhamentoGeralPage() {
     const [error, setError] = useState<string | null>(null);
     const [selected, setSelected] = useState<ProjetoAcomp | null>(null);
     const [detalhe, setDetalhe] = useState<ProjetoAcomp | null>(null);
-    const [mainViewMode, setMainViewMode] = useState<'lista' | 'gantt'>('lista');
+    const [mainViewMode, setMainViewMode] = usePersistentState<'lista' | 'gantt'>('AcompanhamentoGeral_mainViewMode', 'lista');
 
-    const [fSearchProjeto, setFSearchProjeto] = useState('');
-    const [fSearchDescricao, setFSearchDescricao] = useState('');
-    const [fSearchInput, setFSearchInput] = useState('');
-    const [fDescricaoInput, setFDescricaoInput] = useState('');
-    const [fStatus, setFStatus] = useState('');
-    const [fModo, setFModo] = useState<'ativos' | 'finalizados' | 'todos'>('ativos');
+    const [fSearchProjeto, setFSearchProjeto] = usePersistentState('AcompanhamentoGeral_fSearchProjeto', '');
+    const [fSearchDescricao, setFSearchDescricao] = usePersistentState('AcompanhamentoGeral_fSearchDescricao', '');
+    const [fSearchInput, setFSearchInput] = usePersistentState('AcompanhamentoGeral_fSearchInput', '');
+    const [fDescricaoInput, setFDescricaoInput] = usePersistentState('AcompanhamentoGeral_fDescricaoInput', '');
+    const [fStatus, setFStatus] = usePersistentState('AcompanhamentoGeral_fStatus', '');
+    const [fModo, setFModo] = usePersistentState<'liberados' | 'nao_liberados' | 'finalizados' | 'todos'>('AcompanhamentoGeral_fModo', 'liberados');
     const [showObs, setShowObs] = useState<number | null>(null);
-    const [fDataDe, setFDataDe] = useState('');
-    const [fDataAte, setFDataAte] = useState('');
+    const [fDataDe, setFDataDe] = usePersistentState('AcompanhamentoGeral_fDataDe', '');
+    const [fDataAte, setFDataAte] = usePersistentState('AcompanhamentoGeral_fDataAte', '');
+    const [showFilters, setShowFilters] = usePersistentState('AcompanhamentoGeral_showFilters', false);
 
     // Inline edit: tracks which project's Observacao is being edited and the draft value
     const [obsEdit, setObsEdit] = useState<{ id: number; value: string } | null>(null);
@@ -834,8 +836,8 @@ export default function AcompanhamentoGeralPage() {
             if (fStatus) params.set('status', fStatus);
             if (fDataDe) params.set('dataFinalDe', fDataDe);
             if (fDataAte) params.set('dataFinalAte', fDataAte);
-            if (fModo === 'finalizados') { params.set('finalizados', '1'); }
-            else if (fModo === 'todos') { params.set('finalizados', '1'); params.set('liberados', '1'); }
+            params.set('modo', fModo);
+            
 
             const res = await fetch(`${API_BASE}/acompanhamento/projetos?${params}`);
             if (!res.ok) throw new Error('Erro ao buscar projetos');
@@ -883,7 +885,7 @@ export default function AcompanhamentoGeralPage() {
                         </div>
                         <div>
                             <h1 className="text-base font-black text-slate-800 leading-tight">Acompanhamento Geral</h1>
-                            <p className="text-[11px] text-slate-500">Visão consolidada por projeto · Gantt consolidado</p>
+                            <p className="text-[11px] text-slate-100">Visão consolidada por projeto · Gantt consolidado</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -891,14 +893,14 @@ export default function AcompanhamentoGeralPage() {
                         <div className="flex bg-slate-100 p-1 rounded-xl mr-2">
                             <button
                                 onClick={() => setMainViewMode('lista')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-100 hover:text-slate-700'}`}
                             >
                                 <LayoutList size={14} />
                                 Lista
                             </button>
                             <button
                                 onClick={() => setMainViewMode('gantt')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-100 hover:text-slate-700'}`}
                             >
                                 <GanttChartSquare size={14} />
                                 Ver Gantt Geral
@@ -937,7 +939,7 @@ export default function AcompanhamentoGeralPage() {
                         />
                         {fSearchInput && (
                             <button type="button" onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
                                 <X size={12} />
                             </button>
                         )}
@@ -956,7 +958,7 @@ export default function AcompanhamentoGeralPage() {
                         />
                         {fDescricaoInput && (
                             <button type="button" onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
                                 <X size={12} />
                             </button>
                         )}
@@ -978,7 +980,7 @@ export default function AcompanhamentoGeralPage() {
                     {/* Intervalo Data Final */}
                     <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1">
                         <Calendar size={12} className="text-slate-400 shrink-0" />
-                        <span className="text-[10px] font-bold text-slate-500 whitespace-nowrap">Data Final:</span>
+                        <span className="text-[10px] font-bold text-slate-100 whitespace-nowrap">Data Final:</span>
                         <input
                             id="acomp-data-de"
                             type="date"
@@ -1009,10 +1011,10 @@ export default function AcompanhamentoGeralPage() {
 
                     {/* Modo Ativos/Finalizados/Todos */}
                     <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white text-xs">
-                        {(['ativos', 'finalizados', 'todos'] as const).map(m => (
+                        {(['liberados', 'nao_liberados', 'finalizados', 'todos'] as const).map(m => (
                             <button key={m} onClick={() => setFModo(m)}
                                 className={`px-3 py-2 font-semibold capitalize transition-colors ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
-                                {m === 'ativos' ? 'Ativos' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
+                                {m === 'liberados' ? 'Liberados' : m === 'nao_liberados' ? 'Não Liberados' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
                             </button>
                         ))}
                     </div>
@@ -1045,17 +1047,17 @@ export default function AcompanhamentoGeralPage() {
                     mainViewMode === 'lista' ? (
                         <table className="w-full text-[11px] border-collapse" style={{ minWidth: 1000 }}>
                             <thead className="sticky top-0 z-20 shadow-sm">
-                                <tr className="bg-slate-100 border-b border-slate-200">
+                                <tr className="bg-[#0B3A2D] text-white border-b border-[#0B3A2D]">
                                     
-                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Projeto / Cliente</th>
-                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-2 py-2 text-left font-black text-slate-500 uppercase tracking-wider">Data Final</th>
+                                    <th className="px-2 py-2 text-left font-black text-slate-100 uppercase tracking-wider">Projeto / Cliente</th>
+
+                                    <th className="px-2 py-2 text-left font-black text-slate-100 uppercase tracking-wider">Data Final</th>
                                     {SETORES.map(s => (
-                                        <th key={s.key} className="px-1 py-2 text-center font-black text-slate-500 uppercase tracking-wider" style={{ width: 65 }}>
+                                        <th key={s.key} className="px-1 py-2 text-center font-black text-slate-100 uppercase tracking-wider" style={{ width: 65 }}>
                                             {s.label}
                                         </th>
                                     ))}
-                                    <th className="px-2 py-2 text-right font-black text-slate-500 uppercase tracking-wider w-20">Ações</th>
+                                    <th className="px-2 py-2 text-right font-black text-slate-100 uppercase tracking-wider w-20">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 bg-white">
@@ -1069,14 +1071,12 @@ export default function AcompanhamentoGeralPage() {
                                                 isSelected ? 'bg-indigo-50/50' : 'hover:bg-slate-50/50'
                                             }`}
                                         >
-                                            <td className="px-2 py-1.5 font-bold text-slate-400">#{p.IdProjeto}</td>
+                                            
                                             <td className="px-2 py-1.5">
                                                 <div className="font-black text-slate-800 leading-tight">{p.Projeto}</div>
                                                 <div className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.DescEmpresa || 'Sem Cliente'}</div>
                                             </td>
-                                            <td className="px-2 py-1.5">
-                                                <StatusBadge status={p.StatusProj} desc={p.DescStatus} finalizado={p.Finalizado} />
-                                            </td>
+                                            
                                             <td className="px-2 py-1.5 font-bold text-slate-600 whitespace-nowrap">
                                                 {fmtDate(p.DataPrevisao)}
                                             </td>

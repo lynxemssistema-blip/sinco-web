@@ -315,9 +315,6 @@ export default function AcabamentoPage() {
                                             transition={{ delay: idx * 0.03 }}
                                             className="hover:bg-gray-50/50 transition-colors"
                                         >
-                                            <td className="px-4 py-3 text-sm text-gray-500 font-mono">
-                                                {acabamento.IDAcabamento}
-                                            </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">

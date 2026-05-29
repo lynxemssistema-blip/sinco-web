@@ -60,6 +60,7 @@ const emptyForm: Material = {
 
 export default function MaterialPage() {
     const [materiais, setMateriais] = useState<Material[]>([]);
+    const [showFilters, setShowFilters] = useState(true);
     const [formData, setFormData] = useState<Material>(emptyForm);
     const [isEditing, setIsEditing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -261,7 +262,9 @@ export default function MaterialPage() {
             )}
 
             {/* Search Bar */}
-            <div className="relative max-w-md flex items-center gap-2">
+            <div className="flex justify-between items-center bg-white p-2 border border-gray-200 rounded-xl shadow-sm mb-4">
+                {showFilters ? (
+                    <div className="relative max-w-md flex-1 flex items-center gap-2">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
@@ -277,6 +280,19 @@ export default function MaterialPage() {
                         <X size={18} />
                     </button>
                 )}
+            </div>
+                ) : (
+                   <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">Filtros Ocultos</span>
+                )}
+                
+                <button 
+                    onClick={() => {
+                        setShowFilters(!showFilters);
+                    }} 
+                    className="text-[10px] ml-auto flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-3 py-2 rounded transition-colors border border-gray-200 uppercase font-bold"
+                >
+                    <Filter size={14} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+                </button>
             </div>
 
             {/* Form Modal */}

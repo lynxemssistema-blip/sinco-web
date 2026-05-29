@@ -34,6 +34,11 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     const [schemaActions, setSchemaActions] = useState<any[]>([]);
     const [comparing, setComparing] = useState(false);
     const [hasCompared, setHasCompared] = useState(false);
+    const [selectedActions, setSelectedActions] = useState<Set<number>>(new Set());
+    const [syncResults, setSyncResults] = useState<any[]>([]);
+    const [syncing, setSyncing] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
+    const [history, setHistory] = useState<any[]>([]);
 
     // Users State
     const [users, setUsers] = useState<any[]>([]);
@@ -357,36 +362,50 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
         }
     };
 
-    const handleSyncSchema = async () => {
+    const handleSyncSchema = async (onlySelected = true) => {
         const token = localStorage.getItem('superadmin_token');
-        if (!token || !destDbId || schemaActions.length === 0) return;
-
-        if (!confirm(`Confirmar execução de ${schemaActions.length} alterações no banco de destino?`)) return;
-
-        setLoading(true);
+        if (!token || !destDbId) return;
+        const toRun = onlySelected && selectedActions.size > 0
+            ? schemaActions.filter((_: any, i: number) => selectedActions.has(i))
+            : [...schemaActions];
+        if (!toRun.length) { addToast({ type: 'error', message: 'Nenhuma divergência selecionada' }); return; }
+        if (!confirm('Executar ' + toRun.length + ' alteração(ões)? Erros SQL serão ignorados e listados.')) return;
+        setSyncing(true); setSyncResults([]);
         try {
-            const sqlStatements = schemaActions.map(a => a.sql);
+            const srcTenant = tenants.find((t: any) => t.id === sourceDbId);
             const res = await fetch('/api/admin/schema/sync', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ destDbId, sqlStatements })
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ destDbId, actions: toRun, sourceDbName: srcTenant?.db_name || 'origem' })
             });
             const data = await res.json();
             if (data.success) {
-                addToast({ type: 'success', message: data.message });
-                setSchemaActions([]);
-                setHasCompared(false);
-            } else {
-                addToast({ type: 'error', message: data.message });
-            }
-        } catch (error) {
-            addToast({ type: 'error', message: 'Erro ao sincronizar schema' });
-        } finally {
-            setLoading(false);
-        }
+                setSyncResults(data.results || []);
+                const ok = (data.results || []).filter((r: any) => r.status === 'ok').length;
+                const err = (data.results || []).filter((r: any) => r.status === 'erro').length;
+                addToast({ type: err > 0 ? 'error' : 'success', message: ok + ' executado(s) · ' + err + ' com erro(s)' });
+                const runSet = new Set(toRun.map((a: any) => a.sql));
+                setSchemaActions((prev: any[]) => prev.filter((a: any) => !runSet.has(a.sql)));
+                setSelectedActions(new Set());
+            } else { addToast({ type: 'error', message: data.message }); }
+        } catch { addToast({ type: 'error', message: 'Erro ao sincronizar schema' }); }
+        finally { setSyncing(false); }
+    };
+
+    const fetchHistory = async () => {
+        const token = localStorage.getItem('superadmin_token');
+        const dest = tenants.find((t: any) => t.id === destDbId);
+        try {
+            const res = await fetch('/api/admin/schema/history?banco=' + (dest?.db_name || '') + '&limit=100',
+                { headers: { 'Authorization': 'Bearer ' + token } });
+            const data = await res.json();
+            if (data.success) { setHistory(data.data); setShowHistory(true); }
+        } catch { addToast({ type: 'error', message: 'Erro ao buscar histórico' }); }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedActions.size === schemaActions.length) setSelectedActions(new Set());
+        else setSelectedActions(new Set(schemaActions.map((_: any, i: number) => i)));
     };
 
     // --- DB CONFIG HANDLERS ---
@@ -661,53 +680,116 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
 
                         {hasCompared && (
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-wrap justify-between items-center gap-2">
                                     <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                        {schemaActions.length > 0 ? (
-                                            <span className="text-amber-600 flex items-center gap-2"><AlertTriangle size={18} /> Divergências Encontradas ({schemaActions.length})</span>
-                                        ) : (
-                                            <span className="text-green-600 flex items-center gap-2"><CheckCircle size={18} /> Estruturas Idênticas</span>
-                                        )}
+                                        {schemaActions.length > 0
+                                            ? <span className="text-amber-600 flex items-center gap-2"><AlertTriangle size={18}/> Divergências ({schemaActions.length}) · Sel.: {selectedActions.size}</span>
+                                            : <span className="text-green-600 flex items-center gap-2"><CheckCircle size={18}/> Idênticos</span>}
                                     </h3>
                                     {schemaActions.length > 0 && (
-                                        <button
-                                            onClick={handleSyncSchema}
-                                            disabled={loading}
-                                            className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 flex items-center gap-2 shadow-md shadow-green-200"
-                                        >
-                                            <RefreshCcw size={18} /> Sincronizar Agora
-                                        </button>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <button onClick={fetchHistory} className="px-3 py-1.5 text-xs border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 flex items-center gap-1"><Database size={13}/> Histórico</button>
+                                            <button onClick={toggleSelectAll} className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50">
+                                                {selectedActions.size === schemaActions.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                                            </button>
+                                            <button onClick={() => handleSyncSchema(true)} disabled={syncing || selectedActions.size === 0}
+                                                className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-2">
+                                                <RefreshCcw size={15} className={syncing ? 'animate-spin' : ''}/>
+                                                {syncing ? 'Executando...' : 'Executar Sel. (' + selectedActions.size + ')'}
+                                            </button>
+                                            <button onClick={() => handleSyncSchema(false)} disabled={syncing}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                                                Todos ({schemaActions.length})
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
                                 {schemaActions.length > 0 && (
-                                    <div className="divide-y divide-gray-100">
-                                        {schemaActions.map((action, idx) => (
-                                            <div key={idx} className="p-4 hover:bg-gray-50 group">
+                                    <div className="divide-y divide-gray-100 max-h-[45vh] overflow-y-auto">
+                                        {schemaActions.map((action: any, idx: number) => (
+                                            <div key={idx} className={'p-3 hover:bg-gray-50 ' + (selectedActions.has(idx) ? 'bg-blue-50/40' : '')}>
                                                 <div className="flex items-start gap-3">
-                                                    <div className={`p-2 rounded-lg ${action.type === 'create_table' ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-amber-100 text-amber-700'}`}>
-                                                        {action.type === 'create_table' ? <Database size={18} /> : <Code size={18} />}
+                                                    <input type="checkbox" className="mt-1 w-4 h-4 accent-blue-600 cursor-pointer shrink-0"
+                                                        checked={selectedActions.has(idx)}
+                                                        onChange={() => { const s = new Set(selectedActions); s.has(idx) ? s.delete(idx) : s.add(idx); setSelectedActions(s); }}
+                                                    />
+                                                    <div className={'p-1.5 rounded-lg shrink-0 ' + (action.type === 'create_table' ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-amber-100 text-amber-700')}>
+                                                        {action.type === 'create_table' ? <Database size={15}/> : <Code size={15}/>}
                                                     </div>
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
                                                             {action.description}
-                                                            <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-mono">{action.type}</span>
+                                                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono shrink-0">{action.type}</span>
                                                         </h4>
-                                                        <div className="mt-2 bg-gray-900 rounded p-3 text-xs text-gray-300 font-mono overflow-x-auto">
-                                                            {action.sql}
-                                                        </div>
+                                                        <div className="mt-1 bg-gray-900 rounded p-2 text-xs text-gray-300 font-mono overflow-x-auto whitespace-pre">{action.sql}</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
-                                {schemaActions.length === 0 && (
-                                    <div className="p-12 text-center text-gray-400 flex flex-col items-center">
-                                        <CheckCircle size={48} className="text-green-100 mb-4" />
-                                        <p>O banco de destino já possui todas as tabelas e colunas do banco de origem.</p>
+
+                                {syncResults.length > 0 && (
+                                    <div className="border-t border-gray-200 p-4 bg-gray-50">
+                                        <h4 className="font-bold text-gray-700 mb-2 text-sm flex items-center gap-2"><CheckCircle size={15}/> Relatório de Execução</h4>
+                                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                                            {syncResults.map((r: any, i: number) => (
+                                                <div key={i} className={'flex items-start gap-2 text-xs rounded px-3 py-1.5 ' + (r.status === 'ok' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800')}>
+                                                    {r.status === 'ok' ? <CheckCircle size={12} className="shrink-0 mt-0.5"/> : <XCircle size={12} className="shrink-0 mt-0.5"/>}
+                                                    <div className="min-w-0">
+                                                        <div className="font-semibold truncate">{r.description}</div>
+                                                        {r.error && <div className="text-red-600 text-[10px] mt-0.5">{r.error}</div>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
+
+                                {schemaActions.length === 0 && syncResults.length === 0 && (
+                                    <div className="p-10 text-center text-gray-400 flex flex-col items-center">
+                                        <CheckCircle size={40} className="text-green-100 mb-3"/>
+                                        <p>Banco de destino já está sincronizado com a origem.</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {showHistory && (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                                    <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm"><Database size={16}/> Histórico de Sincronizações</h3>
+                                    <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-700"><XCircle size={18}/></button>
+                                </div>
+                                <div className="overflow-x-auto max-h-64">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-gray-50 text-gray-500 uppercase text-[10px]">
+                                            <tr>
+                                                <th className="px-3 py-2 text-left">Data</th>
+                                                <th className="px-3 py-2 text-left">Usuário</th>
+                                                <th className="px-3 py-2 text-left">Destino</th>
+                                                <th className="px-3 py-2 text-left">Tipo</th>
+                                                <th className="px-3 py-2 text-left">Status</th>
+                                                <th className="px-3 py-2 text-left">Descrição</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {history.map((h: any) => (
+                                                <tr key={h.id} className="hover:bg-gray-50">
+                                                    <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(h.data_execucao).toLocaleString('pt-BR')}</td>
+                                                    <td className="px-3 py-2 font-medium">{h.usuario}</td>
+                                                    <td className="px-3 py-2 font-mono">{h.banco_destino}</td>
+                                                    <td className="px-3 py-2 text-gray-500">{h.tipo_acao}</td>
+                                                    <td className="px-3 py-2">
+                                                        <span className={'px-1.5 py-0.5 rounded text-[10px] font-bold ' + (h.status === 'ok' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{h.status.toUpperCase()}</span>
+                                                    </td>
+                                                    <td className="px-3 py-2 max-w-xs truncate text-gray-600" title={h.descricao}>{h.descricao}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
                     </div>

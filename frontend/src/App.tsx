@@ -77,13 +77,11 @@ function AppContent() {
             });
           savedMenu = reconcileLabels(savedMenu);
 
-          // SuperAdmin: EXCLUSIVO do banco lynxlocal + usuário com perfil superadmin
-          // Outros bancos: sem acesso ao SuperAdmin, independente do role
+          // SuperAdmin: independente do banco, se for admin tem acesso completo
           const isSuperUser =
-            user.dbName === 'lynxlocal' &&
-            (user.isSuperadmin === true ||
-             user.superadmin === 'S' ||
-             user.login?.toLowerCase() === 'superadmin');
+            user.isSuperadmin === true ||
+            user.superadmin === 'S' ||
+            user.login?.toLowerCase() === 'superadmin';
 
           // SuperAdmin: menu completo sem filtros
           if (isSuperUser) {
@@ -292,12 +290,11 @@ function AppContent() {
 
           setMenuItems(sortMenuRecursive(savedMenu));
         } else {
-          // Menu não salvo: lynxlocal recebe tudo (mas sem SuperAdmin para usuários comuns)
+          // Menu não salvo: superadmins recebem tudo
           const isSuperDefault =
-            user.dbName === 'lynxlocal' &&
-            (user.isSuperadmin === true ||
-             user.superadmin === 'S' ||
-             user.login?.toLowerCase() === 'superadmin');
+            user.isSuperadmin === true ||
+            user.superadmin === 'S' ||
+            user.login?.toLowerCase() === 'superadmin';
           if (isSuperDefault) {
             setMenuItems(sortMenuRecursive(defaultMenuItems));
           } else {
@@ -314,10 +311,9 @@ function AppContent() {
       .catch(err => {
         console.error('Failed to load custom menu, using default.', err);
         const isSuperFallback =
-          user.dbName === 'lynxlocal' &&
-          (user.isSuperadmin === true ||
-           user.superadmin === 'S' ||
-           user.login?.toLowerCase() === 'superadmin');
+          user.isSuperadmin === true ||
+          user.superadmin === 'S' ||
+          user.login?.toLowerCase() === 'superadmin';
         if (isSuperFallback) {
           setMenuItems(sortMenuRecursive(defaultMenuItems));
           return;

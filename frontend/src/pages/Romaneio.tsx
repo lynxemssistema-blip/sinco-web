@@ -656,7 +656,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
-                                type="text"
+                                type="search"
                                 placeholder="Buscar por Cliente, ID ou Descrição..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -898,7 +898,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         <div className="flex flex-col gap-1">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Projeto</label>
                                             <input
-                                                type="text"
+                                                type="search"
                                                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
                                                 placeholder="BUSCAR PROJETO..."
                                                 value={itemFilters.projeto}
@@ -908,7 +908,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         <div className="flex flex-col gap-1">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Tag</label>
                                             <input
-                                                type="text"
+                                                type="search"
                                                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
                                                 placeholder="BUSCAR TAG..."
                                                 value={itemFilters.tag}
@@ -918,7 +918,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
                                             <input
-                                                type="text"
+                                                type="search"
                                                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
                                                 placeholder="BUSCAR RESUMO..."
                                                 value={itemFilters.resumo}
@@ -928,7 +928,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         <div className="flex flex-col gap-1">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Cod. FabricANTE</label>
                                             <input
-                                                type="text"
+                                                type="search"
                                                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
                                                 placeholder="BUSCAR CÓDIGO..."
                                                 value={itemFilters.codFabricante}
@@ -1099,7 +1099,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         <div className="flex flex-col gap-1 col-span-1 md:col-span-1 lg:col-span-2">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
                                             <input
-                                                type="text"
+                                                type="search"
                                                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-cyan-500/20 outline-none uppercase"
                                                 placeholder="RESUMO..."
                                                 value={insertedFilters.resumo}
