@@ -283,11 +283,11 @@ export default function AcabamentoPage() {
                 ) : (
                     <div className="overflow-auto flex-1">
                         <table className="w-full">
-                            <thead>
-                                <tr className="bg-gray-50 border-b border-gray-100">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white">
+                                <tr className=" border-b border-white/20">
                                     
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição Acabamento</th>
-                                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Ações</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Descrição Acabamento</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold text-white uppercase tracking-wider w-28">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">

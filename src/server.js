@@ -7439,10 +7439,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             AND osi.Liberado_Engenharia = 'S'
             AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
             AND (
-                NULLIF(TRIM(osi.txtCorte), '') = '1' OR 
-                NULLIF(TRIM(osi.txtDobra), '') = '1' OR 
-                NULLIF(TRIM(osi.txtSolda), '') = '1' OR 
-                NULLIF(TRIM(osi.txtPintura), '') = '1'
+                osi.txtCorte = '1' OR 
+                osi.txtDobra = '1' OR 
+                osi.txtSolda = '1' OR 
+                osi.txtPintura = '1'
             )
         `;
         const params = [];
@@ -7459,10 +7459,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             params.push(`%${tag}%`, `%${tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
+        // Filtro Ordem de Serviço: busca apenas por ID da OS
         if (os) {
-            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
-            params.push(os, `%${os}%`);
+            whereClause += ' AND os.IdOrdemServico = ?';
+            params.push(os);
         }
 
         if (item) {
@@ -7484,10 +7484,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
         // Filter by overall status
         if (status === 'pendente') {
             whereClause += ` AND (
-                (NULLIF(TRIM(osi.txtCorte), '') = '1' AND (osi.CorteTotalExecutado IS NULL OR osi.CorteTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtDobra), '') = '1' AND (osi.DobraTotalExecutado IS NULL OR osi.DobraTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtSolda), '') = '1' AND (osi.SoldaTotalExecutado IS NULL OR osi.SoldaTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtPintura), '') = '1' AND (osi.PinturaTotalExecutado IS NULL OR osi.PinturaTotalExecutado < osi.QtdeTotal))
+                (osi.txtCorte = '1' AND (osi.CorteTotalExecutado IS NULL OR osi.CorteTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtDobra = '1' AND (osi.DobraTotalExecutado IS NULL OR osi.DobraTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtSolda = '1' AND (osi.SoldaTotalExecutado IS NULL OR osi.SoldaTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtPintura = '1' AND (osi.PinturaTotalExecutado IS NULL OR osi.PinturaTotalExecutado < osi.QtdeTotal))
             )`;
         }
 
@@ -7560,7 +7560,7 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
             LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto
             WHERE ${whereClause}
-            ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+            ORDER BY osi.IdOrdemServico DESC, osi.IdOrdemServicoItem
             LIMIT ${limitNum} OFFSET ${offsetNum}
         `, params);
 
@@ -7598,14 +7598,27 @@ app.get('/api/apontamento/planejamento/diario', async (req, res) => {
                 COALESCE(oi.PlanejadoInicioMontagem, os.PlanejadoInicioMontagem) as PlanejadoInicioMontagem,
                 COALESCE(oi.PlanejadoFinalMontagem, os.PlanejadoFinalMontagem) as PlanejadoFinalMontagem,
                 oi.txtCorte, oi.txtDobra, oi.txtSolda, oi.txtPintura, oi.TxtMontagem as txtMontagem,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'corte') as CorteTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'dobra') as DobraTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'solda') as SoldaTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'pintura') as PinturaTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'montagem') as MontagemTotalExecutado
+                COALESCE(ctrl.CorteTotalExecutado, 0) as CorteTotalExecutado,
+                COALESCE(ctrl.DobraTotalExecutado, 0) as DobraTotalExecutado,
+                COALESCE(ctrl.SoldaTotalExecutado, 0) as SoldaTotalExecutado,
+                COALESCE(ctrl.PinturaTotalExecutado, 0) as PinturaTotalExecutado,
+                COALESCE(ctrl.MontagemTotalExecutado, 0) as MontagemTotalExecutado
             FROM ordemservicoitem oi
             JOIN ordemservico os ON oi.IdOrdemServico = os.IdOrdemServico
-            WHERE 1=1
+            LEFT JOIN (
+                SELECT 
+                    IdOrdemServicoItem,
+                    SUM(CASE WHEN Processo = 'corte' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as CorteTotalExecutado,
+                    SUM(CASE WHEN Processo = 'dobra' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as DobraTotalExecutado,
+                    SUM(CASE WHEN Processo = 'solda' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as SoldaTotalExecutado,
+                    SUM(CASE WHEN Processo = 'pintura' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as PinturaTotalExecutado,
+                    SUM(CASE WHEN Processo = 'montagem' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as MontagemTotalExecutado
+                FROM ordemservicoitemcontrole
+                WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E != '*')
+                GROUP BY IdOrdemServicoItem
+            ) ctrl ON ctrl.IdOrdemServicoItem = oi.IdOrdemServicoItem
+            WHERE (oi.D_E_L_E_T_E IS NULL OR oi.D_E_L_E_T_E = '' OR oi.D_E_L_E_T_E != '*')
+              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
         `;
 
         const params = [];
@@ -7760,10 +7773,10 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             params.push(`%${req.query.tag}%`, `%${req.query.tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
+        // Filtro Ordem de Serviço: busca apenas por ID da OS
         if (req.query.os) {
-            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
-            params.push(req.query.os, `%${req.query.os}%`);
+            whereClause += ' AND os.IdOrdemServico = ?';
+            params.push(req.query.os);
         }
 
         // Filtro Cliente: busca por descrição (LIKE)
@@ -7833,7 +7846,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
                 GROUP BY IdOrdemServicoItem
             ) history ON history.IdOrdemServicoItem = osi.IdOrdemServicoItem
             WHERE ${whereClause}
-            ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+            ORDER BY osi.IdOrdemServico DESC, osi.IdOrdemServicoItem
             LIMIT ${limitNum} OFFSET ${offsetNum}
     `, [setor, ...params]);
 
@@ -10038,29 +10051,50 @@ app.post('/api/admin/db/save', authenticateAdmin, async (req, res) => {
 app.get('/api/controle-expedicao', async (req, res) => {
     try {
         const { projeto, tag, descTag, empresa, codmat, descResumo, dataPrevisaoInicio, dataPrevisaoFim, concluidos } = req.query;
-        let query = "SELECT IdProjeto, Projeto, DescEmpresa, Tag, DescTag, codmatfabricante, DataPrevisao, QtdeTotal, PesoUnitario, MontagemTotalExecutado, TotalExpedicao, Comprimento, Profundidade, Largura, descresumo, descdetal, RealizadoInicioExpedicao, RealizadoFinalExpedicao, IdTag, Idordemservico, IdOrdemServicoItem, Finalizadotag, FinalizadoProjeto, OrdemServicoItemFinalizado, enderecoarquivo, ProdutoPrincipal FROM viewcontroleexpedicao WHERE 1=1";
+        let query = `
+SELECT 
+    p.IdProjeto as IdProjeto, p.Projeto as Projeto, 
+    CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa,
+    t.Tag as Tag, t.DescTag as DescTag, o.CodMatFabricante as codmatfabricante, 
+    t.DataPrevisao as DataPrevisao, o.QtdeTotal as QtdeTotal, o.Peso as PesoUnitario, 
+    t.MontagemTotalExecutado as MontagemTotalExecutado, t.TotalExpedicao as TotalExpedicao, 
+    COALESCE(o.Comprimentocaixadelimitadora, o.Altura) as Comprimento, COALESCE(o.Espessuracaixadelimitadora, o.Espessura) as Profundidade, COALESCE(o.Larguracaixadelimitadora, o.Largura) as Largura, 
+    o.DescResumo as descresumo, o.DescDetal as descdetal, 
+    t.RealizadoInicioExpedicao as RealizadoInicioExpedicao, t.RealizadoFinalExpedicao as RealizadoFinalExpedicao, 
+    t.IdTag as IdTag, os.IdOrdemServico as Idordemservico, o.IdOrdemServicoItem as IdOrdemServicoItem, 
+    t.Finalizado as Finalizadotag, p.Finalizado as FinalizadoProjeto, 
+    o.OrdemServicoItemFinalizado as OrdemServicoItemFinalizado, o.EnderecoArquivo as enderecoarquivo, o.ProdutoPrincipal as ProdutoPrincipal
+FROM ordemservicoitem o
+JOIN ordemservico os ON o.IdOrdemServico = os.IdOrdemServico
+JOIN tags t ON os.IdTag = t.IdTag
+JOIN projetos p ON os.IdProjeto = p.IdProjeto
+WHERE (o.D_E_L_E_T_E IS NULL OR o.D_E_L_E_T_E = '' OR o.D_E_L_E_T_E != '*')
+  AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
+  AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '' OR t.D_E_L_E_T_E != '*')
+  AND (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '' OR p.D_E_L_E_T_E != '*')
+`;
         const queryParams = [];
 
-        if (projeto) { query += " AND Projeto LIKE ?"; queryParams.push(`%${projeto}%`); }
-        if (tag) { query += " AND Tag LIKE ?"; queryParams.push(`%${tag}%`); }
-        if (descTag) { query += " AND DescTag LIKE ?"; queryParams.push(`%${descTag}%`); }
-        if (empresa) { query += " AND DescEmpresa LIKE ?"; queryParams.push(`%${empresa}%`); }
-        if (codmat) { query += " AND codmatfabricante LIKE ?"; queryParams.push(`%${codmat}%`); }
-        if (descResumo) { query += " AND DescResumo LIKE ?"; queryParams.push(`%${descResumo}%`); } 
+        if (projeto) { query += " AND p.Projeto LIKE ?"; queryParams.push(`%${projeto}%`); }
+        if (tag) { query += " AND t.Tag LIKE ?"; queryParams.push(`%${tag}%`); }
+        if (descTag) { query += " AND t.DescTag LIKE ?"; queryParams.push(`%${descTag}%`); }
+        if (empresa) { query += " AND (p.DescEmpresa LIKE ? OR p.ClienteProjeto LIKE ?)"; queryParams.push(`%${empresa}%`, `%${empresa}%`); }
+        if (codmat) { query += " AND o.CodMatFabricante LIKE ?"; queryParams.push(`%${codmat}%`); }
+        if (descResumo) { query += " AND o.DescResumo LIKE ?"; queryParams.push(`%${descResumo}%`); } 
         
         if (dataPrevisaoInicio && dataPrevisaoFim) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') BETWEEN ? AND ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') BETWEEN ? AND ?";
             queryParams.push(dataPrevisaoInicio, dataPrevisaoFim);
         } else if (dataPrevisaoInicio) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') >= ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') >= ?";
             queryParams.push(dataPrevisaoInicio);
         } else if (dataPrevisaoFim) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') <= ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') <= ?";
             queryParams.push(dataPrevisaoFim);
         }
         
         if (!concluidos || concluidos !== '1') {
-            query += " AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado <> 'C') AND (Finalizadotag IS NULL OR Finalizadotag <> 'C')";
+            query += " AND (o.OrdemServicoItemFinalizado IS NULL OR o.OrdemServicoItemFinalizado <> 'C') AND (t.Finalizado IS NULL OR t.Finalizado <> 'C')";
         }
 
         query += " ORDER BY Projeto ASC, Tag ASC LIMIT 1000";

@@ -681,7 +681,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                     <div className="overflow-auto flex-1">
                         <table className="w-full">
-                            <thead className="bg-gray-50 text-gray-500 text-sm font-medium uppercase tracking-wider">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white text-sm font-medium uppercase tracking-wider">
                                 <tr>
                                     
                                     <th className="px-6 py-4 text-left">Status</th>
@@ -982,8 +982,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                 {/* RESULTS TABLE */}
                                 <div className="flex-1 overflow-auto p-6">
                                     <table className="w-full text-sm">
-                                        <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 z-10">
-                                            <tr className="text-gray-500 font-bold uppercase text-[10px] tracking-wider">
+                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white sticky top-0 bg-[#567469] border-b border-white/20 z-10">
+                                            <tr className="text-white font-bold uppercase text-[10px] tracking-wider">
                                                 <th className="px-4 py-3 text-left">Projeto</th>
                                                 <th className="px-4 py-3 text-left">Tag</th>
                                                 <th className="px-4 py-3 text-left">Descrição</th>
@@ -1189,8 +1189,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                 {/* RESULTS TABLE */}
                                 <div className="flex-1 overflow-auto p-6">
                                     <table className="w-full text-sm">
-                                        <thead className="sticky top-0 bg-white border-b border-gray-200 z-10">
-                                            <tr className="text-gray-500 font-bold uppercase text-[10px] tracking-wider">
+                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0  border-b border-white/20 z-10">
+                                            <tr className="text-white font-bold uppercase text-[10px] tracking-wider">
                                                 <th className="px-4 py-3 text-left">Descrição</th>
                                                 <th className="px-4 py-3 text-center">Unidade</th>
                                                 <th className="px-4 py-3 text-right">Qtde Romaneio</th>
@@ -1354,7 +1354,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                     {/* Items Table */}
                     <div className="overflow-auto flex-1">
                         <table className="w-full text-left border-collapse">
-                            <thead>
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white">
                                 <tr className="bg-[#32423D] text-white text-[10px] uppercase tracking-widest font-bold">
                                     <th className="px-6 py-4">Item</th>
                                     <th className="px-6 py-4">Projeto</th>

@@ -452,7 +452,7 @@ export default function TarefasPage() {
 
                 <div className="table-container relative">
                     <table className="w-full text-left text-[11px] whitespace-nowrap">
-                        <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <tr>
                                 
                                 <th className="px-3 py-2">Situação</th>

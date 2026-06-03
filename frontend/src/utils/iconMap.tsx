@@ -7,7 +7,7 @@ import {
     Truck, Archive, Hammer, Shield, Zap, Menu, Grid, Camera, FilePlus,
     FolderUp, FileCheck, FileX, RefreshCw, Trash2, XCircle, FileSpreadsheet, CheckCircle, ArrowLeftCircle,
     BarChart3, ShieldAlert, Database, Network, PackageCheck, FileSearch, ListTodo, ListChecks, Wrench, Scissors,
-    UserCheck
+    UserCheck, LogIn, MonitorPlay, PieChart
 } from 'lucide-react';
 
 export const iconMap: Record<string, any> = {
@@ -61,6 +61,9 @@ export const iconMap: Record<string, any> = {
     Wrench,
     Scissors,
     UserCheck,
+    LogIn,
+    MonitorPlay,
+    PieChart,
 };
 
 export const getIcon = (name: string) => {

@@ -201,7 +201,7 @@ export default function RomaneioRetornoPage() {
                     </div>
                     <div className="flex-1 overflow-auto">
                         <table className="w-full text-left border-collapse">
-                            <thead className="bg-[#32423D] text-white text-xs sticky top-0 z-10">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white text-xs sticky top-0 z-10">
                                 <tr>
                                     <th className="px-4 py-3 uppercase tracking-wider">Status</th>
                                     <th className="px-4 py-3 uppercase tracking-wider">Romaneio</th>
@@ -263,7 +263,7 @@ export default function RomaneioRetornoPage() {
                     </div>
                     <div className="flex-1 overflow-auto">
                         <table className="w-full text-left border-collapse">
-                            <thead className="bg-gray-200 text-gray-700 text-[10px] uppercase sticky top-0 z-10 font-bold">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white text-[10px] uppercase sticky top-0 z-10 font-bold">
                                 <tr>
                                     <th className="px-4 py-2">Data/Hora</th>
                                     <th className="px-4 py-2">Quantidade</th>

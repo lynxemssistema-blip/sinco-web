@@ -8,7 +8,7 @@ import {
 , Filter} from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
 
-import { formatToBRDate } from '../utils/dateUtils';
+import { formatToBRDate, isDateInPast } from '../utils/dateUtils';
 
 const API_BASE = '/api';
 
@@ -837,7 +837,18 @@ export default function ProjetoPage() {
                         <p className="text-sm">Nenhum projeto encontrado</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="flex flex-col h-full min-h-0">
+                        {/* Headers */}
+                        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-10">
+                            <div className="w-6 h-6"></div>
+                            <div className="w-9 h-9"></div>
+                            <div className="flex-1 min-w-0">Projeto / Cliente</div>
+                            <div className="hidden sm:block w-28 text-center sm:text-left">Dt. Previsão</div>
+                            <div className="hidden sm:block w-24">Prazo</div>
+                            <div className="hidden sm:block w-[70px]">Status</div>
+                            <div className="flex items-center justify-end w-[140px]">Ações</div>
+                        </div>
+                        <div className="divide-y divide-gray-100 overflow-y-auto min-h-0">
                         {filteredProjetos.map((projeto, idx) => {
                             const isExpanded = expandedProjects.has(projeto.IdProjeto!);
                             const tags = projectTags[projeto.IdProjeto!] || [];
@@ -874,13 +885,15 @@ export default function ProjetoPage() {
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-gray-400 font-mono">{projeto.IdProjeto}</span>
                                                 <span className="text-sm font-medium text-gray-900 truncate">{projeto.Projeto}</span>
+                                                <span className="text-xs text-gray-500 truncate ml-2 border-l border-gray-300 pl-2">
+                                                    {(projeto.DescEmpresa && !projeto.DescEmpresa.toLowerCase().includes('sem cliente') && projeto.DescEmpresa !== 'SEM CLIENTE DEFINIDO') ? projeto.DescEmpresa : (projeto.ClienteProjeto || 'Sem cliente')}
+                                                </span>
                                             </div>
-                                            <div className="text-xs text-gray-500 truncate">{(projeto.DescEmpresa && !projeto.DescEmpresa.toLowerCase().includes('sem cliente') && projeto.DescEmpresa !== 'SEM CLIENTE DEFINIDO') ? projeto.DescEmpresa : (projeto.ClienteProjeto || 'Sem cliente')}</div>
                                         </div>
 
                                         {/* Data Previsão */}
-                                        <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500 w-28" title="Previsão de Entrega">
-                                            <Calendar size={14} className="text-gray-400" />
+                                        <div className={`hidden sm:flex items-center gap-1 text-sm w-28 ${isDateInPast(projeto.DataPrevisao) ? 'text-red-500 font-semibold' : 'text-gray-500'}`} title="Previsão de Entrega">
+                                            <Calendar size={14} className={isDateInPast(projeto.DataPrevisao) ? 'text-red-400' : 'text-gray-400'} />
                                             {formatToBRDate(projeto.DataPrevisao)}
                                         </div>
 
@@ -1044,6 +1057,7 @@ export default function ProjetoPage() {
                                 </div>
                             );
                         })}
+                        </div>
                     </div>
                 )
                 }

@@ -476,18 +476,18 @@ export default function ProducaoPlanoCorte() {
                         </div>
                     )}
                     <table className="w-full text-[11px] text-left border-separate border-spacing-0">
-                        <thead className="bg-slate-50 sticky top-0 z-10">
-                            <tr className="border-b border-slate-200">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
+                            <tr className="border-b border-white/20">
                                 
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Descrição</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Espessura</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Material SW</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 italic">Liberação Eng.</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Liberado em</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
-                                <th className="px-3 py-2 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Exec.</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Descrição</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Espessura</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Material SW</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 italic">Liberação Eng.</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Liberado em</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
+                                <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Exec.</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -557,7 +557,7 @@ export default function ProducaoPlanoCorte() {
                             </div>
                         )}
                         <table className="w-full text-[10px] text-left border-separate border-spacing-0">
-                            <thead className="bg-indigo-50/30 sticky top-0 z-10 backdrop-blur-sm">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10 backdrop-blur-sm">
                                 <tr>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Ações</th>
                                     <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>

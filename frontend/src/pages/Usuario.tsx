@@ -188,13 +188,13 @@ export default function UsuarioPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-auto flex-1">
                     <table className="w-full">
-                        <thead className="bg-gray-50/50 border-b border-gray-100">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] border-b border-white/20">
                             <tr>
-                                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nome</th>
-                                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Login</th>
-                                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
-                                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                                <th className="text-right py-4 px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Ações</th>
+                                <th className="text-left py-4 px-6 text-xs font-semibold text-white uppercase tracking-wider">Nome</th>
+                                <th className="text-left py-4 px-6 text-xs font-semibold text-white uppercase tracking-wider">Login</th>
+                                <th className="text-left py-4 px-6 text-xs font-semibold text-white uppercase tracking-wider">Tipo</th>
+                                <th className="text-left py-4 px-6 text-xs font-semibold text-white uppercase tracking-wider">Status</th>
+                                <th className="text-right py-4 px-6 text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">

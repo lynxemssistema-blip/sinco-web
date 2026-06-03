@@ -1,6 +1,6 @@
 import { usePersistentState } from '../hooks/usePersistentState';
 import React, { useState, useEffect } from 'react';
-
+import { useAppConfig } from '../contexts/AppConfigContext';
 import { 
     Search, Filter, Save, X, Calendar, Edit3, Briefcase, 
     ChevronDown, ChevronUp, AlertCircle, CheckCircle, Maximize2, Minimize2
@@ -92,6 +92,11 @@ interface EtapasRow {
 }
 
 export default function AcompanhamentoEtapas() {
+    const { processosVisiveis, nomesProcessosEngenharia } = useAppConfig();
+    const isVisible = (sector: string) => processosVisiveis.includes(sector);
+    const customName = (sector: string, def: string) => nomesProcessosEngenharia[sector as keyof typeof nomesProcessosEngenharia] || def;
+    const visibleEngSectors = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'].filter(s => isVisible(s));
+
     const [data, setData] = useState<EtapasRow[]>([]);
     const [loading, setLoading] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -551,7 +556,7 @@ export default function AcompanhamentoEtapas() {
                     ) : (
                         <div className="scrollable-table bg-white shadow-sm border border-gray-200 rounded-md relative">
                             <table className="w-full text-left border-collapse min-w-[1200px]">
-                                <thead className="sticky top-0 z-40 bg-[#0B3A2D] shadow-sm">
+                                <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-40 bg-[#0B3A2D] shadow-sm">
                                     {/* CABEÇALHO PRINCIPAL */}
                                     <tr className="bg-[#0B3A2D] text-white text-[10px] uppercase tracking-wider border-b-2 border-[#1b6351]">
                                         <th rowSpan={2} className="p-2 border-r border-[#1b6351] sticky left-0 bg-[#0B3A2D] z-50 w-[80px]">Doc/Proj</th>

@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Plus, Search, Edit2, Trash2, X, Package, Save,
+    Plus, Search, Edit2, Trash2, X, Package, Save, Filter,
     Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon, Globe
 } from 'lucide-react';
 
@@ -711,15 +711,15 @@ export default function MaterialPage() {
                 ) : (
                     <div className="overflow-auto flex-1">
                         <table className="w-full">
-                            <thead>
-                                <tr className="bg-gray-50 border-b border-gray-100">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white">
+                                <tr className=" border-b border-white/20">
                                     
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Img</th>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Código</th>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descrição</th>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Família</th>
-                                    <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fornecedor</th>
-                                    <th className="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Ações</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider w-16">Img</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Código</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Descrição</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Família</th>
+                                    <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Fornecedor</th>
+                                    <th className="px-3 py-3 text-right text-xs font-semibold text-white uppercase tracking-wider w-24">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">

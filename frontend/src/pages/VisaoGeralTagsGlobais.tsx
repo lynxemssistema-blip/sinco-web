@@ -234,15 +234,15 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
 
             <div className="flex-1 overflow-auto bg-white">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-[#f8fafc] sticky top-0 z-10 shadow-sm border-b border-slate-200">
+                    <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10 shadow-sm border-b border-white/20">
                         <tr>
-                            <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider border-r border-slate-200 min-w-[200px]">Tag / Descrição</th>
-                            <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider border-r border-slate-200 min-w-[200px]">Projeto (Segundo Plano)</th>
-                            <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider border-r border-slate-200">Previsão</th>
+                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Tag / Descrição</th>
+                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Projeto (Segundo Plano)</th>
+                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20">Previsão</th>
                             {SECTORS.map(s => {
                                 if (fSetor && fSetor !== s.k) return null;
                                 return (
-                                    <th key={s.k} className="px-2 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider border-r border-slate-200 text-center min-w-[120px]">
+                                    <th key={s.k} className="px-2 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 text-center min-w-[120px]">
                                         <div className="flex items-center justify-center gap-1"><div className={`w-2 h-2 rounded-full ${s.c}`}></div> {s.l}</div>
                                     </th>
                                 );

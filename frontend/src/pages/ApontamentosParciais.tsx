@@ -210,7 +210,7 @@ export default function ApontamentosParciaisPage() {
             <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full text-left">
-                        <thead className="bg-[#567469] text-white text-xs uppercase tracking-wider sticky top-0 z-10">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white text-xs uppercase tracking-wider sticky top-0 z-10">
                             <tr>
                                 <th className="px-4 py-3 font-bold w-32 border-b border-[#4d665d]">Data / Hora</th>
                                 <th className="px-4 py-3 font-bold w-24 border-b border-[#4d665d] text-center">Plano de Corte</th>

@@ -249,12 +249,11 @@ export default function VisaoGeralProducaoPage() {
         try {
             const qs = new URLSearchParams();
             if (sf === 'finalizados') {
-                qs.set('finalizados', '1');
+                qs.set('modo', 'finalizados');
             } else if (sf === 'liberados') {
-                qs.set('liberados', '1');
+                qs.set('modo', 'liberados');
             } else if (sf === 'todos') {
-                qs.set('finalizados', '1');
-                qs.set('liberados', '1');
+                qs.set('modo', 'todos');
             }
 
             const { fProjPrevIni: pi, fProjPrevFim: pf, fProjCriacaoIni: ci, fProjCriacaoFim: cf } = dateFiltersRef.current;
@@ -824,7 +823,7 @@ export default function VisaoGeralProducaoPage() {
                         ) : viewMode === 'list' ? (
                             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-auto min-w-full">
                                 <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[800px]">
-                                    <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                                    <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] border-b border-white/20 sticky top-0 z-10 shadow-sm">
                                         <tr>
                                             <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
@@ -1185,16 +1184,16 @@ export default function VisaoGeralProducaoPage() {
                             ) : (
                                 <div className="min-w-max pb-32">
                                 <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
-                                    <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border-b border-slate-200">
+                                    <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border-b border-white/20">
                                         <tr>
                                             {/* Columns Fixed visually by background */}
-                                            <th className="px-4 py-3 border-r border-slate-200 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
-                                            <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Cronograma</th>
-                                            <th className="px-3 py-3 border-r border-slate-200 text-center bg-slate-50/50">Detalhes</th>
+                                            <th className="px-4 py-3 border-r border-white/20 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
+                                            <th className="px-3 py-3 border-r border-white/20 text-center /50">Cronograma</th>
+                                            <th className="px-3 py-3 border-r border-white/20 text-center /50">Detalhes</th>
                                             {viewModeTags === 'detailed' ? (
-                                                filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-slate-200 text-center min-w-[280px]">Setor: {s.k}</th>)
+                                                filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-white/20 text-center min-w-[280px]">Setor: {s.k}</th>)
                                             ) : (
-                                                <th className="px-3 py-3 border-r border-slate-200 text-center min-w-[180px]">Progresso de Setores</th>
+                                                <th className="px-3 py-3 border-r border-white/20 text-center min-w-[180px]">Progresso de Setores</th>
                                             )}
                                         </tr>
                                     </thead>
@@ -1829,7 +1828,7 @@ export default function VisaoGeralProducaoPage() {
                                 <div className="flex-1 py-0 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50 [&::-webkit-scrollbar]:h-2 relative bg-white min-h-0">
                                     <div className="w-max min-w-full pb-2">
                                         <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
-                                            <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-white/20">
                                             <tr>
                                                 
                                                 <th className="px-3 py-2.5">Status</th>
@@ -2021,7 +2020,7 @@ export default function VisaoGeralProducaoPage() {
                                 <div className="flex-1 py-0 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50 [&::-webkit-scrollbar]:h-2 relative bg-white min-h-0">
                                     <div className="w-max min-w-full pb-2">
                                         <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
-                                            <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-white/20">
                                             <tr>
                                                 
                                                 <th className="px-3 py-2.5">Status</th>
@@ -2115,9 +2114,9 @@ export default function VisaoGeralProducaoPage() {
                             ) : (
                                 <div className="border border-slate-200 rounded-xl overflow-hidden">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] font-bold uppercase">
+                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] border-b border-white/20 text-white text-[10px] font-bold uppercase">
                                             <tr>
-                                                <th className="px-3 py-2 border-r border-slate-200">ID da O.S</th>
+                                                <th className="px-3 py-2 border-r border-white/20">ID da O.S</th>
                                                 <th className="px-3 py-2">Descrição</th>
                                             </tr>
                                         </thead>

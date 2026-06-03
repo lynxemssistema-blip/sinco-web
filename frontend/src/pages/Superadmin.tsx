@@ -590,7 +590,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                         <h3 className="text-lg font-semibold mb-4 text-gray-800">Usuários Globais (Centralizados)</h3>
                         <div className="overflow-auto flex-1">
                             <table className="w-full text-sm text-left text-gray-500">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <thead className="bg-[#567469] text-white bg-[#567469] text-white text-xs text-white uppercase bg-[#567469]">
                                     <tr>
                                         
                                         <th className="px-6 py-3">Login</th>
@@ -764,7 +764,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                                 </div>
                                 <div className="overflow-x-auto max-h-64">
                                     <table className="w-full text-xs">
-                                        <thead className="bg-gray-50 text-gray-500 uppercase text-[10px]">
+                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white uppercase text-[10px]">
                                             <tr>
                                                 <th className="px-3 py-2 text-left">Data</th>
                                                 <th className="px-3 py-2 text-left">Usuário</th>

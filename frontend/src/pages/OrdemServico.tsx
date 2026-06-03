@@ -2629,14 +2629,14 @@ function OrdemServicoContent() {
                                         </div>
                                     ) : (
                                         <table className="w-full text-sm border-collapse">
-                                            <thead className="bg-gray-50 border-b border-gray-100 sticky top-0 z-10">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] border-b border-white/20 sticky top-0 z-10">
                                                 <tr>
                                                     <th className="w-10 px-3 py-2.5"></th>
-                                                    <th className="px-3 py-2.5 text-left text-xs text-gray-400 font-semibold uppercase">Código</th>
-                                                    <th className="px-3 py-2.5 text-left text-xs text-gray-400 font-semibold uppercase">Descrição</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-gray-400 font-semibold uppercase">Qtde</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-gray-400 font-semibold uppercase">Peso (kg)</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-gray-400 font-semibold uppercase">Área (m²)</th>
+                                                    <th className="px-3 py-2.5 text-left text-xs text-white font-semibold uppercase">Código</th>
+                                                    <th className="px-3 py-2.5 text-left text-xs text-white font-semibold uppercase">Descrição</th>
+                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Qtde</th>
+                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Peso (kg)</th>
+                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Área (m²)</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
@@ -2778,15 +2778,15 @@ function OrdemServicoContent() {
                                     </div>
                                 ) : (
                                     <table className="w-full text-xs">
-                                        <thead className="sticky top-0 bg-gray-50 z-10">
-                                            <tr className="border-b border-gray-200">
-                                                <th className="w-10 px-4 py-2 text-center text-gray-400"></th>
-                                                <th className="px-3 py-2 text-left font-semibold text-gray-500">Código</th>
-                                                <th className="px-3 py-2 text-left font-semibold text-gray-500">Descrição</th>
-                                                <th className="px-3 py-2 text-left font-semibold text-gray-500 hidden md:table-cell">Projeto / Tag</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-gray-500 hidden lg:table-cell">Espessura</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-gray-500 hidden lg:table-cell">Material</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-gray-500">Peso (kg)</th>
+                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white sticky top-0 bg-[#567469] z-10">
+                                            <tr className="border-b border-white/20">
+                                                <th className="w-10 px-4 py-2 text-center text-white"></th>
+                                                <th className="px-3 py-2 text-left font-semibold text-white">Código</th>
+                                                <th className="px-3 py-2 text-left font-semibold text-white">Descrição</th>
+                                                <th className="px-3 py-2 text-left font-semibold text-white hidden md:table-cell">Projeto / Tag</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-white hidden lg:table-cell">Espessura</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-white hidden lg:table-cell">Material</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-white">Peso (kg)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -3230,7 +3230,7 @@ function OrdemServicoContent() {
                                                     <div className="p-4 text-center text-sm text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
                                                 ) : (
                                                     <table className="w-full text-left text-xs text-gray-600">
-                                                        <thead className="bg-gray-50 sticky top-0 border-b border-gray-200 shadow-sm text-gray-500 font-semibold">
+                                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] sticky top-0 border-b border-white/20 shadow-sm text-white font-semibold">
                                                             <tr>
                                                                 <th className="px-2 py-2 whitespace-nowrap">ST</th>
                                                                 <th className="px-2 py-2 whitespace-nowrap">IDRNC</th>

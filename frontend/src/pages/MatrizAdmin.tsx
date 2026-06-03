@@ -152,9 +152,7 @@ export default function MatrizAdmin() {
                         {originalId !== null ? 'Editar Matriz' : 'Cadastrar Nova Matriz'}
                     </h3>
                     <form onSubmit={handleSave} className="flex gap-4 items-end">
-                        {originalId !== null && (
-                            
-                        )}
+
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-foreground mb-1">Descrição da Nova Matriz</label>
                             <input
@@ -190,7 +188,7 @@ export default function MatrizAdmin() {
             <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                 <div className="overflow-auto flex-1">
                     <table className="w-full text-left border-collapse">
-                        <thead>
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white">
                             <tr className="bg-muted/50 border-b border-border text-sm">
                                 <th className="p-4 font-semibold text-foreground w-32">Id da Matriz</th>
                                 <th className="p-4 font-semibold text-foreground">Descrição da Matriz</th>

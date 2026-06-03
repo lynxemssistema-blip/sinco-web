@@ -207,7 +207,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  @apply bg-secondary/90 text-muted-foreground backdrop-blur-md;
+  @apply bg-secondary/90 text-white backdrop-blur-md;
 }
 
 /* ===================================================

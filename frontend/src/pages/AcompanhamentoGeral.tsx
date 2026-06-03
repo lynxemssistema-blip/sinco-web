@@ -150,7 +150,7 @@ const StatusBadge = ({ status, desc, finalizado }: { status: string; desc: strin
 
 const MiniBar = ({ pct, color }: { pct: number; color: string }) => (
     <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+        <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color }} />
     </div>
 );
 
@@ -164,8 +164,8 @@ const SetorCell = ({ total, exec, pct, color }: { total: number; exec: number; p
                     <span className="text-[9px] font-black" style={{ color }}>{exec}</span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100">
-                    <span className="text-[7.5px] font-bold text-slate-400 uppercase">Sal:</span>
-                    <span className="text-[9px] font-bold text-slate-100">{total}</span>
+                    <span className="text-[7.5px] font-bold text-slate-400 uppercase">A Exec:</span>
+                    <span className="text-[9px] font-bold text-slate-600">{total}</span>
                 </div>
             </div>
             <div className="mt-1">
@@ -307,15 +307,15 @@ function GanttChart({ data, mode }: GanttChartProps) {
             <div className="shrink-0 flex items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-200 flex-wrap">
                 <div className="flex items-center gap-1.5">
                     <div className="w-8 h-3 rounded-sm bg-slate-300 opacity-60" style={{ border: '1px dashed #94a3b8' }} />
-                    <span className="text-[10px] text-slate-100 font-semibold">Planejado</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">Planejado</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-8 h-3 rounded-sm" style={{ background: 'linear-gradient(90deg, #3b82f6 60%, #93c5fd 60%)' }} />
-                    <span className="text-[10px] text-slate-100 font-semibold">Realizado (% exec)</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">Realizado (% exec)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-px h-4 bg-red-500" />
-                    <span className="text-[10px] text-slate-100 font-semibold">Hoje</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">Hoje</span>
                 </div>
                 {SETORES.map(s => (
                     <div key={s.key} className="flex items-center gap-1">
@@ -330,13 +330,13 @@ function GanttChart({ data, mode }: GanttChartProps) {
                     {/* Header: month ticks */}
                     <div className="flex sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
                         <div className="sticky left-0 z-30 bg-white border-r shadow-sm flex items-center px-3" style={{ width: LABEL_WIDTH }}>
-                            <span className="text-[10px] font-black text-slate-100 uppercase tracking-wider">Tag / Setor</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Tag / Setor</span>
                         </div>
                         <div className="flex-1 relative h-10">
                             {months.map((m, i) => (
                                 <div key={i} className="absolute top-0 h-full flex items-center" style={{ left: `${m.leftPct}%` }}>
                                     <div className="absolute top-0 h-full w-px bg-slate-200" />
-                                    <span className="pl-1 text-[9px] font-bold text-slate-100 uppercase whitespace-nowrap">{m.label}</span>
+                                    <span className="pl-1 text-[9px] font-bold text-slate-400 uppercase whitespace-nowrap">{m.label}</span>
                                 </div>
                             ))}
                             {/* Today marker in header */}
@@ -423,7 +423,7 @@ function GanttChart({ data, mode }: GanttChartProps) {
                                                     {/* Col 4: Totals */}
                                                     <div className="flex flex-col items-end pr-2">
                                                         <span className="text-[9px] font-bold text-slate-600 tabular-nums">Exec: {bar.exec}</span>
-                                                        <span className="text-[8px] font-medium text-slate-400 tabular-nums">Sal: {bar.total}</span>
+                                                        <span className="text-[8px] font-medium text-slate-400 tabular-nums">A Exec: {bar.total}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -678,8 +678,9 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 viewMode === 'lista'
                                     ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
-                                    : 'text-slate-100 hover:text-slate-700'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                             }`}
+                            style={{ color: viewMode === 'lista' ? '#4338ca' : '#334155' }}
                         >
                             <List size={13} /> Lista
                         </button>
@@ -688,10 +689,11 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 viewMode === 'gantt'
                                     ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
-                                    : 'text-slate-100 hover:text-slate-700'
+                                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                             }`}
+                            style={{ color: viewMode === 'gantt' ? '#4338ca' : '#334155' }}
                         >
-                            <GanttChartSquare size={13} /> Gantt
+                            <GanttChartSquare size={13} /> Ver Gantt
                         </button>
                     </div>
 
@@ -722,7 +724,7 @@ function DetalheProjetoView({ projeto, onVoltar }: { projeto: ProjetoAcomp; onVo
                                         <span className="text-xs font-black" style={{ color: s.color }}>{tot[1]}</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-black/5 pb-1 mb-1">
-                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Saldo:</span>
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">A Executar:</span>
                                         <span className="text-[11px] font-bold text-slate-600">{tot[0]}</span>
                                     </div>
                                     {/* Datas Agregadas do Projeto */}
@@ -893,14 +895,14 @@ export default function AcompanhamentoGeralPage() {
                         <div className="flex bg-slate-100 p-1 rounded-xl mr-2">
                             <button
                                 onClick={() => setMainViewMode('lista')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-100 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                             >
                                 <LayoutList size={14} />
                                 Lista
                             </button>
                             <button
                                 onClick={() => setMainViewMode('gantt')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-100 hover:text-slate-700'}`}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                             >
                                 <GanttChartSquare size={14} />
                                 Ver Gantt Geral
@@ -1046,7 +1048,7 @@ export default function AcompanhamentoGeralPage() {
                 {projetos.length > 0 && (
                     mainViewMode === 'lista' ? (
                         <table className="w-full text-[11px] border-collapse" style={{ minWidth: 1000 }}>
-                            <thead className="sticky top-0 z-20 shadow-sm">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-20 shadow-sm">
                                 <tr className="bg-[#0B3A2D] text-white border-b border-[#0B3A2D]">
                                     
                                     <th className="px-2 py-2 text-left font-black text-slate-100 uppercase tracking-wider">Projeto / Cliente</th>
@@ -1073,8 +1075,10 @@ export default function AcompanhamentoGeralPage() {
                                         >
                                             
                                             <td className="px-2 py-1.5">
-                                                <div className="font-black text-slate-800 leading-tight">{p.Projeto}</div>
-                                                <div className="text-[10px] text-slate-400 truncate max-w-[200px]">{p.DescEmpresa || 'Sem Cliente'}</div>
+                                                <div className="flex items-center gap-1.5 overflow-hidden">
+                                                    <div className="font-black text-slate-800 leading-tight truncate">{p.Projeto}</div>
+                                                    <div className="text-[10px] text-slate-500 truncate uppercase shrink-0 bg-slate-100 px-1 rounded-sm">{p.DescEmpresa || 'Sem Cliente'}</div>
+                                                </div>
                                             </td>
                                             
                                             <td className="px-2 py-1.5 font-bold text-slate-600 whitespace-nowrap">

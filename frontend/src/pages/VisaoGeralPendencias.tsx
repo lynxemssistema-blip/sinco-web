@@ -259,7 +259,7 @@ export default function VisaoGeralPendenciasPage() {
                 
                 <div className="flex-1 overflow-auto custom-scrollbar">
                     <table className="w-full text-left text-[12px] whitespace-nowrap">
-                        <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <tr>
                                 <th className="px-4 py-3">ID / Origem</th>
                                 <th className="px-4 py-3">Situação</th>

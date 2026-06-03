@@ -182,7 +182,7 @@ export default function PesquisarDesenho() {
 
                 <div className="table-container">
                     <table className="w-full text-left text-[11px] whitespace-nowrap">
-                        <thead className="bg-[#f8fafc] text-slate-500 font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <tr>
                                 <th className="px-2 py-1.5 bg-[#f8fafc] sticky left-0 z-30 shadow-[1px_0_0_rgba(0,0,0,0.05)]">Ações</th>
                                 <th className="px-2 py-1.5">Projeto</th>
@@ -200,7 +200,7 @@ export default function PesquisarDesenho() {
                                 
                                 {/* Dynamic Setores Columns */}
                                 {setoresAtivos.map(setor => (
-                                    <th key={setor.idSetor} className="px-2 py-1.5 text-center border-l border-slate-200 bg-slate-100 text-[#4c5561]" title={setor.Setor}>
+                                    <th key={setor.idSetor} className="px-2 py-1.5 text-center border-l border-white/20  text-[#4c5561]" title={setor.Setor}>
                                         {setor.NomeLimpo}
                                     </th>
                                 ))}

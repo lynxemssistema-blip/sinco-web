@@ -611,7 +611,7 @@ export default function VisaoGeralEngenharia() {
                 {loading && <div className="absolute inset-0 z-20 bg-white/50 backdrop-blur-sm flex items-center justify-center"><Loader className="animate-spin text-gray-400" /></div>}
                 
                 <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
-                    <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 shadow-[0_1px_0_#d1d5db]">
+                    <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold sticky top-0 z-10 shadow-[0_1px_0_#d1d5db]">
                         <tr>
                             <th className="px-2 py-1.5 border-r border-b border-gray-300 text-center w-8">
                                 <input type="checkbox" checked={selectedIds.size === filteredTags.length && filteredTags.length > 0} onChange={toggleAll} className="w-3 h-3 cursor-pointer" />
@@ -641,7 +641,7 @@ export default function VisaoGeralEngenharia() {
                             })}
                         </tr>
                         {activeSectors.size > 0 && (
-                            <tr className="bg-gray-50 text-gray-600 text-[10px]">
+                            <tr className=" text-white text-[10px]">
                                 <th className="border-r border-b border-gray-300" colSpan={10}></th>
                                 {Array.from(activeSectors).map(s => {
                                     const colors = getSectorColors(s);
@@ -877,7 +877,7 @@ export default function VisaoGeralEngenharia() {
             {!isExpanded && (
             <div className="p-2 shrink-0 overflow-x-auto bg-gray-50 border-t border-gray-300">
                 <table className="w-full max-w-4xl text-left bg-white border border-gray-300">
-                    <thead className="bg-gray-200 text-gray-700 border-b border-gray-300">
+                    <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white border-b border-gray-300">
                         <tr>
                             <th className="px-2 py-1 border-r border-gray-300 font-bold whitespace-nowrap">Setor</th>
                             <th className="px-2 py-1 border-r border-gray-300 font-bold whitespace-nowrap">Planejado Início</th>

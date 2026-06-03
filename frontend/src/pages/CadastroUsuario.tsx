@@ -528,11 +528,11 @@ export default function CadastroUsuarioPage() {
                                 ) : (
                                     <div className="max-h-40 overflow-y-auto">
                                         <table className="w-full text-[11px]">
-                                            <thead className="bg-slate-50 sticky top-0">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0">
                                                 <tr>
                                                     
-                                                    <th className="px-3 py-1.5 text-left font-black text-slate-500 border-b border-slate-100 text-[10px] uppercase tracking-wider">Processo</th>
-                                                    <th className="px-3 py-1.5 text-left font-black text-slate-500 border-b border-slate-100 text-[10px] uppercase tracking-wider">Código</th>
+                                                    <th className="px-3 py-1.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Processo</th>
+                                                    <th className="px-3 py-1.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Código</th>
                                                     <th className="px-3 py-1.5 border-b border-slate-100 w-8"></th>
                                                 </tr>
                                             </thead>
@@ -575,7 +575,7 @@ export default function CadastroUsuarioPage() {
                                 ) : (
                                     <div className="max-h-40 overflow-y-auto">
                                         <table className="w-full text-[11px]">
-                                            <thead className="bg-amber-50 sticky top-0">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0">
                                                 <tr>
                                                     
                                                     <th className="px-3 py-1.5 text-left font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider">Processo</th>
@@ -616,15 +616,15 @@ export default function CadastroUsuarioPage() {
                     {loading && <div className="flex items-center justify-center h-32"><Loader2 className="animate-spin text-indigo-600" size={28} /></div>}
                     {!loading && (
                         <table className="w-full text-[11px] text-left border-separate border-spacing-0">
-                            <thead className="bg-slate-50 sticky top-0 z-10">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center w-12">#</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Nome Completo</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Login</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">Setor</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">E-mail</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Tipo</th>
-                                    <th className="px-4 py-2.5 font-black text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Status</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center w-12">#</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Nome Completo</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Login</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Setor</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">E-mail</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Tipo</th>
+                                    <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody>

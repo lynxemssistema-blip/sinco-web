@@ -40,6 +40,7 @@ import MontagemPlanoCortePage from './pages/MontagemPlanoCorte';
 import ProducaoPlanoCortePage from './pages/ProducaoPlanoCorte';
 import TesteFinalMontagemPage from './pages/TesteFinalMontagem';
 import CadastroUsuarioPage from './pages/CadastroUsuario';
+import LoginAcessoPage from './pages/LoginAcesso';
 import BlockSetPage from './pages/BlockSet/BlockSet';
 import PowerBuildListPage from './pages/BlockSet/PowerBuildList';
 import PowerBuildImportPage from './pages/BlockSet/PowerBuildImport';
@@ -52,6 +53,15 @@ function AppContent() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(defaultMenuItems);
   const [selectedRncItem, setSelectedRncItem] = useState<number | null>(null);
   const hasInitialized = useRef(false); // prevent URL mapping from running more than once
+
+  // Autenticação local obrigatória: verifica se o usuário já autenticou contra a tabela usuario do banco ativo
+  const [isLocallyAuthenticated, setIsLocallyAuthenticated] = useState<boolean>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('sinco_user') || '{}');
+      const dbName = stored.dbName || '';
+      return sessionStorage.getItem(`sinco_local_auth_${dbName}`) === 'true';
+    } catch { return false; }
+  });
 
   useEffect(() => {
     if (!user) return; // Don't fetch if not logged in
@@ -288,6 +298,20 @@ function AppContent() {
             }
           }
 
+          // Force add 'login' — and remove any manually-created "Login" group (group_xxx) to avoid duplicates
+          const manualLoginIdx = savedMenu.findIndex(item => 
+            item.id !== 'login' && item.label?.toLowerCase() === 'login'
+          );
+          if (manualLoginIdx >= 0) {
+            savedMenu.splice(manualLoginIdx, 1);
+          }
+          if (!savedMenu.find(item => item.id === 'login')) {
+            const loginItem = defaultMenuItems.find(item => item.id === 'login');
+            if (loginItem) {
+              savedMenu = [...savedMenu, loginItem];
+            }
+          }
+
           setMenuItems(sortMenuRecursive(savedMenu));
         } else {
           // Menu não salvo: superadmins recebem tudo
@@ -358,6 +382,10 @@ function AppContent() {
   };
 
   const handleSmartLogout = () => {
+    // Limpa flag de autenticação local ao fazer logoff
+    const dbName = user?.dbName || '';
+    sessionStorage.removeItem(`sinco_local_auth_${dbName}`);
+    setIsLocallyAuthenticated(false);
     logout();
   };
 
@@ -458,6 +486,8 @@ function AppContent() {
         return <ConfiguracaoSistemaPage />;
       case 'superadmin':
         return <SuperadminPage />;
+      case 'login':
+        return <LoginAcessoPage />;
       case 'blockset':
         return <BlockSetPage />;
       case 'leitura-dados':
@@ -480,6 +510,24 @@ function AppContent() {
 
   if (!user) {
     return <LoginPage />;
+  }
+
+  const isSuperUser =
+    user?.isSuperadmin === true ||
+    user?.superadmin === 'S' ||
+    user?.login?.toLowerCase() === 'superadmin';
+
+  // Portão obrigatório: autenticação local antes de acessar qualquer tela (exceto superadmin)
+  if (!isLocallyAuthenticated && !isSuperUser) {
+    return (
+      <LoginAcessoPage
+        onAuthSuccess={() => {
+          const dbName = user?.dbName || '';
+          sessionStorage.setItem(`sinco_local_auth_${dbName}`, 'true');
+          setIsLocallyAuthenticated(true);
+        }}
+      />
+    );
   }
 
   return (

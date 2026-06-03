@@ -99,7 +99,7 @@ type Setor = 'mapa' | 'corte' | 'dobra' | 'solda' | 'pintura' | 'montagem' | 'ma
 
 const setores: { id: Setor; label: string; icon: typeof Scissors; color: string }[] = [
     { id: 'mapa', label: 'Mapa', icon: Settings2, color: 'bg-gray-700' },
-    { id: 'planejamento', label: 'Planejamento', icon: Calendar as any, color: 'bg-teal-600' },
+
     { id: 'corte', label: 'Corte', icon: Scissors, color: 'bg-yellow-500' },
     { id: 'dobra', label: 'Dobra', icon: Wrench, color: 'bg-purple-500' },
     { id: 'solda', label: 'Solda', icon: Flame, color: 'bg-orange-500' },
@@ -392,8 +392,8 @@ export default function ApontamentoProducaoPage() {
             params.set('page', String(page));
             params.set('limit', String(limit));
 
-            // Use different route for mapa
-            const url = setorAtivo === 'mapa'
+            // Use different route for mapa and mapaproducao
+            const url = (setorAtivo === 'mapa' || setorAtivo === 'mapaproducao')
                 ? `${API_BASE}/apontamento/mapa/producao?${params}`
                 : `${API_BASE}/apontamento/${setorAtivo}?${params}`;
 
@@ -1056,15 +1056,27 @@ export default function ApontamentoProducaoPage() {
                                 </button>
                             )}
 
-                            {/* Search Button */}
-                            <button
-                                onClick={handleSearch}
-                                disabled={loading}
-                                className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 disabled:bg-blue-400 rounded shadow-sm transition-colors ml-auto"
-                            >
-                                {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-                                Pesquisar
-                            </button>
+                            {/* Action Buttons (Right) */}
+                            <div className="flex items-center gap-2 ml-auto">
+                                {/* Planejamento Button */}
+                                <button
+                                    onClick={() => setSetorAtivo('planejamento')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded shadow-sm transition-colors"
+                                >
+                                    <Calendar size={14} />
+                                    Planejamento
+                                </button>
+                                
+                                {/* Search Button */}
+                                <button
+                                    onClick={handleSearch}
+                                    disabled={loading}
+                                    className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 disabled:bg-blue-400 rounded shadow-sm transition-colors"
+                                >
+                                    {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                                    Pesquisar
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -1101,7 +1113,7 @@ export default function ApontamentoProducaoPage() {
                         <span className="w-5 shrink-0"></span>
                         <span className="w-6 shrink-0 text-center">PDF</span>
                         <span className="w-10 shrink-0 text-center">OS</span>
-                        <span className="w-28 shrink-0">Info</span>
+                        <span className="w-56 shrink-0">Info</span>
                         <span className="w-12 shrink-0 text-center">Item</span>
                         <span className="w-[100px] shrink-0">Código</span>
                         <span className="w-20 shrink-0">Plano Corte</span>
@@ -1155,7 +1167,7 @@ export default function ApontamentoProducaoPage() {
                         {/* Mapa Header */}
                         <div className="bg-gray-100 px-2 py-1 flex items-center gap-1.5 text-[10px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200">
                             <span className="w-10 text-center">OS</span>
-                            <span className="w-28">Info</span>
+                            <span className="w-56 shrink-0">Info</span>
                             <span className="w-12 text-center">Item</span>
                             <span className="w-[100px] shrink-0">Código</span>
                             <span className="w-20">Plano Corte</span>
@@ -1210,10 +1222,12 @@ export default function ApontamentoProducaoPage() {
                                         </span>
 
                                         {/* Info Column */}
-                                        <div className="w-28 flex flex-col gap-0 text-[9px]">
-                                            <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
-                                            <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm" title={item.Tag}>{item.Tag}</span>
-                                            {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase" title={item.Cliente}>{item.Cliente}</span>}
+                                        <div className="w-56 flex flex-col gap-0.5 text-[9px]">
+                                            <div className="flex items-center gap-1 overflow-hidden">
+                                                <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm max-w-[50%]" title={item.Projeto}>{item.Projeto}</span>
+                                                {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase flex-1" title={item.Cliente}>{item.Cliente}</span>}
+                                            </div>
+                                            <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm w-fit max-w-full" title={item.Tag}>{item.Tag}</span>
                                         </div>
 
                                         <span className="w-12 text-center text-gray-400 text-[9px]">
@@ -1366,10 +1380,12 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* Info Column */}
-                                                <div className="w-28 shrink-0 flex flex-col gap-0 text-[8px]">
-                                                    <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm" title={item.Projeto}>{item.Projeto}</span>
-                                                    <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm" title={item.Tag}>{item.Tag}</span>
-                                                    {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase" title={item.Cliente}>{item.Cliente}</span>}
+                                                <div className="w-56 shrink-0 flex flex-col gap-0.5 text-[8px]">
+                                                    <div className="flex items-center gap-1 overflow-hidden">
+                                                        <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm max-w-[50%]" title={item.Projeto}>{item.Projeto}</span>
+                                                        {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase flex-1" title={item.Cliente}>{item.Cliente}</span>}
+                                                    </div>
+                                                    <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm w-fit max-w-full" title={item.Tag}>{item.Tag}</span>
                                                 </div>
 
                                                 {/* Item ID */}
@@ -1632,8 +1648,8 @@ export default function ApontamentoProducaoPage() {
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
                                     <div className="overflow-x-auto rounded-lg border border-gray-100 shadow-inner max-h-[400px]">
                                         <table className="w-full text-left border-collapse bg-white">
-                                            <thead className="sticky top-0 z-10">
-                                                <tr className="bg-gray-100 text-[10px] uppercase tracking-wider font-bold text-gray-600 border-b border-gray-200">
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
+                                                <tr className=" text-[10px] uppercase tracking-wider font-bold text-white border-b border-white/20">
                                                     
                                                     <th className="px-3 py-2">Criado</th>
                                                     <th className="px-3 py-2">Data / Hora</th>
@@ -2074,12 +2090,12 @@ export default function ApontamentoProducaoPage() {
                                 ) : itemDetails && itemDetails.historico.length > 0 ? (
                                     <div className="overflow-hidden border border-gray-100 rounded-xl">
                                         <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="bg-gray-50 text-[10px] uppercase tracking-wider font-bold text-gray-500">
-                                                    <th className="px-4 py-3 border-b border-gray-100">Data</th>
-                                                    <th className="px-4 py-3 border-b border-gray-100">Setor</th>
-                                                    <th className="px-4 py-3 border-b border-gray-100">Qtd</th>
-                                                    <th className="px-4 py-3 border-b border-gray-100">Usuário</th>
+                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white">
+                                                <tr className=" text-[10px] uppercase tracking-wider font-bold text-white">
+                                                    <th className="px-4 py-3 border-b border-white/20">Data</th>
+                                                    <th className="px-4 py-3 border-b border-white/20">Setor</th>
+                                                    <th className="px-4 py-3 border-b border-white/20">Qtd</th>
+                                                    <th className="px-4 py-3 border-b border-white/20">Usuário</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
@@ -2568,7 +2584,7 @@ export default function ApontamentoProducaoPage() {
                                                     <div className="p-4 text-center text-sm text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
                                                 ) : (
                                                     <table className="w-full text-left text-xs text-gray-600">
-                                                        <thead className="bg-gray-50 sticky top-0 border-b border-gray-200 shadow-sm text-gray-500 font-semibold">
+                                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] sticky top-0 border-b border-white/20 shadow-sm text-white font-semibold">
                                                             <tr>
                                                                 <th className="px-2 py-2 whitespace-nowrap">ST</th>
                                                                 <th className="px-2 py-2 whitespace-nowrap">IDRNC</th>

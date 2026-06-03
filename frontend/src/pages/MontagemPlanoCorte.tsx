@@ -303,7 +303,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                 {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-indigo-500" size={20} /></div>}
                 {aglutinado ? (
                     <table className="w-full text-left">
-                        <thead className="text-[9px] text-slate-500 uppercase bg-slate-50 sticky top-0 border-b border-slate-200">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[9px] text-white uppercase bg-[#567469] sticky top-0 border-b border-white/20">
                             <tr>
                                 <th className="px-2 py-1.5 font-black whitespace-nowrap">OS / Item</th>
                                 <th className="px-2 py-1.5 font-black whitespace-nowrap">Espessura</th>
@@ -378,7 +378,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
                     </table>
                 ) : (
                     <table className="w-full text-left">
-                        <thead className="text-[9px] text-slate-500 uppercase bg-slate-50 sticky top-0 border-b border-slate-200">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[9px] text-white uppercase bg-[#567469] sticky top-0 border-b border-white/20">
                             <tr>
                                 <th className="px-2 py-1.5 font-black whitespace-nowrap">OS / Item</th>
                                 <th className="px-2 py-1.5 font-black whitespace-nowrap">Projeto</th>
@@ -654,7 +654,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
                     </div>
                 )}
                 <table className="w-full text-left">
-                    <thead className="text-[8px] text-slate-500 uppercase bg-orange-50/80 sticky top-0 border-b border-orange-100">
+                    <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[8px] text-white uppercase bg-[#567469] sticky top-0 border-b border-orange-100">
                         <tr>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">Acao</th>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">ID RNC</th>
@@ -1001,7 +1001,7 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
             <div className="flex-1 overflow-auto relative">
                 {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-indigo-500" size={24} /></div>}
                 <table className="w-full text-left">
-                    <thead className="text-[9px] text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 border-b border-slate-200">
+                    <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[9px] text-white uppercase bg-[#567469] sticky top-0 z-10 border-b border-white/20">
                         <tr>
                             <th className="px-2 py-1.5 w-6"></th>
                             <th className="px-2 py-1.5 font-black whitespace-nowrap">OS / Item</th>
@@ -1704,7 +1704,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
                 <div className="flex-1 overflow-auto relative">
                     {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-[#32423D]" size={24} /></div>}
                     <table className="w-full text-left">
-                        <thead className="text-[9px] text-slate-500 uppercase bg-slate-100/80 sticky top-0 z-10 border-b border-slate-200">
+                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[9px] text-white uppercase bg-[#567469] sticky top-0 z-10 border-b border-white/20">
                             <tr>
                                 <th className="px-2 py-2.5 font-black whitespace-nowrap">ID Plano</th>
                                 <th className="px-2 py-2.5 font-black whitespace-nowrap">Descricao</th>

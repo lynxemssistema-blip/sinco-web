@@ -437,7 +437,7 @@ export default function TesteFinalMontagemPage() {
                     )}
                     <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
                         <table className="w-full text-xs text-left">
-                            <thead className="text-[10px] text-slate-500 uppercase bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
+                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[10px] text-white uppercase bg-[#567469] sticky top-0 z-10 border-b border-white/20 shadow-sm">
                                 <tr>
                                     <th className="px-3 py-2 font-black whitespace-nowrap">OS / Item</th>
                                     <th className="px-3 py-2 font-black whitespace-nowrap">Projeto</th>
