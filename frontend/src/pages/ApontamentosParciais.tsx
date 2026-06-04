@@ -185,10 +185,38 @@ export default function ApontamentosParciaisPage() {
                 <div className="flex flex-wrap gap-2 items-center">
                     <div className="flex flex-wrap items-center gap-1.5 bg-gray-50 border border-gray-300 rounded-lg px-2 py-1.5 shadow-sm focus-within:border-amber-400">
                         <Search size={14} className="text-gray-400" />
-                        <input type="text" placeholder="O.S." value={fOS} onChange={e=>setFOS(e.target.value)} className="w-16 bg-transparent text-xs outline-none font-bold text-gray-700" />
-                        <input type="text" placeholder="Projeto" value={fProj} onChange={e=>setFProj(e.target.value)} className="w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
-                        <input type="text" placeholder="Tag" value={fTag} onChange={e=>setFTag(e.target.value)} className="w-20 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
-                        <input type="text" placeholder="Plano Corte" value={fPC} onChange={e=>setFPC(e.target.value)} className="w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="O.S." value={fOS} onChange={e=>setFOS(e.target.value)} className="pr-6 w-16 bg-transparent text-xs outline-none font-bold text-gray-700" />
+    {fOS && (
+        <button onClick={() => setFOS('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Projeto" value={fProj} onChange={e=>setFProj(e.target.value)} className="pr-6 w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
+    {fProj && (
+        <button onClick={() => setFProj('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Tag" value={fTag} onChange={e=>setFTag(e.target.value)} className="pr-6 w-20 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
+    {fTag && (
+        <button onClick={() => setFTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Plano Corte" value={fPC} onChange={e=>setFPC(e.target.value)} className="pr-6 w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
+    {fPC && (
+        <button onClick={() => setFPC('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                     
                     <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-300 rounded-lg px-2 py-1.5 shadow-sm focus-within:border-amber-400">

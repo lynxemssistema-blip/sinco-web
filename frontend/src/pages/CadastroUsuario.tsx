@@ -377,12 +377,40 @@ export default function CadastroUsuarioPage() {
                     <div className="w-px h-6 bg-slate-200 mx-1" />
                     <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus-within:border-indigo-400 shadow-inner">
                         <Search size={12} className="text-slate-400" />
-                        <input type="text" placeholder="Nome completo..." value={fNome} onChange={e => setFNome(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchUsuarios()}
+                        <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Nome completo..." value={fNome} onChange={e => setFNome(e.target.value)} onKeyDown={e =>
+    {fNome && (
+        <button onClick={() => setFNome('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {fNome && (
+        <button onClick={() => setFNome('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> e.key === 'Enter' && fetchUsuarios()}
                             className="w-36 text-[11px] outline-none bg-transparent text-slate-700 placeholder:text-slate-400" />
                     </div>
                     <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus-within:border-indigo-400 shadow-inner">
                         <Building2 size={12} className="text-slate-400" />
-                        <input type="text" placeholder="Setor..." value={fSetor} onChange={e => setFSetor(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchUsuarios()}
+                        <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Setor..." value={fSetor} onChange={e => setFSetor(e.target.value)} onKeyDown={e =>
+    {fSetor && (
+        <button onClick={() => setFSetor('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {fSetor && (
+        <button onClick={() => setFSetor('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> e.key === 'Enter' && fetchUsuarios()}
                             className="w-24 text-[11px] outline-none bg-transparent text-slate-700 placeholder:text-slate-400" />
                     </div>
                     <button onClick={fetchUsuarios} className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg text-[11px] font-black shadow-sm hover:bg-indigo-700 transition-colors"><Search size={12} /> Buscar</button>

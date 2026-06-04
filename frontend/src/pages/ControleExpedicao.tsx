@@ -326,17 +326,73 @@ export default function ControleExpedicaoPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Desc. Tag (ex: Pipe Rack)" value={filDescTag} onChange={e => setFilDescTag(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Empresa (Cliente)" value={filEmpresa} onChange={e => setFilEmpresa(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filProjeto && (
+        <button onClick={() => setFilProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filTag && (
+        <button onClick={() => setFilTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Tag (ex: Pipe Rack)" value={filDescTag} onChange={e => setFilDescTag(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filDescTag && (
+        <button onClick={() => setFilDescTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Empresa (Cliente)" value={filEmpresa} onChange={e => setFilEmpresa(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filEmpresa && (
+        <button onClick={() => setFilEmpresa('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filCodMat && (
+        <button onClick={() => setFilCodMat('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="pr-6 w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+    {filDescResumo && (
+        <button onClick={() => setFilDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     <div className="flex gap-2 items-center lg:col-span-2 bg-white px-2 rounded border border-slate-300">
                         <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">Data Previsão:</span>
-                        <input title="Data Previsão Inicial" type="date" value={filDataPrevisaoInicio} onChange={e => setFilDataPrevisaoInicio(e.target.value)} className="w-full text-[11px] py-1 bg-transparent focus:outline-none" />
+                        <div className="relative flex items-center w-full">
+    <input title="Data Previsão Inicial" type="date" value={filDataPrevisaoInicio} onChange={e => setFilDataPrevisaoInicio(e.target.value)} className="pr-6 w-full text-[11px] py-1 bg-transparent focus:outline-none" />
+    {filDataPrevisaoInicio && (
+        <button onClick={() => setFilDataPrevisaoInicio('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         <span className="text-[11px] text-slate-500 font-medium">até</span>
-                        <input title="Data Previsão Final" type="date" value={filDataPrevisaoFim} onChange={e => setFilDataPrevisaoFim(e.target.value)} className="w-full text-[11px] py-1 bg-transparent focus:outline-none" />
+                        <div className="relative flex items-center w-full">
+    <input title="Data Previsão Final" type="date" value={filDataPrevisaoFim} onChange={e => setFilDataPrevisaoFim(e.target.value)} className="pr-6 w-full text-[11px] py-1 bg-transparent focus:outline-none" />
+    {filDataPrevisaoFim && (
+        <button onClick={() => setFilDataPrevisaoFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
 
                     {document.getElementById('page-actions-portal') ? createPortal(

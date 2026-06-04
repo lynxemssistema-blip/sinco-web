@@ -517,18 +517,7 @@ function AppContent() {
     user?.superadmin === 'S' ||
     user?.login?.toLowerCase() === 'superadmin';
 
-  // Portão obrigatório: autenticação local antes de acessar qualquer tela (exceto superadmin)
-  if (!isLocallyAuthenticated && !isSuperUser) {
-    return (
-      <LoginAcessoPage
-        onAuthSuccess={() => {
-          const dbName = user?.dbName || '';
-          sessionStorage.setItem(`sinco_local_auth_${dbName}`, 'true');
-          setIsLocallyAuthenticated(true);
-        }}
-      />
-    );
-  }
+  // O segundo login foi removido conforme solicitado para evitar que o pedido de login se repita.
 
   return (
     <AppLayout

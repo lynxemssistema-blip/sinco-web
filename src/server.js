@@ -4192,7 +4192,8 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
         const [rows] = await queryPool.execute(`
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
-                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
+                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
+                (SELECT COALESCE(SUM(os.QtdeTotalPecas), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
                 ${observacaoExpr},
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
@@ -4983,21 +4984,22 @@ app.put('/api/visao-geral/projeto/:id/bulk-update-planning', async (req, res) =>
             const valIni = dataInicio || '';
             const valFim = dataFim || '';
 
-            await pool.executeOnDefault(
+            const queryPool = req.tenantDbPool || pool;
+            await queryPool.execute(
                 `UPDATE tags 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
                  WHERE IdProjeto = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
-            await pool.executeOnDefault(
+            await queryPool.execute(
                 `UPDATE ordemservico 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
                  WHERE IdProjeto = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
-            await pool.executeOnDefault(
+            await queryPool.execute(
                 `UPDATE ordemservicoitem 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
@@ -5031,15 +5033,16 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Campo invÃƒÂ¡lido.' });
         }
 
-        await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        await queryPool.execute(
             `UPDATE tags SET ${field} = ? WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
             [value, idTag]
         );
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
             [value, idTag]
         );
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
             [value, idTag]
         );
@@ -5058,8 +5061,8 @@ app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
     const userFinal = usuario || 'Sistema';
 
     try {
-        // 1. Verificar se jÃƒÂ¡ estÃƒÂ¡ finalizado
-        const [check] = await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        const [check] = await queryPool.execute(
             `SELECT Finalizado FROM projetos WHERE IdProjeto = ?`,
             [id]
         );
@@ -5076,24 +5079,23 @@ app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
         const now = getCurrentDateTimeBR();
 
         // 2. Finalizar em transaÃƒÂ§ÃƒÂ£o
-        const conn = await pool.executeOnDefault.__proto__ ? null : null; // use executeOnDefault directly
         // projetos: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE projetos SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=?`,
             [userFinal, now, id]
         );
         // tags: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE tags SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
             [userFinal, now, id]
         );
         // ordemservico: DataFinalizacao (diferente!)
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET OrdemServicoFinalizado='C', UsuarioFinalizado=?, DataFinalizacao=? WHERE IdProjeto=?`,
             [userFinal, now, id]
         );
         // ordemservicoitem: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='C', UsuarioFinalizado=?, DataFinalizado=?
              WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
             [userFinal, now, id]
@@ -5114,7 +5116,8 @@ app.post('/api/visao-geral/projeto/:id/cancelar-finalizacao', async (req, res) =
 
     try {
         // 1. Verificar se estÃƒÂ¡ finalizado (condiÃƒÂ§ÃƒÂ£o para cancelar)
-        const [check] = await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        const [check] = await queryPool.execute(
             `SELECT Finalizado, Projeto FROM projetos WHERE IdProjeto = ?`,
             [id]
         );
@@ -5130,22 +5133,22 @@ app.post('/api/visao-geral/projeto/:id/cancelar-finalizacao', async (req, res) =
 
         // 2. Desfazer finalizaÃƒÂ§ÃƒÂ£o em cascata (limpar campos)
         // projetos
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE projetos SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=?`,
             [id]
         );
         // tags
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE tags SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
             [id]
         );
         // ordemservico
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET OrdemServicoFinalizado='', UsuarioFinalizado='', DataFinalizacao='' WHERE IdProjeto=?`,
             [id]
         );
         // ordemservicoitem
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='', UsuarioFinalizado='', DataFinalizado=''
              WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
             [id]
@@ -7449,8 +7452,8 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
 
         // Filtro Projeto: busca por descrição do projeto (LIKE)
         if (projeto) {
-            whereClause += ' AND p.DescProjeto LIKE ?';
-            params.push(`%${projeto}%`);
+            whereClause += ' AND (os.Projeto LIKE ? OR p.DescProjeto LIKE ?)';
+            params.push(`%${projeto}%`, `%${projeto}%`);
         }
 
         // Filtro Tag: busca por descrição da tag (LIKE)
@@ -7479,6 +7482,12 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
         if (req.query.cliente) {
             whereClause += ' AND (os.DescEmpresa LIKE ? OR p.ClienteProjeto LIKE ?)';
             params.push(`%${req.query.cliente}%`, `%${req.query.cliente}%`);
+        }
+
+        // Filtro Cód. Mat. Fabricante
+        if (codMatFabricante) {
+            whereClause += ' AND osi.CodMatFabricante LIKE ?';
+            params.push(`%${codMatFabricante}%`);
         }
 
         // Filter by overall status
@@ -7731,7 +7740,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
         });
     }
 
-    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, dataPlanejamento, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
@@ -7746,8 +7755,8 @@ app.get('/api/apontamento/:setor', async (req, res) => {
 
         // Filtro Projeto: busca por descrição do projeto (LIKE)
         if (projeto) {
-            whereClause += ' AND p.DescProjeto LIKE ?';
-            params.push(`%${projeto}%`);
+            whereClause += ' AND (os.Projeto LIKE ? OR p.DescProjeto LIKE ?)';
+            params.push(`%${projeto}%`, `%${projeto}%`);
         }
 
         if (item) {
@@ -7785,6 +7794,22 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             params.push(`%${req.query.cliente}%`, `%${req.query.cliente}%`);
         }
 
+        // Filtro Cód. Mat. Fabricante
+        if (codMatFabricante) {
+            whereClause += ' AND osi.CodMatFabricante LIKE ?';
+            params.push(`%${codMatFabricante}%`);
+        }
+
+        // Filtro Data Planejamento
+        if (dataPlanejamento) {
+            const setorUpper = setor.charAt(0).toUpperCase() + setor.slice(1);
+            whereClause += ` AND (
+                STR_TO_DATE(SUBSTRING_INDEX(osi.PlanejadoInicio${setorUpper}, ' ', 1), '%d/%m/%Y') <= ? OR 
+                DATE(osi.PlanejadoInicio${setorUpper}) <= ?
+            )`;
+            params.push(dataPlanejamento, dataPlanejamento);
+        }
+
         const [countResult] = await pool.execute(`
             SELECT COUNT(*) as total
             FROM ordemservicoitem osi
@@ -7815,6 +7840,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             osi.${setorConfig.status} as Status,
             osi.${setorConfig.total} as QtdeProduzidaSetor,
             osi.${setorConfig.executar} as TotalExecutar,
+            osi.PlanejadoInicio${setor.charAt(0).toUpperCase() + setor.slice(1)} as DataPlanejamento,
             os.Projeto,
             os.IdProjeto,
             p.DescProjeto,
@@ -12791,7 +12817,14 @@ app.get('/login', (req, res) => {
 
 // React SPA — todas as rotas internas
 app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|superadmin).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    const devPath = path.join(__dirname, '../frontend/dist/index.html');
+    const prodPath = path.join(__dirname, '../index.html');
+    const fs = require('fs');
+    if (fs.existsSync(devPath)) {
+        res.sendFile(devPath);
+    } else {
+        res.sendFile(prodPath);
+    }
 });
 
 // Start Server

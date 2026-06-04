@@ -148,13 +148,160 @@ export default function PesquisarDesenho() {
                 </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Desc. Detal" value={filDescDetal} onChange={e => setFilDescDetal(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Espessura" value={filEspessura} onChange={e => setFilEspessura(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
-                    <input type="text" placeholder="Material SW" value={filMaterialSW} onChange={e => setFilMaterialSW(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} onKeyDown={(e) =>
+    {filProjeto && (
+        <button onClick={() => setFilProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filProjeto && (
+        <button onClick={() => setFilProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filProjeto && (
+        <button onClick={() => setFilProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} onKeyDown={(e) =>
+    {filTag && (
+        <button onClick={() => setFilTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filTag && (
+        <button onClick={() => setFilTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filTag && (
+        <button onClick={() => setFilTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Cód. Mat. Fabricante" value={filCodMat} onChange={e => setFilCodMat(e.target.value)} onKeyDown={(e) =>
+    {filCodMat && (
+        <button onClick={() => setFilCodMat('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filCodMat && (
+        <button onClick={() => setFilCodMat('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filCodMat && (
+        <button onClick={() => setFilCodMat('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} onKeyDown={(e) =>
+    {filDescResumo && (
+        <button onClick={() => setFilDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filDescResumo && (
+        <button onClick={() => setFilDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filDescResumo && (
+        <button onClick={() => setFilDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Detal" value={filDescDetal} onChange={e => setFilDescDetal(e.target.value)} onKeyDown={(e) =>
+    {filDescDetal && (
+        <button onClick={() => setFilDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filDescDetal && (
+        <button onClick={() => setFilDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filDescDetal && (
+        <button onClick={() => setFilDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Espessura" value={filEspessura} onChange={e => setFilEspessura(e.target.value)} onKeyDown={(e) =>
+    {filEspessura && (
+        <button onClick={() => setFilEspessura('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filEspessura && (
+        <button onClick={() => setFilEspessura('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filEspessura && (
+        <button onClick={() => setFilEspessura('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
+                    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Material SW" value={filMaterialSW} onChange={e => setFilMaterialSW(e.target.value)} onKeyDown={(e) =>
+    {filMaterialSW && (
+        <button onClick={() => setFilMaterialSW('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filMaterialSW && (
+        <button onClick={() => setFilMaterialSW('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+    {filMaterialSW && (
+        <button onClick={() => setFilMaterialSW('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div> { if (e.key === 'Enter') fetchDesenhos(); }} className="w-full text-[11px] px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-[#32423D] bg-white" />
 
                     <div className="flex gap-2 items-center lg:justify-end">
                         {hasFilters && (

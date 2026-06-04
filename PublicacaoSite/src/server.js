@@ -1740,7 +1740,9 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             token,
                             user: {
                                 id: user.idUsuario,
-                                nome: user.NomeCompleto,
+                                login: login,
+                                // Superadmin: exibe o próprio login como nome (não NomeCompleto da tabela local)
+                                nome: centralAuth.isSuperadmin ? login : user.NomeCompleto,
                                 role,
                                 setor: user.Setor,
                                 isSuperadmin: centralAuth.isSuperadmin,
@@ -1764,6 +1766,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             token,
                             user: {
                                 id: centralAuth.originalUserId,
+                                login: login,
                                 nome: login,
                                 role: 'user',
                                 isSuperadmin: centralAuth.isSuperadmin,
@@ -1813,15 +1816,18 @@ app.post('/api/login', loginLimiter, async (req, res) => {
             const user = rows[0];
             const role = (user.TipoUsuario === 'A' || user.TipoUsuario === 'Admin') ? 'admin' : 'user';
 
-            // Check if Superadmin in central even if logging in locally
+            // Check if Superadmin in central DB
             const isSuper = await isUserSuperadmin(login);
+            // Admin em lynxlocal (fallback local) é considerado superadmin nativo do sistema
+            const isLocalAdmin = login.toLowerCase() === 'admin';
+            const isSuperFinal = isSuper || isLocalAdmin;
 
             const token = jwt.sign({
                 id: user.idUsuario,
                 login: login,
                 role: role,
-                dbName: 'lynxlocal', // Local fallback assumed central or current
-                isSuperadmin: isSuper
+                dbName: 'lynxlocal',
+                isSuperadmin: isSuperFinal
             }, JWT_SECRET, { expiresIn: '12h' });
 
             return res.json({
@@ -1829,9 +1835,12 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 token,
                 user: {
                     id: user.idUsuario,
+                    login: login,
                     nome: user.NomeCompleto,
                     role,
-                    isSuperadmin: isSuper
+                    dbName: 'lynxlocal',
+                    clientName: 'LYNX (LYNXLOCAL)',
+                    isSuperadmin: isSuperFinal
                 }
             });
         } else {
@@ -1856,11 +1865,17 @@ const authenticateAdmin = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.isSuperadmin === true) {
+        // Aceita: isSuperadmin=true OU Admin no banco principal (lynxlocal)
+        const isAllowed =
+            decoded.isSuperadmin === true ||
+            (decoded.role === 'admin' && decoded.dbName === 'lynxlocal') ||
+            decoded.login?.toLowerCase() === 'superadmin';
+
+        if (isAllowed) {
             req.adminUser = decoded;
             return next();
         } else {
-            console.warn(`[AUTH MIDDLEWARE] Blocked access to ${req.method} ${req.url} - Not a Superadmin`);
+            console.warn(`[AUTH MIDDLEWARE] Blocked access to ${req.method} ${req.url} - Not a Superadmin (role:${decoded.role}, db:${decoded.dbName})`);
             return res.status(403).json({ success: false, message: 'Forbidden: Acesso restrito ao Superadmin' });
         }
     } catch (err) {
@@ -1950,6 +1965,94 @@ app.post('/api/admin/impersonate', authenticateAdmin, async (req, res) => {
     } catch (err) {
         console.error('[ADMIN IMPERSONATE] Token error:', err);
         return res.status(401).json({ success: false, message: 'Token de superadmin invÃƒÂ¡lido' });
+    }
+});
+
+// ─── SUPERADMIN: Database Switching (via normal JWT route) ───────────────────
+
+// GET /api/superadmin/bancos-ativos — lista todos os bancos ativos (apenas SuperAdmin)
+app.get('/api/superadmin/bancos-ativos', async (req, res) => {
+    try {
+        if (!req.tenantUser?.isSuperadmin) {
+            return res.status(403).json({ success: false, message: 'Acesso restrito a SuperAdmins.' });
+        }
+        const [rows] = await db.executeOnDefault(
+            'SELECT id, nome_cliente, db_name, db_host, ativo FROM conexoes_bancos WHERE ativo = 1 ORDER BY nome_cliente ASC'
+        );
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        console.error('[SuperAdmin] Erro ao listar bancos:', err);
+        res.status(500).json({ success: false, message: 'Erro ao listar bancos: ' + err.message });
+    }
+});
+
+// POST /api/superadmin/switch-db — gera novo token JWT com o dbName solicitado (apenas SuperAdmin)
+app.post('/api/superadmin/switch-db', async (req, res) => {
+    try {
+        if (!req.tenantUser?.isSuperadmin) {
+            return res.status(403).json({ success: false, message: 'Acesso restrito a SuperAdmins.' });
+        }
+
+        const { dbName } = req.body;
+        if (!dbName) {
+            return res.status(400).json({ success: false, message: 'dbName é obrigatório.' });
+        }
+
+        // Validate that the target DB exists and is active
+        const [rows] = await db.executeOnDefault(
+            'SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1',
+            [dbName]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: `Banco '${dbName}' não encontrado ou inativo.` });
+        }
+
+        const banco = rows[0];
+
+        // Ensure pool exists for target DB
+        if (!db.hasPool(dbName)) {
+            db.initPool({
+                host: banco.db_host,
+                user: banco.db_user,
+                password: banco.db_pass,
+                database: banco.db_name,
+                port: banco.db_port || 3306
+            });
+            console.log(`[SuperAdmin] Pool lazy-loaded for switch to: ${dbName}`);
+        }
+
+        const decoded = req.tenantUser;
+        const newToken = jwt.sign({
+            id: decoded.id,
+            login: decoded.login,
+            nome: decoded.nome || decoded.login,
+            role: 'admin',
+            dbName: dbName,
+            clientName: banco.nome_cliente,
+            isSuperadmin: true,
+            superadmin: 'S'
+        }, JWT_SECRET, { expiresIn: '12h' });
+
+        console.log(`[SuperAdmin] ${decoded.login} switched to DB: ${dbName} (${banco.nome_cliente})`);
+
+        res.json({
+            success: true,
+            token: newToken,
+            user: {
+                id: decoded.id,
+                nome: decoded.nome || decoded.login,
+                login: decoded.login,
+                role: 'admin',
+                dbName: dbName,
+                clientName: banco.nome_cliente,
+                isSuperadmin: true,
+                superadmin: 'S'
+            }
+        });
+    } catch (err) {
+        console.error('[SuperAdmin] Erro ao trocar banco:', err);
+        res.status(500).json({ success: false, message: 'Erro ao trocar banco: ' + err.message });
     }
 });
 
@@ -2561,7 +2664,7 @@ async function getDatabaseSchema(dbConfig) {
             port: dbConfig.db_port
         });
 
-        const schema = { tables: {}, tableDefinitions: {} };
+        const schema = { tables: {}, tableDefinitions: {}, indexes: {} };
 
         // 1. Get Base Tables Only (No Views)
         const [tables] = await conn.execute(
@@ -2584,6 +2687,10 @@ async function getDatabaseSchema(dbConfig) {
                 [dbConfig.db_name, tableName]
             );
             schema.tables[tableName] = columns.map(c => c.COLUMN_NAME);
+
+            // 2.5 Get Indexes
+            const [indexRows] = await conn.execute(`SHOW INDEX FROM \`${tableName}\``);
+            schema.indexes[tableName] = indexRows;
 
             // 3. Get Full Create Statement (for accurate replication)
             const [createRows] = await conn.execute(`SHOW CREATE TABLE \`${tableName}\``);
@@ -2676,19 +2783,23 @@ app.post('/api/admin/schema/compare', authenticateAdmin, async (req, res) => {
 
 // SYNC (Execute SQL)
 app.post('/api/admin/schema/sync', authenticateAdmin, async (req, res) => {
-    const { destDbId, sqlStatements } = req.body;
+    // Aceita actions[] (novo formato) ou sqlStatements[] (legado)
+    const { destDbId, actions, sqlStatements, usuario, sourceDbName } = req.body;
 
-    if (!destDbId || !Array.isArray(sqlStatements) || sqlStatements.length === 0) {
-        return res.status(400).json({ success: false, message: 'Destination DB and SQL statements are required' });
+    const items = actions || (sqlStatements ? sqlStatements.map(sql => ({ sql, description: sql.substring(0, 80), type: 'sql' })) : []);
+
+    if (!destDbId || !items.length) {
+        return res.status(400).json({ success: false, message: 'destDbId e actions[] são obrigatórios' });
     }
 
-    let conn;
-    try {
-        const destConfig = await getDbConfigById(destDbId);
-        if (!destConfig) {
-            return res.status(404).json({ success: false, message: 'Destination DB not found' });
-        }
+    const destConfig = await getDbConfigById(destDbId);
+    if (!destConfig) return res.status(404).json({ success: false, message: 'Banco destino não encontrado' });
 
+    let conn;
+    let histConn;
+    const results = [];
+
+    try {
         conn = await mysql.createConnection({
             host: destConfig.db_host,
             user: destConfig.db_user,
@@ -2697,19 +2808,94 @@ app.post('/api/admin/schema/sync', authenticateAdmin, async (req, res) => {
             port: destConfig.db_port
         });
 
-        let executedCount = 0;
-        for (const sql of sqlStatements) {
-            await conn.execute(sql);
-            executedCount++;
+        // Conecta ao lynxlocal para histórico
+        try {
+            histConn = await mysql.createConnection({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: 'lynxlocal',
+                port: parseInt(process.env.DB_PORT || '3306')
+            });
+        } catch (he) {
+            console.warn('[SyncHistory] Não foi possível conectar ao histórico:', he.message);
         }
 
-        res.json({ success: true, message: `Successfully executed ${executedCount} statements.` });
+        for (const item of items) {
+            const sql = item.sql || item;
+            const description = item.description || sql.substring(0, 100);
+            const tipo = item.type || 'sql';
+            let status = 'ok';
+            let errorMsg = null;
+
+            try {
+                await conn.execute(sql);
+            } catch (sqlErr) {
+                status = 'erro';
+                errorMsg = sqlErr.message;
+                console.warn('[SyncSchema] Erro (continuando):', sqlErr.message, '| SQL:', sql.substring(0, 80));
+            }
+
+            results.push({ sql, description, type: tipo, status, error: errorMsg });
+
+            // Registrar no histórico
+            if (histConn) {
+                try {
+                    await histConn.execute(
+                        `INSERT INTO sinco_sync_historico
+                            (usuario, banco_origem, banco_destino, tipo_acao, descricao, sql_executado, status, mensagem_erro)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            usuario || 'superadmin',
+                            sourceDbName || 'origem',
+                            destConfig.db_name,
+                            tipo,
+                            description,
+                            sql,
+                            status,
+                            errorMsg
+                        ]
+                    );
+                } catch (he) {
+                    console.warn('[SyncHistory] Erro ao registrar:', he.message);
+                }
+            }
+        }
+
+        const ok = results.filter(r => r.status === 'ok').length;
+        const erros = results.filter(r => r.status === 'erro').length;
+
+        res.json({
+            success: true,
+            message: `${ok} executado(s) com sucesso, ${erros} com erro(s).`,
+            results
+        });
 
     } catch (error) {
         console.error('Schema Sync Error:', error);
-        res.status(500).json({ success: false, message: 'Error executing sync: ' + error.message });
+        res.status(500).json({ success: false, message: 'Erro crítico: ' + error.message });
     } finally {
         if (conn) await conn.end();
+        if (histConn) await histConn.end();
+    }
+});
+
+// GET /api/admin/schema/history — Histórico de sincronizações
+app.get('/api/admin/schema/history', authenticateAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit || '200');
+        const banco = req.query.banco || null;
+
+        let sql = `SELECT * FROM sinco_sync_historico`;
+        const params = [];
+        if (banco) { sql += ' WHERE banco_destino = ?'; params.push(banco); }
+        sql += ' ORDER BY data_execucao DESC LIMIT ?';
+        params.push(limit);
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -3477,7 +3663,7 @@ app.get('/api/projeto', async (req, res) => {
         const {
             dataInicio, dataFim, projeto, descProjeto, descEmpresa,
             previsaoInicio, previsaoFim, criacaoInicio, criacaoFim,
-            finalizado, liberado
+            finalizado, liberado, cnpj
         } = req.query;
 
         let queryParams = [];
@@ -3538,6 +3724,10 @@ app.get('/api/projeto', async (req, res) => {
         if (descEmpresa) {
             whereClause += " AND DescEmpresa LIKE ?";
             queryParams.push(`%${descEmpresa}%`);
+        }
+        if (cnpj) {
+            whereClause += " AND Cnpj LIKE ?";
+            queryParams.push(`%${cnpj}%`);
         }
 
         const sql = `
@@ -3850,18 +4040,19 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
             condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= '${dataFinalAte}'`);
         }
 
-        if (isFinalizados && isLiberados) {
-            // 'todos' — nenhuma condição extra
-        } else if (isFinalizados) {
-            // 'finalizados'
+        const modo = req.query.modo || 'liberados';
+
+        if (modo === 'todos') {
+            // no conditions
+        } else if (modo === 'finalizados') {
             condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) = 'C'`);
-        } else if (isLiberados) {
-            // 'liberados'
-            condicoes.push(`TRIM(COALESCE(p.liberado,'')) = 'S'`);
-        } else {
-            // 'ativos' padrão
+        } else if (modo === 'nao_liberados') {
+            condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = '' OR TRIM(COALESCE(p.liberado,'')) = 'N')`);
             condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
-            condicoes.push(`TRIM(COALESCE(p.liberado,'')) != 'S'`);
+        } else {
+            // 'liberados' (default)
+            condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = 'S' OR TRIM(COALESCE(p.liberado,'')) = 'SIM')`);
+            condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
         }
 
         const where = condicoes.join(' AND ');
@@ -3957,16 +4148,20 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
         console.log(`[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: ${req.tenantDb}. Rows found: ${rows.length}`);
 
         /* Compute percentages in JS to avoid division-by-zero in SQL */
-        const pct = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+        const pctNormal = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+        const pctSetor = (exec, saldo) => {
+            const total = exec + saldo;
+            return total > 0 ? Math.round((exec / total) * 100) : 0;
+        };
         const enriched = rows.map(r => ({
             ...r,
-            PercentualTags: pct(Number(r.QtdeTagsExecutadas), Number(r.QtdeTags)),
-            PercentualPecas: pct(Number(r.QtdePecasExecutadas), Number(r.QtdePecasTags)),
-            PctCorte: pct(Number(r.ExecCorte), Number(r.TotalCorte)),
-            PctDobra: pct(Number(r.ExecDobra), Number(r.TotalDobra)),
-            PctSolda: pct(Number(r.ExecSolda), Number(r.TotalSolda)),
-            PctPintura: pct(Number(r.ExecPintura), Number(r.TotalPintura)),
-            PctMontagem: pct(Number(r.ExecMontagem), Number(r.TotalMontagem)),
+            PercentualTags: pctNormal(Number(r.QtdeTagsExecutadas), Number(r.QtdeTags)),
+            PercentualPecas: pctNormal(Number(r.QtdePecasExecutadas), Number(r.QtdePecasTags)),
+            PctCorte: pctSetor(Number(r.ExecCorte), Number(r.TotalCorte)),
+            PctDobra: pctSetor(Number(r.ExecDobra), Number(r.TotalDobra)),
+            PctSolda: pctSetor(Number(r.ExecSolda), Number(r.TotalSolda)),
+            PctPintura: pctSetor(Number(r.ExecPintura), Number(r.TotalPintura)),
+            PctMontagem: pctSetor(Number(r.ExecMontagem), Number(r.TotalMontagem)),
         }));
 
 
@@ -3983,11 +4178,23 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
 app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
     try {
         const queryPool = req.tenantDbPool || pool;
+        const tenantDb = req.tenantDb || 'default';
+
+        // Build column list defensively — check if Observacao exists before using it
+        let observacaoExpr = 'NULL AS Observacao';
+        try {
+            const [cols] = await queryPool.execute(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tags' AND COLUMN_NAME = 'Observacao'"
+            );
+            if (cols.length > 0) observacaoExpr = 'Observacao';
+        } catch (_) { /* fallback to NULL */ }
+
         const [rows] = await queryPool.execute(`
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
                 QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
-                qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia, Observacao,
+                qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
+                ${observacaoExpr},
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
                 CorteTotalExecutado, CorteTotalExecutar, CortePercentual,
                 PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra,
@@ -3997,19 +4204,27 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
                 PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura,
                 PinturaTotalExecutado, PinturaTotalExecutar, PinturaPercentual,
                 PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem,
-                MontagemTotalExecutado, MontagemTotalExecutar, MontagemPercentual
+                MontagemTotalExecutado, MontagemTotalExecutar, MontagemPercentual,
+                -- Datas dos setores de engenharia (para modo Tag Individual no modal de edição)
+                PlanejadoInicioMedicao,   PlanejadoFinalMedicao,   RealizadoInicioMedicao,   RealizadoFinalMedicao,
+                PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, RealizadoFinalIsometrico,
+                PlanejadoInicioAprovacao,  PlanejadoFinalAprovacao,  RealizadoInicioAprovacao,  RealizadoFinalAprovacao,
+                PlanejadoInicioAcabamento, PlanejadoFinalAcabamento, RealizadoInicioAcabamento, RealizadoFinalAcabamento,
+                PlanejadoInicioExpedicao,  PlanejadoFinalExpedicao,  RealizadoInicioExpedicao,  realizadoFinalExpedicao
             FROM tags
             WHERE IdProjeto = ?
               AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
             ORDER BY IdTag ASC
         `, [req.params.projetoId]);
 
+        console.log(`[Tags] [${tenantDb}] Projeto ${req.params.projetoId}: ${rows.length} tags found`);
         res.json({ success: true, data: rows });
     } catch (error) {
-        console.error('Error fetching visao-geral tags:', error);
+        console.error(`[Tags] Error fetching tags for projeto ${req.params.projetoId} (tenant: ${req.tenantDb || 'default'}):`, error.message);
         res.status(500).json({ success: false, message: 'Erro ao buscar tags: ' + error.message });
     }
 });
+
 
 // PUT planejar-projetista for a tag
 app.put('/api/acompanhamento/tags/:idTag/planejar-projetista', async (req, res) => {
@@ -4204,17 +4419,20 @@ app.put('/api/acompanhamento/tags/finalizar', async (req, res) => {
 // GET Tags for Visao Geral Engenharia
 app.get('/api/visao-geral-engenharia/tags', async (req, res) => {
     try {
-        const [rows] = await pool.execute(`
+        const queryPool = req.tenantDbPool || pool;
+        const [rows] = await queryPool.execute(`
             SELECT
-                IdTag, Tag, DescTag, Projeto, DescEmpresa, TipoProduto, DataPrevisao, ProjetistaPlanejado, CaminhoIsometrico,
-                PlanejadoInicioMedicao, PlanejadoFinalMedicao, RealizadoInicioMedicao, RealizadoFinalMedicao,
-                PlanejadoInicioIsometrico, PlanejadoFinalIsometrico, RealizadoInicioIsometrico, RealizadoFinalIsometrico,
-                PlanejadoInicioEngenharia, PlanejadoFinalEngenharia, RealizadoInicioEngenharia, RealizadoFinalEngenharia,
-                PlanejadoInicioAprovacao, PlanejadoFinalAprovacao, RealizadoInicioAprovacao, RealizadoFinalAprovacao
-            FROM tags
-            WHERE (Finalizado IS NULL OR Finalizado = '') 
-              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
-            ORDER BY IdProjeto DESC, IdTag DESC
+                t.IdTag, t.Tag, t.DescTag, t.Projeto, t.DescEmpresa, t.TipoProduto, t.DataPrevisao, t.ProjetistaPlanejado, t.CaminhoIsometrico,
+                t.PlanejadoInicioMedicao, t.PlanejadoFinalMedicao, t.RealizadoInicioMedicao, t.RealizadoFinalMedicao,
+                t.PlanejadoInicioIsometrico, t.PlanejadoFinalIsometrico, t.RealizadoInicioIsometrico, t.RealizadoFinalIsometrico,
+                t.PlanejadoInicioEngenharia, t.PlanejadoFinalEngenharia, t.RealizadoInicioEngenharia, t.RealizadoFinalEngenharia,
+                t.PlanejadoInicioAprovacao, t.PlanejadoFinalAprovacao, t.RealizadoInicioAprovacao, t.RealizadoFinalAprovacao,
+                p.DataTermino
+            FROM tags t
+            LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto
+            WHERE (t.Finalizado IS NULL OR t.Finalizado = '') 
+              AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*')
+            ORDER BY t.IdProjeto DESC, t.IdTag DESC
         `);
 
         res.json({ success: true, data: rows });
@@ -4259,10 +4477,10 @@ app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Nenhuma tag selecionada.' });
         }
         if (!setor || !['Medicao', 'Isometrico', 'Engenharia', 'Aprovacao'].includes(setor)) {
-            return res.status(400).json({ success: false, message: 'Setor invÃƒÂ¡lido.' });
+            return res.status(400).json({ success: false, message: 'Setor inválido.' });
         }
         if (!usuario) {
-            return res.status(400).json({ success: false, message: 'UsuÃƒÂ¡rio obrigatÃƒÂ³rio.' });
+            return res.status(400).json({ success: false, message: 'Usuário obrigatório.' });
         }
 
         const updates = [];
@@ -4286,10 +4504,9 @@ app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
         }
 
         if (updates.length === 0) {
-            return res.status(400).json({ success: false, message: 'Nenhum dado fornecido para atualizaÃƒÂ§ÃƒÂ£o.' });
+            return res.status(400).json({ success: false, message: 'Nenhum dado fornecido para atualização.' });
         }
 
-        // Create placeholders for the IN clause
         const placeholders = idTags.map(() => '?').join(',');
         params.push(...idTags);
 
@@ -4299,7 +4516,83 @@ app.put('/api/visao-geral-engenharia/tags/lote', async (req, res) => {
             WHERE IdTag IN (${placeholders})
         `;
 
-        const [result] = await pool.execute(query, params);
+        const queryPool = req.tenantDbPool || pool;
+        const [result] = await queryPool.execute(query, params);
+
+        // ── PROPAGAR 4 DATAS DO SETOR PARA PROJETOS (com usuário responsável) ──
+        // MIN para Início | MAX para Final | usuario = NomeCompleto do usuário logado
+        const SETOR_MAP_LOTE = {
+            Medicao: [
+                { tag: 'PlanejadoInicioMedicao',  proj: 'PlanejadoInicioMEDICAO',  usu: 'UsuarioPlanejadoInicioMEDICAO',  fn: 'MIN' },
+                { tag: 'PlanejadoFinalMedicao',   proj: 'PlanejadoFinalMEDICAO',   usu: 'UsuarioPlanejadoFinalMEDICAO',   fn: 'MAX' },
+                { tag: 'RealizadoInicioMedicao',  proj: 'RealizadoInicioMEDICAO',  usu: 'UsuarioRealizadoInicioMEDICAO',  fn: 'MIN' },
+                { tag: 'RealizadoFinalMedicao',   proj: 'RealizadoFinalMEDICAO',   usu: 'UsuarioRealizadoFinalMEDICAO',   fn: 'MAX' },
+            ],
+            Isometrico: [
+                { tag: 'PlanejadoInicioIsometrico',  proj: 'PlanejadoInicioISOMETRICO',  usu: 'UsuarioPlanejadoInicioISOMETRICO',  fn: 'MIN' },
+                { tag: 'PlanejadoFinalIsometrico',   proj: 'PlanejadoFinalISOMETRICO',   usu: 'UsuarioPlanejadoFinalISOMETRICO',   fn: 'MAX' },
+                { tag: 'RealizadoInicioIsometrico',  proj: 'RealizadoInicioISOMETRICO',  usu: 'UsuarioRealizadoInicioISOMETRICO',  fn: 'MIN' },
+                { tag: 'RealizadoFinalIsometrico',   proj: 'RealizadoFinalISOMETRICO',   usu: 'UsuarioRealizadoFinalISOMETRICO',   fn: 'MAX' },
+            ],
+            Engenharia: [
+                { tag: 'PlanejadoInicioEngenharia',  proj: 'PlanejadoInicioENGENHARIA',  usu: 'UsuarioPlanejadoInicioENGENHARIA',  fn: 'MIN' },
+                { tag: 'PlanejadoFinalEngenharia',   proj: 'PlanejadoFinalENGENHARIA',   usu: 'UsuarioPlanejadoFinalENGENHARIA',   fn: 'MAX' },
+                { tag: 'RealizadoInicioEngenharia',  proj: 'RealizadoInicioENGENHARIA',  usu: 'UsuarioRealizadoInicioENGENHARIA',  fn: 'MIN' },
+                { tag: 'RealizadoFinalEngenharia',   proj: 'RealizadoFinalENGENHARIA',   usu: 'UsuarioRealizadoFinalENGENHARIA',   fn: 'MAX' },
+            ],
+            Aprovacao: [
+                { tag: 'PlanejadoInicioAprovacao',   proj: 'PlanejadoInicioAPROVACAO',   usu: 'UsuarioPlanejadoInicioAPROVACAO',   fn: 'MIN' },
+                { tag: 'PlanejadoFinalAprovacao',    proj: 'PlanejadoFinalAPROVACAO',    usu: 'UsuarioPlanejadoFinalAPROVACAO',    fn: 'MAX' },
+                { tag: 'RealizadoInicioAprovacao',   proj: 'RealizadoInicioAPROVACAO',   usu: 'UsuarioRealizadoInicioAPROVACAO',   fn: 'MIN' },
+                { tag: 'RealizadoFinalAprovacao',    proj: 'RealizadoFinalAPROVACAO',    usu: 'UsuarioRealizadoFinalAPROVACAO',    fn: 'MAX' },
+            ],
+        };
+        try {
+            const camposSetor = SETOR_MAP_LOTE[setor];
+            if (camposSetor) {
+                // 1) Descobre os projetos afetados pelas tags alteradas
+                const phIds = idTags.map(() => '?').join(',');
+                const [tagProjRows] = await queryPool.execute(
+                    `SELECT DISTINCT IdProjeto FROM tags WHERE IdTag IN (${phIds})`, idTags
+                );
+
+                for (const { IdProjeto } of tagProjRows) {
+                    const setProjeto   = [];
+                    const paramsProjeto = [];
+
+                    // 2) Para cada um dos 4 campos do setor: recalcula MIN ou MAX nas tags
+                    for (const { tag, proj, usu, fn } of camposSetor) {
+                        const [[aggRow]] = await queryPool.execute(`
+                            SELECT DATE_FORMAT(
+                                ${fn}(STR_TO_DATE(NULLIF(TRIM(\`${tag}\`),''), '%d/%m/%Y')),
+                                '%d/%m/%Y'
+                            ) AS val
+                            FROM tags
+                            WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+                        `, [IdProjeto]);
+
+                        const valor = aggRow.val || null;
+                        // Grava data calculada no campo do projeto
+                        setProjeto.push(`\`${proj}\` = ?`);
+                        paramsProjeto.push(valor);
+                        // Grava NomeCompleto do usuário responsável
+                        setProjeto.push(`\`${usu}\` = ?`);
+                        paramsProjeto.push(valor ? usuario : null);
+                    }
+
+                    paramsProjeto.push(IdProjeto);
+                    await queryPool.execute(
+                        `UPDATE projetos SET ${setProjeto.join(', ')} WHERE IdProjeto = ?`,
+                        paramsProjeto
+                    );
+                }
+                console.log(`[lote] 4 datas de ${setor} propagadas para ${tagProjRows.length} projeto(s). Resp: ${usuario}`);
+            }
+        } catch (propagErr) {
+            console.error('[lote] Erro na propagação para projetos:', propagErr.message);
+            // Não interrompe — dado principal (tags) já foi salvo com sucesso
+        }
+        // ─────────────────────────────────────────────────────────────────────
 
         res.json({ success: true, message: `${result.affectedRows} tags atualizadas com sucesso.` });
     } catch (error) {
@@ -4335,15 +4628,16 @@ app.post('/api/visao-geral-engenharia/tags/:idTag/isometrico', uploadIso.single(
             return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado.' });
         }
 
-        const [rows] = await pool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
-        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag nÃƒÂ£o encontrada.' });
-        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag jÃƒÂ¡ Finalizado!' });
+        const queryPool = req.tenantDbPool || pool;
+        const [rows] = await queryPool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag já Finalizado!' });
 
         const filePath = `/uploads/isometricos/${file.filename}`;
 
-        await pool.execute("UPDATE tags SET CaminhoIsometrico = ? WHERE IdTag = ?", [filePath, idTag]);
+        await queryPool.execute("UPDATE tags SET CaminhoIsometrico = ? WHERE IdTag = ?", [filePath, idTag]);
 
-        res.json({ success: true, message: 'Desenho IsomÃƒÂ©trico associado com sucesso.', data: { CaminhoIsometrico: filePath } });
+        res.json({ success: true, message: 'Desenho Isométrico associado com sucesso.', data: { CaminhoIsometrico: filePath } });
     } catch (error) {
         console.error('Error uploading isometrico:', error);
         res.status(500).json({ success: false, message: 'Erro ao associar desenho: ' + error.message });
@@ -4354,12 +4648,13 @@ app.post('/api/visao-geral-engenharia/tags/:idTag/isometrico', uploadIso.single(
 app.delete('/api/visao-geral-engenharia/tags/:idTag/isometrico', async (req, res) => {
     try {
         const { idTag } = req.params;
+        const queryPool = req.tenantDbPool || pool;
         
-        const [rows] = await pool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
-        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag nÃƒÂ£o encontrada.' });
-        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag jÃƒÂ¡ Finalizado!' });
+        const [rows] = await queryPool.execute("SELECT Finalizado FROM tags WHERE IdTag = ?", [idTag]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tag não encontrada.' });
+        if (rows[0].Finalizado === 'C') return res.status(400).json({ success: false, message: 'Tag já Finalizado!' });
 
-        const [tagRow] = await pool.execute("SELECT CaminhoIsometrico FROM tags WHERE IdTag = ?", [idTag]);
+        const [tagRow] = await queryPool.execute("SELECT CaminhoIsometrico FROM tags WHERE IdTag = ?", [idTag]);
         const caminho = tagRow[0].CaminhoIsometrico;
 
         if (caminho) {
@@ -4369,9 +4664,9 @@ app.delete('/api/visao-geral-engenharia/tags/:idTag/isometrico', async (req, res
             }
         }
 
-        await pool.execute("UPDATE tags SET CaminhoIsometrico = NULL WHERE IdTag = ?", [idTag]);
+        await queryPool.execute("UPDATE tags SET CaminhoIsometrico = NULL WHERE IdTag = ?", [idTag]);
 
-        res.json({ success: true, message: 'Desenho IsomÃƒÂ©trico removido com sucesso.', data: { CaminhoIsometrico: null } });
+        res.json({ success: true, message: 'Desenho Isométrico removido com sucesso.', data: { CaminhoIsometrico: null } });
     } catch (error) {
         console.error('Error clearing isometrico:', error);
         res.status(500).json({ success: false, message: 'Erro ao limpar desenho: ' + error.message });
@@ -4382,7 +4677,8 @@ app.delete('/api/visao-geral-engenharia/tags/:idTag/isometrico', async (req, res
 // GET RNCs for a project in production overview
 app.get('/api/visao-geral/rncs/:projetoId', async (req, res) => {
     try {
-        const [rows] = await pool.execute(`
+        const queryPool = req.tenantDbPool || pool;
+        const [rows] = await queryPool.execute(`
             SELECT
                 IdOrdemServicoItemPendencia AS IdRnc,
                 Estatus,
@@ -4687,21 +4983,22 @@ app.put('/api/visao-geral/projeto/:id/bulk-update-planning', async (req, res) =>
             const valIni = dataInicio || '';
             const valFim = dataFim || '';
 
-            await pool.executeOnDefault(
+            const queryPool = req.tenantDbPool || pool;
+            await queryPool.execute(
                 `UPDATE tags 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
                  WHERE IdProjeto = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
-            await pool.executeOnDefault(
+            await queryPool.execute(
                 `UPDATE ordemservico 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
                  WHERE IdProjeto = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
                 [valIni, valIni, valFim, valFim, id]
             );
-            await pool.executeOnDefault(
+            await queryPool.execute(
                 `UPDATE ordemservicoitem 
                  SET ${fields.pi} = CASE WHEN ? != '' THEN ? ELSE ${fields.pi} END,
                      ${fields.pf} = CASE WHEN ? != '' THEN ? ELSE ${fields.pf} END
@@ -4735,15 +5032,16 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Campo invÃƒÂ¡lido.' });
         }
 
-        await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        await queryPool.execute(
             `UPDATE tags SET ${field} = ? WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
             [value, idTag]
         );
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
             [value, idTag]
         );
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
             [value, idTag]
         );
@@ -4762,8 +5060,8 @@ app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
     const userFinal = usuario || 'Sistema';
 
     try {
-        // 1. Verificar se jÃƒÂ¡ estÃƒÂ¡ finalizado
-        const [check] = await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        const [check] = await queryPool.execute(
             `SELECT Finalizado FROM projetos WHERE IdProjeto = ?`,
             [id]
         );
@@ -4780,24 +5078,23 @@ app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
         const now = getCurrentDateTimeBR();
 
         // 2. Finalizar em transaÃƒÂ§ÃƒÂ£o
-        const conn = await pool.executeOnDefault.__proto__ ? null : null; // use executeOnDefault directly
         // projetos: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE projetos SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=?`,
             [userFinal, now, id]
         );
         // tags: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE tags SET Finalizado='C', UsuarioFinalizado=?, DataFinalizado=? WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
             [userFinal, now, id]
         );
         // ordemservico: DataFinalizacao (diferente!)
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET OrdemServicoFinalizado='C', UsuarioFinalizado=?, DataFinalizacao=? WHERE IdProjeto=?`,
             [userFinal, now, id]
         );
         // ordemservicoitem: DataFinalizado
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='C', UsuarioFinalizado=?, DataFinalizado=?
              WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
             [userFinal, now, id]
@@ -4818,7 +5115,8 @@ app.post('/api/visao-geral/projeto/:id/cancelar-finalizacao', async (req, res) =
 
     try {
         // 1. Verificar se estÃƒÂ¡ finalizado (condiÃƒÂ§ÃƒÂ£o para cancelar)
-        const [check] = await pool.executeOnDefault(
+        const queryPool = req.tenantDbPool || pool;
+        const [check] = await queryPool.execute(
             `SELECT Finalizado, Projeto FROM projetos WHERE IdProjeto = ?`,
             [id]
         );
@@ -4834,22 +5132,22 @@ app.post('/api/visao-geral/projeto/:id/cancelar-finalizacao', async (req, res) =
 
         // 2. Desfazer finalizaÃƒÂ§ÃƒÂ£o em cascata (limpar campos)
         // projetos
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE projetos SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=?`,
             [id]
         );
         // tags
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE tags SET Finalizado='', UsuarioFinalizado='', DataFinalizado='' WHERE IdProjeto=? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E='')`,
             [id]
         );
         // ordemservico
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservico SET OrdemServicoFinalizado='', UsuarioFinalizado='', DataFinalizacao='' WHERE IdProjeto=?`,
             [id]
         );
         // ordemservicoitem
-        await pool.executeOnDefault(
+        await queryPool.execute(
             `UPDATE ordemservicoitem SET OrdemServicoItemFinalizado='', UsuarioFinalizado='', DataFinalizado=''
              WHERE IdOrdemServico IN (SELECT IdOrdemServico FROM ordemservico WHERE IdProjeto=?)`,
             [id]
@@ -7132,9 +7430,9 @@ async function inicializarPrimeiroSetor(conn, id) {
 
 // GET: Mapa da ProduÃ¯Â¿Â½Ã¯Â¿Â½o - visÃ¯Â¿Â½o geral de todos os processos
 app.get('/api/apontamento/mapa/producao', async (req, res) => {
-    const { projeto, tag, os, item, search, status, page = 1, limit = 500 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 500;
+    const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
 
     try {
@@ -7143,10 +7441,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             AND osi.Liberado_Engenharia = 'S'
             AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
             AND (
-                NULLIF(TRIM(osi.txtCorte), '') = '1' OR 
-                NULLIF(TRIM(osi.txtDobra), '') = '1' OR 
-                NULLIF(TRIM(osi.txtSolda), '') = '1' OR 
-                NULLIF(TRIM(osi.txtPintura), '') = '1'
+                osi.txtCorte = '1' OR 
+                osi.txtDobra = '1' OR 
+                osi.txtSolda = '1' OR 
+                osi.txtPintura = '1'
             )
         `;
         const params = [];
@@ -7163,10 +7461,10 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             params.push(`%${tag}%`, `%${tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
+        // Filtro Ordem de Serviço: busca apenas por ID da OS
         if (os) {
-            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
-            params.push(os, `%${os}%`);
+            whereClause += ' AND os.IdOrdemServico = ?';
+            params.push(os);
         }
 
         if (item) {
@@ -7185,21 +7483,31 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             params.push(`%${req.query.cliente}%`, `%${req.query.cliente}%`);
         }
 
+        // Filtro Cód. Mat. Fabricante
+        if (codMatFabricante) {
+            whereClause += ' AND osi.CodMatFabricante LIKE ?';
+            params.push(`%${codMatFabricante}%`);
+        }
+
         // Filter by overall status
         if (status === 'pendente') {
             whereClause += ` AND (
-                (NULLIF(TRIM(osi.txtCorte), '') = '1' AND (osi.CorteTotalExecutado IS NULL OR osi.CorteTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtDobra), '') = '1' AND (osi.DobraTotalExecutado IS NULL OR osi.DobraTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtSolda), '') = '1' AND (osi.SoldaTotalExecutado IS NULL OR osi.SoldaTotalExecutado < osi.QtdeTotal)) OR
-                (NULLIF(TRIM(osi.txtPintura), '') = '1' AND (osi.PinturaTotalExecutado IS NULL OR osi.PinturaTotalExecutado < osi.QtdeTotal))
+                (osi.txtCorte = '1' AND (osi.CorteTotalExecutado IS NULL OR osi.CorteTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtDobra = '1' AND (osi.DobraTotalExecutado IS NULL OR osi.DobraTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtSolda = '1' AND (osi.SoldaTotalExecutado IS NULL OR osi.SoldaTotalExecutado < osi.QtdeTotal)) OR
+                (osi.txtPintura = '1' AND (osi.PinturaTotalExecutado IS NULL OR osi.PinturaTotalExecutado < osi.QtdeTotal))
             )`;
         }
 
+        let countJoinStr = 'INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico';
+        if (projeto || req.query.cliente) {
+            countJoinStr += ' LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto';
+        }
+
         const [countResult] = await pool.execute(`
-            SELECT COUNT(*) as total
+            SELECT COUNT(osi.IdOrdemServicoItem) as total
             FROM ordemservicoitem osi
-            INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
-            LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto
+            ${countJoinStr}
             WHERE ${whereClause}
         `, params);
         const total = countResult[0].total;
@@ -7260,7 +7568,7 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
             INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
             LEFT JOIN projetos p ON os.IdProjeto = p.IdProjeto
             WHERE ${whereClause}
-            ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+            ORDER BY osi.IdOrdemServico DESC, osi.IdOrdemServicoItem
             LIMIT ${limitNum} OFFSET ${offsetNum}
         `, params);
 
@@ -7298,14 +7606,27 @@ app.get('/api/apontamento/planejamento/diario', async (req, res) => {
                 COALESCE(oi.PlanejadoInicioMontagem, os.PlanejadoInicioMontagem) as PlanejadoInicioMontagem,
                 COALESCE(oi.PlanejadoFinalMontagem, os.PlanejadoFinalMontagem) as PlanejadoFinalMontagem,
                 oi.txtCorte, oi.txtDobra, oi.txtSolda, oi.txtPintura, oi.TxtMontagem as txtMontagem,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'corte') as CorteTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'dobra') as DobraTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'solda') as SoldaTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'pintura') as PinturaTotalExecutado,
-                (SELECT SUM(QtdeProduzida) FROM ordemservicoitemcontrole WHERE IdOrdemServicoItem = oi.IdOrdemServicoItem AND Processo = 'montagem') as MontagemTotalExecutado
+                COALESCE(ctrl.CorteTotalExecutado, 0) as CorteTotalExecutado,
+                COALESCE(ctrl.DobraTotalExecutado, 0) as DobraTotalExecutado,
+                COALESCE(ctrl.SoldaTotalExecutado, 0) as SoldaTotalExecutado,
+                COALESCE(ctrl.PinturaTotalExecutado, 0) as PinturaTotalExecutado,
+                COALESCE(ctrl.MontagemTotalExecutado, 0) as MontagemTotalExecutado
             FROM ordemservicoitem oi
             JOIN ordemservico os ON oi.IdOrdemServico = os.IdOrdemServico
-            WHERE 1=1
+            LEFT JOIN (
+                SELECT 
+                    IdOrdemServicoItem,
+                    SUM(CASE WHEN Processo = 'corte' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as CorteTotalExecutado,
+                    SUM(CASE WHEN Processo = 'dobra' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as DobraTotalExecutado,
+                    SUM(CASE WHEN Processo = 'solda' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as SoldaTotalExecutado,
+                    SUM(CASE WHEN Processo = 'pintura' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as PinturaTotalExecutado,
+                    SUM(CASE WHEN Processo = 'montagem' THEN CAST(QtdeProduzida AS UNSIGNED) ELSE 0 END) as MontagemTotalExecutado
+                FROM ordemservicoitemcontrole
+                WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E != '*')
+                GROUP BY IdOrdemServicoItem
+            ) ctrl ON ctrl.IdOrdemServicoItem = oi.IdOrdemServicoItem
+            WHERE (oi.D_E_L_E_T_E IS NULL OR oi.D_E_L_E_T_E = '' OR oi.D_E_L_E_T_E != '*')
+              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
         `;
 
         const params = [];
@@ -7418,9 +7739,9 @@ app.get('/api/apontamento/:setor', async (req, res) => {
         });
     }
 
-    const { projeto, tag, os, item, search, status, page = 1, limit = 500 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 500;
+    const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
 
     try {
@@ -7460,16 +7781,22 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             params.push(`%${req.query.tag}%`, `%${req.query.tag}%`);
         }
 
-        // Filtro Ordem de Serviço: busca por ID ou descrição da OS
+        // Filtro Ordem de Serviço: busca apenas por ID da OS
         if (req.query.os) {
-            whereClause += ' AND (os.IdOrdemServico = ? OR os.Descricao LIKE ?)';
-            params.push(req.query.os, `%${req.query.os}%`);
+            whereClause += ' AND os.IdOrdemServico = ?';
+            params.push(req.query.os);
         }
 
         // Filtro Cliente: busca por descrição (LIKE)
         if (req.query.cliente) {
             whereClause += ' AND (os.DescEmpresa LIKE ? OR p.ClienteProjeto LIKE ?)';
             params.push(`%${req.query.cliente}%`, `%${req.query.cliente}%`);
+        }
+
+        // Filtro Cód. Mat. Fabricante
+        if (codMatFabricante) {
+            whereClause += ' AND osi.CodMatFabricante LIKE ?';
+            params.push(`%${codMatFabricante}%`);
         }
 
         const [countResult] = await pool.execute(`
@@ -7533,7 +7860,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
                 GROUP BY IdOrdemServicoItem
             ) history ON history.IdOrdemServicoItem = osi.IdOrdemServicoItem
             WHERE ${whereClause}
-            ORDER BY os.IdOrdemServico DESC, osi.IdOrdemServicoItem
+            ORDER BY osi.IdOrdemServico DESC, osi.IdOrdemServicoItem
             LIMIT ${limitNum} OFFSET ${offsetNum}
     `, [setor, ...params]);
 
@@ -8389,7 +8716,8 @@ app.get('/api/config', async (req, res) => {
             'ProcessosVisiveis',
             'PlanoCorteFiltroDC',
             'MaxRegistros',
-            'MenuStructure'
+            'MenuStructure',
+            'PermitirRealizadoSemPlanejamento'
         ].filter(c => colNames.includes(c));
 
         const query = availableCols.length > 0 
@@ -8399,24 +8727,38 @@ app.get('/api/config', async (req, res) => {
         if (query) {
             const [rows] = await pool.execute(query);
             if (rows.length > 0) {
-                return res.json({ success: true, config: rows[0] });
+                const row = rows[0];
+                // Sempre garante que setores de engenharia estejam presentes como visíveis,
+                // mesmo em bancos que salvaram apenas os setores de produção.
+                if (row.ProcessosVisiveis) {
+                    try {
+                        const saved = JSON.parse(row.ProcessosVisiveis);
+                        const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
+                        const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
+                        row.ProcessosVisiveis = JSON.stringify(merged);
+                    } catch (e) {
+                        // mantém o valor original se não conseguir parsear
+                    }
+                }
+                return res.json({ success: true, config: row });
             }
         }
 
         // Default config if table empty or no columns found
         res.json({ success: true, config: {
             RestringirApontamentoSemSaldoAnterior: 'Não',
-            ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]',
+            ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']),
             PlanoCorteFiltroDC: 'corte',
-            MaxRegistros: 300
+            MaxRegistros: 300,
+            PermitirRealizadoSemPlanejamento: 'Sim'
         }});
     } catch (error) {
         // Banco legado (ex: alfatec2) nÃƒÂ£o tem essas colunas Ã¢â‚¬â€ retorna config padrÃƒÂ£o sem erro
         if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
             console.warn('[Config GET] Banco com estrutura legada, usando defaults:', error.message);
             return res.json({ success: true, config: {
-                RestringirApontamentoSemSaldoAnterior: 'NÃƒÂ£o',
-                ProcessosVisiveis: '["corte","dobra","solda","pintura","montagem"]'
+                RestringirApontamentoSemSaldoAnterior: 'Não',
+                ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'])
             }, _legacyDb: true });
         }
         console.error('Config error:', error);
@@ -8427,27 +8769,45 @@ app.get('/api/config', async (req, res) => {
 // PUT /api/config - Salvar configuraÃƒÂ§ÃƒÂµes do sistema
 app.put('/api/config', async (req, res) => {
     try {
-        const { restringirApontamento, processosVisiveis } = req.body;
+        const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento } = req.body;
         
-        // Verificar se as colunas existem antes de tentar atualizar (bancos legados nÃƒÂ£o as tÃƒÂªm)
+        // Verificar e criar coluna PermitirRealizadoSemPlanejamento se não existir
+        try {
+            const [existsCols] = await pool.execute(
+                `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                 AND TABLE_NAME = 'configuracaosistema'
+                 AND COLUMN_NAME = 'PermitirRealizadoSemPlanejamento'`
+            );
+            if (existsCols.length === 0) {
+                await pool.execute(
+                    `ALTER TABLE configuracaosistema ADD COLUMN PermitirRealizadoSemPlanejamento VARCHAR(10) DEFAULT 'Sim'`
+                );
+                console.log('[Config] Coluna PermitirRealizadoSemPlanejamento criada automaticamente.');
+            }
+        } catch (alterErr) {
+            console.warn('[Config] Não foi possível criar coluna:', alterErr.message);
+        }
+
+        // Verificar se as colunas existem antes de tentar atualizar (bancos legados não as têm)
         let [cols] = [];
         try {
             [cols] = await pool.execute(
                 `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE()
                  AND TABLE_NAME = 'configuracaosistema'
-                 AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis')`
+                 AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis','PermitirRealizadoSemPlanejamento')`
             );
         } catch (e) {
             cols = [];
         }
 
         if (!cols || cols.length === 0) {
-            // Banco legado: nÃƒÂ£o tem as colunas, preferÃƒÂªncias sÃƒÂ³ ficam no localStorage
+            // Banco legado: não tem as colunas, preferências só ficam no localStorage
             return res.json({
                 success: true,
                 _legacyDb: true,
-                message: 'PreferÃƒÂªncias salvas localmente (banco nÃƒÂ£o suporta configuraÃƒÂ§ÃƒÂµes centralizadas)'
+                message: 'Preferências salvas localmente (banco não suporta configurações centralizadas)'
             });
         }
 
@@ -8465,23 +8825,26 @@ app.put('/api/config', async (req, res) => {
                 updates.push('ProcessosVisiveis = ?');
                 params.push(processosVisiveis);
             }
+            if (permitirRealizadoSemPlanejamento !== undefined && colNames.includes('PermitirRealizadoSemPlanejamento')) {
+                updates.push('PermitirRealizadoSemPlanejamento = ?');
+                params.push(permitirRealizadoSemPlanejamento);
+            }
             if (updates.length > 0) {
                 await pool.execute('UPDATE configuracaosistema SET ' + updates.join(', ') + ' WHERE id = ' + existing[0].id, params);
             }
         } else {
-            // Somente insere se as colunas existem
             if (colNames.includes('RestringirApontamentoSemSaldoAnterior') && colNames.includes('ProcessosVisiveis')) {
                 await pool.execute(
-                    'INSERT INTO configuracaosistema (RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis) VALUES (?, ?)',
-                    [restringirApontamento || 'NÃƒÂ£o', processosVisiveis || '["corte","dobra","solda","pintura","montagem"]']
+                    'INSERT INTO configuracaosistema (RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PermitirRealizadoSemPlanejamento) VALUES (?, ?, ?)',
+                    [restringirApontamento || 'Não', processosVisiveis || '["corte","dobra","solda","pintura","montagem"]', permitirRealizadoSemPlanejamento || 'Sim']
                 );
             }
         }
         
-        res.json({ success: true, message: 'ConfiguraÃƒÂ§ÃƒÂµes salvas com sucesso!' });
+        res.json({ success: true, message: 'Configurações salvas com sucesso!' });
     } catch (error) {
         console.error('Config save error:', error);
-        res.status(500).json({ success: false, message: 'Erro ao salvar configuraÃƒÂ§ÃƒÂµes' });
+        res.status(500).json({ success: false, message: 'Erro ao salvar configurações' });
     }
 });
 
@@ -9702,29 +10065,50 @@ app.post('/api/admin/db/save', authenticateAdmin, async (req, res) => {
 app.get('/api/controle-expedicao', async (req, res) => {
     try {
         const { projeto, tag, descTag, empresa, codmat, descResumo, dataPrevisaoInicio, dataPrevisaoFim, concluidos } = req.query;
-        let query = "SELECT IdProjeto, Projeto, DescEmpresa, Tag, DescTag, codmatfabricante, DataPrevisao, QtdeTotal, PesoUnitario, MontagemTotalExecutado, TotalExpedicao, Comprimento, Profundidade, Largura, descresumo, descdetal, RealizadoInicioExpedicao, RealizadoFinalExpedicao, IdTag, Idordemservico, IdOrdemServicoItem, Finalizadotag, FinalizadoProjeto, OrdemServicoItemFinalizado, enderecoarquivo, ProdutoPrincipal FROM viewcontroleexpedicao WHERE 1=1";
+        let query = `
+SELECT 
+    p.IdProjeto as IdProjeto, p.Projeto as Projeto, 
+    CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa,
+    t.Tag as Tag, t.DescTag as DescTag, o.CodMatFabricante as codmatfabricante, 
+    t.DataPrevisao as DataPrevisao, o.QtdeTotal as QtdeTotal, o.Peso as PesoUnitario, 
+    t.MontagemTotalExecutado as MontagemTotalExecutado, t.TotalExpedicao as TotalExpedicao, 
+    COALESCE(o.Comprimentocaixadelimitadora, o.Altura) as Comprimento, COALESCE(o.Espessuracaixadelimitadora, o.Espessura) as Profundidade, COALESCE(o.Larguracaixadelimitadora, o.Largura) as Largura, 
+    o.DescResumo as descresumo, o.DescDetal as descdetal, 
+    t.RealizadoInicioExpedicao as RealizadoInicioExpedicao, t.RealizadoFinalExpedicao as RealizadoFinalExpedicao, 
+    t.IdTag as IdTag, os.IdOrdemServico as Idordemservico, o.IdOrdemServicoItem as IdOrdemServicoItem, 
+    t.Finalizado as Finalizadotag, p.Finalizado as FinalizadoProjeto, 
+    o.OrdemServicoItemFinalizado as OrdemServicoItemFinalizado, o.EnderecoArquivo as enderecoarquivo, o.ProdutoPrincipal as ProdutoPrincipal
+FROM ordemservicoitem o
+JOIN ordemservico os ON o.IdOrdemServico = os.IdOrdemServico
+JOIN tags t ON os.IdTag = t.IdTag
+JOIN projetos p ON os.IdProjeto = p.IdProjeto
+WHERE (o.D_E_L_E_T_E IS NULL OR o.D_E_L_E_T_E = '' OR o.D_E_L_E_T_E != '*')
+  AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E != '*')
+  AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '' OR t.D_E_L_E_T_E != '*')
+  AND (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '' OR p.D_E_L_E_T_E != '*')
+`;
         const queryParams = [];
 
-        if (projeto) { query += " AND Projeto LIKE ?"; queryParams.push(`%${projeto}%`); }
-        if (tag) { query += " AND Tag LIKE ?"; queryParams.push(`%${tag}%`); }
-        if (descTag) { query += " AND DescTag LIKE ?"; queryParams.push(`%${descTag}%`); }
-        if (empresa) { query += " AND DescEmpresa LIKE ?"; queryParams.push(`%${empresa}%`); }
-        if (codmat) { query += " AND codmatfabricante LIKE ?"; queryParams.push(`%${codmat}%`); }
-        if (descResumo) { query += " AND DescResumo LIKE ?"; queryParams.push(`%${descResumo}%`); } 
+        if (projeto) { query += " AND p.Projeto LIKE ?"; queryParams.push(`%${projeto}%`); }
+        if (tag) { query += " AND t.Tag LIKE ?"; queryParams.push(`%${tag}%`); }
+        if (descTag) { query += " AND t.DescTag LIKE ?"; queryParams.push(`%${descTag}%`); }
+        if (empresa) { query += " AND (p.DescEmpresa LIKE ? OR p.ClienteProjeto LIKE ?)"; queryParams.push(`%${empresa}%`, `%${empresa}%`); }
+        if (codmat) { query += " AND o.CodMatFabricante LIKE ?"; queryParams.push(`%${codmat}%`); }
+        if (descResumo) { query += " AND o.DescResumo LIKE ?"; queryParams.push(`%${descResumo}%`); } 
         
         if (dataPrevisaoInicio && dataPrevisaoFim) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') BETWEEN ? AND ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') BETWEEN ? AND ?";
             queryParams.push(dataPrevisaoInicio, dataPrevisaoFim);
         } else if (dataPrevisaoInicio) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') >= ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') >= ?";
             queryParams.push(dataPrevisaoInicio);
         } else if (dataPrevisaoFim) {
-            query += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') <= ?";
+            query += " AND STR_TO_DATE(t.DataPrevisao, '%d/%m/%Y') <= ?";
             queryParams.push(dataPrevisaoFim);
         }
         
         if (!concluidos || concluidos !== '1') {
-            query += " AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado <> 'C') AND (Finalizadotag IS NULL OR Finalizadotag <> 'C')";
+            query += " AND (o.OrdemServicoItemFinalizado IS NULL OR o.OrdemServicoItemFinalizado <> 'C') AND (t.Finalizado IS NULL OR t.Finalizado <> 'C')";
         }
 
         query += " ORDER BY Projeto ASC, Tag ASC LIMIT 1000";
@@ -12421,7 +12805,14 @@ app.get('/login', (req, res) => {
 
 // React SPA — todas as rotas internas
 app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|superadmin).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    const devPath = path.join(__dirname, '../frontend/dist/index.html');
+    const prodPath = path.join(__dirname, '../index.html');
+    const fs = require('fs');
+    if (fs.existsSync(devPath)) {
+        res.sendFile(devPath);
+    } else {
+        res.sendFile(prodPath);
+    }
 });
 
 // Start Server
@@ -12435,6 +12826,359 @@ app.listen(PORT, '0.0.0.0', async () => {
         console.error('Failed to connect to database on startup:', err.message);
     }
 });
+
+// ============================================================================
+// ACOMPANHAMENTO DE ETAPAS (Visão Geral de Projetos / Etapas)
+// ============================================================================
+app.get('/api/acompanhamento-etapas', async (req, res) => {
+    let connection = null;
+    try {
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+
+        // Filtros (Opcionais)
+        const {
+            projeto, cliente, estadoOrigem, 
+            dataPrevisaoInicio, dataPrevisaoFim, 
+            dataFinalInicio, dataFinalFim,
+            dataPlanejamentoInicio, dataPlanejamentoFim,
+            dataRealizadoInicio, dataRealizadoFim
+        } = req.query;
+
+        let whereClause = "(p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '')";
+        const params = [];
+
+        if (projeto) {
+            whereClause += " AND p.Projeto LIKE ?";
+            params.push('%' + projeto + '%');
+        }
+        if (cliente) {
+            whereClause += " AND p.DescEmpresa LIKE ?";
+            params.push('%' + cliente + '%');
+        }
+        if (estadoOrigem) {
+            whereClause += " AND p.Estado = ?";
+            params.push(estadoOrigem);
+        }
+        
+        // Filtros de Datas
+        // DataPrevisao
+        if (dataPrevisaoInicio && dataPrevisaoFim) {
+            whereClause += " AND STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)";
+            params.push(dataPrevisaoInicio, dataPrevisaoFim);
+        }
+        // DataFinal (usaremos DataTermino)
+        if (dataFinalInicio && dataFinalFim) {
+            whereClause += " AND STR_TO_DATE(p.DataTermino, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)";
+            params.push(dataFinalInicio, dataFinalFim);
+        }
+
+        // Para os filtros de Data de Planejamento e Data de Realizado, 
+        // procuraremos nas tags. Usaremos INNER JOIN ou EXISTS.
+        if (dataPlanejamentoInicio && dataPlanejamentoFim) {
+            whereClause += ` AND EXISTS (
+                SELECT 1 FROM tags t2 
+                WHERE t2.IdProjeto = p.IdProjeto 
+                AND (t2.D_E_L_E_T_E IS NULL OR t2.D_E_L_E_T_E = '')
+                AND (
+                    STR_TO_DATE(t2.PlanejadoInicioMedicao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.PlanejadoInicioIsometrico, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.PlanejadoInicioEngenharia, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.PlanejadoInicioAprovacao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.PlanejadoInicioAcabamento, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.PlanejadoInicioExpedicao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                )
+            )`;
+            for(let i=0; i<6; i++) {
+                params.push(dataPlanejamentoInicio, dataPlanejamentoFim);
+            }
+        }
+
+        if (dataRealizadoInicio && dataRealizadoFim) {
+            whereClause += ` AND EXISTS (
+                SELECT 1 FROM tags t2 
+                WHERE t2.IdProjeto = p.IdProjeto 
+                AND (t2.D_E_L_E_T_E IS NULL OR t2.D_E_L_E_T_E = '')
+                AND (
+                    STR_TO_DATE(t2.RealizadoFinalMedicao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.RealizadoFinalIsometrico, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.RealizadoFinalEngenharia, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.RealizadoFinalAprovacao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.RealizadoFinalAcabamento, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                    OR STR_TO_DATE(t2.realizadoFinalExpedicao, '%d/%m/%Y') BETWEEN DATE(?) AND DATE(?)
+                )
+            )`;
+            for(let i=0; i<6; i++) {
+                params.push(dataRealizadoInicio, dataRealizadoFim);
+            }
+        }
+
+        const query = `
+            SELECT 
+                p.IdProjeto, 
+                p.Projeto, 
+                p.Observacao,
+                p.DataPrevisao,
+                p.DataTermino as DataFinal,
+                p.DescEmpresa as Cliente,
+                p.Estado as EstadoOrigem,
+                p.StatusProj as StatusProj,
+                p.liberado as liberado,
+                COUNT(t.IdTag) as TotalTags,
+                SUM(CASE WHEN t.RealizadoFinalMedicao IS NULL OR TRIM(t.RealizadoFinalMedicao) = '' THEN 1 ELSE 0 END) as FaltaMedicao,
+                SUM(CASE WHEN t.RealizadoFinalMedicao IS NOT NULL AND TRIM(t.RealizadoFinalMedicao) != '' THEN 1 ELSE 0 END) as OkMedicao,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioMedicao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanMedicao,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalMedicao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealMedicao,
+                
+                SUM(CASE WHEN t.RealizadoFinalIsometrico IS NULL OR TRIM(t.RealizadoFinalIsometrico) = '' THEN 1 ELSE 0 END) as FaltaIsometrico,
+                SUM(CASE WHEN t.RealizadoFinalIsometrico IS NOT NULL AND TRIM(t.RealizadoFinalIsometrico) != '' THEN 1 ELSE 0 END) as OkIsometrico,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioIsometrico),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanIsometrico,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalIsometrico),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealIsometrico,
+                
+                SUM(CASE WHEN t.RealizadoFinalEngenharia IS NULL OR TRIM(t.RealizadoFinalEngenharia) = '' THEN 1 ELSE 0 END) as FaltaEngenharia,
+                SUM(CASE WHEN t.RealizadoFinalEngenharia IS NOT NULL AND TRIM(t.RealizadoFinalEngenharia) != '' THEN 1 ELSE 0 END) as OkEngenharia,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioEngenharia),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanEngenharia,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalEngenharia),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealEngenharia,
+                
+                SUM(CASE WHEN t.RealizadoFinalAprovacao IS NULL OR TRIM(t.RealizadoFinalAprovacao) = '' THEN 1 ELSE 0 END) as FaltaAprovacao,
+                SUM(CASE WHEN t.RealizadoFinalAprovacao IS NOT NULL AND TRIM(t.RealizadoFinalAprovacao) != '' THEN 1 ELSE 0 END) as OkAprovacao,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioAprovacao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanAprovacao,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalAprovacao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealAprovacao,
+                
+                SUM(CASE WHEN t.RealizadoFinalAcabamento IS NULL OR TRIM(t.RealizadoFinalAcabamento) = '' THEN 1 ELSE 0 END) as FaltaAcabamento,
+                SUM(CASE WHEN t.RealizadoFinalAcabamento IS NOT NULL AND TRIM(t.RealizadoFinalAcabamento) != '' THEN 1 ELSE 0 END) as OkAcabamento,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioAcabamento),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanAcabamento,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalAcabamento),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealAcabamento,
+                
+                SUM(CASE WHEN t.realizadoFinalExpedicao IS NULL OR TRIM(t.realizadoFinalExpedicao) = '' THEN 1 ELSE 0 END) as FaltaExpedicao,
+                SUM(CASE WHEN t.realizadoFinalExpedicao IS NOT NULL AND TRIM(t.realizadoFinalExpedicao) != '' THEN 1 ELSE 0 END) as OkExpedicao,
+                DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioExpedicao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanExpedicao,
+                DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.realizadoFinalExpedicao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealExpedicao
+            FROM projetos p
+            LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+            WHERE ${whereClause}
+            GROUP BY p.IdProjeto
+            ORDER BY p.IdProjeto DESC
+        `;
+
+        const [rows] = await connection.query(query, params);
+        res.json({ success: true, data: rows });
+
+    } catch (err) {
+        console.error('Erro em /api/acompanhamento-etapas:', err);
+        res.status(500).json({ success: false, message: 'Erro ao buscar dados: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// Bulk Update das datas de etapas (Planejamento e Realizado)
+app.put('/api/acompanhamento-etapas/projeto/:id/bulk-update', async (req, res) => {
+    let connection = null;
+    try {
+        const { id } = req.params;
+        const tenantPool = req.tenantDbPool || pool;
+        connection = await tenantPool.getConnection();
+
+        const { payload, usuario, tagIds } = req.body;
+        const data = payload || req.body; // retro-compatibility
+        const usuarioLogado = usuario || 'Sistema';
+
+        // Setores e seus campos de Realizado (exigem PlanejadoInicio preenchido na tag)
+        const SETORES_REALIZADO = [
+            { setor: 'Medicao',     planField: 'PlanejadoInicioMedicao',     realFields: ['RealizadoInicioMedicao', 'RealizadoFinalMedicao'] },
+            { setor: 'Isometrico',  planField: 'PlanejadoInicioIsometrico',   realFields: ['RealizadoInicioIsometrico', 'RealizadoFinalIsometrico'] },
+            { setor: 'Engenharia',  planField: 'PlanejadoInicioEngenharia',   realFields: ['RealizadoInicioEngenharia', 'RealizadoFinalEngenharia'] },
+            { setor: 'Aprovacao',   planField: 'PlanejadoInicioAprovacao',    realFields: ['RealizadoInicioAprovacao', 'RealizadoFinalAprovacao'] },
+            { setor: 'Acabamento',  planField: 'PlanejadoInicioAcabamento',   realFields: ['RealizadoInicioAcabamento', 'RealizadoFinalAcabamento'] },
+            { setor: 'Expedicao',   planField: 'PlanejadoInicioExpedicao',    realFields: ['RealizadoInicioExpedicao', 'realizadoFinalExpedicao'] },
+        ];
+
+        const camposPermitidos = [
+            'PlanejadoInicioMedicao', 'PlanejadoFinalMedicao', 'RealizadoInicioMedicao', 'RealizadoFinalMedicao',
+            'PlanejadoInicioIsometrico', 'PlanejadoFinalIsometrico', 'RealizadoInicioIsometrico', 'RealizadoFinalIsometrico',
+            'PlanejadoInicioEngenharia', 'PlanejadoFinalEngenharia', 'RealizadoInicioEngenharia', 'RealizadoFinalEngenharia',
+            'PlanejadoInicioAprovacao', 'PlanejadoFinalAprovacao', 'RealizadoInicioAprovacao', 'RealizadoFinalAprovacao',
+            'PlanejadoInicioAcabamento', 'PlanejadoFinalAcabamento', 'RealizadoInicioAcabamento', 'RealizadoFinalAcabamento',
+            'PlanejadoInicioExpedicao', 'PlanejadoFinalExpedicao', 'RealizadoInicioExpedicao', 'realizadoFinalExpedicao'
+        ];
+
+        // Normaliza datas ISO → BR no payload
+        const normalizedData = {};
+        Object.keys(data).forEach(key => {
+            if (camposPermitidos.includes(key)) {
+                let val = data[key];
+                if (val && val.includes('-') && val.split('-').length === 3 && val.split('-')[0].length === 4) {
+                    const parts = val.split('-');
+                    val = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+                normalizedData[key] = val;
+            }
+        });
+
+        if (Object.keys(normalizedData).length === 0) {
+            return res.status(400).json({ success: false, message: 'Nenhum campo válido para atualizar.' });
+        }
+
+        // Busca as tags selecionadas para validação por tag
+        let tagFilter = `IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
+        const tagParams = [id];
+        if (Array.isArray(tagIds) && tagIds.length > 0) {
+            tagFilter += ` AND IdTag IN (${tagIds.map(() => '?').join(',')})`;
+            tagParams.push(...tagIds);
+        }
+        const [tagsRows] = await connection.execute(
+            `SELECT IdTag, ${SETORES_REALIZADO.map(s => `\`${s.planField}\``).join(', ')} FROM tags WHERE ${tagFilter}`,
+            tagParams
+        );
+
+        // Para cada tag, aplica o update respeitando a regra: Realizado só se PlanejadoInicio existir
+        let totalAffected = 0;
+        let totalBloqueados = 0;
+
+        for (const tag of tagsRows) {
+            const updates = [];
+            const params = [];
+
+            Object.keys(normalizedData).forEach(key => {
+                // Verifica se é campo de Realizado
+                const setorConf = SETORES_REALIZADO.find(s => s.realFields.includes(key));
+                if (setorConf) {
+                    // Tag já tem PlanejadoInicio? ou payload está enviando o PlanejadoInicio deste setor?
+                    const tagJaTemPlan = !!(tag[setorConf.planField] && tag[setorConf.planField].trim());
+                    const payloadTemPlan = !!(normalizedData[setorConf.planField]);
+                    if (!tagJaTemPlan && !payloadTemPlan) {
+                        totalBloqueados++;
+                        return; // Bloqueia este campo para esta tag
+                    }
+                }
+                updates.push(`\`${key}\` = ?`);
+                params.push(normalizedData[key]);
+                const capKey = key.charAt(0).toUpperCase() + key.slice(1);
+                updates.push(`\`Usuario${capKey}\` = ?`);
+                params.push(usuarioLogado);
+            });
+
+            if (updates.length === 0) continue;
+
+            params.push(tag.IdTag);
+            const [res2] = await connection.execute(
+                `UPDATE tags SET ${updates.join(', ')} WHERE IdTag = ?`,
+                params
+            );
+            totalAffected += res2.affectedRows;
+        }
+
+        const result = { affectedRows: totalAffected };
+
+        // -- RECALCULAR MIN/MAX DAS DATAS NO PROJETO --
+        try {
+            const queryMinMax = `
+                SELECT 
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioMedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalMedicaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioMedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalMedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalMedicaoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioIsometricoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalIsometricoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioIsometricoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalIsometrico, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalIsometricoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioEngenhariaMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalEngenhariaMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioEngenhariaMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalEngenharia, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalEngenhariaMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioAprovacaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalAprovacaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioAprovacaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalAprovacao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalAprovacaoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioAcabamentoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalAcabamentoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioAcabamentoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalAcabamento, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalAcabamentoMax,
+
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(PlanejadoInicioExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoInicioExpedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(PlanejadoFinalExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS PlanejadoFinalExpedicaoMax,
+                    DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(RealizadoInicioExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoInicioExpedicaoMin,
+                    DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(RealizadoFinalExpedicao, ''), '%d/%m/%Y')), '%d/%m/%Y') AS RealizadoFinalExpedicaoMax
+                FROM tags 
+                WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            `;
+            const [aggRows] = await connection.execute(queryMinMax, [id]);
+            if (aggRows && aggRows.length > 0) {
+                const agg = aggRows[0];
+                const mapFields = {
+                    // Campos em MAIUSCULAS conforme a tabela projetos
+                    PlanejadoInicioMEDICAO:    agg.PlanejadoInicioMedicaoMin,
+                    PlanejadoFinalMEDICAO:     agg.PlanejadoFinalMedicaoMax,
+                    RealizadoInicioMEDICAO:    agg.RealizadoInicioMedicaoMin,
+                    RealizadoFinalMEDICAO:     agg.RealizadoFinalMedicaoMax,
+
+                    PlanejadoInicioISOMETRICO: agg.PlanejadoInicioIsometricoMin,
+                    PlanejadoFinalISOMETRICO:  agg.PlanejadoFinalIsometricoMax,
+                    RealizadoInicioISOMETRICO: agg.RealizadoInicioIsometricoMin,
+                    RealizadoFinalISOMETRICO:  agg.RealizadoFinalIsometricoMax,
+
+                    PlanejadoInicioENGENHARIA: agg.PlanejadoInicioEngenhariaMin,
+                    PlanejadoFinalENGENHARIA:  agg.PlanejadoFinalEngenhariaMax,
+                    RealizadoInicioENGENHARIA: agg.RealizadoInicioEngenhariaMin,
+                    RealizadoFinalENGENHARIA:  agg.RealizadoFinalEngenhariaMax,
+
+                    PlanejadoInicioAPROVACAO:  agg.PlanejadoInicioAprovacaoMin,
+                    PlanejadoFinalAPROVACAO:   agg.PlanejadoFinalAprovacaoMax,
+                    RealizadoInicioAPROVACAO:  agg.RealizadoInicioAprovacaoMin,
+                    RealizadoFinalAPROVACAO:   agg.RealizadoFinalAprovacaoMax,
+
+                    PlanejadoInicioACABAMENTO: agg.PlanejadoInicioAcabamentoMin,
+                    PlanejadoFinalACABAMENTO:  agg.PlanejadoFinalAcabamentoMax,
+                    RealizadoInicioACABAMENTO: agg.RealizadoInicioAcabamentoMin,
+                    RealizadoFinalACABAMENTO:  agg.RealizadoFinalAcabamentoMax,
+
+                    PlanejadoInicioExpedicao:  agg.PlanejadoInicioExpedicaoMin,
+                    PlanejadoFinalExpedicao:   agg.PlanejadoFinalExpedicaoMax,
+                    RealizadoInicioExpedicao:  agg.RealizadoInicioExpedicaoMin,
+                    RealizadoFinalExpedicao:   agg.RealizadoFinalExpedicaoMax
+                };
+                
+                
+                const updatesProj = [];
+                const paramsProj = [];
+                for (const [f, v] of Object.entries(mapFields)) {
+                    updatesProj.push(`${f} = ?`);
+                    paramsProj.push(v || '');
+                    // Grava o campo de usuário correspondente se a data não for vazia
+                    if (v) {
+                        const capF = f.charAt(0).toUpperCase() + f.slice(1);
+                        updatesProj.push(`Usuario${capF} = ?`);
+                        paramsProj.push(usuarioLogado);
+                    }
+                }
+
+                if (updatesProj.length > 0) {
+                    paramsProj.push(id);
+                    await connection.execute(`UPDATE projetos SET ${updatesProj.join(', ')} WHERE IdProjeto = ?`, paramsProj);
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao recalcular limites do projeto:', e);
+        }
+
+        const bloqueioMsg = totalBloqueados > 0 
+            ? ` (${totalBloqueados} campo(s) Realizado ignorado(s): sem data Planejado no setor correspondente)`
+            : '';
+        res.json({ success: true, message: `Datas atualizadas em ${result.affectedRows} tags do projeto.${bloqueioMsg}` });
+
+    } catch (err) {
+        console.error('Erro em bulk-update de acompanhamento-etapas:', err);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar datas: ' + err.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 // ─── ENDPOINT DE MANUTENCAO: Recalcula QtdeTags para todos os projetos ────
 // Chame via: GET /api/manutencao/fix-qtdetags?key=sinco-manut-2026
 // REMOVER APOS EXECUTAR UMA VEZ.

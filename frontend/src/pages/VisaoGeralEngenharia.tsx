@@ -429,66 +429,108 @@ export default function VisaoGeralEngenharia() {
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projeto</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="search" placeholder="Ex: 010469"
                                 value={fProjeto} onChange={e => setFProjeto(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fProjeto && (
+        <button onClick={() => setFProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Empresa / Cliente</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="search" placeholder="Ex: Eletrocentro"
                                 value={fEmpresa} onChange={e => setFEmpresa(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fEmpresa && (
+        <button onClick={() => setFEmpresa('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tag</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="search" placeholder="Ex: T-001"
                                 value={fTag} onChange={e => setFTag(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fTag && (
+        <button onClick={() => setFTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Descrição da Tag</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="search" placeholder="Palavras-chave"
                                 value={fDescTag} onChange={e => setFDescTag(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fDescTag && (
+        <button onClick={() => setFDescTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projetista</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="text" placeholder="Nome do projetista"
                                 value={fProjetista} onChange={e => setFProjetista(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fProjetista && (
+        <button onClick={() => setFProjetista('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tipo Produto</label>
                         <div className="relative">
                             <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="text" placeholder="Ex: Painel"
                                 value={fTipo} onChange={e => setFTipo(e.target.value)}
-                                className="w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
+                                className="pr-6 w-full text-xs pl-6 pr-2 py-1 bg-white border border-gray-300 rounded outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20"
                             />
+    {fTipo && (
+        <button onClick={() => setFTipo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                 </div>
@@ -500,17 +542,31 @@ export default function VisaoGeralEngenharia() {
                         <CalendarDays size={13} className="text-[#32423D] shrink-0" />
                         <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap">Previsão de Entrega:</span>
                         <div className="flex items-center gap-1">
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="date" value={fPrevIni} onChange={e => setFPrevIni(e.target.value)}
-                                className="text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
+                                className="pr-6 text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
                                 title="Data início"
                             />
+    {fPrevIni && (
+        <button onClick={() => setFPrevIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                             <span className="text-gray-400 font-bold">—</span>
-                            <input
+                            <div className="relative flex items-center w-full">
+    <input
                                 type="date" value={fPrevFim} onChange={e => setFPrevFim(e.target.value)}
-                                className="text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
+                                className="pr-6 text-[10px] border border-gray-300 rounded px-2 py-1 outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 bg-white"
                                 title="Data fim"
                             />
+    {fPrevFim && (
+        <button onClick={() => setFPrevFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
 

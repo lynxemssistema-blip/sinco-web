@@ -249,15 +249,78 @@ export default function ListaReposicaoPage() {
             {/* Header Filtros */}
             <div className="bg-white p-3 rounded-xl border border-slate-200 mb-4 shrink-0 shadow-sm flex flex-col gap-3">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-2">
-                    <input type="text" placeholder="Id. OS" value={filIdOS} onChange={e => setFilIdOS(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Id. Item" value={filIdItem} onChange={e => setFilIdItem(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Espessura" value={filEspessura} onChange={e => setFilEspessura(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Setor Reposição" value={filSetorReposicao} onChange={e => setFilSetorReposicao(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Desc. Detalhe" value={filDescDetal} onChange={e => setFilDescDetal(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
-                    <input type="text" placeholder="Cód. Mat. Fabr." value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Id. OS" value={filIdOS} onChange={e => setFilIdOS(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filIdOS && (
+        <button onClick={() => setFilIdOS('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Id. Item" value={filIdItem} onChange={e => setFilIdItem(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filIdItem && (
+        <button onClick={() => setFilIdItem('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Projeto" value={filProjeto} onChange={e => setFilProjeto(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filProjeto && (
+        <button onClick={() => setFilProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Tag" value={filTag} onChange={e => setFilTag(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filTag && (
+        <button onClick={() => setFilTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Espessura" value={filEspessura} onChange={e => setFilEspessura(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filEspessura && (
+        <button onClick={() => setFilEspessura('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Setor Reposição" value={filSetorReposicao} onChange={e => setFilSetorReposicao(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filSetorReposicao && (
+        <button onClick={() => setFilSetorReposicao('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filDescResumo && (
+        <button onClick={() => setFilDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Desc. Detalhe" value={filDescDetal} onChange={e => setFilDescDetal(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filDescDetal && (
+        <button onClick={() => setFilDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
+                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Cód. Mat. Fabr." value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
+    {filCodMat && (
+        <button onClick={() => setFilCodMat('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                 </div>
                 
                 <div className="flex items-center justify-between border-t border-slate-100 pt-2">

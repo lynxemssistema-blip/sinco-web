@@ -931,14 +931,21 @@ export default function AcompanhamentoGeralPage() {
                     {/* Busca textual - Projeto/Cliente */}
                     <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        <input
+                        <div className="relative flex items-center w-full">
+    <input
                             id="acomp-search-projeto"
                             type="text"
                             placeholder="Buscar projeto/cliente..."
                             value={fSearchInput}
                             onChange={e => setFSearchInput(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
+                            className="pr-6 w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
                         />
+    {fSearchInput && (
+        <button onClick={() => setFSearchInput('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         {fSearchInput && (
                             <button type="button" onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
@@ -950,14 +957,21 @@ export default function AcompanhamentoGeralPage() {
                     {/* Busca textual - Descrição */}
                     <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        <input
+                        <div className="relative flex items-center w-full">
+    <input
                             id="acomp-search-descricao"
                             type="text"
                             placeholder="Buscar descrição..."
                             value={fDescricaoInput}
                             onChange={e => setFDescricaoInput(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
+                            className="pr-6 w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
                         />
+    {fDescricaoInput && (
+        <button onClick={() => setFDescricaoInput('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         {fDescricaoInput && (
                             <button type="button" onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}
                                 className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
@@ -983,23 +997,37 @@ export default function AcompanhamentoGeralPage() {
                     <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1">
                         <Calendar size={12} className="text-slate-400 shrink-0" />
                         <span className="text-[10px] font-bold text-slate-100 whitespace-nowrap">Data Final:</span>
-                        <input
+                        <div className="relative flex items-center w-full">
+    <input
                             id="acomp-data-de"
                             type="date"
                             value={fDataDe}
                             onChange={e => setFDataDe(e.target.value)}
                             title="De"
-                            className="text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
+                            className="pr-6 text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
                         />
+    {fDataDe && (
+        <button onClick={() => setFDataDe('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         <span className="text-slate-300 text-xs">—</span>
-                        <input
+                        <div className="relative flex items-center w-full">
+    <input
                             id="acomp-data-ate"
                             type="date"
                             value={fDataAte}
                             onChange={e => setFDataAte(e.target.value)}
                             title="Até"
-                            className="text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
+                            className="pr-6 text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
                         />
+    {fDataAte && (
+        <button onClick={() => setFDataAte('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         {(fDataDe || fDataAte) && (
                             <button
                                 onClick={() => { setFDataDe(''); setFDataAte(''); }}

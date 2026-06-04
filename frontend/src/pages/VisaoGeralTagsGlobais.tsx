@@ -188,11 +188,25 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                     )}
                     <div className="bg-white border border-slate-200 rounded-lg flex items-center px-2 py-1.5 shadow-sm w-48">
                         <Search size={14} className="text-slate-400 mr-2" />
-                        <input type="text" placeholder="Buscar Projeto..." value={fProjeto} onChange={e => setFProjeto(e.target.value)} className="bg-transparent border-none outline-none text-xs w-full text-slate-700" />
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Buscar Projeto..." value={fProjeto} onChange={e => setFProjeto(e.target.value)} className="pr-6 bg-transparent border-none outline-none text-xs w-full text-slate-700" />
+    {fProjeto && (
+        <button onClick={() => setFProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-lg flex items-center px-2 py-1.5 shadow-sm w-48">
                         <Search size={14} className="text-slate-400 mr-2" />
-                        <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs w-full text-slate-700" />
+                        <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="pr-6 bg-transparent border-none outline-none text-xs w-full text-slate-700" />
+    {fTag && (
+        <button onClick={() => setFTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-lg flex items-center px-2 py-1.5 shadow-sm">
                         <span className="text-[10px] font-black text-slate-500 uppercase mr-2">Setor:</span>
@@ -213,21 +227,63 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                 <div className="flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3">
                     <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
                         <span className="text-[9px] font-black text-slate-500 uppercase">Previsão:</span>
-                        <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataPrevIni && (
+        <button onClick={() => setFDataPrevIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         <span className="text-[9px] text-slate-400 font-bold">até</span>
-                        <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataPrevFim && (
+        <button onClick={() => setFDataPrevFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                     <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
                         <span className="text-[9px] font-black text-slate-500 uppercase">Planejamento:</span>
-                        <input type="date" value={fDataPlanIni} onChange={e => setFDataPlanIni(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPlanIni} onChange={e => setFDataPlanIni(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataPlanIni && (
+        <button onClick={() => setFDataPlanIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         <span className="text-[9px] text-slate-400 font-bold">até</span>
-                        <input type="date" value={fDataPlanFim} onChange={e => setFDataPlanFim(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPlanFim} onChange={e => setFDataPlanFim(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataPlanFim && (
+        <button onClick={() => setFDataPlanFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                     <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
                         <span className="text-[9px] font-black text-slate-500 uppercase">Realizado:</span>
-                        <input type="date" value={fDataRealIni} onChange={e => setFDataRealIni(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataRealIni} onChange={e => setFDataRealIni(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataRealIni && (
+        <button onClick={() => setFDataRealIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         <span className="text-[9px] text-slate-400 font-bold">até</span>
-                        <input type="date" value={fDataRealFim} onChange={e => setFDataRealFim(e.target.value)} className="bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+                        <div className="relative flex items-center w-full">
+    <input type="date" value={fDataRealFim} onChange={e => setFDataRealFim(e.target.value)} className="pr-6 bg-white border border-slate-200 rounded outline-none text-[10px] px-1 py-0.5 shadow-sm" />
+    {fDataRealFim && (
+        <button onClick={() => setFDataRealFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                     </div>
                 </div>
             </div>

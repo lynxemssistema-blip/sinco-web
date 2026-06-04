@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Loader2, ListChecks, Filter, RefreshCw, Eye, ChevronDown, ChevronUp, XCircle } from 'lucide-react';
+import { X,  Loader2, ListChecks, Filter, RefreshCw, Eye, ChevronDown, ChevronUp, XCircle  } from 'lucide-react';
 import { useAppConfig } from '../contexts/AppConfigContext';
 
 const API_BASE = '/api';
@@ -217,31 +217,80 @@ export default function VisaoGeralPendenciasPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Projeto</label>
-                            <input type="text" value={filterProjeto} onChange={e => setFilterProjeto(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterProjeto} onChange={e => setFilterProjeto(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterProjeto && (
+        <button onClick={() => setFilterProjeto('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Tag</label>
-                            <input type="text" value={filterTag} onChange={e => setFilterTag(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterTag} onChange={e => setFilterTag(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterTag && (
+        <button onClick={() => setFilterTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Cód. Mat. Fabr.</label>
-                            <input type="text" value={filterCodMatFabricante} onChange={e => setFilterCodMatFabricante(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterCodMatFabricante} onChange={e => setFilterCodMatFabricante(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterCodMatFabricante && (
+        <button onClick={() => setFilterCodMatFabricante('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Desc. Resumo</label>
-                            <input type="text" value={filterDescResumo} onChange={e => setFilterDescResumo(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterDescResumo} onChange={e => setFilterDescResumo(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterDescResumo && (
+        <button onClick={() => setFilterDescResumo('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Desc. Detalhe</label>
-                            <input type="text" value={filterDescDetal} onChange={e => setFilterDescDetal(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterDescDetal} onChange={e => setFilterDescDetal(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterDescDetal && (
+        <button onClick={() => setFilterDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Desc. Pendência</label>
-                            <input type="text" value={filterDescricaoPendencia} onChange={e => setFilterDescricaoPendencia(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterDescricaoPendencia} onChange={e => setFilterDescricaoPendencia(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterDescricaoPendencia && (
+        <button onClick={() => setFilterDescricaoPendencia('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                         <div>
                             <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Origem Pendência</label>
-                            <input type="text" value={filterOrigemPendencia} onChange={e => setFilterOrigemPendencia(e.target.value)} placeholder="Filtrar..." className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+                            <div className="relative flex items-center w-full">
+    <input type="text" value={filterOrigemPendencia} onChange={e => setFilterOrigemPendencia(e.target.value)} placeholder="Filtrar..." className="pr-6 w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#32423D] bg-slate-50 focus:bg-white transition-all overflow-hidden text-ellipsis" />
+    {filterOrigemPendencia && (
+        <button onClick={() => setFilterOrigemPendencia('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                         </div>
                     </div>
                 </div>

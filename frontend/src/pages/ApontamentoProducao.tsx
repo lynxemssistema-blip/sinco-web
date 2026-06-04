@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X, ArrowLeft,
     Scissors, Wrench, Flame, Paintbrush, Settings2, Plus, History, AlertCircle, Filter, XCircle, Star, Map,
-    PenTool, Box, AlertTriangle, Calendar
+    PenTool, Box, AlertTriangle, Calendar, Maximize2, Minimize2
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { useAppConfig } from '../contexts/AppConfigContext';
@@ -130,6 +130,9 @@ export default function ApontamentoProducaoPage() {
     const [totalItems, setTotalItems] = useState(0);
     const limit = 50; // Itens por página
 
+    // Expandir Tela (Fullscreen/Maximizado)
+    const [isExpanded, setIsExpanded] = useState(true);
+
     // Filters
     const [planoCorteFilter, setPlanoCorteFilter] = useState('');
     const [projetoFilter, setProjetoFilter] = useState('');
@@ -138,6 +141,7 @@ export default function ApontamentoProducaoPage() {
     const [clienteFilter, setClienteFilter] = useState('');
     const [itemFilter, setItemFilter] = useState('');
     const [codMatFabricanteFilter, setCodMatFabricanteFilter] = useState('');
+    const [dataPlanejamentoFilter, setDataPlanejamentoFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('pendente');
     const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
     const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
@@ -387,6 +391,7 @@ export default function ApontamentoProducaoPage() {
             if (itemFilter) params.set('item', itemFilter);
             if (codMatFabricanteFilter) params.set('codMatFabricante', codMatFabricanteFilter);
             if (statusFilter !== 'todos') params.set('status', statusFilter);
+            if (dataPlanejamentoFilter) params.set('dataPlanejamento', dataPlanejamentoFilter);
             
             // Paginação
             params.set('page', String(page));
@@ -423,7 +428,7 @@ export default function ApontamentoProducaoPage() {
                 setLoading(false);
             }
         }
-    }, [setorAtivo, projetoFilter, tagFilter, osFilter, planoCorteFilter, statusFilter, itemFilter, clienteFilter, page]);
+    }, [setorAtivo, projetoFilter, tagFilter, osFilter, planoCorteFilter, statusFilter, itemFilter, clienteFilter, codMatFabricanteFilter, dataPlanejamentoFilter, page]);
 
     const handleCancelLoad = () => {
         if (abortControllerRef.current) {
@@ -437,7 +442,7 @@ export default function ApontamentoProducaoPage() {
     // Auto-load removido intencionalmente para performance
     // Só carrega se houver page load de outra tela (com params) ou se o usuário clicar em pesquisar
     useEffect(() => {
-        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter, codMatFabricanteFilter];
+        const fields = [planoCorteFilter, projetoFilter, tagFilter, osFilter, itemFilter, clienteFilter, codMatFabricanteFilter, dataPlanejamentoFilter];
         const filledFieldsCount = fields.filter(f => f.trim().length > 0).length;
 
         // Se a página mudou via paginação, busca automaticamente se houver filtros válidos ou se uma busca já foi iniciada
@@ -471,13 +476,14 @@ export default function ApontamentoProducaoPage() {
         setCodMatFabricanteFilter('');
         setStatusFilter('pendente');
         setClienteFilter('');
+        setDataPlanejamentoFilter('');
         
         setItens([]);
         setHasSearched(false);
     }, []);
 
     // Check if any filter is active
-    const hasActiveFilters = planoCorteFilter || projetoFilter || tagFilter || osFilter || itemFilter || codMatFabricanteFilter || clienteFilter || statusFilter !== 'pendente';
+    const hasActiveFilters = planoCorteFilter || projetoFilter || tagFilter || osFilter || itemFilter || codMatFabricanteFilter || clienteFilter || dataPlanejamentoFilter || statusFilter !== 'pendente';
 
     // Fetch item details when opening modal
     const selectItem = async (item: ApontamentoItem) => {
@@ -875,7 +881,7 @@ export default function ApontamentoProducaoPage() {
     const setorInfo = setores.find(s => s.id === setorAtivo) || setores[0];
 
     return (
-        <div className={`space-y-4 flex flex-col min-h-0 min-w-0 overflow-hidden ${fromGlobal ? 'h-full' : 'h-[calc(100vh-80px)] w-full'}`}>
+        <div className={`space-y-4 flex flex-col transition-all duration-300 bg-gray-50 ${isExpanded ? 'fixed inset-0 z-50 overflow-hidden p-4' : (fromGlobal ? 'h-full' : 'h-[calc(100vh-80px)] w-full')}`}>
             {!fromGlobal ? (
                 <>
             {setorAtivo !== 'planejamento' && (
@@ -951,13 +957,23 @@ export default function ApontamentoProducaoPage() {
                                 <div className="flex items-center gap-2">
                                     <div className="relative flex-1">
                                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                                        <input
-                                            type="search"
-                                            placeholder="Digite a descrição..."
-                                            value={planoCorteFilter}
-                                            onChange={(e) => setPlanoCorteFilter(e.target.value)}
-                                            className="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
-                                        />
+                                        <div className="relative flex items-center w-full">
+                                    <input
+                                        type="search"
+                                        placeholder="Digite a descrição..."
+                                        value={planoCorteFilter}
+                                        onChange={(e) => setPlanoCorteFilter(e.target.value)}
+                                        className="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
+                                    />
+                                    {planoCorteFilter && (
+                                        <button onClick={() => {
+                                            const e = { target: { value: '' } };
+                                            ((e) => setPlanoCorteFilter(e.target.value))(e);
+                                        }} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
                                     </div>
                                     {planoCorteFilter && (
                                         <button onClick={() => setPlanoCorteFilter('')} className="p-1.5 rounded border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
@@ -994,26 +1010,83 @@ export default function ApontamentoProducaoPage() {
                             {/* OS Filter */}
                             <div className="min-w-[120px]">
                                 <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Ordem de Serviço</label>
-                                <input
-                                    type="search"
-                                    placeholder="Digite a OS..."
-                                    value={osFilter}
-                                    onChange={(e) => setOsFilter(e.target.value)}
-                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
-                                />
+                                <div className="relative flex items-center w-full">
+                                    <input
+                                        type="search"
+                                        placeholder="Digite a OS..."
+                                        value={osFilter}
+                                        onChange={(e) => setOsFilter(e.target.value)}
+                                        className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
+                                    />
+                                    {osFilter && (
+                                        <button onClick={() => {
+                                            const e = { target: { value: '' } };
+                                            ((e) => setOsFilter(e.target.value))(e);
+                                        }} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Cliente Filter */}
                             <div className="min-w-[120px]">
                                 <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Cliente</label>
-                                <input
-                                    type="search"
-                                    placeholder="Digite o cliente..."
-                                    value={clienteFilter}
-                                    onChange={(e) => setClienteFilter(e.target.value)}
-                                    className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
-                                />
+                                <div className="relative flex items-center w-full">
+                                    <input
+                                        type="search"
+                                        placeholder="Digite o cliente..."
+                                        value={clienteFilter}
+                                        onChange={(e) => setClienteFilter(e.target.value)}
+                                        className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
+                                    />
+                                    {clienteFilter && (
+                                        <button onClick={() => {
+                                            const e = { target: { value: '' } };
+                                            ((e) => setClienteFilter(e.target.value))(e);
+                                        }} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Cod. Produto Filter */}
+                            <div className="min-w-[120px]">
+                                <label className="block text-[10px] font-bold text-gray-500 mb-0.5">Cód. Produto</label>
+                                <div className="relative flex items-center w-full">
+                                    <input
+                                        type="search"
+                                        placeholder="Digite o código..."
+                                        value={codMatFabricanteFilter}
+                                        onChange={(e) => setCodMatFabricanteFilter(e.target.value)}
+                                        className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
+                                    />
+                                    {codMatFabricanteFilter && (
+                                        <button onClick={() => {
+                                            const e = { target: { value: '' } };
+                                            ((e) => setCodMatFabricanteFilter(e.target.value))(e);
+                                        }} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Data Planejamento Filter */}
+                            {setorAtivo !== 'mapa' && setorAtivo !== 'mapaproducao' && (
+                                <div className="min-w-[130px]">
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-0.5">
+                                        Data Planej. {setorInfo.label}
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={dataPlanejamentoFilter}
+                                        onChange={(e) => setDataPlanejamentoFilter(e.target.value)}
+                                        className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50"
+                                    />
+                                </div>
+                            )}
 
                             {/* Group By */}
                             <div className="min-w-[120px]">
@@ -1067,6 +1140,15 @@ export default function ApontamentoProducaoPage() {
                                     Planejamento
                                 </button>
                                 
+                                {/* Expand/Collapse Button */}
+                                <button
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    className="p-1.5 text-gray-500 hover:text-[#03624C] transition-colors rounded border bg-gray-50 shadow-sm"
+                                    title={isExpanded ? "Restaurar tela" : "Maximizar tela"}
+                                >
+                                    {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                                </button>
+
                                 {/* Search Button */}
                                 <button
                                     onClick={handleSearch}
@@ -1110,20 +1192,22 @@ export default function ApontamentoProducaoPage() {
                 {/* Primary Table Header - Movido para dentro do container com sticky */}
                 {!loading && itens.length > 0 && setorAtivo !== 'mapa' && (
                     <div className="bg-gray-100 px-2 py-1.5 flex items-center gap-1.5 text-[9px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200 shadow-sm min-w-max">
-                        <span className="w-5 shrink-0"></span>
-                        <span className="w-6 shrink-0 text-center">PDF</span>
                         <span className="w-10 shrink-0 text-center">OS</span>
-                        <span className="w-56 shrink-0">Info</span>
-                        <span className="w-12 shrink-0 text-center">Item</span>
-                        <span className="w-[100px] shrink-0">Código</span>
-                        <span className="w-20 shrink-0">Plano Corte</span>
+                        <span className="w-32 shrink-0 sticky left-0 bg-gray-100 z-30">Projeto</span>
+                        <span className="w-40 shrink-0">Cliente/Empresa</span>
+                        <span className="w-24 shrink-0">Tag</span>
+                        <span className="w-[140px] shrink-0">Código</span>
+                        <span className="w-6 shrink-0 text-center">PDF</span>
+                        <span className="w-12 shrink-0 text-center">PC</span>
                         <span className="w-28 shrink-0">Material</span>
                         <span className="w-12 shrink-0 text-center">Esp.</span>
                         <span className="w-48 shrink-0">Descrição</span>
+                        <span className="w-20 shrink-0 text-center">Data Planej.</span>
+                        <span className="w-16 shrink-0 text-center">Apontar</span>
                         <span className="w-10 shrink-0 text-center">Qt</span>
                         <span className="w-14 shrink-0 text-center">Prod.</span>
                         <span className="w-12 shrink-0 text-center">%</span>
-                        <span className="w-56 shrink-0 text-right pr-2">Ação</span>
+                        <span className="w-28 shrink-0 text-right pr-2">Ação</span>
                     </div>
                 )}
 
@@ -1165,21 +1249,24 @@ export default function ApontamentoProducaoPage() {
                     /* Mapa da Produção View */
                     <div>
                         {/* Mapa Header */}
-                        <div className="bg-gray-100 px-2 py-1 flex items-center gap-1.5 text-[10px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200">
-                            <span className="w-10 text-center">OS</span>
-                            <span className="w-56 shrink-0">Info</span>
-                            <span className="w-12 text-center">Item</span>
-                            <span className="w-[100px] shrink-0">Código</span>
-                            <span className="w-20">Plano Corte</span>
-                            <span className="w-28">Material</span>
+                        <div className="bg-gray-100 px-2 py-1 flex items-center gap-1.5 text-[10px] font-black text-gray-500 uppercase sticky top-0 z-20 border-b border-gray-200 min-w-max">
+                            <span className="w-10 shrink-0 text-center">OS</span>
+                            <span className="w-32 shrink-0 sticky left-0 z-30 bg-gray-100 border-r border-gray-200">Projeto</span>
+                            <span className="w-40 shrink-0">Cliente/Empresa</span>
+                            <span className="w-24 shrink-0">Tag</span>
+                            <span className="w-[140px] shrink-0">Código</span>
+                            <span className="w-8 shrink-0 text-center">PDF</span>
+                            <span className="w-12 shrink-0 text-center">PC</span>
+                            <span className="w-28 shrink-0">Material</span>
                             <span className="w-48 shrink-0">Descrição</span>
-                            <span className="w-10 text-center">Qt</span>
-                            {visibleSetores.includes('corte') && <span className="w-14 text-center bg-blue-100 rounded py-0.5">Corte</span>}
-                            {visibleSetores.includes('dobra') && <span className="w-14 text-center bg-purple-100 rounded py-0.5">Dobra</span>}
-                            {visibleSetores.includes('solda') && <span className="w-14 text-center bg-orange-100 rounded py-0.5">Solda</span>}
-                            {visibleSetores.includes('pintura') && <span className="w-14 text-center bg-green-100 rounded py-0.5">Pintura</span>}
-                            {visibleSetores.includes('montagem') && <span className="w-14 text-center bg-red-100 rounded py-0.5">Montag.</span>}
-                            <span className="w-16 text-center">Ação</span>
+                            <span className="w-16 shrink-0 text-center">Apontar</span>
+                            <span className="w-10 shrink-0 text-center">Qt</span>
+                            {visibleSetores.includes('corte') && <span className="w-14 shrink-0 text-center bg-blue-100 rounded py-0.5">Corte</span>}
+                            {visibleSetores.includes('dobra') && <span className="w-14 shrink-0 text-center bg-purple-100 rounded py-0.5">Dobra</span>}
+                            {visibleSetores.includes('solda') && <span className="w-14 shrink-0 text-center bg-orange-100 rounded py-0.5">Solda</span>}
+                            {visibleSetores.includes('pintura') && <span className="w-14 shrink-0 text-center bg-green-100 rounded py-0.5">Pintura</span>}
+                            {visibleSetores.includes('montagem') && <span className="w-14 shrink-0 text-center bg-red-100 rounded py-0.5">Montag.</span>}
+                            <span className="w-28 shrink-0 text-right pr-2">Ação</span>
                         </div>
 
                         {/* Mapa Items */}
@@ -1217,35 +1304,77 @@ export default function ApontamentoProducaoPage() {
                                             : 'hover:bg-gray-50 border-transparent'
                                             }`}
                                     >
-                                        <span className="w-10 text-center font-bold text-[#32423D] bg-blue-100 px-0.5 py-0.5 rounded text-[10px]">
+                                        <span className="w-10 shrink-0 text-center font-bold text-[#32423D] bg-blue-100 px-0.5 py-0.5 rounded text-[10px]">
                                             {item.IdOrdemServico}
                                         </span>
 
-                                        {/* Info Column */}
-                                        <div className="w-56 flex flex-col gap-0.5 text-[9px]">
-                                            <div className="flex items-center gap-1 overflow-hidden">
-                                                <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm max-w-[50%]" title={item.Projeto}>{item.Projeto}</span>
-                                                {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase flex-1" title={item.Cliente}>{item.Cliente}</span>}
-                                            </div>
-                                            <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm w-fit max-w-full" title={item.Tag}>{item.Tag}</span>
-                                        </div>
-
-                                        <span className="w-12 text-center text-gray-400 text-[9px]">
-                                            #{item.IdOrdemServicoItem}
+                                        <span className="w-32 shrink-0 overflow-hidden text-ellipsis text-[10px] font-bold text-[#32423D] bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap sticky left-0 z-10 border-r border-white" title={item.Projeto}>
+                                            {item.Projeto || '-'}
                                         </span>
-                                        <span className="w-[100px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                        <span className="w-40 shrink-0 overflow-hidden text-ellipsis text-[10px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded uppercase whitespace-nowrap" title={item.Cliente}>
+                                            {item.Cliente || '-'}
+                                        </span>
+                                        <span className="w-24 shrink-0 overflow-hidden text-ellipsis text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded whitespace-nowrap" title={item.Tag}>
+                                            {item.Tag || '-'}
+                                        </span>
+                                        <span className="w-[140px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap" title={item.CodMatFabricante}>
                                             {item.CodMatFabricante || '-'}
                                         </span>
-                                        <span className="w-20 text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
+                                        <div className="w-8 shrink-0 flex justify-center">
+                                            {item.EnderecoArquivo ? (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(`${API_BASE}/pdf?path=${encodeURIComponent(item.EnderecoArquivo || '')}`, '_blank');
+                                                    }}
+                                                    className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-red-50 hover:text-red-600 transition-colors border border-gray-200"
+                                                    title="PDF"
+                                                >
+                                                    <FileText size={11} />
+                                                </button>
+                                            ) : (
+                                                <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 text-gray-300">
+                                                    <FileText size={11} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="w-12 shrink-0 text-center text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate" title={item.PlanoCorte}>
                                             {item.PlanoCorte || '-'}
                                         </span>
-                                        <span className="w-28 text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
+                                        <span className="w-28 shrink-0 text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
                                             {item.MaterialSW || '-'}
                                         </span>
                                         <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
                                             {item.DescResumo?.trim() || '-'}
                                         </span>
-                                        <span className="w-10 text-center font-black text-[#32423D] text-[11px]">
+                                        
+                                        {/* Mapa Action Button (Apontar) */}
+                                        <div className="w-16 shrink-0 flex justify-center">
+                                            {(() => {
+                                                const allDone = (!passaCorte || corteStatus.pct >= 100) &&
+                                                    (!passaDobra || dobraStatus.pct >= 100) &&
+                                                    (!passaSolda || soldaStatus.pct >= 100) &&
+                                                    (!passaPintura || pinturaStatus.pct >= 100) &&
+                                                    (!passaMontagem || montagemStatus.pct >= 100);
+
+                                                return allDone ? (
+                                                    <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
+                                                        <CheckCircle size={10} />
+                                                        OK
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setSetorAtivo('mapa'); openModal(item, 'mapa'); }}
+                                                        className={`w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-[#32423D] text-white text-[10px] font-bold hover:bg-[#32423D]/90 transition-all active:scale-95`}
+                                                    >
+                                                        <Plus size={10} />
+                                                        Apontar
+                                                    </button>
+                                                );
+                                            })()}
+                                        </div>
+
+                                        <span className="w-10 shrink-0 text-center font-black text-[#32423D] text-[11px]">
                                             {item.QtdeTotal}
                                         </span>
 
@@ -1254,7 +1383,7 @@ export default function ApontamentoProducaoPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setSetorAtivo('corte'); openModal(item, 'corte'); }}
                                                 disabled={corteStatus.pct >= 100 || item.txtCorte !== '1'}
-                                                className={`w-14 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${corteStatus.bg} ${corteStatus.color}`}
+                                                className={`w-14 shrink-0 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${corteStatus.bg} ${corteStatus.color}`}
                                             >
                                                 {corteStatus.text}
                                             </button>
@@ -1263,7 +1392,7 @@ export default function ApontamentoProducaoPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setSetorAtivo('dobra'); openModal(item, 'dobra'); }}
                                                 disabled={dobraStatus.pct >= 100 || item.txtDobra !== '1'}
-                                                className={`w-14 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${dobraStatus.bg} ${dobraStatus.color}`}
+                                                className={`w-14 shrink-0 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${dobraStatus.bg} ${dobraStatus.color}`}
                                             >
                                                 {dobraStatus.text}
                                             </button>
@@ -1272,7 +1401,7 @@ export default function ApontamentoProducaoPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setSetorAtivo('solda'); openModal(item, 'solda'); }}
                                                 disabled={soldaStatus.pct >= 100 || item.txtSolda !== '1'}
-                                                className={`w-14 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${soldaStatus.bg} ${soldaStatus.color}`}
+                                                className={`w-14 shrink-0 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${soldaStatus.bg} ${soldaStatus.color}`}
                                             >
                                                 {soldaStatus.text}
                                             </button>
@@ -1281,7 +1410,7 @@ export default function ApontamentoProducaoPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setSetorAtivo('pintura'); openModal(item, 'pintura'); }}
                                                 disabled={pinturaStatus.pct >= 100 || item.txtPintura !== '1'}
-                                                className={`w-14 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${pinturaStatus.bg} ${pinturaStatus.color}`}
+                                                className={`w-14 shrink-0 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${pinturaStatus.bg} ${pinturaStatus.color}`}
                                             >
                                                 {pinturaStatus.text}
                                             </button>
@@ -1290,34 +1419,85 @@ export default function ApontamentoProducaoPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setSetorAtivo('montagem'); openModal(item, 'montagem'); }}
                                                 disabled={montagemStatus.pct >= 100 || item.TxtMontagem !== '1'}
-                                                className={`w-14 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${montagemStatus.bg} ${montagemStatus.color}`}
+                                                className={`w-14 shrink-0 text-center text-[9px] font-black py-0.5 rounded transition-transform hover:scale-105 active:scale-95 disabled:hover:scale-100 ${montagemStatus.bg} ${montagemStatus.color}`}
                                             >
                                                 {montagemStatus.text}
                                             </button>
                                         )}
-                                        {/* Mapa Action Button */}
-                                        {(() => {
-                                            const allDone = (!passaCorte || corteStatus.pct >= 100) &&
-                                                (!passaDobra || dobraStatus.pct >= 100) &&
-                                                (!passaSolda || soldaStatus.pct >= 100) &&
-                                                (!passaPintura || pinturaStatus.pct >= 100) &&
-                                                (!passaMontagem || montagemStatus.pct >= 100);
+                                        
+                                        {/* Actions */}
+                                        <div className="flex gap-1 items-center justify-end w-28 shrink-0 pr-2">
+                                            <div className="flex gap-0.5">
+                                                {item.EnderecoArquivo && (
+                                                    <>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=dxf`, '_blank');
+                                                            }}
+                                                            className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-[#E0E800]/10 hover:text-[#32423D] transition-colors border border-gray-200"
+                                                            title="DXF"
+                                                        >
+                                                            <PenTool size={11} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=sldprt`, '_blank');
+                                                            }}
+                                                            className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-800 transition-colors border border-gray-200"
+                                                            title="3D"
+                                                        >
+                                                            <Box size={11} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
 
-                                            return allDone ? (
-                                                <div className="w-16 flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black ml-1 border border-green-200">
-                                                    <CheckCircle size={10} />
-                                                    OK
-                                                </div>
-                                            ) : (
+                                            <div className="flex gap-0.5 border-l border-gray-200 pl-1">
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); setSetorAtivo('mapa'); openModal(item, 'mapa'); }}
-                                                    className={`w-16 flex items-center justify-center gap-1 px-1 py-1 rounded bg-[#32423D] text-white text-[10px] font-bold hover:bg-[#32423D]/90 ml-1 transition-all active:scale-95`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedItem(item);
+                                                        setQtdeReposicao('');
+                                                        setMotivoReposicao('');
+                                                        setReposicaoModalOpen(true);
+                                                    }}
+                                                    className="flex items-center justify-center w-6 h-6 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 transition-colors border border-amber-200"
+                                                    title="Reposição"
                                                 >
-                                                    <Plus size={10} />
-                                                    Apontar
+                                                    <RefreshCw size={12} />
                                                 </button>
-                                            );
-                                        })()}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setIdRncEdicao(null);
+                                                        setSelectedItem(item);
+                                                        setDescricaoPendencia('');
+                                                        setTituloRnc(item.DescResumo || '');
+                                                        setSubTituloRnc(item.DescDetal || '');
+                                                        setTipoRnc('RNC');
+                                                        setDataExecucaoRnc(new Date().toISOString().split('T')[0]);
+                                                        setEspessuraRnc(item.Espessura || '');
+                                                        setMaterialSWRnc(item.MaterialSW || '');
+                                                        setChkCorteRnc(item.txtCorte === '1');
+                                                        setChkDobraRnc(item.txtDobra === '1');
+                                                        setChkSoldaRnc(item.txtSolda === '1');
+                                                        setChkPinturaRnc(item.txtPintura === '1');
+                                                        setChkMontagemRnc(item.TxtMontagem === '1');
+
+                                                        setLoadingPendencias(true);
+                                                        fetchHistoricoRNC(item.CodMatFabricante || '');
+
+                                                        setPendenciaModalOpen(true);
+                                                    }}
+                                                    className="flex items-center justify-center w-6 h-6 bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-200"
+                                                    title="Pendência"
+                                                >
+                                                    <AlertTriangle size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -1350,27 +1530,7 @@ export default function ApontamentoProducaoPage() {
                                                     : 'hover:bg-gray-50 border-transparent'
                                                     }`}
                                             >
-                                                {/* Status Icon */}
-                                                <div className="w-5 shrink-0">
-                                                    {concluido ? (
-                                                        <CheckCircle size={14} className="text-green-500" />
-                                                    ) : (
-                                                        <Clock size={14} className="text-yellow-500" />
-                                                    )}
-                                                </div>
 
-                                                {/* PDF / Arquivos (Indicador estático) */}
-                                                <div className="w-6 shrink-0 flex justify-center">
-                                                    {item.EnderecoArquivo ? (
-                                                        <div className="w-6 h-6 rounded flex items-center justify-center bg-[#E0E800]/30 text-[#32423D] cursor-default" title="Clique para arquivos">
-                                                            <FileText size={11} />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 text-gray-300">
-                                                            <FileText size={11} />
-                                                        </div>
-                                                    )}
-                                                </div>
 
                                                 {/* OS Number */}
                                                 <div className="w-10 shrink-0 text-center">
@@ -1379,28 +1539,38 @@ export default function ApontamentoProducaoPage() {
                                                     </span>
                                                 </div>
 
-                                                {/* Info Column */}
-                                                <div className="w-56 shrink-0 flex flex-col gap-0.5 text-[8px]">
-                                                    <div className="flex items-center gap-1 overflow-hidden">
-                                                        <span className="truncate font-bold text-[#32423D] bg-[#E0E800]/20 px-1 rounded-sm max-w-[50%]" title={item.Projeto}>{item.Projeto}</span>
-                                                        {item.Cliente && <span className="truncate text-gray-600 bg-gray-50 px-1 rounded-sm uppercase flex-1" title={item.Cliente}>{item.Cliente}</span>}
-                                                    </div>
-                                                    <span className="truncate text-purple-700 bg-purple-50 px-1 rounded-sm w-fit max-w-full" title={item.Tag}>{item.Tag}</span>
-                                                </div>
-
-                                                {/* Item ID */}
-                                                <div className="w-12 shrink-0 text-center text-gray-400 text-[9px]">
-                                                    #{item.IdOrdemServicoItem}
-                                                </div>
-
-                                                {/* Código */}
-                                                <span className="w-[100px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                                <span className="w-32 shrink-0 overflow-hidden text-ellipsis text-[10px] font-bold text-[#32423D] bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap sticky left-0 z-10 border-r border-white" title={item.Projeto}>
+                                                    {item.Projeto || '-'}
+                                                </span>
+                                                <span className="w-40 shrink-0 overflow-hidden text-ellipsis text-[10px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded uppercase whitespace-nowrap" title={item.Cliente}>
+                                                    {item.Cliente || '-'}
+                                                </span>
+                                                <span className="w-24 shrink-0 overflow-hidden text-ellipsis text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded whitespace-nowrap" title={item.Tag}>
+                                                    {item.Tag || '-'}
+                                                </span>
+                                                <span className="w-[140px] shrink-0 overflow-hidden text-ellipsis text-[10px] font-black text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded whitespace-nowrap" title={item.CodMatFabricante}>
                                                     {item.CodMatFabricante || '-'}
                                                 </span>
-
-                                                {/* Plano de Corte */}
-                                                <div className="w-20 shrink-0 flex items-center">
-                                                    <span className="text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate">
+                                                <div className="w-6 shrink-0 flex justify-center">
+                                                    {item.EnderecoArquivo ? (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.open(`${API_BASE}/pdf?path=${encodeURIComponent(item.EnderecoArquivo || '')}`, '_blank');
+                                                            }}
+                                                            className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-red-50 hover:text-red-600 transition-colors border border-gray-200"
+                                                            title="PDF"
+                                                        >
+                                                            <FileText size={11} />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="w-6 h-6 rounded flex items-center justify-center bg-gray-50 text-gray-300">
+                                                            <FileText size={11} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="w-12 shrink-0 flex items-center justify-center">
+                                                    <span className="text-[10px] text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded truncate" title={item.PlanoCorte}>
                                                         {item.PlanoCorte || '-'}
                                                     </span>
                                                 </div>
@@ -1416,9 +1586,44 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* Descrição */}
-                                                <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]">
+                                                <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]" title={item.DescResumo?.trim() || '-'}>
                                                     {item.DescResumo?.trim() || '-'}
                                                 </span>
+
+                                                {/* Data Planejamento */}
+                                                <div className="w-20 shrink-0 text-center text-[10px] text-gray-700 font-bold">
+                                                    {item.DataPlanejamento ? formatDate(item.DataPlanejamento) : '-'}
+                                                </div>
+
+                                                {/* Apontar Button */}
+                                                <div className="w-16 shrink-0 flex justify-center">
+                                                    {(() => {
+                                                        const { allowed, predecessor } = checkPredecessorStatus(item, setorAtivo as Setor);
+                                                        return concluido ? (
+                                                            <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
+                                                                <CheckCircle size={10} />
+                                                                OK
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                disabled={!allowed}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openModal(item, setorAtivo as any);
+                                                                }}
+                                                                className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-bold transition-all shadow-sm ${
+                                                                    !allowed 
+                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                                                                        : `${setorInfo.color} text-white hover:opacity-90 active:scale-95`
+                                                                }`}
+                                                                title={!allowed ? `Aguardando setor ${predecessor}` : 'Apontar'}
+                                                            >
+                                                                {!allowed ? <Clock size={10} /> : <Plus size={10} />}
+                                                                {allowed ? 'Apontar' : 'Bloq.'}
+                                                            </button>
+                                                        );
+                                                    })()}
+                                                </div>
 
                                                 {/* Quantidade Total */}
                                                 <div className="w-10 shrink-0 text-center">
@@ -1446,99 +1651,83 @@ export default function ApontamentoProducaoPage() {
                                                 </div>
 
                                                 {/* Actions */}
-                                                <div className="flex gap-1 items-center justify-end w-56 shrink-0 pr-2">
-                                                    {/* File Icons on Selected Line */}
-                                                    {selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem && (
-                                                        <div className="flex gap-0.5 mr-1.5">
-                                                            {item.EnderecoArquivo && (
-                                                                <>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            window.open(`${API_BASE}/pdf?path=${encodeURIComponent(item.EnderecoArquivo || '')}`, '_blank');
-                                                                        }}
-                                                                        className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-red-50 hover:text-red-600 transition-colors border border-gray-200"
-                                                                        title="PDF"
-                                                                    >
-                                                                        <FileText size={11} />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=dxf`, '_blank');
-                                                                        }}
-                                                                        className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-[#E0E800]/10 hover:text-[#32423D] transition-colors border border-gray-200"
-                                                                        title="DXF"
-                                                                    >
-                                                                        <PenTool size={11} />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=sldprt`, '_blank');
-                                                                        }}
-                                                                        className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-800 transition-colors border border-gray-200"
-                                                                        title="3D"
-                                                                    >
-                                                                        <Box size={11} />
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    )}
+                                                <div className="flex gap-1 items-center justify-end w-28 shrink-0 pr-2">
+                                                    <div className="flex gap-0.5">
+                                                        {item.EnderecoArquivo && (
+                                                            <>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=dxf`, '_blank');
+                                                                    }}
+                                                                    className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-[#E0E800]/10 hover:text-[#32423D] transition-colors border border-gray-200"
+                                                                    title="DXF"
+                                                                >
+                                                                    <PenTool size={11} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        window.open(`${API_BASE}/download?path=${encodeURIComponent(item.EnderecoArquivo || '')}&type=sldprt`, '_blank');
+                                                                    }}
+                                                                    className="flex items-center justify-center p-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-800 transition-colors border border-gray-200"
+                                                                    title="3D"
+                                                                >
+                                                                    <Box size={11} />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
 
-                                                    {/* Additional Icons on Selected Line */}
-                                                    {selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem && (
-                                                        <div className="flex gap-0.5 mr-1.5 border-l border-gray-200 pl-1">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setSelectedItem(item);
-                                                                    setQtdeReposicao('');
-                                                                    setMotivoReposicao('');
-                                                                    setReposicaoModalOpen(true);
-                                                                }}
-                                                                className="flex items-center justify-center w-6 h-6 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 transition-colors border border-amber-200"
-                                                                title="Reposição"
-                                                            >
-                                                                <RefreshCw size={12} />
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setIdRncEdicao(null);
-                                                                    setSelectedItem(item);
-                                                                    setDescricaoPendencia('');
-                                                                    setTituloRnc(item.DescResumo || '');
-                                                                    setSubTituloRnc(item.DescDetal || '');
-                                                                    setTipoRnc('RNC');
-                                                                    setDataExecucaoRnc(new Date().toISOString().split('T')[0]);
-                                                                    setEspessuraRnc(item.Espessura || '');
-                                                                    setMaterialSWRnc(item.MaterialSW || '');
-                                                                    setChkCorteRnc(item.txtCorte === '1');
-                                                                    setChkDobraRnc(item.txtDobra === '1');
-                                                                    setChkSoldaRnc(item.txtSolda === '1');
-                                                                    setChkPinturaRnc(item.txtPintura === '1');
-                                                                    setChkMontagemRnc(item.TxtMontagem === '1');
+                                                    <div className="flex gap-0.5 border-l border-gray-200 pl-1">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedItem(item);
+                                                                setQtdeReposicao('');
+                                                                setMotivoReposicao('');
+                                                                setReposicaoModalOpen(true);
+                                                            }}
+                                                            className="flex items-center justify-center w-6 h-6 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 transition-colors border border-amber-200"
+                                                            title="Reposição"
+                                                        >
+                                                            <RefreshCw size={12} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setIdRncEdicao(null);
+                                                                setSelectedItem(item);
+                                                                setDescricaoPendencia('');
+                                                                setTituloRnc(item.DescResumo || '');
+                                                                setSubTituloRnc(item.DescDetal || '');
+                                                                setTipoRnc('RNC');
+                                                                setDataExecucaoRnc(new Date().toISOString().split('T')[0]);
+                                                                setEspessuraRnc(item.Espessura || '');
+                                                                setMaterialSWRnc(item.MaterialSW || '');
+                                                                setChkCorteRnc(item.txtCorte === '1');
+                                                                setChkDobraRnc(item.txtDobra === '1');
+                                                                setChkSoldaRnc(item.txtSolda === '1');
+                                                                setChkPinturaRnc(item.txtPintura === '1');
+                                                                setChkMontagemRnc(item.TxtMontagem === '1');
 
-                                                                    // Fetch history for RNC grid
-                                                                    setLoadingPendencias(true);
-                                                                    fetchHistoricoRNC(item.CodMatFabricante || '');
+                                                                setLoadingPendencias(true);
+                                                                fetchHistoricoRNC(item.CodMatFabricante || '');
 
-                                                                    setPendenciaModalOpen(true);
-                                                                }}
-                                                                className="flex items-center justify-center w-6 h-6 bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-200"
-                                                                title="Pendência"
-                                                            >
-                                                                <AlertTriangle size={12} />
-                                                            </button>
-                                                        </div>
-                                                    )}
+                                                                setPendenciaModalOpen(true);
+                                                            }}
+                                                            className="flex items-center justify-center w-6 h-6 bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-200"
+                                                            title="Pendência"
+                                                        >
+                                                            <AlertTriangle size={12} />
+                                                        </button>
+                                                    </div>
 
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             selectItem(item);
+                                                            setHistoryModalOpen(true);
                                                         }}
                                                         className="p-1.5 text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 rounded-full transition-colors"
                                                         title="Histórico"
@@ -1546,36 +1735,7 @@ export default function ApontamentoProducaoPage() {
                                                         <History size={14} />
                                                     </button>
 
-                                                    {(() => {
-                                                        const { allowed, predecessor } = checkPredecessorStatus(item, setorAtivo as Setor);
-                                                        return concluido ? (
-                                                            <div className="w-16 flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
-                                                                <CheckCircle size={10} />
-                                                                OK
-                                                            </div>
-                                                        ) : (
-                                                            <button
-                                                                disabled={!allowed}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    openModal(item, setorAtivo as any);
-                                                                }}
-                                                                className={`w-16 flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-bold transition-all shadow-sm ml-1 ${
-                                                                    !allowed 
-                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
-                                                                        : `${setorInfo.color} text-white hover:opacity-90 active:scale-95`
-                                                                }`}
-                                                                title={!allowed ? `Aguardando setor ${predecessor}` : 'Apontar'}
-                                                            >
-                                                                {!allowed ? (
-                                                                    <Clock size={10} />
-                                                                ) : (
-                                                                    <Plus size={10} />
-                                                                )}
-                                                                {allowed ? 'Apontar' : 'Bloq.'}
-                                                            </button>
-                                                        );
-                                                    })()}
+
                                                 </div>
                                             </div>
                                         );
@@ -1612,91 +1772,7 @@ export default function ApontamentoProducaoPage() {
                     </div>
                 )}
 
-                {/* Detalhes / Histórico Panel */}
-                <AnimatePresence>
-                    {selectedItem && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
-                        >
-                            <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-1.5 bg-blue-100 text-[#32423D] rounded-lg">
-                                        <History size={18} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-bold text-[#32423D]">Histórico de Todo o Item</h3>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-tighter">OS {selectedItem.IdOrdemServico} " ITEM #{selectedItem.IdOrdemServicoItem}</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setSelectedItem(null)}
-                                    className="p-1.5 hover:bg-gray-200 rounded-full transition-colors text-gray-400"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
 
-                            <div className="p-4 bg-white">
-                                {loadingDetails ? (
-                                    <div className="flex flex-col items-center justify-center py-12 gap-3">
-                                        <Loader2 size={32} className="animate-spin text-[#32423D]" />
-                                        <p className="text-xs text-gray-400 animate-pulse font-medium">Carregando histórico completo...</p>
-                                    </div>
-                                ) : itemDetails && itemDetails.historico.length > 0 ? (
-                                    <div className="overflow-x-auto rounded-lg border border-gray-100 shadow-inner max-h-[400px]">
-                                        <table className="w-full text-left border-collapse bg-white">
-                                            <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
-                                                <tr className=" text-[10px] uppercase tracking-wider font-bold text-white border-b border-white/20">
-                                                    
-                                                    <th className="px-3 py-2">Criado</th>
-                                                    <th className="px-3 py-2">Data / Hora</th>
-                                                    <th className="px-3 py-2">Cód. Fabrica</th>
-                                                    <th className="px-2 py-2 text-center">Qt. T.</th>
-                                                    <th className="px-2 py-2 text-center">Qt. P.</th>
-                                                    <th className="px-2 py-2 text-center">Qt. F.</th>
-                                                    {processosVisiveis.includes('corte') && <th className="px-2 py-2 text-center" title="Corte">Cor.</th>}
-                                                    {processosVisiveis.includes('dobra') && <th className="px-2 py-2 text-center" title="Dobra">Dob.</th>}
-                                                    {processosVisiveis.includes('solda') && <th className="px-2 py-2 text-center" title="Solda">Sol.</th>}
-                                                    {processosVisiveis.includes('pintura') && <th className="px-2 py-2 text-center" title="Pintura">Pin.</th>}
-                                                    {processosVisiveis.includes('montagem') && <th className="px-2 py-2 text-center" title="Montagem">Mon.</th>}
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100">
-                                                {itemDetails.historico.map((h: any) => (
-                                                    <tr key={h.idordemservicoitemControle} className="hover:bg-[#E0E800]/10/30 transition-colors">
-                                                        
-                                                        <td className="px-3 py-2 text-[10px] text-gray-700 truncate max-w-[80px]" title={h.CriadoPor}>{h.CriadoPor}</td>
-                                                        <td className="px-3 py-2 text-[10px] font-medium text-gray-500 whitespace-nowrap">{formatDate(h.DataCriacao)}</td>
-                                                        <td className="px-3 py-2 text-[10px] font-bold text-[#32423D] bg-yellow-50">{h.Codmatfabricante || '-'}</td>
-                                                        <td className="px-2 py-2 text-[10px] font-bold text-[#32423D] text-center">{h.QtdeTotal}</td>
-                                                        <td className="px-2 py-2 text-[10px] font-bold text-[#32423D] text-center">{h.QtdeProduzida}</td>
-                                                        <td className="px-2 py-2 text-[10px] font-bold text-red-600 text-center">{h.QtdeFaltante}</td>
-                                                        {processosVisiveis.includes('corte') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtCorte || ''}</td>}
-                                                        {processosVisiveis.includes('dobra') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtDobra || ''}</td>}
-                                                        {processosVisiveis.includes('solda') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtSolda || ''}</td>}
-                                                        {processosVisiveis.includes('pintura') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtPintura || ''}</td>}
-                                                        {processosVisiveis.includes('montagem') && <td className="px-2 py-2 text-[10px] text-center font-bold">{h.txtMontagem || ''}</td>}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm">
-                                            <AlertCircle size={24} className="text-gray-300" />
-                                        </div>
-                                        <p className="text-sm font-semibold text-gray-500">Sem histórico de movimentação</p>
-                                        <p className="text-xs text-gray-400 max-w-[200px] mt-1">Este item ainda não possui registros de produção em nenhum setor.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
                 </>
             )}
@@ -2094,27 +2170,41 @@ export default function ApontamentoProducaoPage() {
                                                 <tr className=" text-[10px] uppercase tracking-wider font-bold text-white">
                                                     <th className="px-4 py-3 border-b border-white/20">Data</th>
                                                     <th className="px-4 py-3 border-b border-white/20">Setor</th>
-                                                    <th className="px-4 py-3 border-b border-white/20">Qtd</th>
+                                                    <th className="px-4 py-3 border-b border-white/20">Qtde Apontada</th>
+                                                    <th className="px-4 py-3 border-b border-white/20">Qtde a Apontar</th>
                                                     <th className="px-4 py-3 border-b border-white/20">Usuário</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
-                                                {itemDetails.historico.map((h) => (
+                                                {itemDetails.historico.map((h) => {
+                                                    let sectorDisplay = '-';
+                                                    if (h.txtCorte && Number(h.txtCorte) > 0) sectorDisplay = 'Corte';
+                                                    else if (h.txtDobra && Number(h.txtDobra) > 0) sectorDisplay = 'Dobra';
+                                                    else if (h.txtSolda && Number(h.txtSolda) > 0) sectorDisplay = 'Solda';
+                                                    else if (h.txtPintura && Number(h.txtPintura) > 0) sectorDisplay = 'Pintura';
+                                                    else if (h.txtMontagem && Number(h.txtMontagem) > 0) sectorDisplay = 'Montagem';
+                                                    else if (h.Processo) sectorDisplay = h.Processo;
+
+                                                    return (
                                                     <tr key={h.IdOrdemServicoItemControle} className="hover:bg-gray-50 transition-colors">
                                                         <td className="px-4 py-3 text-xs text-gray-600">{formatDate(h.DataCriacao)}</td>
                                                         <td className="px-4 py-3 text-xs">
                                                             <span className="px-2 py-0.5 rounded-full bg-[#E0E800]/40 text-[#32423D] font-bold uppercase text-[9px]">
-                                                                {h.Processo || '-'}
+                                                                {sectorDisplay}
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-xs font-bold text-[#32423D]">
                                                             +{h.QtdeProduzida}
                                                         </td>
+                                                        <td className="px-4 py-3 text-xs font-bold text-[#32423D]">
+                                                            {h.QtdeFaltante}
+                                                        </td>
                                                         <td className="px-4 py-3 text-xs text-gray-500">
                                                             {h.CriadoPor}
                                                         </td>
                                                     </tr>
-                                                ))}
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>

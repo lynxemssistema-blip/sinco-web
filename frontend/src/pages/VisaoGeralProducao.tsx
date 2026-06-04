@@ -8,7 +8,7 @@ const API_BASE = '/api';
 
 // ─── Interfaces ───
 interface Projeto { IdProjeto: number; Projeto: string; DescProjeto: string; DescEmpresa?: string; DataPrevisao: string; DataCriacao: string; Finalizado: string; liberado: string; QtdeTags: number; QtdeTagsExecutadas: number; PercentualTags: number; QtdePecasTags: number; QtdePecasExecutadas: number; PercentualPecas: number; qtdetotalpecas: number; TotalRnc: number; qtdernc: number; qtderncPendente: number; qtderncFinalizada: number; ExecCorte: number; TotalCorte: number; ExecDobra: number; TotalDobra: number; ExecSolda: number; TotalSolda: number; ExecPintura: number; TotalPintura: number; ExecMontagem: number; TotalMontagem: number; QtdeOS: number; }
-interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string; DataPrevisao: string; QtdeTag: string; QtdeLiberada: string; SaldoTag: string; ValorTag: string; StatusTag: string; QtdeOS: string; qtdetotal: string; Finalizado: string; qtdernc: number; 
+interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string; DataPrevisao: string; QtdeTag: string; QtdeLiberada: string; SaldoTag: string; ValorTag: string; StatusTag: string; QtdeOS: string; qtdetotal: string; QtdeTotalPecas?: string | number; Finalizado: string; qtdernc: number; 
     PlanejadoInicioCorte: string; PlanejadoFinalCorte: string; RealizadoInicioCorte: string; RealizadoFinalCorte: string; CorteTotalExecutado: string; CorteTotalExecutar: string; CortePercentual: string; 
     PlanejadoInicioDobra: string; PlanejadoFinalDobra: string; RealizadoInicioDobra: string; RealizadoFinalDobra: string; DobraTotalExecutado: string; DobraTotalExecutar: string; DobraPercentual: string; 
     PlanejadoInicioSolda: string; PlanejadoFinalSolda: string; RealizadoInicioSolda: string; RealizadoFinalSolda: string; SoldaTotalExecutado: string; SoldaTotalExecutar: string; SoldaPercentual: string; 
@@ -33,7 +33,7 @@ const businessDaysUntil = (dateStr: string) => {
     return count;
 };
 
-const DateBadge = ({ date, label, onClick, editable = false }: { date: string, label?: string, onClick?: () => void, editable?: boolean }) => {
+const DateBadge = ({ date, label, onClick, editable = false, showStatus = true }: { date: string, label?: string, onClick?: () => void, editable?: boolean, showStatus?: boolean }) => {
     if (!date && !editable) return <span className="text-slate-300 text-[10px]">—</span>;
     if (!date && editable) return (
         <div onClick={onClick} className="flex flex-col cursor-pointer group">
@@ -44,12 +44,12 @@ const DateBadge = ({ date, label, onClick, editable = false }: { date: string, l
         </div>
     );
     const days = businessDaysUntil(date);
-    const color = days === -1 ? 'bg-red-50 text-red-700 border-red-200' : (days !== null && days <= 5) ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    const color = !showStatus ? 'bg-slate-50 text-slate-700 border-slate-200' : (days === -1 ? 'bg-red-50 text-red-700 border-red-200' : (days !== null && days <= 5) ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
     return (
         <div onClick={editable ? onClick : undefined} className={`flex flex-col ${editable ? 'cursor-pointer group' : ''}`}>
             {label && <span className={`text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none ${editable ? 'group-hover:text-[#32423D] transition-colors' : ''}`}>{label}</span>}
             <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${editable ? 'group-hover:border-[#32423D]/40 group-hover:bg-[#E0E800]/10 group-hover:text-[#32423D]/70 transition-colors' : color} font-bold leading-none whitespace-nowrap`}>
-                <CalendarDays size={10} /> {date} {days === -1 ? '· Atrasado' : (days !== null && days >= 0 ? `· ${days}d` : '')}
+                <CalendarDays size={10} /> {date} {(showStatus && days === -1) ? '· Atrasado' : ((showStatus && days !== null && days >= 0) ? `· ${days}d` : '')}
             </span>
         </div>
     );
@@ -62,7 +62,7 @@ const SECTORS = [
 ];
 
 const TAG_SECTORS = [
-    { k: 'Corte', ex: 'CorteTotalExecutado', t: 'CorteTotalExecutar', p: 'CortePercentual', c: 'bg-[#E0E800]/200', 
+    { k: 'Corte', ex: 'CorteTotalExecutado', t: 'CorteTotalExecutar', p: 'CortePercentual', c: 'bg-[#32423D]', 
       fields: { pi: 'PlanejadoInicioCorte', pf: 'PlanejadoFinalCorte', ri: 'RealizadoInicioCorte', rf: 'RealizadoFinalCorte' } },
     { k: 'Dobra', ex: 'DobraTotalExecutado', t: 'DobraTotalExecutar', p: 'DobraPercentual', c: 'bg-indigo-500',
       fields: { pi: 'PlanejadoInicioDobra', pf: 'PlanejadoFinalDobra', ri: 'RealizadoInicioDobra', rf: 'RealizadoFinalDobra' } },
@@ -699,7 +699,14 @@ export default function VisaoGeralProducaoPage() {
                         <div className="flex flex-col md:flex-row items-center gap-3 w-full">
                             <div className="flex items-center gap-2 flex-1 w-full md:w-auto bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-1.5 focus-within:ring-2 focus-within:ring-[#32423D]/30 transition-shadow">
                                 <Search className="text-slate-400" size={14} />
-                                <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="bg-transparent border-none outline-none flex-1 font-medium text-xs text-slate-700" />
+                                <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Buscar projeto..." value={fProj} onChange={e => setFProj(e.target.value)} className="pr-6 bg-transparent border-none outline-none flex-1 font-medium text-xs text-slate-700" />
+    {fProj && (
+        <button onClick={() => setFProj('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                             </div>
                             <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
                                 {/* === FILTRO RADIO: 3 opções mutuamente exclusivas === */}
@@ -784,9 +791,23 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 w-full lg:w-auto">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Criação:</span>
                                 <div className="flex items-center gap-1 flex-1 lg:flex-none">
-                                    <input type="date" value={fProjCriacaoIni} onChange={e => setFProjCriacaoIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fProjCriacaoIni} onChange={e => setFProjCriacaoIni(e.target.value)} className="pr-6 text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+    {fProjCriacaoIni && (
+        <button onClick={() => setFProjCriacaoIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                     <span className="text-slate-400 text-[10px]">até</span>
-                                    <input type="date" value={fProjCriacaoFim} onChange={e => setFProjCriacaoFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fProjCriacaoFim} onChange={e => setFProjCriacaoFim(e.target.value)} className="pr-6 text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+    {fProjCriacaoFim && (
+        <button onClick={() => setFProjCriacaoFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                             </div>
                             
@@ -796,9 +817,23 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 w-full lg:w-auto">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight whitespace-nowrap"><CalendarDays size={12} className="inline mr-1"/> Dt. Previsão:</span>
                                 <div className="flex items-center gap-1 flex-1 lg:flex-none">
-                                    <input type="date" value={fProjPrevIni} onChange={e => setFProjPrevIni(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fProjPrevIni} onChange={e => setFProjPrevIni(e.target.value)} className="pr-6 text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+    {fProjPrevIni && (
+        <button onClick={() => setFProjPrevIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                     <span className="text-slate-400 text-[10px]">até</span>
-                                    <input type="date" value={fProjPrevFim} onChange={e => setFProjPrevFim(e.target.value)} className="text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fProjPrevFim} onChange={e => setFProjPrevFim(e.target.value)} className="pr-6 text-[10px] border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#32423D] w-full md:w-28" />
+    {fProjPrevFim && (
+        <button onClick={() => setFProjPrevFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                             </div>
                         </div>
@@ -1127,25 +1162,74 @@ export default function VisaoGeralProducaoPage() {
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Entrada:</span>
-                                    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataEntradaIni} onChange={e => setFDataEntradaIni(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataEntradaIni && (
+        <button onClick={() => setFDataEntradaIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataEntradaFim} onChange={e => setFDataEntradaFim(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataEntradaFim && (
+        <button onClick={() => setFDataEntradaFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Prev:</span>
-                                    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPrevIni} onChange={e => setFDataPrevIni(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataPrevIni && (
+        <button onClick={() => setFDataPrevIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPrevFim} onChange={e => setFDataPrevFim(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataPrevFim && (
+        <button onClick={() => setFDataPrevFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                                 <div className="bg-white rounded-lg border border-slate-200 flex items-center px-2 py-1.5 shadow-sm w-40">
                                     <Search size={14} className="text-slate-400 mr-2 shrink-0" />
-                                    <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
+                                    <div className="relative flex items-center w-full">
+    <input type="text" placeholder="Buscar Tag..." value={fTag} onChange={e => setFTag(e.target.value)} className="pr-6 bg-transparent border-none outline-none text-xs text-slate-700 w-full font-medium" />
+    {fTag && (
+        <button onClick={() => setFTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Plan:</span>
-                                    <input type="date" value={fDataPlanIni} onChange={e => setFDataPlanIni(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPlanIni} onChange={e => setFDataPlanIni(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataPlanIni && (
+        <button onClick={() => setFDataPlanIni('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                     <span className="text-[9px] text-slate-400 font-black uppercase">até</span>
-                                    <input type="date" value={fDataPlanFim} onChange={e => setFDataPlanFim(e.target.value)} className="bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+                                    <div className="relative flex items-center w-full">
+    <input type="date" value={fDataPlanFim} onChange={e => setFDataPlanFim(e.target.value)} className="pr-6 bg-white border border-slate-200 hover:border-blue-300 focus:border-[#32423D] rounded-lg outline-none text-[10px] text-slate-700 px-2 py-1.5 shadow-sm leading-none transition-colors" />
+    {fDataPlanFim && (
+        <button onClick={() => setFDataPlanFim('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
+            <X size={14} />
+        </button>
+    )}
+</div>
                                 </div>
                                 {(fTag || fDataEntradaIni || fDataEntradaFim || fDataPrevIni || fDataPrevFim || fDataPlanIni || fDataPlanFim) && (
                                     <button onClick={() => { setFTag(''); setFDataEntradaIni(''); setFDataEntradaFim(''); setFDataPrevIni(''); setFDataPrevFim(''); setFDataPlanIni(''); setFDataPlanFim(''); }} className="bg-slate-100 border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0" title="Limpar filtros">
@@ -1252,7 +1336,7 @@ export default function VisaoGeralProducaoPage() {
                                                     {/* DATAS DA TAG */}
                                                     <td className="px-3 py-3 align-top border-r border-slate-100 bg-slate-50/30">
                                                         <div className="flex flex-col gap-2 w-32">
-                                                            <DateBadge editable={false} date={t.DataEntrada} label="Entrada" />
+                                                            <DateBadge editable={false} showStatus={false} date={t.DataEntrada} label="Entrada" />
                                                             <DateBadge editable={true} onClick={() => { setSelTag(t); setDateInput(brToIso(t.DataPrevisao)); setMsg(null); setActionModal('dateTagGlobal'); }} date={t.DataPrevisao} label="Previsão" />
                                                         </div>
                                                     </td>
@@ -1275,7 +1359,7 @@ export default function VisaoGeralProducaoPage() {
                                                                     )}
                                                                 </span>
                                                             </div>
-                                                            <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. Peças</span><span className="font-black text-slate-700">{t.qtdetotal || '0'}</span></div>
+                                                            <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. Peças</span><span className="font-black text-slate-700">{t.QtdeTotalPecas || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Liberada</span><span className="font-bold text-emerald-600">{t.QtdeLiberada || '0'}</span></div>
                                                             <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Saldo</span><span className="font-bold text-orange-600">{t.SaldoTag || '0'}</span></div>
                                                             <div className="flex flex-col col-span-2 mt-0.5 pt-1.5 border-t border-slate-100">
