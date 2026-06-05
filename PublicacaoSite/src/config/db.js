@@ -165,6 +165,7 @@ module.exports = {
   format,
   initPool,
   hasPool: (name) => pools.has(name),
+  getPoolByName: (name) => pools.get(name) || null,
   testConnection,
   getConfig: () => ({ ...dbConfig }), // Return copy of current config
   asyncLocalStorage // Export for middleware

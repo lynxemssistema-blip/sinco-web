@@ -67,8 +67,13 @@ const tenantMiddleware = async (req, res, next) => {
             }
         }
 
-        // 4. Run next() within the AsyncLocalStorage context
+        // 4. Populate req with tenant info so route handlers can use req.tenantDbPool directly
+        req.tenantDb = tenantDbName;
+        req.tenantUser = decoded;
+
         db.asyncLocalStorage.run({ dbName: tenantDbName, user: decoded }, () => {
+            // Resolve the pool inside the ALS context — getPoolByName uses the pools Map
+            req.tenantDbPool = db.getPoolByName(tenantDbName);
             next();
         });
 

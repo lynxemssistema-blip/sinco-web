@@ -1745,6 +1745,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                                 nome: centralAuth.isSuperadmin ? login : user.NomeCompleto,
                                 role,
                                 setor: user.Setor,
+                                mapaProducao: user.MapaProducao,
                                 isSuperadmin: centralAuth.isSuperadmin,
                                 superadmin: centralAuth.superadmin,
                                 clientName: centralAuth.clientName,
@@ -1826,6 +1827,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 id: user.idUsuario,
                 login: login,
                 role: role,
+                mapaProducao: user.MapaProducao,
                 dbName: 'lynxlocal',
                 isSuperadmin: isSuperFinal
             }, JWT_SECRET, { expiresIn: '12h' });
@@ -1838,6 +1840,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     login: login,
                     nome: user.NomeCompleto,
                     role,
+                    mapaProducao: user.MapaProducao,
                     dbName: 'lynxlocal',
                     clientName: 'LYNX (LYNXLOCAL)',
                     isSuperadmin: isSuperFinal
@@ -2336,18 +2339,21 @@ async function checkGlobalLoginUnique(login, senha, currentDbHost, currentDbName
             [login, senha]
         );
 
-        if (existing.length === 0) return true; // Login is free globally
+        if (existing.length === 0) return true; // Login/senha is free globally
 
-        const userCentral = existing[0];
-        
-        // If it belongs to US (same DB) and is the SAME user (updating themselves), it's fine
-        if (currentDbId && userCentral.id_conexao_banco === currentDbId && 
-            currentIdUsuarioOrigem && userCentral.id_usuario_origem === currentIdUsuarioOrigem) {
+        // If ANY of the existing records belongs to the current user in the current DB, it's an update, so it's fine.
+        const belongsToCurrentUser = existing.some(row => 
+            currentDbId && row.id_conexao_banco === currentDbId && 
+            currentIdUsuarioOrigem && row.id_usuario_origem === currentIdUsuarioOrigem
+        );
+
+        if (belongsToCurrentUser) {
             return true;
         }
 
-        // Otherwise, login is already taken by another tenant or another user
-        return false;
+        // If it exists in another tenant with the exact same login and senha, we ALLOW it!
+        // This lets the user use the same credentials across multiple tenants (Single Sign-On experience).
+        return true;
     } catch (error) {
         console.error('[SYNC] Error checking global login:', error);
         throw error;
@@ -3485,10 +3491,25 @@ app.delete('/api/acabamento/:id', async (req, res) => {
 
 // --- CRUD: Material ---
 
+// TEMPORARY MIGRATION ROUTE
+app.get('/migrate-material', async (req, res) => {
+    try {
+        await pool.execute('ALTER TABLE material ADD COLUMN ImagemProduto LONGTEXT;');
+        res.json({ success: true, message: 'Migration successful' });
+    } catch (e) {
+        if (e.code === 'ER_DUP_FIELDNAME') {
+            res.json({ success: true, message: 'Column already exists' });
+        } else {
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
+});
+
 // LIST (Read All) with JOINs
 app.get('/api/material', async (req, res) => {
+    const queryPool = req.tenantDbPool || pool;
     try {
-        const [rows] = await pool.execute(`
+        const query = `
             SELECT 
                 m.IdMaterial, m.CodMatFabricante, m.DescResumo, m.DescDetal, m.NumeroRP,
                 m.FamiliaMat, f.DescFamilia,
@@ -3502,7 +3523,19 @@ app.get('/api/material', async (req, res) => {
             WHERE m.D_E_L_E_T_E IS NULL OR m.D_E_L_E_T_E = ''
             ORDER BY m.IdMaterial DESC
             LIMIT 200
-        `);
+        `;
+        let rows;
+        try {
+            [rows] = await queryPool.execute(query);
+        } catch (dbErr) {
+            if (dbErr.code === 'ER_BAD_FIELD_ERROR' || dbErr.message.includes('ImagemProduto')) {
+                console.log('[AUTO-MIGRATE] Adicionando coluna ImagemProduto na tabela material...');
+                await queryPool.execute('ALTER TABLE material ADD COLUMN ImagemProduto LONGTEXT;');
+                [rows] = await queryPool.execute(query);
+            } else {
+                throw dbErr;
+            }
+        }
         res.json({ success: true, data: rows });
     } catch (error) {
         console.error('Error fetching material list:', error);
@@ -3732,9 +3765,9 @@ app.get('/api/projeto', async (req, res) => {
 
         const sql = `
             SELECT p.*,
-                (SELECT COUNT(*) FROM ordemservicoitemcontrole c
-                 INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
-                 INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
+                EXISTS(SELECT 1 FROM ordemservico os 
+                 INNER JOIN ordemservicoitem oi ON os.IdOrdemServico = oi.IdOrdemServico
+                 INNER JOIN ordemservicoitemcontrole c ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
                  WHERE os.IdProjeto = p.IdProjeto
                    AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')
                 ) AS temApontamento
@@ -4079,29 +4112,13 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
 
                 /* -- OS Count -- */
-                COALESCE((SELECT COUNT(*) FROM ordemservico os 
-                           WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL))
-                             AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdeOS,
+                COALESCE(os_counts.QtdeOS, 0) AS QtdeOS,
 
                 /* -- RNC -- */
-                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
-                           WHERE r.IdProjeto = p.IdProjeto
-                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
-                             AND r.Estatus = 'PENDENCIA'), 0) AS TotalRnc,
-
-                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
-                           WHERE r.IdProjeto = p.IdProjeto
-                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')), 0) AS qtdernc,
-
-                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
-                           WHERE r.IdProjeto = p.IdProjeto
-                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
-                             AND (r.Estatus = 'PENDENCIA' OR r.Estatus IS NULL OR r.Estatus = '')), 0) AS qtderncPendente,
-
-                COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r
-                           WHERE r.IdProjeto = p.IdProjeto
-                             AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')
-                             AND (r.Estatus LIKE '%FIN%' OR r.Estatus = 'FINALIZADA')), 0) AS qtderncFinalizada,
+                COALESCE(rnc_counts.TotalRnc, 0) AS TotalRnc,
+                COALESCE(rnc_counts.qtdernc, 0) AS qtdernc,
+                COALESCE(rnc_counts.qtderncPendente, 0) AS qtderncPendente,
+                COALESCE(rnc_counts.qtderncFinalizada, 0) AS qtderncFinalizada,
                              
                 /* -- Novas req -- */
                 COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas,
@@ -4139,6 +4156,22 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
             FROM projetos p
             LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto
                 AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+            LEFT JOIN (
+                SELECT IdProjeto, COUNT(*) AS QtdeOS
+                FROM ordemservico 
+                WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')
+                GROUP BY IdProjeto
+            ) os_counts ON os_counts.IdProjeto = p.IdProjeto
+            LEFT JOIN (
+                SELECT IdProjeto,
+                    COUNT(*) AS qtdernc,
+                    SUM(CASE WHEN Estatus = 'PENDENCIA' THEN 1 ELSE 0 END) AS TotalRnc,
+                    SUM(CASE WHEN Estatus = 'PENDENCIA' OR Estatus IS NULL OR Estatus = '' THEN 1 ELSE 0 END) AS qtderncPendente,
+                    SUM(CASE WHEN Estatus LIKE '%FIN%' OR Estatus = 'FINALIZADA' THEN 1 ELSE 0 END) AS qtderncFinalizada
+                FROM ordemservicoitempendencia
+                WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')
+                GROUP BY IdProjeto
+            ) rnc_counts ON rnc_counts.IdProjeto = p.IdProjeto
             WHERE ${where}
             GROUP BY p.IdProjeto
             ORDER BY p.IdProjeto DESC
@@ -4192,7 +4225,8 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
         const [rows] = await queryPool.execute(`
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
-                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas,
+                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
+                (SELECT COALESCE(SUM(os.QtdeTotalPecas), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
                 ${observacaoExpr},
                 PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte,
@@ -7451,8 +7485,8 @@ app.get('/api/apontamento/mapa/producao', async (req, res) => {
 
         // Filtro Projeto: busca por descrição do projeto (LIKE)
         if (projeto) {
-            whereClause += ' AND p.DescProjeto LIKE ?';
-            params.push(`%${projeto}%`);
+            whereClause += ' AND (os.Projeto LIKE ? OR p.DescProjeto LIKE ?)';
+            params.push(`%${projeto}%`, `%${projeto}%`);
         }
 
         // Filtro Tag: busca por descrição da tag (LIKE)
@@ -7739,7 +7773,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
         });
     }
 
-    const { projeto, tag, os, item, search, status, codMatFabricante, page = 1, limit = 50 } = req.query;
+    const { projeto, tag, os, item, search, status, codMatFabricante, dataPlanejamento, page = 1, limit = 50 } = req.query;
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 50;
     const offsetNum = (pageNum - 1) * limitNum;
@@ -7754,8 +7788,8 @@ app.get('/api/apontamento/:setor', async (req, res) => {
 
         // Filtro Projeto: busca por descrição do projeto (LIKE)
         if (projeto) {
-            whereClause += ' AND p.DescProjeto LIKE ?';
-            params.push(`%${projeto}%`);
+            whereClause += ' AND (os.Projeto LIKE ? OR p.DescProjeto LIKE ?)';
+            params.push(`%${projeto}%`, `%${projeto}%`);
         }
 
         if (item) {
@@ -7799,6 +7833,16 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             params.push(`%${codMatFabricante}%`);
         }
 
+        // Filtro Data Planejamento
+        if (dataPlanejamento) {
+            const setorUpper = setor.charAt(0).toUpperCase() + setor.slice(1);
+            whereClause += ` AND (
+                STR_TO_DATE(SUBSTRING_INDEX(osi.PlanejadoInicio${setorUpper}, ' ', 1), '%d/%m/%Y') <= ? OR 
+                DATE(osi.PlanejadoInicio${setorUpper}) <= ?
+            )`;
+            params.push(dataPlanejamento, dataPlanejamento);
+        }
+
         const [countResult] = await pool.execute(`
             SELECT COUNT(*) as total
             FROM ordemservicoitem osi
@@ -7829,6 +7873,7 @@ app.get('/api/apontamento/:setor', async (req, res) => {
             osi.${setorConfig.status} as Status,
             osi.${setorConfig.total} as QtdeProduzidaSetor,
             osi.${setorConfig.executar} as TotalExecutar,
+            osi.PlanejadoInicio${setor.charAt(0).toUpperCase() + setor.slice(1)} as DataPlanejamento,
             os.Projeto,
             os.IdProjeto,
             p.DescProjeto,
@@ -8678,10 +8723,7 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// Root Redirect
-app.get('/', (req, res) => {
-    res.redirect('/landing.html');
-});
+
 
 // Test DB
 app.get('/test-db', async (req, res) => {
@@ -8700,7 +8742,7 @@ app.get('/test-db', async (req, res) => {
 
 
 // ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o - GET
-app.get('/api/config', async (req, res) => {
+app.get('/api/config', tenantMiddleware, async (req, res) => {
     try {
         // PERF: Checking column names dynamically to avoid 500 error on legacy/missing schemas
         const [cols] = await pool.execute(`
@@ -8767,7 +8809,7 @@ app.get('/api/config', async (req, res) => {
 });
 
 // PUT /api/config - Salvar configuraÃƒÂ§ÃƒÂµes do sistema
-app.put('/api/config', async (req, res) => {
+app.put('/api/config', tenantMiddleware, async (req, res) => {
     try {
         const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento } = req.body;
         
@@ -8812,7 +8854,7 @@ app.put('/api/config', async (req, res) => {
         }
 
         const colNames = cols.map(c => c.COLUMN_NAME);
-        const [existing] = await pool.execute('SELECT id FROM configuracaosistema LIMIT 1');
+        const [existing] = await pool.execute('SELECT * FROM configuracaosistema LIMIT 1');
         
         if (existing.length > 0) {
             const updates = [];
@@ -8830,7 +8872,11 @@ app.put('/api/config', async (req, res) => {
                 params.push(permitirRealizadoSemPlanejamento);
             }
             if (updates.length > 0) {
-                await pool.execute('UPDATE configuracaosistema SET ' + updates.join(', ') + ' WHERE id = ' + existing[0].id, params);
+                if (existing[0].id) {
+                    await pool.execute('UPDATE configuracaosistema SET ' + updates.join(', ') + ' WHERE id = ?', [...params, existing[0].id]);
+                } else {
+                    await pool.execute('UPDATE configuracaosistema SET ' + updates.join(', '), params);
+                }
             }
         } else {
             if (colNames.includes('RestringirApontamentoSemSaldoAnterior') && colNames.includes('ProcessosVisiveis')) {
@@ -9264,8 +9310,23 @@ app.post('/api/producao/reposicao', async (req, res) => {
 // ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o - UPDATE
 // MENU CONFIGURATION
 // GET Menu Structure
-app.get('/api/config/menu', async (req, res) => {
+app.get('/api/config/menu', tenantMiddleware, async (req, res) => {
     try {
+        // Verificar e criar coluna MenuStructure se não existir
+        try {
+            const [existsCols] = await pool.execute(
+                `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                 AND TABLE_NAME = 'configuracaosistema'
+                 AND COLUMN_NAME = 'MenuStructure'`
+            );
+            if (existsCols.length === 0) {
+                await pool.execute(
+                    `ALTER TABLE configuracaosistema ADD COLUMN MenuStructure LONGTEXT DEFAULT NULL`
+                );
+            }
+        } catch (e) { console.error('FAILED TO ALTER TABLE GET:', e.message); }
+
         const [rows] = await pool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
         if (rows.length > 0 && rows[0].MenuStructure) {
             // Check if string is valid JSON
@@ -9286,13 +9347,32 @@ app.get('/api/config/menu', async (req, res) => {
 
 
 // SAVE Menu Structure
-app.post('/api/config/menu', async (req, res) => {
+app.post('/api/config/menu', tenantMiddleware, async (req, res) => {
     const { menu } = req.body;
     try {
+        // Verificar e criar coluna MenuStructure se não existir
+        try {
+            const [existsCols] = await pool.execute(
+                `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                 AND TABLE_NAME = 'configuracaosistema'
+                 AND COLUMN_NAME = 'MenuStructure'`
+            );
+            if (existsCols.length === 0) {
+                await pool.execute(
+                    `ALTER TABLE configuracaosistema ADD COLUMN MenuStructure LONGTEXT DEFAULT NULL`
+                );
+            }
+        } catch (e) { console.error('FAILED TO ALTER TABLE POST:', e.message); }
+
         const menuJson = JSON.stringify(menu);
-        const [rows] = await pool.execute('SELECT id FROM configuracaosistema LIMIT 1');
+        const [rows] = await pool.execute('SELECT * FROM configuracaosistema LIMIT 1');
         if (rows.length > 0) {
-            await pool.execute('UPDATE configuracaosistema SET MenuStructure = ? WHERE id = ?', [menuJson, rows[0].id]);
+            if (rows[0].id) {
+                await pool.execute('UPDATE configuracaosistema SET MenuStructure = ? WHERE id = ?', [menuJson, rows[0].id]);
+            } else {
+                await pool.execute('UPDATE configuracaosistema SET MenuStructure = ?', [menuJson]);
+            }
         } else {
             await pool.execute('INSERT INTO configuracaosistema (MenuStructure) VALUES (?)', [menuJson]);
         }
@@ -10725,38 +10805,56 @@ app.get('/api/teste-final-montagem/itens', async (req, res) => {
         const { IdOrdemServico, IdOrdemServicoItem, Projeto, Tag, DescResumo,
                 DescDetal, CodMatFabricante, IdPlanoDeCorte } = req.query;
 
-        let whereClause = `EnderecoArquivo <> '' AND EnderecoArquivo IS NOT NULL
-            AND (Liberado_Engenharia IS NOT NULL AND Liberado_Engenharia <> '')`;
+        let whereClause = `oi.EnderecoArquivo <> '' AND oi.EnderecoArquivo IS NOT NULL
+            AND (oi.Liberado_Engenharia IS NOT NULL AND oi.Liberado_Engenharia <> '')`;
 
         if (modo === 'concluidos') {
-            whereClause += ` AND (txtmontagem = '1')
-                AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = '' OR OrdemServicoItemFinalizado = 'C')`;
+            whereClause += ` AND (oi.txtmontagem = '1')
+                AND (oi.OrdemServicoItemFinalizado IS NULL OR oi.OrdemServicoItemFinalizado = '' OR oi.OrdemServicoItemFinalizado = 'C')`;
         } else {
-            whereClause += ` AND ((sttxtMontagem IS NULL OR sttxtMontagem = '') AND txtmontagem = '1')
-                AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = '')`;
+            whereClause += ` AND ((oi.sttxtMontagem IS NULL OR oi.sttxtMontagem = '') AND oi.txtmontagem = '1')
+                AND (oi.OrdemServicoItemFinalizado IS NULL OR oi.OrdemServicoItemFinalizado = '')`;
         }
 
         const params = [];
-        if (IdOrdemServico)    { whereClause += ' AND IdOrdemServico LIKE ?';     params.push(`%${IdOrdemServico}%`); }
-        if (IdOrdemServicoItem){ whereClause += ' AND IdOrdemServicoItem LIKE ?'; params.push(`%${IdOrdemServicoItem}%`); }
-        if (Projeto)           { whereClause += ' AND Projeto LIKE ?';            params.push(`%${Projeto}%`); }
-        if (Tag)               { whereClause += ' AND Tag LIKE ?';               params.push(`%${Tag}%`); }
-        if (DescResumo)        { whereClause += ' AND DescResumo LIKE ?';         params.push(`%${DescResumo}%`); }
-        if (DescDetal)         { whereClause += ' AND DescDetal LIKE ?';          params.push(`%${DescDetal}%`); }
-        if (CodMatFabricante)  { whereClause += ' AND CodMatFabricante LIKE ?';   params.push(`%${CodMatFabricante}%`); }
-        if (IdPlanoDeCorte)    { whereClause += ' AND IdPlanoDeCorte LIKE ?';     params.push(`%${IdPlanoDeCorte}%`); }
+        if (IdOrdemServico)    { whereClause += ' AND oi.IdOrdemServico LIKE ?';     params.push(`%${IdOrdemServico}%`); }
+        if (IdOrdemServicoItem){ whereClause += ' AND oi.IdOrdemServicoItem LIKE ?'; params.push(`%${IdOrdemServicoItem}%`); }
+        if (Projeto)           { whereClause += ' AND os.Projeto LIKE ?';            params.push(`%${Projeto}%`); }
+        if (Tag)               { whereClause += ' AND os.Tag LIKE ?';               params.push(`%${Tag}%`); }
+        if (DescResumo)        { whereClause += ' AND oi.DescResumo LIKE ?';         params.push(`%${DescResumo}%`); }
+        if (DescDetal)         { whereClause += ' AND oi.DescDetal LIKE ?';          params.push(`%${DescDetal}%`); }
+        if (CodMatFabricante)  { whereClause += ' AND oi.CodMatFabricante LIKE ?';   params.push(`%${CodMatFabricante}%`); }
+        if (IdPlanoDeCorte)    { whereClause += ' AND oi.IdPlanoDeCorte LIKE ?';     params.push(`%${IdPlanoDeCorte}%`); }
 
         const query = `
             SELECT
-                CodMatFabricante,
-                IdOrdemServico,
-                IdOrdemServicoItem,
-                IdProjeto,
-                Projeto,
-                IdTag,
-                Tag,
-                DescTag,
-                Qtdetotal          AS QtdeTotal,
+                oi.CodMatFabricante,
+                oi.IdOrdemServico,
+                oi.IdOrdemServicoItem,
+                os.IdProjeto,
+                os.Projeto,
+                os.IdTag,
+                os.Tag,
+                os.DescTag,
+                os.DescEmpresa,
+                oi.Qtdetotal AS QtdeTotal,
+                oi.IdPlanoDeCorte,
+                oi.DescResumo,
+                oi.DescDetal,
+                oi.MontagemTotalExecutado,
+                oi.MontagemTotalExecutar,
+                oi.ProdutoPrincipal,
+                oi.RealizadoInicioMontagem,
+                oi.RealizadoFinalMontagem,
+                oi.Liberado_Engenharia,
+                oi.txtmontagem,
+                oi.sttxtMontagem,
+                oi.OrdemServicoItemFinalizado,
+                oi.EnderecoArquivo,
+                oi.PesoUnitario
+            FROM ordemservicoitem oi
+            INNER JOIN ordemservico os ON oi.IdOrdemServico = os.IdOrdemServico
+            WHERE ${whereClause}
             LIMIT ${limite}
         `;
 
@@ -12804,7 +12902,7 @@ app.get('/login', (req, res) => {
 });
 
 // React SPA — todas as rotas internas
-app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|superadmin).*/, (req, res) => {
+app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|config|superadmin).*/, (req, res) => {
     const devPath = path.join(__dirname, '../frontend/dist/index.html');
     const prodPath = path.join(__dirname, '../index.html');
     const fs = require('fs');

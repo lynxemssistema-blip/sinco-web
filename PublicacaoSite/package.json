@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "node src/server.js",
     "dev:frontend": "cd frontend && npm run dev",
@@ -24,7 +23,9 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "mysql2": "^3.16.0"
+    "mysql2": "^3.16.0",
+    "ssh2": "^1.17.0",
+    "ssh2-sftp-client": "^12.1.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
