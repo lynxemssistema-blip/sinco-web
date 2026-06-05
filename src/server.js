@@ -8714,151 +8714,150 @@ app.get('/test-db', async (req, res) => {
 // Login
 
 
-// ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o - GET
-app.get('/api/config', async (req, res) => {
-    try {
-        // PERF: Checking column names dynamically to avoid 500 error on legacy/missing schemas
-        const [cols] = await pool.execute(`
-            SELECT COLUMN_NAME 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'configuracaosistema'
-        `);
-        const colNames = cols.map(c => c.COLUMN_NAME);
-        
-        const availableCols = [
-            'RestringirApontamentoSemSaldoAnterior',
-            'ProcessosVisiveis',
-            'PlanoCorteFiltroDC',
-            'MaxRegistros',
-            'MenuStructure',
-            'PermitirRealizadoSemPlanejamento'
-        ].filter(c => colNames.includes(c));
+// Configuração - Função de auto-migração de schema para qualquer banco tenant
+async function ensureConfigColumns(poolRef) {
+    const REQUIRED_COLS = [
+        { name: 'RestringirApontamentoSemSaldoAnterior', def: `VARCHAR(10) DEFAULT 'Não'` },
+        { name: 'ProcessosVisiveis',                    def: `TEXT DEFAULT NULL` },
+        { name: 'PlanoCorteFiltroDC',                   def: `VARCHAR(20) DEFAULT 'corte'` },
+        { name: 'MaxRegistros',                         def: `INT DEFAULT 500` },
+        { name: 'MenuStructure',                        def: `LONGTEXT DEFAULT NULL` },
+        { name: 'PermitirRealizadoSemPlanejamento',     def: `VARCHAR(10) DEFAULT 'Sim'` }
+    ];
 
-        const query = availableCols.length > 0 
-            ? `SELECT ${availableCols.join(', ')} FROM configuracaosistema LIMIT 1`
-            : null;
+    // 1. Garante que a tabela existe com estrutura mínima (seguro em qualquer banco)
+    await poolRef.execute(`
+        CREATE TABLE IF NOT EXISTS \`configuracaosistema\` (
+            \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            \`RestringirApontamentoSemSaldoAnterior\` VARCHAR(10) DEFAULT 'Não',
+            \`ProcessosVisiveis\` TEXT DEFAULT NULL,
+            \`PlanoCorteFiltroDC\` VARCHAR(20) DEFAULT 'corte',
+            \`MaxRegistros\` INT DEFAULT 500,
+            \`MenuStructure\` LONGTEXT DEFAULT NULL,
+            \`PermitirRealizadoSemPlanejamento\` VARCHAR(10) DEFAULT 'Sim'
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
 
-        if (query) {
-            const [rows] = await pool.execute(query);
-            if (rows.length > 0) {
-                const row = rows[0];
-                // Sempre garante que setores de engenharia estejam presentes como visíveis,
-                // mesmo em bancos que salvaram apenas os setores de produção.
-                if (row.ProcessosVisiveis) {
-                    try {
-                        const saved = JSON.parse(row.ProcessosVisiveis);
-                        const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
-                        const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
-                        row.ProcessosVisiveis = JSON.stringify(merged);
-                    } catch (e) {
-                        // mantém o valor original se não conseguir parsear
-                    }
+    // 2. Verifica colunas existentes
+    const [existingCols] = await poolRef.execute(
+        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'`
+    );
+    const existingNames = existingCols.map(c => c.COLUMN_NAME);
+
+    // 3. Adiciona colunas ausentes
+    for (const col of REQUIRED_COLS) {
+        if (!existingNames.includes(col.name)) {
+            try {
+                await poolRef.execute(`ALTER TABLE \`configuracaosistema\` ADD COLUMN \`${col.name}\` ${col.def}`);
+                console.log(`[Config] Coluna '${col.name}' adicionada ao banco ativo.`);
+            } catch (e) {
+                if (!e.message.includes('Duplicate column')) {
+                    console.warn(`[Config] Aviso ao adicionar '${col.name}':`, e.message);
                 }
-                return res.json({ success: true, config: row });
             }
         }
+    }
 
-        // Default config if table empty or no columns found
+    // 4. Garante pelo menos uma linha de config
+    const [rows] = await poolRef.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
+    if (rows[0].cnt === 0) {
+        const defaultProcessos = JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']);
+        await poolRef.execute(
+            `INSERT INTO configuracaosistema (RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros, PermitirRealizadoSemPlanejamento)
+             VALUES ('Não', ?, 'corte', 500, 'Sim')`,
+            [defaultProcessos]
+        );
+        console.log('[Config] Linha de configuração padrão inserida.');
+    }
+}
+
+// GET /api/config - Funciona em QUALQUER banco ativo
+app.get('/api/config', tenantMiddleware, async (req, res) => {
+    try {
+        await ensureConfigColumns(pool);
+
+        const [rows] = await pool.execute(
+            `SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC,
+                    MaxRegistros, MenuStructure, PermitirRealizadoSemPlanejamento
+             FROM configuracaosistema LIMIT 1`
+        );
+
+        if (rows.length > 0) {
+            const row = rows[0];
+            if (row.ProcessosVisiveis) {
+                try {
+                    const saved = JSON.parse(row.ProcessosVisiveis);
+                    const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
+                    const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
+                    row.ProcessosVisiveis = JSON.stringify(merged);
+                } catch (e) {}
+            }
+            return res.json({ success: true, config: row });
+        }
+
         res.json({ success: true, config: {
             RestringirApontamentoSemSaldoAnterior: 'Não',
             ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']),
             PlanoCorteFiltroDC: 'corte',
-            MaxRegistros: 300,
+            MaxRegistros: 500,
             PermitirRealizadoSemPlanejamento: 'Sim'
         }});
     } catch (error) {
-        // Banco legado (ex: alfatec2) nÃƒÂ£o tem essas colunas Ã¢â‚¬â€ retorna config padrÃƒÂ£o sem erro
-        if (error.code === 'ER_BAD_FIELD_ERROR' || error.code === 'ER_NO_SUCH_TABLE') {
-            console.warn('[Config GET] Banco com estrutura legada, usando defaults:', error.message);
-            return res.json({ success: true, config: {
-                RestringirApontamentoSemSaldoAnterior: 'Não',
-                ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'])
-            }, _legacyDb: true });
-        }
-        console.error('Config error:', error);
+        console.error('[Config GET] Erro:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar configurações' });
     }
 });
 
-// PUT /api/config - Salvar configuraÃƒÂ§ÃƒÂµes do sistema
-app.put('/api/config', async (req, res) => {
+// PUT /api/config - Salva em QUALQUER banco ativo (auto-migra schema se necessário)
+app.put('/api/config', tenantMiddleware, async (req, res) => {
     try {
         const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento } = req.body;
-        
-        // Verificar e criar coluna PermitirRealizadoSemPlanejamento se não existir
-        try {
-            const [existsCols] = await pool.execute(
-                `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                 WHERE TABLE_SCHEMA = DATABASE()
-                 AND TABLE_NAME = 'configuracaosistema'
-                 AND COLUMN_NAME = 'PermitirRealizadoSemPlanejamento'`
-            );
-            if (existsCols.length === 0) {
-                await pool.execute(
-                    `ALTER TABLE configuracaosistema ADD COLUMN PermitirRealizadoSemPlanejamento VARCHAR(10) DEFAULT 'Sim'`
-                );
-                console.log('[Config] Coluna PermitirRealizadoSemPlanejamento criada automaticamente.');
-            }
-        } catch (alterErr) {
-            console.warn('[Config] Não foi possível criar coluna:', alterErr.message);
-        }
 
-        // Verificar se as colunas existem antes de tentar atualizar (bancos legados não as têm)
-        let [cols] = [];
-        try {
-            [cols] = await pool.execute(
-                `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                 WHERE TABLE_SCHEMA = DATABASE()
-                 AND TABLE_NAME = 'configuracaosistema'
-                 AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis','PermitirRealizadoSemPlanejamento')`
-            );
-        } catch (e) {
-            cols = [];
-        }
+        await ensureConfigColumns(pool);
 
-        if (!cols || cols.length === 0) {
-            // Banco legado: não tem as colunas, preferências só ficam no localStorage
-            return res.json({
-                success: true,
-                _legacyDb: true,
-                message: 'Preferências salvas localmente (banco não suporta configurações centralizadas)'
-            });
-        }
-
-        const colNames = cols.map(c => c.COLUMN_NAME);
         const [existing] = await pool.execute('SELECT id FROM configuracaosistema LIMIT 1');
-        
-        if (existing.length > 0) {
-            const updates = [];
-            const params = [];
-            if (restringirApontamento !== undefined && colNames.includes('RestringirApontamentoSemSaldoAnterior')) {
-                updates.push('RestringirApontamentoSemSaldoAnterior = ?');
-                params.push(restringirApontamento);
-            }
-            if (processosVisiveis !== undefined && colNames.includes('ProcessosVisiveis')) {
-                updates.push('ProcessosVisiveis = ?');
-                params.push(processosVisiveis);
-            }
-            if (permitirRealizadoSemPlanejamento !== undefined && colNames.includes('PermitirRealizadoSemPlanejamento')) {
-                updates.push('PermitirRealizadoSemPlanejamento = ?');
-                params.push(permitirRealizadoSemPlanejamento);
-            }
-            if (updates.length > 0) {
-                await pool.execute('UPDATE configuracaosistema SET ' + updates.join(', ') + ' WHERE id = ' + existing[0].id, params);
-            }
-        } else {
-            if (colNames.includes('RestringirApontamentoSemSaldoAnterior') && colNames.includes('ProcessosVisiveis')) {
+
+        const updates = [];
+        const params = [];
+
+        if (restringirApontamento !== undefined) {
+            updates.push('RestringirApontamentoSemSaldoAnterior = ?');
+            params.push(restringirApontamento);
+        }
+        if (processosVisiveis !== undefined) {
+            updates.push('ProcessosVisiveis = ?');
+            params.push(processosVisiveis);
+        }
+        if (maxRegistros !== undefined) {
+            updates.push('MaxRegistros = ?');
+            params.push(maxRegistros);
+        }
+        if (permitirRealizadoSemPlanejamento !== undefined) {
+            updates.push('PermitirRealizadoSemPlanejamento = ?');
+            params.push(permitirRealizadoSemPlanejamento);
+        }
+
+        if (updates.length > 0) {
+            if (existing.length > 0) {
                 await pool.execute(
-                    'INSERT INTO configuracaosistema (RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PermitirRealizadoSemPlanejamento) VALUES (?, ?, ?)',
-                    [restringirApontamento || 'Não', processosVisiveis || '["corte","dobra","solda","pintura","montagem"]', permitirRealizadoSemPlanejamento || 'Sim']
+                    'UPDATE configuracaosistema SET ' + updates.join(', ') + ' WHERE id = ?',
+                    [...params, existing[0].id]
+                );
+            } else {
+                const defaultProcessos = JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']);
+                await pool.execute(
+                    `INSERT INTO configuracaosistema (RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros, PermitirRealizadoSemPlanejamento)
+                     VALUES (?, ?, 'corte', ?, ?)`,
+                    [restringirApontamento || 'Não', processosVisiveis || defaultProcessos, maxRegistros || 500, permitirRealizadoSemPlanejamento || 'Sim']
                 );
             }
         }
-        
+
+        console.log('[Config PUT] Configurações salvas no banco ativo.');
         res.json({ success: true, message: 'Configurações salvas com sucesso!' });
     } catch (error) {
-        console.error('Config save error:', error);
+        console.error('[Config PUT] Erro:', error);
         res.status(500).json({ success: false, message: 'Erro ao salvar configurações' });
     }
 });
