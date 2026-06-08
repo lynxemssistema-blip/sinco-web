@@ -883,181 +883,114 @@ export default function AcompanhamentoGeralPage() {
         <div className="flex flex-col h-[calc(100vh-4rem)] w-full min-h-0 bg-slate-50/50 font-sans border border-slate-200 rounded-xl shadow-sm">
 
             {/* ── Header (Sticky) ── */}
-            <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-5 py-3 shadow-sm">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
-                            <BarChart3 size={20} />
-                        </div>
-                        <div>
-                            <h1 className="text-base font-black text-slate-800 leading-tight">Acompanhamento Geral</h1>
-                            <p className="text-[11px] text-slate-100">Visão consolidada por projeto · Gantt consolidado</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {/* View Switcher */}
-                        <div className="flex bg-slate-100 p-1 rounded-xl mr-2">
-                            <button
-                                onClick={() => setMainViewMode('lista')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <LayoutList size={14} />
-                                Lista
-                            </button>
-                            <button
-                                onClick={() => setMainViewMode('gantt')}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <GanttChartSquare size={14} />
-                                Ver Gantt Geral
-                            </button>
-                        </div>
+            <div className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+                <div className="px-5 py-2 flex items-center gap-2 flex-wrap">
 
-                        {selected && (
-                            <button
-                                id="btn-detalhar-projeto"
-                                onClick={() => setDetalhe(selected)}
-                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-bold rounded-xl shadow-md hover:shadow-lg hover:opacity-90 transition-all"
-                            >
-                                <ChevronRight size={14} />
-                                Detalhar Tags
-                            </button>
-                        )}
-                        <div className="text-right ml-2 border-l pl-3 border-slate-200">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-1">Total Projetos</div>
-                            <div className="text-sm font-black text-[#32423D]">{projetos.length}</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Filters */}
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                    {/* Busca textual - Projeto/Cliente */}
-                    <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        <div className="relative flex items-center w-full">
-    <input
-                            id="acomp-search-projeto"
-                            type="text"
-                            placeholder="Buscar projeto/cliente..."
+                    {/* Busca Projeto/Cliente */}
+                    <div className="relative flex items-center" style={{ minWidth: 170, maxWidth: 220 }}>
+                        <Search className="absolute left-2.5 text-slate-400 pointer-events-none" size={13} />
+                        <input id="acomp-search-projeto" type="text" placeholder="Projeto / cliente..."
                             value={fSearchInput}
                             onChange={e => setFSearchInput(e.target.value)}
-                            className="pr-6 w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
-                        />
-    {fSearchInput && (
-        <button onClick={() => setFSearchInput('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
+                            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                            className="w-full pl-8 pr-6 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] outline-none" />
                         {fSearchInput && (
-                            <button type="button" onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
+                            <button onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
+                                className="absolute right-1.5 text-slate-300 hover:text-red-500 transition-colors">
                                 <X size={12} />
                             </button>
                         )}
-                    </form>
+                    </div>
 
-                    {/* Busca textual - Descrição */}
-                    <form onSubmit={handleSearch} className="relative" style={{ minWidth: 160, maxWidth: 220 }}>
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                        <div className="relative flex items-center w-full">
-    <input
-                            id="acomp-search-descricao"
-                            type="text"
-                            placeholder="Buscar descrição..."
+                    {/* Busca Descrição */}
+                    <div className="relative flex items-center" style={{ minWidth: 170, maxWidth: 220 }}>
+                        <Search className="absolute left-2.5 text-slate-400 pointer-events-none" size={13} />
+                        <input id="acomp-search-descricao" type="text" placeholder="Buscar descrição..."
                             value={fDescricaoInput}
                             onChange={e => setFDescricaoInput(e.target.value)}
-                            className="pr-6 w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 focus:border-[#32423D] outline-none"
-                        />
-    {fDescricaoInput && (
-        <button onClick={() => setFDescricaoInput('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
+                            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                            className="w-full pl-8 pr-6 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] outline-none" />
                         {fDescricaoInput && (
-                            <button type="button" onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-100">
+                            <button onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}
+                                className="absolute right-1.5 text-slate-300 hover:text-red-500 transition-colors">
                                 <X size={12} />
                             </button>
                         )}
-                    </form>
+                    </div>
 
-                    {/* Status */}
-                    <select
-                        id="acomp-status"
-                        value={fStatus}
-                        onChange={e => setFStatus(e.target.value)}
-                        className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40/20 outline-none"
-                    >
-                        <option value="">Todos os Status</option>
-                        <option value="AT">Ativo</option>
-                        <option value="PA">Parado</option>
-                        <option value="CA">Cancelado</option>
-                    </select>
-
-                    {/* Intervalo Data Final */}
-                    <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-1">
+                    {/* Data Final: De — Até */}
+                    <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
                         <Calendar size={12} className="text-slate-400 shrink-0" />
-                        <span className="text-[10px] font-bold text-slate-100 whitespace-nowrap">Data Final:</span>
-                        <div className="relative flex items-center w-full">
-    <input
-                            id="acomp-data-de"
-                            type="date"
-                            value={fDataDe}
-                            onChange={e => setFDataDe(e.target.value)}
-                            title="De"
-                            className="pr-6 text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
-                        />
-    {fDataDe && (
-        <button onClick={() => setFDataDe('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
+                        <span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">Data Final:</span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">De</span>
+                        <input id="acomp-data-de" type="date" value={fDataDe}
+                            onChange={e => setFDataDe(e.target.value)} title="Data inicial"
+                            className="text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer w-30" />
+                        {fDataDe && <button onClick={() => setFDataDe('')} className="text-slate-300 hover:text-red-500 transition-colors"><X size={11} /></button>}
                         <span className="text-slate-300 text-xs">—</span>
-                        <div className="relative flex items-center w-full">
-    <input
-                            id="acomp-data-ate"
-                            type="date"
-                            value={fDataAte}
-                            onChange={e => setFDataAte(e.target.value)}
-                            title="Até"
-                            className="pr-6 text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer"
-                        />
-    {fDataAte && (
-        <button onClick={() => setFDataAte('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
-                        {(fDataDe || fDataAte) && (
-                            <button
-                                onClick={() => { setFDataDe(''); setFDataAte(''); }}
-                                className="ml-1 text-slate-300 hover:text-red-400 transition-colors"
-                                title="Limpar datas"
-                            >
-                                <X size={11} />
-                            </button>
-                        )}
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">Até</span>
+                        <input id="acomp-data-ate" type="date" value={fDataAte}
+                            onChange={e => setFDataAte(e.target.value)} title="Data final"
+                            className="text-xs border-0 outline-none bg-transparent text-slate-700 cursor-pointer w-30" />
+                        {fDataAte && <button onClick={() => setFDataAte('')} className="text-slate-300 hover:text-red-500 transition-colors"><X size={11} /></button>}
                     </div>
 
-                    {/* Modo Ativos/Finalizados/Todos */}
-                    <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white text-xs">
-                        {(['liberados', 'nao_liberados', 'finalizados', 'todos'] as const).map(m => (
-                            <button key={m} onClick={() => setFModo(m)}
-                                className={`px-3 py-2 font-semibold capitalize transition-colors ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
-                                {m === 'liberados' ? 'Liberados' : m === 'nao_liberados' ? 'Não Liberados' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
-                            </button>
-                        ))}
+                    {/* Status do Projeto: Liberados / Não Liberados / Finalizados / Todos */}
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">Status do Projeto:</span>
+                        <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white text-xs">
+                            {(['liberados', 'nao_liberados', 'finalizados', 'todos'] as const).map(m => (
+                                <button key={m} onClick={() => setFModo(m)}
+                                    className={`px-3 py-1.5 font-semibold transition-colors border-r border-slate-100 last:border-0 ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                    {m === 'liberados' ? 'Liberados' : m === 'nao_liberados' ? 'Não Liberados' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Refresh */}
-                    <button onClick={handleRefresh} title="Atualizar"
-                        className="px-4 py-2 font-bold text-xs rounded-lg bg-emerald-100 border border-emerald-200 text-emerald-800 hover:bg-emerald-200 transition-colors shadow-sm">
+                    {/* Limpar */}
+                    <button
+                        onClick={() => { setFSearchInput(''); setFSearchProjeto(''); setFDescricaoInput(''); setFSearchDescricao(''); setFStatus(''); setFDataDe(''); setFDataAte(''); setFModo('liberados'); }}
+                        title="Limpar todos os filtros"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 transition-colors">
+                        <X size={12} /> Limpar
+                    </button>
+
+                    {/* Pesquisar */}
+                    <button onClick={handleRefresh}
+                        className="px-4 py-1.5 font-bold text-xs rounded-lg bg-emerald-100 border border-emerald-200 text-emerald-800 hover:bg-emerald-200 transition-colors shadow-sm">
                         Pesquisar
                     </button>
+
+                    {/* Separador */}
+                    <div className="w-px h-5 bg-slate-200 mx-1" />
+
+                    {/* View Switcher */}
+                    <div className="flex bg-slate-100 p-0.5 rounded-lg">
+                        <button onClick={() => setMainViewMode('lista')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                            <LayoutList size={13} /> Lista
+                        </button>
+                        <button onClick={() => setMainViewMode('gantt')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                            <GanttChartSquare size={13} /> Ver Gantt Geral
+                        </button>
+                    </div>
+
+                    {/* Detalhar Tags (condicional) */}
+                    {selected && (
+                        <button id="btn-detalhar-projeto" onClick={() => setDetalhe(selected)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs font-bold rounded-lg shadow hover:opacity-90 transition-all">
+                            <ChevronRight size={13} /> Detalhar Tags
+                        </button>
+                    )}
+
+                    {/* Total Projetos */}
+                    <div className="border-l border-slate-200 pl-3 ml-1 text-right">
+                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">Total Projetos</div>
+                        <div className="text-base font-black text-[#32423D] leading-tight">{projetos.length}</div>
+                    </div>
+
                 </div>
             </div>
 

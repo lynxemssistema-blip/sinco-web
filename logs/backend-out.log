@@ -53629,3 +53629,1980 @@
 28/05/2026 21:09:16: [API] Projetos - status: default(ativos) | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND TRIM(COALESCE(p.Finalizado,'')) != 'C' AND TRIM(COALESCE(p.liberado,'')) != 'S'
 28/05/2026 21:09:16: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: lynxlocal. Rows found: 3
 28/05/2026 21:09:16: [API] 304 (43ms)
+07/06/2026 12:49:18: [dotenv@17.2.3] injecting env (12) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+07/06/2026 12:49:18: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 12:49:19: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+07/06/2026 12:49:19: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 12:49:20: Connected to MySQL database
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/config?limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/config/menu?t=1780850841719&limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"t":"1780850841719","limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/projeto?finalizado=N&limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"finalizado":"N","limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/pj/options?limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/medida/options?limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 13:47:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:21: 
+07/06/2026 13:47:21: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Additional Pool initialized for: alfatec2
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:47:22: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:47:22: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:47:24: [API] 304 (2345ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 304 (2367ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/pj/options?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 200 (2430ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 304 (55ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 304 (28ms)
+07/06/2026 13:47:24: [API] 304 (22ms)
+07/06/2026 13:47:24: [API] 304 (75ms)
+07/06/2026 13:47:24: [API] 304 (2490ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/medida/options?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 304 (29ms)
+07/06/2026 13:47:24: [API] 304 (2707ms)
+07/06/2026 13:47:24: 
+07/06/2026 13:47:24: [API] GET /api/config?limit=500
+07/06/2026 13:47:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:24: [API] 304 (100ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/config?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/config?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/config/menu?t=1780850848091&limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"t":"1780850848091","limit":"500"}
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/projeto?finalizado=N&limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"finalizado":"N","limit":"500"}
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/pj/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/projeto?finalizado=N&limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"finalizado":"N","limit":"500"}
+07/06/2026 13:47:28: [API] 200 (66ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/medida/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 200 (102ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/pj/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 200 (143ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 200 (231ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/medida/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 200 (28ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 200 (56ms)
+07/06/2026 13:47:28: [API] 200 (83ms)
+07/06/2026 13:47:28: [API] 200 (114ms)
+07/06/2026 13:47:28: [API] 200 (552ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:28: [API] 304 (87ms)
+07/06/2026 13:47:28: 
+07/06/2026 13:47:28: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:47:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:29: [API] 304 (24ms)
+07/06/2026 13:47:57: 
+07/06/2026 13:47:57: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 13:47:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:57: [API] 304 (32ms)
+07/06/2026 13:47:57: 
+07/06/2026 13:47:57: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 13:47:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:47:57: [API] 304 (30ms)
+07/06/2026 13:49:19: [API] 200 (111586ms)
+07/06/2026 13:49:20: [API] 200 (112161ms)
+07/06/2026 13:59:45: [dotenv@17.2.3] injecting env (12) from .env -- tip: ⚙️  override existing env vars with { override: true }
+07/06/2026 13:59:45: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 13:59:46: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+07/06/2026 13:59:46: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 13:59:46: Connected to MySQL database
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [API] GET /api/config?limit=500
+07/06/2026 13:59:51: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [API] GET /api/config/menu?t=1780851591528&limit=500
+07/06/2026 13:59:51: [API]    QUERY: {"t":"1780851591528","limit":"500"}
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [API] GET /api/acompanhamento/projetos?status=FI&modo=finalizados&limit=500
+07/06/2026 13:59:51: [API]    QUERY: {"status":"FI","modo":"finalizados","limit":"500"}
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 13:59:51: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:51: 
+07/06/2026 13:59:51: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 13:59:51: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:59:51: [DB] Additional Pool initialized for: alfatec2
+07/06/2026 13:59:51: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:59:51: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:59:51: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:59:51: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:59:51: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:59:51: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:59:51: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:59:51: [API] Projetos - status: FI | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND p.StatusProj = 'FI' AND TRIM(COALESCE(p.Finalizado,'')) = 'C'
+07/06/2026 13:59:51: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 13:59:51: [DB] Pool already exists for alfatec2. Re-using.
+07/06/2026 13:59:51: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 13:59:52: [API] 200 (517ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/config/menu?t=1780851591528&limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"t":"1780851591528","limit":"500"}
+07/06/2026 13:59:52: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: alfatec2. Rows found: 0
+07/06/2026 13:59:52: [API] 304 (539ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/acompanhamento/projetos?status=FI&modo=finalizados&limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"status":"FI","modo":"finalizados","limit":"500"}
+07/06/2026 13:59:52: [API] Projetos - status: FI | where: COALESCE(p.D_E_L_E_T_E,'') = '' AND p.StatusProj = 'FI' AND TRIM(COALESCE(p.Finalizado,'')) = 'C'
+07/06/2026 13:59:52: [API] 304 (92ms)
+07/06/2026 13:59:52: [API] 304 (581ms)
+07/06/2026 13:59:52: [VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: alfatec2. Rows found: 0
+07/06/2026 13:59:52: [API] 304 (41ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:52: [API] 304 (36ms)
+07/06/2026 13:59:52: [API] 304 (882ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/config?limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:52: [API] 304 (254ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/config?limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:52: [API] 304 (306ms)
+07/06/2026 13:59:52: 
+07/06/2026 13:59:52: [API] GET /api/config?limit=500
+07/06/2026 13:59:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:53: [API] 304 (100ms)
+07/06/2026 13:59:53: 
+07/06/2026 13:59:53: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:59:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:53: [API] 304 (47ms)
+07/06/2026 13:59:53: 
+07/06/2026 13:59:53: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:59:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:53: [API] 304 (43ms)
+07/06/2026 13:59:53: 
+07/06/2026 13:59:53: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:59:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:53: [API] 304 (65ms)
+07/06/2026 13:59:53: 
+07/06/2026 13:59:53: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 13:59:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 13:59:53: [API] 304 (24ms)
+07/06/2026 14:00:21: 
+07/06/2026 14:00:21: [API] GET /api/config?limit=500
+07/06/2026 14:00:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:00:21: [API] 401 (1ms)
+07/06/2026 14:00:21: 
+07/06/2026 14:00:21: [API] GET /api/config?limit=500
+07/06/2026 14:00:21: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:00:21: [API] 401 (1ms)
+07/06/2026 14:01:06: 
+07/06/2026 14:01:06: [API] GET /api/config?limit=500
+07/06/2026 14:01:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:06: [API] 401 (2ms)
+07/06/2026 14:01:06: 
+07/06/2026 14:01:06: [API] GET /api/config?limit=500
+07/06/2026 14:01:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:06: [API] 401 (0ms)
+07/06/2026 14:01:29: 
+07/06/2026 14:01:29: [API] POST /api/login
+07/06/2026 14:01:29: [API]    BODY: {"login":"admin","senha":"admin"}
+07/06/2026 14:01:29: [AUTH] Attempting central login for user: admin
+07/06/2026 14:01:30: [AUTH] Central user found. Switching to tenant DB: lynxlocal
+07/06/2026 14:01:30: [DB] Pool already exists for lynxlocal. Re-using.
+07/06/2026 14:01:30: [API] 200 (715ms)
+07/06/2026 14:01:30: 
+07/06/2026 14:01:30: [API] GET /api/config/menu?t=1780851690174&limit=500
+07/06/2026 14:01:30: [API]    QUERY: {"t":"1780851690174","limit":"500"}
+07/06/2026 14:01:30: 
+07/06/2026 14:01:30: [API] GET /api/config?limit=500
+07/06/2026 14:01:30: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:30: 
+07/06/2026 14:01:30: [API] GET /api/config/menu?t=1780851690397&limit=500
+07/06/2026 14:01:30: [API]    QUERY: {"t":"1780851690397","limit":"500"}
+07/06/2026 14:01:30: [API] 200 (49ms)
+07/06/2026 14:01:30: [API] 200 (290ms)
+07/06/2026 14:01:30: 
+07/06/2026 14:01:30: [API] GET /api/config?limit=500
+07/06/2026 14:01:30: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:30: [API] 304 (98ms)
+07/06/2026 14:01:31: 
+07/06/2026 14:01:31: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:01:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:31: [API] 304 (55ms)
+07/06/2026 14:01:31: 
+07/06/2026 14:01:31: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:01:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:31: [API] 304 (35ms)
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/config?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/config/menu?t=1780851696520&limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"t":"1780851696520","limit":"500"}
+07/06/2026 14:01:36: [API] 304 (111ms)
+07/06/2026 14:01:36: [API] 200 (34ms)
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/config?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:01:36: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/pj/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/medida/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: [API] 200 (52ms)
+07/06/2026 14:01:36: [API] 200 (54ms)
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/medida/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/pj/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: [API] 304 (48ms)
+07/06/2026 14:01:36: [API] 304 (51ms)
+07/06/2026 14:01:36: [API] 200 (166ms)
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:01:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:36: [API] 200 (186ms)
+07/06/2026 14:01:36: 
+07/06/2026 14:01:36: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:01:36: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:01:36: [API] 304 (73ms)
+07/06/2026 14:01:36: [API] 304 (344ms)
+07/06/2026 14:01:36: [API] 304 (141ms)
+07/06/2026 14:01:37: 
+07/06/2026 14:01:37: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:01:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:37: [API] 304 (44ms)
+07/06/2026 14:01:37: 
+07/06/2026 14:01:37: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:01:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:01:37: [API] 304 (27ms)
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/config?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/config/menu?t=1780851755116&limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"t":"1780851755116","limit":"500"}
+07/06/2026 14:02:35: [API] 200 (27ms)
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:02:35: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/pj/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/medida/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: [API] 304 (47ms)
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/medida/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: [API] 304 (77ms)
+07/06/2026 14:02:35: [API] 304 (28ms)
+07/06/2026 14:02:35: [API] 304 (278ms)
+07/06/2026 14:02:35: [API] 304 (82ms)
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/config?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/pj/options?limit=500
+07/06/2026 14:02:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:35: [API] 304 (41ms)
+07/06/2026 14:02:35: [API] 304 (95ms)
+07/06/2026 14:02:35: [API] 304 (193ms)
+07/06/2026 14:02:35: 
+07/06/2026 14:02:35: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:02:35: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:02:35: [API] 304 (192ms)
+07/06/2026 14:02:35: [API] 304 (161ms)
+07/06/2026 14:02:36: 
+07/06/2026 14:02:36: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:02:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:36: [API] 304 (56ms)
+07/06/2026 14:02:36: 
+07/06/2026 14:02:36: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:02:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:36: [API] 304 (26ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/config?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/config/menu?t=1780851764568&limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"t":"1780851764568","limit":"500"}
+07/06/2026 14:02:44: [API] 304 (105ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/config?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:02:44: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/pj/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/medida/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: [API] 200 (66ms)
+07/06/2026 14:02:44: [API] 304 (26ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/medida/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: [API] 304 (33ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/pj/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: [API] 304 (27ms)
+07/06/2026 14:02:44: [API] 304 (25ms)
+07/06/2026 14:02:44: [API] 304 (140ms)
+07/06/2026 14:02:44: [API] 304 (141ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:02:44: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:02:44: [API] 304 (156ms)
+07/06/2026 14:02:44: 
+07/06/2026 14:02:44: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:02:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:44: [API] 304 (31ms)
+07/06/2026 14:02:44: [API] 304 (87ms)
+07/06/2026 14:02:45: 
+07/06/2026 14:02:45: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:02:45: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:45: [API] 304 (69ms)
+07/06/2026 14:02:45: 
+07/06/2026 14:02:45: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:02:45: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:02:45: [API] 304 (25ms)
+07/06/2026 14:04:03: 
+07/06/2026 14:04:03: [API] GET /api/config?limit=500
+07/06/2026 14:04:03: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:03: 
+07/06/2026 14:04:03: [API] GET /api/config?limit=500
+07/06/2026 14:04:03: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:04: 
+07/06/2026 14:04:04: [API] GET /api/config/menu?t=1780851844036&limit=500
+07/06/2026 14:04:04: [API]    QUERY: {"t":"1780851844036","limit":"500"}
+07/06/2026 14:04:04: 
+07/06/2026 14:04:04: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 14:04:04: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:04: 
+07/06/2026 14:04:04: [API] GET /api/apontamentos-parciais?limit=500
+07/06/2026 14:04:04: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:04: 
+07/06/2026 14:04:04: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:04:04: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:04: [API] 200 (813ms)
+07/06/2026 14:04:04: [API] 200 (813ms)
+07/06/2026 14:04:04: [API] 200 (888ms)
+07/06/2026 14:04:04: [API] 304 (113ms)
+07/06/2026 14:04:04: 
+07/06/2026 14:04:04: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:04:04: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:04: [API] 304 (24ms)
+07/06/2026 14:04:05: [API] 200 (1048ms)
+07/06/2026 14:04:05: [API] 200 (1084ms)
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:04:11: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/pj/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/medida/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: [API] 304 (56ms)
+07/06/2026 14:04:11: [API] 304 (57ms)
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/medida/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: [API] 304 (87ms)
+07/06/2026 14:04:11: 
+07/06/2026 14:04:11: [API] GET /api/pj/options?limit=500
+07/06/2026 14:04:11: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:11: [API] 304 (52ms)
+07/06/2026 14:04:11: [API] 304 (54ms)
+07/06/2026 14:04:11: [API] 304 (51ms)
+07/06/2026 14:04:31: 
+07/06/2026 14:04:31: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:04:31: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:04:35: 
+07/06/2026 14:04:35: [API] GET /api/tipoproduto?limit=500
+07/06/2026 14:04:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:35: 
+07/06/2026 14:04:35: [API] GET /api/medida/options?limit=500
+07/06/2026 14:04:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:35: [API] 304 (24ms)
+07/06/2026 14:04:35: 
+07/06/2026 14:04:35: [API] GET /api/medida/options?limit=500
+07/06/2026 14:04:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:35: [API] 304 (30ms)
+07/06/2026 14:04:35: [API] 304 (56ms)
+07/06/2026 14:04:35: 
+07/06/2026 14:04:35: [API] GET /api/tipoproduto?limit=500
+07/06/2026 14:04:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:04:35: [API] 304 (26ms)
+07/06/2026 14:05:20: [API] 200 (68722ms)
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/config?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/config?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/config/menu?t=1780851937304&limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"t":"1780851937304","limit":"500"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:05:37: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/pj/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/medida/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: [API] 200 (192ms)
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: [API] 200 (150ms)
+07/06/2026 14:05:37: [API] 200 (147ms)
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:05:37: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/pj/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: [API] 200 (21ms)
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/medida/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: [API] 200 (55ms)
+07/06/2026 14:05:37: 
+07/06/2026 14:05:37: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:05:37: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:37: [API] 200 (29ms)
+07/06/2026 14:05:37: [API] 200 (354ms)
+07/06/2026 14:05:37: [API] 200 (47ms)
+07/06/2026 14:05:37: [API] 200 (250ms)
+07/06/2026 14:05:37: [API] 200 (129ms)
+07/06/2026 14:05:37: [API] 200 (460ms)
+07/06/2026 14:05:38: 
+07/06/2026 14:05:38: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:05:38: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:38: [API] 304 (46ms)
+07/06/2026 14:05:38: 
+07/06/2026 14:05:38: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:05:38: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:05:38: [API] 304 (32ms)
+07/06/2026 14:05:41: [API] 200 (69661ms)
+07/06/2026 14:07:52: 
+07/06/2026 14:07:52: [API] GET /api/config?limit=500
+07/06/2026 14:07:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:07:52: [API] 401 (0ms)
+07/06/2026 14:07:52: 
+07/06/2026 14:07:52: [API] GET /api/config?limit=500
+07/06/2026 14:07:52: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:07:52: [API] 401 (0ms)
+07/06/2026 14:08:05: 
+07/06/2026 14:08:05: [API] POST /api/login
+07/06/2026 14:08:05: [API]    BODY: {"login":"superadmin","senha":"SincoMaster2026!"}
+07/06/2026 14:08:05: [AUTH] Attempting central login for user: superadmin
+07/06/2026 14:08:05: [AUTH] Central user found. Switching to tenant DB: lynxlocal
+07/06/2026 14:08:05: [DB] Pool already exists for lynxlocal. Re-using.
+07/06/2026 14:08:05: [API] 200 (315ms)
+07/06/2026 14:08:05: 
+07/06/2026 14:08:05: [API] GET /api/config/menu?t=1780852085716&limit=500
+07/06/2026 14:08:05: [API]    QUERY: {"t":"1780852085716","limit":"500"}
+07/06/2026 14:08:05: 
+07/06/2026 14:08:05: [API] GET /api/config?limit=500
+07/06/2026 14:08:05: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:05: 
+07/06/2026 14:08:05: [API] GET /api/config/menu?t=1780852085937&limit=500
+07/06/2026 14:08:05: [API]    QUERY: {"t":"1780852085937","limit":"500"}
+07/06/2026 14:08:06: [API] 200 (155ms)
+07/06/2026 14:08:06: [API] 304 (229ms)
+07/06/2026 14:08:06: 
+07/06/2026 14:08:06: [API] GET /api/config?limit=500
+07/06/2026 14:08:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:06: [API] 304 (96ms)
+07/06/2026 14:08:06: 
+07/06/2026 14:08:06: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:08:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:06: [API] 304 (53ms)
+07/06/2026 14:08:06: 
+07/06/2026 14:08:06: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:08:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:06: [API] 304 (22ms)
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:08:24: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/pj/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/medida/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:24: [API] 304 (64ms)
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/pj/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:24: [API] 304 (25ms)
+07/06/2026 14:08:24: [API] 304 (150ms)
+07/06/2026 14:08:24: [API] 304 (147ms)
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:08:24: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:24: [API] 304 (189ms)
+07/06/2026 14:08:24: 
+07/06/2026 14:08:24: [API] GET /api/medida/options?limit=500
+07/06/2026 14:08:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:08:25: [API] 304 (58ms)
+07/06/2026 14:08:25: [API] 304 (22ms)
+07/06/2026 14:08:25: [API] 304 (129ms)
+07/06/2026 14:23:33: [dotenv@17.2.3] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+07/06/2026 14:23:33: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 14:23:34: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+07/06/2026 14:23:34: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 14:23:34: Connected to MySQL database
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/config?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/config/menu?t=1780853144326&limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"t":"1780853144326","limit":"500"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:25:44: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/pj/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/medida/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: [API] 304 (147ms)
+07/06/2026 14:25:44: [API] 304 (157ms)
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/medida/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: [API] 200 (176ms)
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:25:44: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:25:44: [API] 200 (293ms)
+07/06/2026 14:25:44: [API] 304 (77ms)
+07/06/2026 14:25:44: [API] 304 (79ms)
+07/06/2026 14:25:44: [API] 304 (75ms)
+07/06/2026 14:25:44: [API] 304 (335ms)
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/pj/options?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: [API] 304 (24ms)
+07/06/2026 14:25:44: [API] 304 (556ms)
+07/06/2026 14:25:44: 
+07/06/2026 14:25:44: [API] GET /api/config?limit=500
+07/06/2026 14:25:44: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:44: [API] 304 (159ms)
+07/06/2026 14:25:45: 
+07/06/2026 14:25:45: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:25:45: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:45: [API] 304 (59ms)
+07/06/2026 14:25:45: 
+07/06/2026 14:25:45: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:25:45: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:25:45: [API] 304 (48ms)
+07/06/2026 14:26:35: 
+07/06/2026 14:26:35: [API] GET /api/config?limit=500
+07/06/2026 14:26:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/config/menu?t=1780853196049&limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"t":"1780853196049","limit":"500"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:26:36: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/pj/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/medida/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 200 (67ms)
+07/06/2026 14:26:36: [API] 304 (181ms)
+07/06/2026 14:26:36: [API] 304 (55ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/config?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:26:36: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:26:36: [API] 304 (82ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 304 (89ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/medida/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 304 (35ms)
+07/06/2026 14:26:36: [API] 304 (31ms)
+07/06/2026 14:26:36: [API] 304 (104ms)
+07/06/2026 14:26:36: [API] 304 (171ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/pj/options?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 304 (27ms)
+07/06/2026 14:26:36: [API] 304 (221ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 304 (45ms)
+07/06/2026 14:26:36: 
+07/06/2026 14:26:36: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:26:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:26:36: [API] 304 (27ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/config?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/config?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/config/menu?t=1780853260116&limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"t":"1780853260116","limit":"500"}
+07/06/2026 14:27:40: [API] 200 (52ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:27:40: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/pj/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/medida/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: [API] 200 (159ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:27:40: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:27:40: [API] 200 (78ms)
+07/06/2026 14:27:40: [API] 200 (74ms)
+07/06/2026 14:27:40: [API] 200 (77ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/pj/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: [API] 200 (90ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/medida/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: [API] 200 (31ms)
+07/06/2026 14:27:40: [API] 200 (54ms)
+07/06/2026 14:27:40: [API] 200 (323ms)
+07/06/2026 14:27:40: [API] 200 (185ms)
+07/06/2026 14:27:40: [API] 200 (136ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:40: [API] 304 (45ms)
+07/06/2026 14:27:40: 
+07/06/2026 14:27:40: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:27:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:27:41: [API] 304 (23ms)
+07/06/2026 14:39:01: [dotenv@17.2.3] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+07/06/2026 14:39:01: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 14:39:01: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+07/06/2026 14:39:01: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 14:39:02: Connected to MySQL database
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/config?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/config/menu?t=1780853947342&limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"t":"1780853947342","limit":"500"}
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:39:07: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:39:07: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/pj/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/medida/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: [API] 200 (197ms)
+07/06/2026 14:39:07: [API] 304 (139ms)
+07/06/2026 14:39:07: [API] 304 (351ms)
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: [API] 304 (152ms)
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/config?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: [API] 304 (152ms)
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:39:07: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:39:07: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/medida/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: [API] 304 (58ms)
+07/06/2026 14:39:07: [API] 304 (67ms)
+07/06/2026 14:39:07: [API] 304 (77ms)
+07/06/2026 14:39:07: [API] 304 (262ms)
+07/06/2026 14:39:07: 
+07/06/2026 14:39:07: [API] GET /api/pj/options?limit=500
+07/06/2026 14:39:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:07: [API] 304 (38ms)
+07/06/2026 14:39:07: [API] 304 (224ms)
+07/06/2026 14:39:08: 
+07/06/2026 14:39:08: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:39:08: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:08: [API] 304 (42ms)
+07/06/2026 14:39:08: 
+07/06/2026 14:39:08: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:39:08: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:08: [API] 304 (21ms)
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/config?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/config/menu?t=1780853993329&limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"t":"1780853993329","limit":"500"}
+07/06/2026 14:39:53: [API] 304 (200ms)
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/config?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: [API] 200 (97ms)
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:39:53: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:39:53: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/pj/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/medida/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: [API] 304 (31ms)
+07/06/2026 14:39:53: [API] 304 (34ms)
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/medida/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: [API] 304 (73ms)
+07/06/2026 14:39:53: [API] 304 (80ms)
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/pj/options?limit=500
+07/06/2026 14:39:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:53: 
+07/06/2026 14:39:53: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:39:53: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:39:53: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:39:53: [API] 304 (98ms)
+07/06/2026 14:39:53: [API] 304 (112ms)
+07/06/2026 14:39:53: [API] 304 (122ms)
+07/06/2026 14:39:53: [API] 304 (129ms)
+07/06/2026 14:39:53: [API] 304 (371ms)
+07/06/2026 14:39:54: 
+07/06/2026 14:39:54: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:39:54: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:54: [API] 304 (73ms)
+07/06/2026 14:39:54: 
+07/06/2026 14:39:54: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:39:54: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:39:54: [API] 304 (30ms)
+07/06/2026 14:40:24: 
+07/06/2026 14:40:24: [API] GET /api/projeto?finalizado=C&page=1&limit=80
+07/06/2026 14:40:24: [API]    QUERY: {"finalizado":"C","page":"1","limit":"80"}
+07/06/2026 14:40:24: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' | params: [] | finalizado: C
+07/06/2026 14:40:24: [API] 200 (53ms)
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/config?limit=500
+07/06/2026 14:43:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/config?limit=500
+07/06/2026 14:43:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/config/menu?t=1780854211890&limit=500
+07/06/2026 14:43:31: [API]    QUERY: {"t":"1780854211890","limit":"500"}
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:43:31: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:43:31: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/pj/options?limit=500
+07/06/2026 14:43:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:31: 
+07/06/2026 14:43:31: [API] GET /api/medida/options?limit=500
+07/06/2026 14:43:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 200 (386ms)
+07/06/2026 14:43:32: [API] 200 (381ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:43:32: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:43:32: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:43:32: [API] 200 (402ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/pj/options?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 200 (503ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/medida/options?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 200 (56ms)
+07/06/2026 14:43:32: [API] 200 (58ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 200 (54ms)
+07/06/2026 14:43:32: [API] 200 (47ms)
+07/06/2026 14:43:32: [API] 200 (25ms)
+07/06/2026 14:43:32: [API] 200 (682ms)
+07/06/2026 14:43:32: [API] 200 (721ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 304 (52ms)
+07/06/2026 14:43:32: 
+07/06/2026 14:43:32: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:43:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:43:32: [API] 304 (23ms)
+07/06/2026 14:43:52: 
+07/06/2026 14:43:52: [API] GET /api/projeto?finalizado=C&page=1&limit=80
+07/06/2026 14:43:52: [API]    QUERY: {"finalizado":"C","page":"1","limit":"80"}
+07/06/2026 14:43:52: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' | params: [] | finalizado: C
+07/06/2026 14:43:52: [API] 304 (58ms)
+07/06/2026 14:44:32: 
+07/06/2026 14:44:32: [API] GET /api/projeto?finalizado=C&statusProj=PA&page=1&limit=80
+07/06/2026 14:44:32: [API]    QUERY: {"finalizado":"C","statusProj":"PA","page":"1","limit":"80"}
+07/06/2026 14:44:32: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' AND p.StatusProj = ? | params: [ 'PA' ] | finalizado: C
+07/06/2026 14:44:32: [API] 200 (57ms)
+07/06/2026 14:44:37: 
+07/06/2026 14:44:37: [API] GET /api/projeto?finalizado=C&statusProj=AT&page=1&limit=80
+07/06/2026 14:44:37: [API]    QUERY: {"finalizado":"C","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 14:44:37: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: C
+07/06/2026 14:44:37: [API] 200 (27ms)
+07/06/2026 14:44:46: 
+07/06/2026 14:44:46: [API] GET /api/projeto?finalizado=C&statusProj=PA&page=1&limit=80
+07/06/2026 14:44:46: [API]    QUERY: {"finalizado":"C","statusProj":"PA","page":"1","limit":"80"}
+07/06/2026 14:44:46: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' AND p.StatusProj = ? | params: [ 'PA' ] | finalizado: C
+07/06/2026 14:44:46: [API] 304 (26ms)
+07/06/2026 14:44:50: 
+07/06/2026 14:44:50: [API] GET /api/projeto?finalizado=C&page=1&limit=80
+07/06/2026 14:44:50: [API]    QUERY: {"finalizado":"C","page":"1","limit":"80"}
+07/06/2026 14:44:50: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND p.Finalizado = 'C' | params: [] | finalizado: C
+07/06/2026 14:44:50: [API] 304 (28ms)
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config/tipostarefa?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config/usuarios?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/tarefas?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: [API] 200 (50ms)
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config/tipostarefa?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: [API] 304 (67ms)
+07/06/2026 14:44:58: [API] 200 (68ms)
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config/usuarios?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/tarefas?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: [API] 304 (60ms)
+07/06/2026 14:44:58: [API] 304 (72ms)
+07/06/2026 14:44:58: [API] 304 (93ms)
+07/06/2026 14:44:58: [API] 304 (367ms)
+07/06/2026 14:44:58: 
+07/06/2026 14:44:58: [API] GET /api/config?limit=500
+07/06/2026 14:44:58: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:44:58: [API] 304 (118ms)
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:45:02: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:45:02: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/pj/options?limit=500
+07/06/2026 14:45:02: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/medida/options?limit=500
+07/06/2026 14:45:02: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:45:02: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:02: [API] 304 (60ms)
+07/06/2026 14:45:02: [API] 304 (63ms)
+07/06/2026 14:45:02: [API] 304 (62ms)
+07/06/2026 14:45:02: [API] 304 (61ms)
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/pj/options?limit=500
+07/06/2026 14:45:02: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:02: 
+07/06/2026 14:45:02: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:45:03: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:45:03: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:45:03: 
+07/06/2026 14:45:03: [API] GET /api/medida/options?limit=500
+07/06/2026 14:45:03: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:03: 
+07/06/2026 14:45:03: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:45:03: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:45:03: [API] 304 (27ms)
+07/06/2026 14:45:03: [API] 304 (32ms)
+07/06/2026 14:45:03: [API] 304 (54ms)
+07/06/2026 14:45:03: [API] 304 (161ms)
+07/06/2026 14:45:45: 
+07/06/2026 14:45:45: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 14:45:45: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 14:45:45: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 14:45:45: [API] 200 (85ms)
+07/06/2026 14:46:54: 
+07/06/2026 14:46:54: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:46:54: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:46:54: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:46:54: [API] 304 (55ms)
+07/06/2026 14:47:40: 
+07/06/2026 14:47:40: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 14:47:40: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 14:47:40: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 14:47:40: [API] 304 (60ms)
+07/06/2026 14:47:52: 
+07/06/2026 14:47:52: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:47:52: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:47:52: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:47:52: [API] 304 (49ms)
+07/06/2026 14:50:49: 
+07/06/2026 14:50:49: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 14:50:49: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 14:50:49: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 14:50:50: [API] 304 (775ms)
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/config?limit=500
+07/06/2026 14:54:15: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/config?limit=500
+07/06/2026 14:54:15: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/config/menu?t=1780854855417&limit=500
+07/06/2026 14:54:15: [API]    QUERY: {"t":"1780854855417","limit":"500"}
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:54:15: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:54:15: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/pj/options?limit=500
+07/06/2026 14:54:15: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:15: 
+07/06/2026 14:54:15: [API] GET /api/medida/options?limit=500
+07/06/2026 14:54:15: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (1585ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (1596ms)
+07/06/2026 14:54:17: [API] 200 (1601ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 14:54:17: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 14:54:17: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/pj/options?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (1673ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/medida/options?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (43ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (47ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 200 (55ms)
+07/06/2026 14:54:17: [API] 200 (22ms)
+07/06/2026 14:54:17: [API] 200 (66ms)
+07/06/2026 14:54:17: [API] 304 (61ms)
+07/06/2026 14:54:17: 
+07/06/2026 14:54:17: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 14:54:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 14:54:17: [API] 304 (30ms)
+07/06/2026 14:54:17: [API] 200 (1868ms)
+07/06/2026 14:54:17: [API] 200 (1871ms)
+07/06/2026 14:59:20: 
+07/06/2026 14:59:20: [API] PATCH /api/projeto/4/status
+07/06/2026 14:59:20: [API]    BODY: {"status":"CA","confirmar":false,"usuario":"superadmin"}
+07/06/2026 14:59:21: [API] 500 (1219ms)
+07/06/2026 14:59:57: 
+07/06/2026 14:59:57: [API] PATCH /api/projeto/4/status
+07/06/2026 14:59:57: [API]    BODY: {"status":"CA","confirmar":false,"usuario":"superadmin"}
+07/06/2026 14:59:57: [API] 500 (101ms)
+07/06/2026 15:04:48: [dotenv@17.2.3] injecting env (12) from .env -- tip: ⚙️  override existing env vars with { override: true }
+07/06/2026 15:04:48: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 15:04:48: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+07/06/2026 15:04:48: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 15:04:49: Connected to MySQL database
+07/06/2026 15:05:04: [dotenv@17.2.3] injecting env (12) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+07/06/2026 15:05:04: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 15:05:04: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+07/06/2026 15:05:04: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 15:05:04: Connected to MySQL database
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/config?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/config?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/config/menu?t=1780855555455&limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"t":"1780855555455","limit":"500"}
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 15:05:55: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 15:05:55: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/pj/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/medida/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: [API] 200 (138ms)
+07/06/2026 15:05:55: [API] 200 (199ms)
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 15:05:55: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 15:05:55: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 15:05:55: [API] 200 (151ms)
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/pj/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: [API] 200 (320ms)
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/medida/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: [API] 200 (54ms)
+07/06/2026 15:05:55: 
+07/06/2026 15:05:55: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 15:05:55: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:55: [API] 200 (58ms)
+07/06/2026 15:05:55: [API] 200 (213ms)
+07/06/2026 15:05:55: [API] 200 (89ms)
+07/06/2026 15:05:55: [API] 200 (47ms)
+07/06/2026 15:05:55: [API] 200 (53ms)
+07/06/2026 15:05:56: 
+07/06/2026 15:05:56: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:05:56: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:56: [API] 304 (46ms)
+07/06/2026 15:05:56: 
+07/06/2026 15:05:56: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:05:56: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:05:56: [API] 304 (22ms)
+07/06/2026 15:06:10: [API] 500 (15011ms)
+07/06/2026 15:06:47: 
+07/06/2026 15:06:47: [API] PATCH /api/projeto/4/status
+07/06/2026 15:06:47: [API]    BODY: {"status":"AT","confirmar":false,"usuario":"superadmin"}
+07/06/2026 15:06:48: [API /projeto/4/status] AT → Tags: 10 | OS: 0
+07/06/2026 15:06:48: [API] 200 (255ms)
+07/06/2026 15:06:48: 
+07/06/2026 15:06:48: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 15:06:48: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 15:06:48: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 15:06:48: [API] 200 (57ms)
+07/06/2026 15:08:14: 
+07/06/2026 15:08:14: [API] GET /api/projeto/11/tags?limit=500
+07/06/2026 15:08:14: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:08:14: [API] 200 (47ms)
+07/06/2026 15:08:31: 
+07/06/2026 15:08:31: [API] GET /api/projeto/4/tags?limit=500
+07/06/2026 15:08:31: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:08:31: [API] 200 (23ms)
+07/06/2026 15:08:58: 
+07/06/2026 15:08:58: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:08:58: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:08:58: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:08:58: [API] 200 (155ms)
+07/06/2026 15:09:03: 
+07/06/2026 15:09:03: [API] GET /api/projeto?finalizado=N&statusProj=PA&page=1&limit=80
+07/06/2026 15:09:03: [API]    QUERY: {"finalizado":"N","statusProj":"PA","page":"1","limit":"80"}
+07/06/2026 15:09:03: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'PA' ] | finalizado: N
+07/06/2026 15:09:03: [API] 200 (57ms)
+07/06/2026 15:09:08: 
+07/06/2026 15:09:08: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 15:09:08: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 15:09:08: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 15:09:08: [API] 200 (30ms)
+07/06/2026 15:09:41: 
+07/06/2026 15:09:41: [API] PATCH /api/projeto/2/status
+07/06/2026 15:09:41: [API]    BODY: {"status":"CA","confirmar":false,"usuario":"superadmin"}
+07/06/2026 15:09:41: [API /projeto/2/status] CA → Tags: 4 | OS: 0
+07/06/2026 15:09:41: [API] 200 (253ms)
+07/06/2026 15:09:41: 
+07/06/2026 15:09:41: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 15:09:41: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 15:09:41: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 15:09:41: [API] 200 (29ms)
+07/06/2026 15:09:55: 
+07/06/2026 15:09:55: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:09:55: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:09:55: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:09:55: [API] 200 (24ms)
+07/06/2026 15:10:05: 
+07/06/2026 15:10:05: [API] PATCH /api/projeto/2/status
+07/06/2026 15:10:05: [API]    BODY: {"status":"AT","confirmar":false,"usuario":"superadmin"}
+07/06/2026 15:10:05: [API /projeto/2/status] AT → Tags: 4 | OS: 0
+07/06/2026 15:10:05: [API] 200 (141ms)
+07/06/2026 15:10:05: 
+07/06/2026 15:10:05: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:10:05: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:10:05: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:10:05: [API] 200 (26ms)
+07/06/2026 15:10:12: 
+07/06/2026 15:10:12: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 15:10:12: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 15:10:12: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 15:10:12: [API] 200 (49ms)
+07/06/2026 15:35:22: 
+07/06/2026 15:35:22: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:35:22: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:35:22: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:35:23: [API] 304 (797ms)
+07/06/2026 15:35:45: 
+07/06/2026 15:35:45: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:35:45: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:35:45: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:35:45: [API] 304 (25ms)
+07/06/2026 15:35:48: 
+07/06/2026 15:35:48: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 15:35:48: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 15:35:48: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 15:35:48: [API] 304 (60ms)
+07/06/2026 15:36:07: 
+07/06/2026 15:36:07: [API] PATCH /api/projeto/4/status
+07/06/2026 15:36:07: [API]    BODY: {"status":"CA","confirmar":true,"usuario":"superadmin"}
+07/06/2026 15:36:07: [API /projeto/4/status] CA → Tags: 10 | OS: 0
+07/06/2026 15:36:07: [API] 200 (249ms)
+07/06/2026 15:36:07: 
+07/06/2026 15:36:07: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 15:36:07: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 15:36:07: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 15:36:07: [API] 200 (54ms)
+07/06/2026 15:36:15: 
+07/06/2026 15:36:15: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:36:15: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:36:15: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:36:15: [API] 200 (66ms)
+07/06/2026 15:36:23: 
+07/06/2026 15:36:23: [API] PATCH /api/projeto/4/status
+07/06/2026 15:36:23: [API]    BODY: {"status":"AT","confirmar":true,"usuario":"superadmin"}
+07/06/2026 15:36:23: [API /projeto/4/status] AT → Tags: 10 | OS: 0
+07/06/2026 15:36:23: [API] 200 (179ms)
+07/06/2026 15:36:23: 
+07/06/2026 15:36:23: [API] GET /api/projeto?finalizado=N&statusProj=CA&page=1&limit=80
+07/06/2026 15:36:23: [API]    QUERY: {"finalizado":"N","statusProj":"CA","page":"1","limit":"80"}
+07/06/2026 15:36:23: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'CA' ] | finalizado: N
+07/06/2026 15:36:23: [API] 200 (123ms)
+07/06/2026 15:37:23: 
+07/06/2026 15:37:23: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:37:23: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:37:23: 
+07/06/2026 15:37:23: [API] GET /api/admin/users?limit=500
+07/06/2026 15:37:23: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:37:25: [API] 304 (2077ms)
+07/06/2026 15:37:25: 
+07/06/2026 15:37:25: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:37:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:37:25: [API] 200 (2098ms)
+07/06/2026 15:37:25: 
+07/06/2026 15:37:25: [API] GET /api/admin/users?limit=500
+07/06/2026 15:37:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:37:25: [API] 304 (137ms)
+07/06/2026 15:37:25: [API] 304 (151ms)
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/config?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/config?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/config/menu?t=1780858387163&limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"t":"1780858387163","limit":"500"}
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/admin/users?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: [API] 200 (383ms)
+07/06/2026 15:53:07: [API] 304 (375ms)
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/admin/users?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: [API] 304 (385ms)
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:07: [API] 200 (617ms)
+07/06/2026 15:53:07: [API] 200 (610ms)
+07/06/2026 15:53:07: [API] 304 (129ms)
+07/06/2026 15:53:07: [API] 304 (157ms)
+07/06/2026 15:53:07: 
+07/06/2026 15:53:07: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:53:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:08: [API] 304 (70ms)
+07/06/2026 15:53:08: 
+07/06/2026 15:53:08: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:53:08: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:08: [API] 304 (21ms)
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/config?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/config?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/config/menu?t=1780858419675&limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"t":"1780858419675","limit":"500"}
+07/06/2026 15:53:39: [API] 200 (35ms)
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/admin/users?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: 
+07/06/2026 15:53:39: [API] GET /api/admin/users?limit=500
+07/06/2026 15:53:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:39: [API] 200 (180ms)
+07/06/2026 15:53:39: [API] 200 (183ms)
+07/06/2026 15:53:39: [API] 200 (233ms)
+07/06/2026 15:53:39: [API] 200 (237ms)
+07/06/2026 15:53:39: [API] 200 (252ms)
+07/06/2026 15:53:39: [API] 200 (255ms)
+07/06/2026 15:53:40: 
+07/06/2026 15:53:40: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:53:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:40: [API] 304 (27ms)
+07/06/2026 15:53:40: 
+07/06/2026 15:53:40: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:53:40: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:53:40: [API] 304 (22ms)
+07/06/2026 15:57:07: 
+07/06/2026 15:57:07: [API] GET /api/config?limit=500
+07/06/2026 15:57:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:07: [API] 401 (2ms)
+07/06/2026 15:57:07: 
+07/06/2026 15:57:07: [API] GET /api/config?limit=500
+07/06/2026 15:57:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:07: [API] 401 (1ms)
+07/06/2026 15:57:20: 
+07/06/2026 15:57:20: [API] POST /api/login
+07/06/2026 15:57:20: [API]    BODY: {"login":"superadmin","senha":"sincoMaster2026!"}
+07/06/2026 15:57:20: [AUTH] Attempting central login for user: superadmin
+07/06/2026 15:57:21: [AUTH] Central user found. Switching to tenant DB: lynxlocal
+07/06/2026 15:57:21: [DB] Pool already exists for lynxlocal. Re-using.
+07/06/2026 15:57:21: [API] 200 (1100ms)
+07/06/2026 15:57:21: 
+07/06/2026 15:57:21: [API] GET /api/config/menu?t=1780858641971&limit=500
+07/06/2026 15:57:21: [API]    QUERY: {"t":"1780858641971","limit":"500"}
+07/06/2026 15:57:22: 
+07/06/2026 15:57:22: [API] GET /api/config?limit=500
+07/06/2026 15:57:22: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:22: 
+07/06/2026 15:57:22: [API] GET /api/config/menu?t=1780858642148&limit=500
+07/06/2026 15:57:22: [API]    QUERY: {"t":"1780858642148","limit":"500"}
+07/06/2026 15:57:22: [API] 200 (209ms)
+07/06/2026 15:57:22: [API] 304 (320ms)
+07/06/2026 15:57:22: 
+07/06/2026 15:57:22: [API] GET /api/config?limit=500
+07/06/2026 15:57:22: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:22: [API] 304 (117ms)
+07/06/2026 15:57:22: 
+07/06/2026 15:57:22: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:57:22: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:23: [API] 304 (44ms)
+07/06/2026 15:57:23: 
+07/06/2026 15:57:23: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 15:57:23: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:23: [API] 304 (24ms)
+07/06/2026 15:57:27: 
+07/06/2026 15:57:27: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:57:27: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:27: 
+07/06/2026 15:57:27: [API] GET /api/admin/users?limit=500
+07/06/2026 15:57:27: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:28: [API] 304 (148ms)
+07/06/2026 15:57:28: 
+07/06/2026 15:57:28: [API] GET /api/admin/databases?limit=500
+07/06/2026 15:57:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:28: [API] 304 (176ms)
+07/06/2026 15:57:28: 
+07/06/2026 15:57:28: [API] GET /api/admin/users?limit=500
+07/06/2026 15:57:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 15:57:28: [API] 304 (122ms)
+07/06/2026 15:57:28: [API] 304 (161ms)
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/config?limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/config?limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/config/menu?t=1780859116747&limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"t":"1780859116747","limit":"500"}
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/admin/users?limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:16: 
+07/06/2026 16:05:16: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:05:16: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:17: [API] 200 (341ms)
+07/06/2026 16:05:17: [API] 200 (347ms)
+07/06/2026 16:05:17: 
+07/06/2026 16:05:17: [API] GET /api/admin/users?limit=500
+07/06/2026 16:05:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:17: [API] 200 (401ms)
+07/06/2026 16:05:17: [API] 200 (374ms)
+07/06/2026 16:05:17: [API] 200 (147ms)
+07/06/2026 16:05:17: [API] 200 (598ms)
+07/06/2026 16:05:17: [API] 200 (601ms)
+07/06/2026 16:05:17: 
+07/06/2026 16:05:17: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:05:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:17: [API] 304 (53ms)
+07/06/2026 16:05:17: 
+07/06/2026 16:05:17: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:05:17: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:05:17: [API] 304 (23ms)
+07/06/2026 16:06:12: 
+07/06/2026 16:06:12: [API] GET /api/config?limit=500
+07/06/2026 16:06:12: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:12: 
+07/06/2026 16:06:12: [API] GET /api/config?limit=500
+07/06/2026 16:06:12: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/config/menu?t=1780859173015&limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"t":"1780859173015","limit":"500"}
+07/06/2026 16:06:13: [API] 200 (36ms)
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/admin/users?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/admin/users?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: [API] 200 (151ms)
+07/06/2026 16:06:13: [API] 200 (155ms)
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: [API] 304 (30ms)
+07/06/2026 16:06:13: 
+07/06/2026 16:06:13: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:06:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:06:13: [API] 304 (24ms)
+07/06/2026 16:06:14: [API] 200 (944ms)
+07/06/2026 16:06:14: [API] 200 (942ms)
+07/06/2026 16:06:14: [API] 200 (968ms)
+07/06/2026 16:06:14: [API] 200 (973ms)
+07/06/2026 16:11:34: 
+07/06/2026 16:11:34: [API] GET /api/config?limit=500
+07/06/2026 16:11:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:34: 
+07/06/2026 16:11:34: [API] GET /api/config/menu?t=1780859494647&limit=500
+07/06/2026 16:11:34: [API]    QUERY: {"t":"1780859494647","limit":"500"}
+07/06/2026 16:11:34: 
+07/06/2026 16:11:34: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:11:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:34: 
+07/06/2026 16:11:34: [API] GET /api/admin/users?limit=500
+07/06/2026 16:11:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:35: 
+07/06/2026 16:11:35: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:11:35: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:36: [API] 304 (1716ms)
+07/06/2026 16:11:36: 
+07/06/2026 16:11:36: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:11:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:36: [API] 304 (992ms)
+07/06/2026 16:11:36: 
+07/06/2026 16:11:36: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:11:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:36: [API] 304 (26ms)
+07/06/2026 16:11:36: [API] 304 (1843ms)
+07/06/2026 16:11:36: [API] 200 (1905ms)
+07/06/2026 16:11:36: 
+07/06/2026 16:11:36: [API] GET /api/admin/users?limit=500
+07/06/2026 16:11:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:36: [API] 304 (134ms)
+07/06/2026 16:11:36: [API] 304 (2111ms)
+07/06/2026 16:11:36: 
+07/06/2026 16:11:36: [API] GET /api/config?limit=500
+07/06/2026 16:11:36: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:11:36: [API] 304 (167ms)
+07/06/2026 16:11:36: [API] 304 (105ms)
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/config?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/config/menu?t=1780859608520&limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"t":"1780859608520","limit":"500"}
+07/06/2026 16:13:28: [API] 200 (26ms)
+07/06/2026 16:13:28: [API] 304 (142ms)
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/config?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/admin/users?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:28: [API] 304 (147ms)
+07/06/2026 16:13:28: [API] 304 (261ms)
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:28: [API] 304 (286ms)
+07/06/2026 16:13:28: 
+07/06/2026 16:13:28: [API] GET /api/admin/users?limit=500
+07/06/2026 16:13:28: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:29: [API] 304 (167ms)
+07/06/2026 16:13:29: [API] 304 (202ms)
+07/06/2026 16:13:29: 
+07/06/2026 16:13:29: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:13:29: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:29: [API] 304 (49ms)
+07/06/2026 16:13:29: 
+07/06/2026 16:13:29: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:13:29: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:13:29: [API] 304 (31ms)
+07/06/2026 16:14:39: 
+07/06/2026 16:14:39: [API] GET /api/superadmin/bancos-ativos?limit=500
+07/06/2026 16:14:39: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:14:39: [API] 500 (5ms)
+07/06/2026 16:16:52: [dotenv@17.2.3] injecting env (12) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+07/06/2026 16:16:52: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+07/06/2026 16:16:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+07/06/2026 16:16:53: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+07/06/2026 16:16:54: Connected to MySQL database
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/config?limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/config?limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/config/menu?t=1780859873774&limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"t":"1780859873774","limit":"500"}
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/admin/users?limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:53: [API] 200 (173ms)
+07/06/2026 16:17:53: [API] 304 (146ms)
+07/06/2026 16:17:53: 
+07/06/2026 16:17:53: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:17:53: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:54: [API] 304 (163ms)
+07/06/2026 16:17:54: 
+07/06/2026 16:17:54: [API] GET /api/admin/users?limit=500
+07/06/2026 16:17:54: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:54: [API] 200 (306ms)
+07/06/2026 16:17:54: [API] 304 (151ms)
+07/06/2026 16:17:54: [API] 200 (450ms)
+07/06/2026 16:17:54: [API] 304 (173ms)
+07/06/2026 16:17:54: 
+07/06/2026 16:17:54: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:17:54: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:54: [API] 304 (57ms)
+07/06/2026 16:17:54: 
+07/06/2026 16:17:54: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:17:54: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:17:54: [API] 304 (26ms)
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/config?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/config?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/config/menu?t=1780859927280&limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"t":"1780859927280","limit":"500"}
+07/06/2026 16:18:47: [API] 200 (28ms)
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:18:47: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:18:47: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/pj/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/medida/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: [API] 200 (136ms)
+07/06/2026 16:18:47: [API] 200 (135ms)
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:18:47: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:18:47: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/pj/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: [API] 200 (109ms)
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/medida/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: [API] 200 (161ms)
+07/06/2026 16:18:47: [API] 200 (165ms)
+07/06/2026 16:18:47: 
+07/06/2026 16:18:47: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:18:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:47: [API] 200 (173ms)
+07/06/2026 16:18:47: [API] 200 (56ms)
+07/06/2026 16:18:47: [API] 200 (51ms)
+07/06/2026 16:18:47: [API] 200 (218ms)
+07/06/2026 16:18:47: [API] 200 (235ms)
+07/06/2026 16:18:48: 
+07/06/2026 16:18:48: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:18:48: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:48: [API] 304 (53ms)
+07/06/2026 16:18:48: 
+07/06/2026 16:18:48: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:18:48: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:48: [API] 304 (23ms)
+07/06/2026 16:18:57: 
+07/06/2026 16:18:57: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:18:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:57: 
+07/06/2026 16:18:57: [API] GET /api/admin/users?limit=500
+07/06/2026 16:18:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:57: [API] 304 (144ms)
+07/06/2026 16:18:57: 
+07/06/2026 16:18:57: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:18:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:57: [API] 304 (183ms)
+07/06/2026 16:18:57: 
+07/06/2026 16:18:57: [API] GET /api/admin/users?limit=500
+07/06/2026 16:18:57: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:18:57: [API] 304 (141ms)
+07/06/2026 16:18:57: [API] 304 (160ms)
+07/06/2026 16:19:24: 
+07/06/2026 16:19:24: [API] GET /api/config?limit=500
+07/06/2026 16:19:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:24: 
+07/06/2026 16:19:24: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+07/06/2026 16:19:24: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 16:19:24: [DB] Additional Pool initialized for: alfatec2
+07/06/2026 16:19:24: [Tenant] Lazy-loaded pool for: alfatec2
+07/06/2026 16:19:24: 
+07/06/2026 16:19:24: [API] GET /api/config/menu?t=1780859964387&limit=500
+07/06/2026 16:19:24: [API]    QUERY: {"t":"1780859964387","limit":"500"}
+07/06/2026 16:19:25: 
+07/06/2026 16:19:25: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:19:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:26: [API] 304 (1117ms)
+07/06/2026 16:19:26: 
+07/06/2026 16:19:26: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:19:26: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:26: [API] 200 (1926ms)
+07/06/2026 16:19:26: [API] 304 (36ms)
+07/06/2026 16:19:26: [API] 304 (2121ms)
+07/06/2026 16:19:26: 
+07/06/2026 16:19:26: [API] GET /api/config?limit=500
+07/06/2026 16:19:26: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:26: [API] 304 (97ms)
+07/06/2026 16:19:34: 
+07/06/2026 16:19:34: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:19:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:34: 
+07/06/2026 16:19:34: [API] GET /api/admin/users?limit=500
+07/06/2026 16:19:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:34: [API] 304 (171ms)
+07/06/2026 16:19:34: 
+07/06/2026 16:19:34: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:19:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:34: [API] 200 (200ms)
+07/06/2026 16:19:34: 
+07/06/2026 16:19:34: [API] GET /api/admin/users?limit=500
+07/06/2026 16:19:34: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:34: [API] 304 (133ms)
+07/06/2026 16:19:34: [API] 304 (149ms)
+07/06/2026 16:19:45: 
+07/06/2026 16:19:45: [API] POST /api/superadmin/switch-db
+07/06/2026 16:19:45: [API]    BODY: {"dbName":"lynxlocal"}
+07/06/2026 16:19:45: 
+07/06/2026 16:19:45: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+07/06/2026 16:19:45: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 16:19:45: [SuperAdmin] superadmin switched to DB: lynxlocal (Lynx)
+07/06/2026 16:19:45: [API] 200 (76ms)
+07/06/2026 16:19:46: 
+07/06/2026 16:19:46: [API] GET /api/config?limit=500
+07/06/2026 16:19:46: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:46: 
+07/06/2026 16:19:46: [API] GET /api/config/menu?t=1780859986826&limit=500
+07/06/2026 16:19:46: [API]    QUERY: {"t":"1780859986826","limit":"500"}
+07/06/2026 16:19:46: [API] 200 (106ms)
+07/06/2026 16:19:47: [API] 200 (349ms)
+07/06/2026 16:19:47: 
+07/06/2026 16:19:47: [API] GET /api/config?limit=500
+07/06/2026 16:19:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:47: [API] 304 (131ms)
+07/06/2026 16:19:47: 
+07/06/2026 16:19:47: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:19:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:47: [API] 200 (26ms)
+07/06/2026 16:19:47: 
+07/06/2026 16:19:47: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:19:47: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:19:47: [API] 304 (27ms)
+07/06/2026 16:20:06: 
+07/06/2026 16:20:06: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:20:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:06: 
+07/06/2026 16:20:06: [API] GET /api/admin/users?limit=500
+07/06/2026 16:20:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:06: [API] 304 (430ms)
+07/06/2026 16:20:06: [API] 304 (432ms)
+07/06/2026 16:20:06: 
+07/06/2026 16:20:06: [API] GET /api/admin/users?limit=500
+07/06/2026 16:20:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:06: 
+07/06/2026 16:20:06: [API] GET /api/admin/databases?limit=500
+07/06/2026 16:20:06: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:06: [API] 304 (117ms)
+07/06/2026 16:20:06: [API] 304 (150ms)
+07/06/2026 16:20:12: 
+07/06/2026 16:20:12: [API] POST /api/superadmin/switch-db
+07/06/2026 16:20:12: [API]    BODY: {"dbName":"amceletrica"}
+07/06/2026 16:20:12: 
+07/06/2026 16:20:12: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+07/06/2026 16:20:12: [DB] [DEFAULT] 🟢 OK - Rows: 1
+07/06/2026 16:20:12: [DB] Additional Pool initialized for: amceletrica
+07/06/2026 16:20:12: [SuperAdmin] Pool lazy-loaded for switch to: amceletrica
+07/06/2026 16:20:12: [SuperAdmin] superadmin switched to DB: amceletrica (Bruno AMC)
+07/06/2026 16:20:12: [API] 200 (28ms)
+07/06/2026 16:20:13: 
+07/06/2026 16:20:13: [API] GET /api/config?limit=500
+07/06/2026 16:20:13: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:13: 
+07/06/2026 16:20:13: [API] GET /api/config/menu?t=1780860013414&limit=500
+07/06/2026 16:20:13: [API]    QUERY: {"t":"1780860013414","limit":"500"}
+07/06/2026 16:20:14: 
+07/06/2026 16:20:14: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:20:14: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:14: [API] 200 (1054ms)
+07/06/2026 16:20:14: [API] 200 (293ms)
+07/06/2026 16:20:14: 
+07/06/2026 16:20:14: [API] GET /api/dashboard/stats?limit=500
+07/06/2026 16:20:14: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:14: [API] 304 (24ms)
+07/06/2026 16:20:14: [API] 500 (1264ms)
+07/06/2026 16:20:14: 
+07/06/2026 16:20:14: [API] GET /api/config?limit=500
+07/06/2026 16:20:14: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:14: [API] 500 (101ms)
+07/06/2026 16:20:26: 
+07/06/2026 16:20:26: [API] GET /api/familia?limit=500
+07/06/2026 16:20:26: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:26: [API] 200 (52ms)
+07/06/2026 16:20:26: 
+07/06/2026 16:20:26: [API] GET /api/familia?limit=500
+07/06/2026 16:20:26: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:26: [API] 304 (22ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/setores?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/usuarios?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/espessuras?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/materiais?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: [API] 500 (39ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/espessuras?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: [API] 200 (107ms)
+07/06/2026 16:20:32: [API] 500 (65ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/setores?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: [API] 200 (253ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/usuarios?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: [API] 304 (105ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/usuarios?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:32: [API] 304 (34ms)
+07/06/2026 16:20:32: 
+07/06/2026 16:20:32: [API] GET /api/config/usuarios?limit=500
+07/06/2026 16:20:32: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:33: [API] 304 (22ms)
+07/06/2026 16:20:33: [API] 200 (425ms)
+07/06/2026 16:20:33: 
+07/06/2026 16:20:33: [API] GET /api/config/materiais?limit=500
+07/06/2026 16:20:33: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:33: [API] 304 (35ms)
+07/06/2026 16:20:33: [API] 304 (389ms)
+07/06/2026 16:20:33: 
+07/06/2026 16:20:33: [API] GET /api/config/setores?limit=500
+07/06/2026 16:20:33: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:33: [API] 304 (23ms)
+07/06/2026 16:20:33: 
+07/06/2026 16:20:33: [API] GET /api/config/setores?limit=500
+07/06/2026 16:20:33: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:20:33: [API] 304 (28ms)
+07/06/2026 16:20:39: 
+07/06/2026 16:20:39: [API] GET /api/apontamento/mapa/producao?status=pendente&page=1&limit=50
+07/06/2026 16:20:39: [API]    QUERY: {"status":"pendente","page":"1","limit":"50"}
+07/06/2026 16:20:42: [API] 200 (3572ms)
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:21:07: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:21:07: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/pj/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/medida/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: [API] 200 (76ms)
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/medida/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: [API] 200 (94ms)
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/pj/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: [API] 200 (120ms)
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:21:07: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:21:07: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:21:07: [API] 304 (46ms)
+07/06/2026 16:21:07: [API] 304 (55ms)
+07/06/2026 16:21:07: [API] 304 (59ms)
+07/06/2026 16:21:07: [API] 200 (205ms)
+07/06/2026 16:21:07: 
+07/06/2026 16:21:07: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:21:07: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:21:07: [API] 304 (22ms)
+07/06/2026 16:21:36: 
+07/06/2026 16:21:36: [API] GET /api/projeto?projeto=84&finalizado=N&page=1&limit=80
+07/06/2026 16:21:36: [API]    QUERY: {"projeto":"84","finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:21:36: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.Projeto LIKE ? | params: [ '%84%' ] | finalizado: N
+07/06/2026 16:21:36: [API] 200 (65ms)
+07/06/2026 16:21:42: 
+07/06/2026 16:21:42: [API] GET /api/projeto?projeto=85&finalizado=N&page=1&limit=80
+07/06/2026 16:21:42: [API]    QUERY: {"projeto":"85","finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:21:42: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.Projeto LIKE ? | params: [ '%85%' ] | finalizado: N
+07/06/2026 16:21:42: [API] 200 (55ms)
+07/06/2026 16:22:15: 
+07/06/2026 16:22:15: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:22:15: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:22:15: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:22:15: [API] 304 (76ms)
+07/06/2026 16:23:00: 
+07/06/2026 16:23:00: [API] GET /api/acompanhamento-etapas?limit=500
+07/06/2026 16:23:00: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:00: [API] 200 (181ms)
+07/06/2026 16:23:00: 
+07/06/2026 16:23:00: [API] GET /api/acompanhamento-etapas?limit=500
+07/06/2026 16:23:00: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:00: [API] 304 (212ms)
+07/06/2026 16:23:24: 
+07/06/2026 16:23:24: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:23:24: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:23:24: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:23:24: 
+07/06/2026 16:23:24: [API] GET /api/pj/options?limit=500
+07/06/2026 16:23:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:24: 
+07/06/2026 16:23:24: [API] GET /api/medida/options?limit=500
+07/06/2026 16:23:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:24: 
+07/06/2026 16:23:24: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:23:24: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:24: [API] 304 (126ms)
+07/06/2026 16:23:24: 
+07/06/2026 16:23:24: [API] GET /api/projeto?finalizado=N&page=1&limit=80
+07/06/2026 16:23:24: [API]    QUERY: {"finalizado":"N","page":"1","limit":"80"}
+07/06/2026 16:23:24: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') | params: [] | finalizado: N
+07/06/2026 16:23:24: [API] 304 (39ms)
+07/06/2026 16:23:25: [API] 304 (1299ms)
+07/06/2026 16:23:25: 
+07/06/2026 16:23:25: [API] GET /api/pj/options?limit=500
+07/06/2026 16:23:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:25: [API] 304 (1312ms)
+07/06/2026 16:23:25: [API] 304 (1317ms)
+07/06/2026 16:23:25: 
+07/06/2026 16:23:25: [API] GET /api/tipoproduto/options?limit=500
+07/06/2026 16:23:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:25: 
+07/06/2026 16:23:25: [API] GET /api/medida/options?limit=500
+07/06/2026 16:23:25: [API]    QUERY: {"limit":"500"}
+07/06/2026 16:23:25: [API] 304 (25ms)
+07/06/2026 16:23:25: [API] 304 (51ms)
+07/06/2026 16:23:25: [API] 304 (51ms)
+07/06/2026 16:25:02: 
+07/06/2026 16:25:02: [API] GET /api/projeto?finalizado=N&statusProj=AT&page=1&limit=80
+07/06/2026 16:25:02: [API]    QUERY: {"finalizado":"N","statusProj":"AT","page":"1","limit":"80"}
+07/06/2026 16:25:02: [API /projeto] WHERE: WHERE (p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '') AND (p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C') AND p.StatusProj = ? | params: [ 'AT' ] | finalizado: N
+07/06/2026 16:25:02: [API] 200 (55ms)

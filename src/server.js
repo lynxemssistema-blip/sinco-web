@@ -1979,7 +1979,7 @@ app.get('/api/superadmin/bancos-ativos', async (req, res) => {
         if (!req.tenantUser?.isSuperadmin) {
             return res.status(403).json({ success: false, message: 'Acesso restrito a SuperAdmins.' });
         }
-        const [rows] = await db.executeOnDefault(
+        const [rows] = await pool.executeOnDefault(
             'SELECT id, nome_cliente, db_name, db_host, ativo FROM conexoes_bancos WHERE ativo = 1 ORDER BY nome_cliente ASC'
         );
         res.json({ success: true, data: rows });
@@ -2002,7 +2002,7 @@ app.post('/api/superadmin/switch-db', async (req, res) => {
         }
 
         // Validate that the target DB exists and is active
-        const [rows] = await db.executeOnDefault(
+        const [rows] = await pool.executeOnDefault(
             'SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1',
             [dbName]
         );
@@ -2014,8 +2014,8 @@ app.post('/api/superadmin/switch-db', async (req, res) => {
         const banco = rows[0];
 
         // Ensure pool exists for target DB
-        if (!db.hasPool(dbName)) {
-            db.initPool({
+        if (!pool.hasPool(dbName)) {
+            pool.initPool({
                 host: banco.db_host,
                 user: banco.db_user,
                 password: banco.db_pass,
@@ -3666,89 +3666,135 @@ app.get('/api/projeto', async (req, res) => {
         const {
             dataInicio, dataFim, projeto, descProjeto, descEmpresa,
             previsaoInicio, previsaoFim, criacaoInicio, criacaoFim,
-            finalizado, liberado, cnpj
+            finalizado, liberado, cnpj, statusProj
         } = req.query;
 
         let queryParams = [];
 
         // Filtro base: excluir deletados
-        let whereClause = "WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')";
+        // ─── WHERE com prefixo p. direto (sem regex) ─────────────────────
+        let conditions = [];
+
+        // Excluir deletados
+        conditions.push("(p.D_E_L_E_T_E IS NULL OR p.D_E_L_E_T_E = '')");
 
         // Filtro de Liberado (S/N)
         if (liberado) {
-            whereClause += " AND LIBERADO = ?";
+            conditions.push("p.liberado = ?");
             queryParams.push(liberado);
         }
 
-        // Filtro de finalizado:
-        //   undefined  → param não enviado → padrão: apenas não finalizados
-        //   'N'        → apenas não finalizados
-        //   'C'        → apenas finalizados
-        //   ''         → todos (sem filtro de finalizado)
+        // Filtro de Condição (finalizado):
+        //   'C'  → apenas finalizados
+        //   'N'  → apenas não finalizados (padrão)
+        //   ''   → todos
         if (finalizado === 'C') {
-            whereClause += " AND Finalizado = 'C'";
-        } else if (finalizado === '') {
-            // Todos: sem restrição de finalizado
+            conditions.push("p.Finalizado = 'C'");
+        } else if (finalizado === '' || finalizado === 'T') {
+            // Todos: sem restrição
         } else {
             // 'N' ou não enviado: apenas não finalizados
-            whereClause += " AND (Finalizado IS NULL OR Finalizado = '' OR COALESCE(Finalizado,'') != 'C')";
+            conditions.push("(p.Finalizado IS NULL OR p.Finalizado = '' OR COALESCE(p.Finalizado,'') <> 'C')");
         }
 
-        // Data previsão (aceita tanto previsaoInicio quanto dataInicio por compatibilidade)
+        // Filtro de StatusProj
+        if (statusProj && statusProj !== 'todos') {
+            conditions.push("p.StatusProj = ?");
+            queryParams.push(statusProj);
+        }
+
+        // Datas de previsão
         const prevIni = previsaoInicio || dataInicio;
         const prevFim = previsaoFim || dataFim;
         if (prevIni) {
-            whereClause += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')";
+            conditions.push("STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')");
             queryParams.push(prevIni);
         }
         if (prevFim) {
-            whereClause += " AND STR_TO_DATE(DataPrevisao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')";
+            conditions.push("STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')");
             queryParams.push(prevFim);
         }
 
-        // Data criação
+        // Datas de criação
         if (criacaoInicio) {
-            whereClause += " AND STR_TO_DATE(DataCriacao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')";
+            conditions.push("STR_TO_DATE(p.DataCriacao, '%d/%m/%Y') >= STR_TO_DATE(?, '%d/%m/%Y')");
             queryParams.push(criacaoInicio);
         }
         if (criacaoFim) {
-            whereClause += " AND STR_TO_DATE(DataCriacao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')";
+            conditions.push("STR_TO_DATE(p.DataCriacao, '%d/%m/%Y') <= STR_TO_DATE(?, '%d/%m/%Y')");
             queryParams.push(criacaoFim);
         }
 
+        // Textos
         if (projeto) {
-            whereClause += " AND Projeto LIKE ?";
+            conditions.push("p.Projeto LIKE ?");
             queryParams.push(`%${projeto}%`);
         }
         if (descProjeto) {
-            whereClause += " AND DescProjeto LIKE ?";
+            conditions.push("p.DescProjeto LIKE ?");
             queryParams.push(`%${descProjeto}%`);
         }
         if (descEmpresa) {
-            whereClause += " AND DescEmpresa LIKE ?";
+            conditions.push("p.DescEmpresa LIKE ?");
             queryParams.push(`%${descEmpresa}%`);
         }
         if (cnpj) {
-            whereClause += " AND Cnpj LIKE ?";
+            conditions.push("p.Cnpj LIKE ?");
             queryParams.push(`%${cnpj}%`);
         }
 
+        const whereClause = 'WHERE ' + conditions.join(' AND ');
+        console.log('[API /projeto] WHERE:', whereClause, '| params:', queryParams, '| finalizado:', finalizado);
+
+        // Paginação: page e limit via query string (padrão 100, máx 300)
+        const page  = Math.max(1, parseInt(req.query.page)  || 1);
+        const limit = Math.min(300, parseInt(req.query.limit) || 100);
+        const offset = (page - 1) * limit;
+
+        // LEFT JOIN agregado → executa UMA consulta para todos apontamentos
         const sql = `
-            SELECT p.*,
-                (SELECT COUNT(*) FROM ordemservicoitemcontrole c
-                 INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
-                 INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
-                 WHERE os.IdProjeto = p.IdProjeto
-                   AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')
-                ) AS temApontamento
+            SELECT
+                p.IdProjeto, p.Projeto, p.DescProjeto,
+                p.ClienteProjeto, p.DescEmpresa, p.Cnpj,
+                p.DataPrevisao, p.DataCriacao, p.PrazoEntrega,
+                p.StatusProj, p.DescStatus,
+                p.liberado, p.DataLiberacao,
+                p.Finalizado, p.DataFinalizado, p.UsuarioFinalizado,
+                p.ValorFabricacao, p.ValorRevenda, p.TotalProjeto,
+                p.CriadoPor, p.IdEmpresa, p.EnderecoProjeto, p.Observacao,
+                p.D_E_L_E_T_E,
+                COALESCE(ap.qtd, 0) AS temApontamento
             FROM projetos p
-            ${whereClause.replace(/\b(D_E_L_E_T_E|Finalizado|DataPrevisao|DataCriacao|Projeto|DescProjeto|DescEmpresa)\b/g, 'p.$1')}
+            LEFT JOIN (
+                SELECT os2.IdProjeto, COUNT(c2.IdOrdemServicoItemControle) AS qtd
+                FROM ordemservicoitemcontrole c2
+                INNER JOIN ordemservicoitem oi2 ON oi2.IdOrdemServicoItem = c2.IdOrdemServicoItem
+                INNER JOIN ordemservico os2     ON os2.IdOrdemServico     = oi2.IdOrdemServico
+                WHERE (c2.D_E_L_E_T_E IS NULL OR c2.D_E_L_E_T_E <> '*')
+                GROUP BY os2.IdProjeto
+            ) ap ON ap.IdProjeto = p.IdProjeto
+            ${whereClause}
             ORDER BY p.IdProjeto DESC
-            LIMIT 300
+            LIMIT ${limit} OFFSET ${offset}
         `;
 
-        const [rows] = await pool.execute(sql, queryParams);
-        res.json({ success: true, data: rows });
+        const countSql = `
+            SELECT COUNT(*) AS total FROM projetos p
+            ${whereClause}
+        `;
+
+        const [[rows], [countResult]] = await Promise.all([
+            pool.execute(sql, queryParams),
+            pool.execute(countSql, queryParams)
+        ]);
+
+        res.json({
+            success: true,
+            data: rows,
+            total: Number(countResult[0].total),
+            page,
+            limit
+        });
     } catch (error) {
         console.error('Error fetching projetos list:', error);
         res.status(500).json({ success: false, message: 'Erro ao listar projetos' });
@@ -4016,7 +4062,9 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
         // Condições base de exclusão
         const condicoes = [`COALESCE(p.D_E_L_E_T_E,'') = ''`];
 
-        if (status) {
+        if (status === 'todos' || status === '') {
+            // Todos: inclui StatusProj em branco ou NULL sem filtro
+        } else if (status) {
             condicoes.push(`p.StatusProj = ${pool.escape(status)}`);
         }
 
@@ -5215,7 +5263,9 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
         await pool.execute(
             `UPDATE projetos SET 
                 liberado = 'S', 
-                DataLiberacao = ?
+                DataLiberacao = ?,
+                StatusProj = 'AT',
+                DescStatus = 'Ativo'
             WHERE IdProjeto = ?`,
             [now, req.params.id]
         );
@@ -5226,6 +5276,110 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro ao liberar o projeto.' });
     }
 });
+
+// ALTERAR STATUS DO PROJETO (Parar / Cancelar / Reativar)
+// PATCH /api/projeto/:id/status
+// Body: { status: 'PA'|'CA'|'AT', confirmar: true, usuario: 'Nome' }
+app.patch('/api/projeto/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, confirmar, usuario } = req.body;
+
+        if (!['PA', 'CA', 'AT'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'Status invalido. Use AT, PA ou CA.' });
+        }
+
+        const [apontRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM ordemservicoitemcontrole c
+             INNER JOIN ordemservicoitem oi ON oi.IdOrdemServicoItem = c.IdOrdemServicoItem
+             INNER JOIN ordemservico os ON os.IdOrdemServico = oi.IdOrdemServico
+             WHERE os.IdProjeto = ?
+               AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E <> '*')`, [id]
+        );
+        const qtdApontamentos = Number(apontRows[0].count);
+
+        if (qtdApontamentos > 0 && !confirmar && status !== 'AT') {
+            return res.status(200).json({
+                success: false,
+                requiresConfirmation: true,
+                qtdApontamentos,
+                message: 'ATENCAO: Este projeto possui ' + qtdApontamentos + ' apontamento(s) de producao registrado(s). Ao ' + (status === 'CA' ? 'cancelar' : 'parar') + ' o projeto, toda a cadeia abaixo (Tags, Ordens de Servico) tambem sera atualizada. Esta acao ficara registrada com seu nome. Deseja realmente prosseguir?'
+            });
+        }
+
+        if (qtdApontamentos > 0 && confirmar && (!usuario || usuario.trim() === '')) {
+            return res.status(400).json({ success: false, message: 'E obrigatorio informar o nome do usuario responsavel pela autorizacao.' });
+        }
+
+        const now = getCurrentDateTimeBR();
+        const nomeUsuario = (usuario || 'Sistema').trim();
+        const descStatus = status === 'CA' ? 'Cancelado' : status === 'PA' ? 'Parado' : 'Ativo';
+        const descStatusFinal = (status !== 'AT' && qtdApontamentos > 0)
+            ? (descStatus + ' | ' + nomeUsuario + ' | ' + now)
+            : descStatus;
+
+        if (status === 'AT') {
+            await pool.execute(
+                `UPDATE projetos SET StatusProj = 'AT', DescStatus = 'Ativo', liberado = 'S', DataLiberacao = ? WHERE IdProjeto = ?`,
+                [now, id]
+            );
+        } else {
+            await pool.execute(
+                `UPDATE projetos SET StatusProj = ?, DescStatus = ? WHERE IdProjeto = ?`,
+                [status, descStatusFinal, id]
+            );
+        }
+
+        // ─── Cascata: Tags ───────────────────────────────────────────────────
+        // StatusTag: 1=Ativo, 2=Cancelado, 3=Parado
+        const tagStatus     = status === 'CA' ? 2 : status === 'PA' ? 3 : 1;
+        const tagDescStatus = descStatus; // 'Cancelado' | 'Parado' | 'Ativo'
+
+        // ─── Cascata: Ordens de Serviço ───────────────────────────────────────
+        // Estatus é varchar(45) — mapear para valores legíveis
+        const osEstatusMap = { CA: 'Cancelado', PA: 'Parado', AT: 'Ativo' };
+        const osEstatus = osEstatusMap[status] ?? 'Ativo';
+
+        await Promise.all([
+            // Atualiza Tags
+            pool.execute(
+                `UPDATE tags
+                 SET StatusTag = ?, DescStatus = ?
+                 WHERE IdProjeto = ?
+                   AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [tagStatus, tagDescStatus, id]
+            ),
+            // Atualiza Ordens de Serviço (campo correto: Estatus)
+            pool.execute(
+                `UPDATE ordemservico
+                 SET Estatus = ?
+                 WHERE IdProjeto = ?
+                   AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')`,
+                [osEstatus, id]
+            ),
+        ]);
+
+        const [[tagsAtualizadas]] = await pool.execute(
+            `SELECT COUNT(*) AS cnt FROM tags WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`, [id]
+        );
+        const [[osAtualizadas]] = await pool.execute(
+            `SELECT COUNT(*) AS cnt FROM ordemservico WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')`, [id]
+        );
+
+        console.log(`[API /projeto/${id}/status] ${status} → Tags: ${tagsAtualizadas.cnt} | OS: ${osAtualizadas.cnt}`);
+
+        res.json({
+            success: true,
+            message: `Projeto ${descStatus.toLowerCase()} com sucesso. Cadeia atualizada: ${tagsAtualizadas.cnt} Tag(s) e ${osAtualizadas.cnt} Ordem(ns) de Serviço.`
+                + (qtdApontamentos > 0 ? ` Autorizado por: ${nomeUsuario}.` : '')
+        });
+    } catch (error) {
+        console.error('Error updating project status:', error);
+        res.status(500).json({ success: false, message: 'Erro ao alterar status: ' + error.message });
+    }
+});
+
+
 
 app.post('/api/projeto/:id/cancelar-liberacao', async (req, res) => {
     try {
@@ -8714,6 +8868,37 @@ app.get('/test-db', async (req, res) => {
 // Login
 
 
+// Helper: retorna um pool conectado ao banco lynxlocal (template de configurações)
+// Usado como fallback quando o banco ativo ainda não tem configuração própria.
+let _lynxLocalPool = null;
+const getLynxLocalPool = async () => {
+    // Primeiro tenta pelo pool já registrado pelo nome 'lynxlocal'
+    const byName = pool.getPoolByName ? pool.getPoolByName('lynxlocal') : null;
+    if (byName) return byName;
+
+    // Cria pool temporário para leitura se necessário
+    if (!_lynxLocalPool) {
+        try {
+            const baseConfig = pool.getConfig ? pool.getConfig() : {};
+            _lynxLocalPool = require('mysql2/promise').createPool({
+                host:     process.env.CENTRAL_DB_HOST || baseConfig.host || 'lynxlocal.mysql.uhserver.com',
+                user:     process.env.CENTRAL_DB_USER || baseConfig.user || 'lynxlocal',
+                password: process.env.CENTRAL_DB_PASS || process.env.DB_PASSWORD || baseConfig.password || '',
+                database: 'lynxlocal',
+                port:     process.env.CENTRAL_DB_PORT || 3306,
+                charset:  'utf8mb4',
+                connectionLimit: 3,
+                waitForConnections: true
+            });
+            console.log('[getLynxLocalPool] Pool lynxlocal criado como template de configurações.');
+        } catch (e) {
+            console.warn('[getLynxLocalPool] Falha ao criar pool lynxlocal:', e.message);
+            return null;
+        }
+    }
+    return _lynxLocalPool;
+};
+
 // Configuração - Função de auto-migração de schema para qualquer banco tenant
 async function ensureConfigColumns(poolRef) {
     const REQUIRED_COLS = [
@@ -8773,36 +8958,73 @@ async function ensureConfigColumns(poolRef) {
 }
 
 // GET /api/config - Funciona em QUALQUER banco ativo
+// COPY-ON-FIRST-READ: Se o banco ativo não tiver config própria, retorna a do lynxlocal como template.
+// O vínculo é quebrado na primeira escrita (PUT /api/config ou POST /api/config/menu).
 app.get('/api/config', tenantMiddleware, async (req, res) => {
     try {
         await ensureConfigColumns(pool);
 
-        const [rows] = await pool.execute(
-            `SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC,
-                    MaxRegistros, MenuStructure, PermitirRealizadoSemPlanejamento
-             FROM configuracaosistema LIMIT 1`
-        );
+        // Verifica se o tenant JÁ tem configuração própria (ao menos 1 linha com algum dado salvo)
+        const [countRows] = await pool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
+        const tenantHasOwnConfig = countRows[0].cnt > 0;
 
-        if (rows.length > 0) {
-            const row = rows[0];
-            if (row.ProcessosVisiveis) {
-                try {
-                    const saved = JSON.parse(row.ProcessosVisiveis);
-                    const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
-                    const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
-                    row.ProcessosVisiveis = JSON.stringify(merged);
-                } catch (e) {}
+        if (tenantHasOwnConfig) {
+            // Banco ativo tem configuração própria: usa ela diretamente
+            const [rows] = await pool.execute(
+                `SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC,
+                        MaxRegistros, MenuStructure, PermitirRealizadoSemPlanejamento
+                 FROM configuracaosistema LIMIT 1`
+            );
+            if (rows.length > 0) {
+                const row = rows[0];
+                if (row.ProcessosVisiveis) {
+                    try {
+                        const saved = JSON.parse(row.ProcessosVisiveis);
+                        const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
+                        const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
+                        row.ProcessosVisiveis = JSON.stringify(merged);
+                    } catch (e) {}
+                }
+                return res.json({ success: true, config: row, source: 'local' });
             }
-            return res.json({ success: true, config: row });
         }
 
+        // Banco ativo ainda não tem config própria: tenta buscar do lynxlocal como template
+        try {
+            const lynxPool = await getLynxLocalPool();
+            if (lynxPool) {
+                await ensureConfigColumns(lynxPool);
+                const [lynxRows] = await lynxPool.execute(
+                    `SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC,
+                            MaxRegistros, MenuStructure, PermitirRealizadoSemPlanejamento
+                     FROM configuracaosistema LIMIT 1`
+                );
+                if (lynxRows.length > 0) {
+                    const row = lynxRows[0];
+                    if (row.ProcessosVisiveis) {
+                        try {
+                            const saved = JSON.parse(row.ProcessosVisiveis);
+                            const engSetores = ['medicao','isometrico','engenharia','aprovacao','acabamento','expedicao'];
+                            const merged = [...new Set([...saved, ...engSetores.filter(s => !saved.includes(s))])];
+                            row.ProcessosVisiveis = JSON.stringify(merged);
+                        } catch (e) {}
+                    }
+                    console.log('[Config GET] Banco ativo sem config própria. Retornando config do lynxlocal como template.');
+                    return res.json({ success: true, config: row, source: 'lynxlocal_template' });
+                }
+            }
+        } catch (lynxErr) {
+            console.warn('[Config GET] Não foi possível buscar template do lynxlocal:', lynxErr.message);
+        }
+
+        // Fallback final: valores padrão hardcoded
         res.json({ success: true, config: {
             RestringirApontamentoSemSaldoAnterior: 'Não',
             ProcessosVisiveis: JSON.stringify(['corte','dobra','solda','pintura','montagem','medicao','isometrico','engenharia','aprovacao','acabamento','expedicao']),
             PlanoCorteFiltroDC: 'corte',
             MaxRegistros: 500,
             PermitirRealizadoSemPlanejamento: 'Sim'
-        }});
+        }, source: 'default' });
     } catch (error) {
         console.error('[Config GET] Erro:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar configurações' });
@@ -9278,20 +9500,48 @@ app.post('/api/producao/reposicao', async (req, res) => {
 // ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o - UPDATE
 // MENU CONFIGURATION
 // GET Menu Structure
+// COPY-ON-FIRST-READ: Se o banco ativo não tiver menu próprio, retorna o menu do lynxlocal como template.
+// Qualquer escrita (POST /api/config/menu) salva localmente e quebra o vínculo com lynxlocal.
 app.get('/api/config/menu', async (req, res) => {
     try {
-        const [rows] = await pool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
-        if (rows.length > 0 && rows[0].MenuStructure) {
-            // Check if string is valid JSON
-            try {
-                const menu = JSON.parse(rows[0].MenuStructure);
-                res.json({ success: true, menu });
-            } catch (e) {
-                res.json({ success: true, menu: null });
+        // Verifica se o banco ativo já tem configuração própria (ao menos 1 linha)
+        const [countRows] = await pool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
+        const tenantHasOwnConfig = countRows[0].cnt > 0;
+
+        if (tenantHasOwnConfig) {
+            // Banco ativo tem linha própria: usa o MenuStructure local
+            const [rows] = await pool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
+            if (rows.length > 0 && rows[0].MenuStructure) {
+                try {
+                    const menu = JSON.parse(rows[0].MenuStructure);
+                    return res.json({ success: true, menu, source: 'local' });
+                } catch (e) {
+                    return res.json({ success: true, menu: null, source: 'local' });
+                }
             }
-        } else {
-            res.json({ success: true, menu: null }); // Frontend uses default
+            // Tem linha mas sem MenuStructure: usa default do frontend
+            return res.json({ success: true, menu: null, source: 'local' });
         }
+
+        // Banco ativo não tem config própria: tenta buscar menu do lynxlocal como template
+        try {
+            const lynxPool = await getLynxLocalPool();
+            if (lynxPool) {
+                const [lynxRows] = await lynxPool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
+                if (lynxRows.length > 0 && lynxRows[0].MenuStructure) {
+                    try {
+                        const menu = JSON.parse(lynxRows[0].MenuStructure);
+                        console.log('[Config/Menu GET] Retornando menu do lynxlocal como template para banco sem config própria.');
+                        return res.json({ success: true, menu, source: 'lynxlocal_template' });
+                    } catch (e) {}
+                }
+            }
+        } catch (lynxErr) {
+            console.warn('[Config/Menu GET] Não foi possível buscar menu template do lynxlocal:', lynxErr.message);
+        }
+
+        // Sem template: frontend usa o menu padrão
+        res.json({ success: true, menu: null, source: 'default' });
     } catch (error) {
         console.error('Menu fetch error:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar menu' });
@@ -9300,9 +9550,11 @@ app.get('/api/config/menu', async (req, res) => {
 
 
 // SAVE Menu Structure
+// Esta escrita quebra o vínculo com o lynxlocal permanentemente para este banco.
 app.post('/api/config/menu', async (req, res) => {
     const { menu } = req.body;
     try {
+        await ensureConfigColumns(pool);
         const menuJson = JSON.stringify(menu);
         const [rows] = await pool.execute('SELECT id FROM configuracaosistema LIMIT 1');
         if (rows.length > 0) {
@@ -9310,6 +9562,7 @@ app.post('/api/config/menu', async (req, res) => {
         } else {
             await pool.execute('INSERT INTO configuracaosistema (MenuStructure) VALUES (?)', [menuJson]);
         }
+        console.log('[Config/Menu POST] Menu salvo localmente. Banco agora tem config própria.');
         res.json({ success: true });
     } catch (error) {
         console.error('Menu save error:', error);

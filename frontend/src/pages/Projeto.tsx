@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, Edit2, Trash2, X, FolderKanban, Save,
     Loader2, RefreshCw, Calendar, Tag as TagIcon, ChevronRight, ChevronDown, FolderOpen, CheckCircle2, RotateCcw,
-    Building2, Truck, Banknote
+    Building2, Truck, Banknote, Ban, Pause, Play
 , Filter} from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
+import { useAuth } from '../contexts/AuthContext';
 
 import { formatToBRDate, isDateInPast } from '../utils/dateUtils';
 
@@ -163,16 +164,31 @@ export default function ProjetoPage() {
         criacaoFim: '',
         previsaoInicio: '',
         previsaoFim: '',
-        finalizado: 'N'
+        finalizado: 'N',
+        statusProj: '',
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const PAGE_LIMIT = 80;
 
     // Options for dropdowns
     const [clienteOptions, setClienteOptions] = useState<Option[]>([]);
     const [medidaOptions, setMedidaOptions] = useState<Option[]>([]);
     const [tipoProdutoOptions, setTipoProdutoOptions] = useState<Option[]>([]);
+
+    // Modal de confirmação para Parar/Cancelar projeto
+    const [confirmModal, setConfirmModal] = useState<{
+        open: boolean;
+        projetoId: number | null;
+        status: 'PA' | 'CA' | 'AT' | null;
+        message: string;
+        requiresConfirmation: boolean;
+    }>({ open: false, projetoId: null, status: null, message: '', requiresConfirmation: false });
+    const [confirmUsuario, setConfirmUsuario] = useState<string>('');
 
     // Fetch dropdown options
     const fetchOptions = async () => {
@@ -192,8 +208,9 @@ export default function ProjetoPage() {
     };
 
     // Fetch Projetos
-    const fetchProjetos = async (overrideFilters?: any) => {
-        setLoading(true);
+    const fetchProjetos = async (overrideFilters?: any, page = 1, append = false) => {
+        if (append) setLoadingMore(true);
+        else { setLoading(true); setCurrentPage(1); }
         setError(null);
         try {
             const activeFilters = overrideFilters || searchFilters;
@@ -220,12 +237,17 @@ export default function ProjetoPage() {
             }
             // Sempre envia finalizado: '' = todos, 'N' = não finalizados, 'C' = finalizados
             params.append('finalizado', activeFilters.finalizado ?? 'N');
+            if (activeFilters.statusProj) params.append('statusProj', activeFilters.statusProj);
 
+            params.append('page',  String(page));
+            params.append('limit', String(PAGE_LIMIT));
             const qs = params.toString();
             const res = await fetch(`${API_BASE}/projeto${qs ? `?${qs}` : ''}`);
             const json = await res.json();
             if (json.success) {
-                setProjetos(json.data);
+                setProjetos(prev => append ? [...prev, ...json.data] : json.data);
+                setTotalCount(json.total ?? json.data.length);
+                setCurrentPage(page);
             } else {
                 showAlert(json.message || 'Erro ao carregar dados', "error");
             }
@@ -233,6 +255,7 @@ export default function ProjetoPage() {
             showAlert('Erro de conexão com o servidor.', "error");
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
 
@@ -515,6 +538,61 @@ export default function ProjetoPage() {
         setShowProjetoForm(false);
     };
 
+    // === PARAR / CANCELAR / REATIVAR PROJETO ===
+    const { user } = useAuth();
+
+    // Abre o modal de confirmação SEMPRE antes de alterar o status
+    const handleAlterarStatus = async (projetoId: number, status: 'PA' | 'CA' | 'AT', confirmar = false, usuario?: string) => {
+        // Se ainda não confirmou → abre o modal de confirmação
+        if (!confirmar) {
+            const msgMap: Record<string, string> = {
+                CA: 'Tem certeza que deseja CANCELAR este projeto? Toda a cadeia (Tags e Ordens de Serviço) também será cancelada.',
+                PA: 'Tem certeza que deseja PARAR este projeto? Toda a cadeia (Tags e Ordens de Serviço) também será atualizada.',
+                AT: 'Tem certeza que deseja REATIVAR este projeto? Toda a cadeia abaixo (Tags e Ordens de Serviço) também será reativada.',
+            };
+            setConfirmUsuario(user?.nome || '');
+            setConfirmModal({
+                open: true,
+                projetoId,
+                status,
+                message: msgMap[status] ?? 'Confirme a operação.',
+                requiresConfirmation: false,
+            });
+            return;
+        }
+
+        // Confirmado → executa no backend
+        try {
+            const res = await fetch(`${API_BASE}/projeto/${projetoId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, confirmar: true, usuario: usuario || user?.nome || '' }),
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                showAlert(json.message, 'success');
+                setConfirmModal({ open: false, projetoId: null, status: null, message: '', requiresConfirmation: false });
+                setConfirmUsuario('');
+                fetchProjetos();
+            } else {
+                showAlert(json.message || 'Erro ao alterar status.', 'error');
+            }
+        } catch (err) {
+            showAlert('Erro de conexão ao alterar status.', 'error');
+        }
+    };
+
+    const handleConfirmarStatusModal = () => {
+        if (confirmModal.projetoId && confirmModal.status) {
+            if (!confirmUsuario.trim()) {
+                showAlert('Informe seu nome para autorizar esta operação.', 'error');
+                return;
+            }
+            handleAlterarStatus(confirmModal.projetoId, confirmModal.status as 'PA' | 'CA' | 'AT', true, confirmUsuario);
+        }
+    };
+
     // === TAG HANDLERS ===
     const openTagForm = (projeto: Projeto) => {
         setSelectedProjetoForTag(projeto);
@@ -623,11 +701,27 @@ export default function ProjetoPage() {
     };
 
     const getStatusColor = (status?: string) => {
-        switch (status) {
+        const s = (status ?? '').trim();
+        switch (s) {
             case 'FN': return 'bg-green-100 text-green-700';
             case 'CA': return 'bg-red-100 text-red-700';
             case 'PA': return 'bg-yellow-100 text-yellow-700';
-            default: return 'bg-[#E0E800]/40 text-[#32423D]';
+            case 'AT': return 'bg-emerald-100 text-emerald-700';
+            default:   return 'bg-gray-100 text-gray-500'; // Inicial — sem status definido
+        }
+    };
+
+    const getStatusLabel = (status?: string, descStatus?: string) => {
+        const s = (status ?? '').trim();
+        // Se não há status definido → 'Inicial'
+        if (!s) return 'Inicial';
+        // Se há descrição customizada (DescStatus) e o status é conhecido, usa a desc apenas para AT/PA/CA
+        switch (s) {
+            case 'AT': return 'Ativo';
+            case 'PA': return 'Parado';
+            case 'CA': return 'Cancelado';
+            case 'FN': return 'Finalizado';
+            default:   return descStatus || 'Inicial';
         }
     };
 
@@ -642,6 +736,93 @@ export default function ProjetoPage() {
                 >
                     {error}
                 </motion.div>
+            )}
+
+            {/* Modal de Confirmação — Cancelar / Parar / Reativar Projeto */}
+            {confirmModal.open && createPortal(
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.92 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
+                    >
+                        {/* Header */}
+                        {(() => {
+                            const cfg = {
+                                CA: { bg: 'bg-red-50 border-red-100',    icon: 'bg-red-100 text-red-600',     Icon: Ban,       label: 'Cancelar Projeto',  btnCls: 'bg-red-600 hover:bg-red-700'    },
+                                PA: { bg: 'bg-yellow-50 border-yellow-100', icon: 'bg-yellow-100 text-yellow-600', Icon: Pause, label: 'Parar Projeto',    btnCls: 'bg-yellow-500 hover:bg-yellow-600' },
+                                AT: { bg: 'bg-emerald-50 border-emerald-100', icon: 'bg-emerald-100 text-emerald-600', Icon: Play, label: 'Reativar Projeto', btnCls: 'bg-emerald-600 hover:bg-emerald-700' },
+                            }[confirmModal.status ?? 'CA'] ?? { bg: 'bg-gray-50 border-gray-100', icon: 'bg-gray-100 text-gray-600', Icon: Pause, label: 'Confirmar', btnCls: 'bg-gray-600' };
+                            return (
+                                <>
+                                    <div className={`px-6 py-4 flex items-center gap-3 border-b ${cfg.bg}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cfg.icon}`}>
+                                            <cfg.Icon size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-gray-800 text-sm">{cfg.label}</h3>
+                                            <p className="text-xs text-gray-500">Esta ação afetará toda a cadeia do projeto</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Body */}
+                                    <div className="px-6 py-5">
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                                            <p className="text-sm text-amber-800 font-medium leading-relaxed">
+                                                {confirmModal.message}
+                                            </p>
+                                        </div>
+                                        <p className="text-sm text-gray-600 leading-relaxed">Os seguintes registros também serão atualizados:</p>
+                                        <ul className="mt-2 space-y-1">
+                                            <li className="text-xs text-gray-500 flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
+                                                Todas as <strong>Tags</strong> vinculadas ao projeto
+                                            </li>
+                                            <li className="text-xs text-gray-500 flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
+                                                Todas as <strong>Ordens de Serviço</strong> vinculadas ao projeto
+                                            </li>
+                                        </ul>
+                                        {/* Campo obrigatório: nome do usuário autorizador */}
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                                👤 Seu nome <span className="text-red-500">*</span>
+                                                <span className="text-gray-400 font-normal ml-1">(obrigatório para registrar a operação)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={confirmUsuario}
+                                                onChange={e => setConfirmUsuario(e.target.value)}
+                                                onKeyDown={e => e.key === 'Enter' && confirmUsuario.trim() && handleConfirmarStatusModal()}
+                                                placeholder="Digite seu nome completo..."
+                                                className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 border-gray-200 focus:border-amber-400 focus:ring-amber-100"
+                                                autoFocus
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="px-6 pb-5 flex justify-end gap-3">
+                                        <button
+                                            onClick={() => { setConfirmModal({ open: false, projetoId: null, status: null, message: '', requiresConfirmation: false }); setConfirmUsuario(''); }}
+                                            className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={handleConfirmarStatusModal}
+                                            disabled={!confirmUsuario.trim()}
+                                            className={`px-5 py-2 rounded-lg text-white text-sm font-bold transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${cfg.btnCls}`}
+                                        >
+                                            ✓ Confirmar — {cfg.label}
+                                        </button>
+                                    </div>
+                                </>
+                            );
+                        })()}
+                    </motion.div>
+                </div>,
+                document.body
             )}
 
             {/* Page Header */}
@@ -728,7 +909,7 @@ export default function ProjetoPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Finalizado:</label>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Condição do Projeto:</label>
                         <select
                             value={searchFilters.finalizado}
                             onChange={(e) => setSearchFilters(prev => ({ ...prev, finalizado: e.target.value }))}
@@ -737,6 +918,19 @@ export default function ProjetoPage() {
                             <option value="">— Todos —</option>
                             <option value="N">Não Finalizados</option>
                             <option value="C">Finalizados</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Status do Projeto:</label>
+                        <select
+                            value={searchFilters.statusProj}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, statusProj: e.target.value }))}
+                            className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] rounded-sm appearance-none"
+                        >
+                            <option value="">— Todos —</option>
+                            <option value="AT">Ativo</option>
+                            <option value="PA">Parado</option>
+                            <option value="CA">Cancelado</option>
                         </select>
                     </div>
                 </div>
@@ -819,9 +1013,21 @@ export default function ProjetoPage() {
             {/* Tree View */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex-1 flex flex-col min-h-0">
                 {loading ? (
-                    <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
-                        <Loader2 size={32} className="animate-spin" />
-                        <p className="text-sm">Carregando dados...</p>
+                    <div className="divide-y divide-gray-100">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+                                <div className="w-6 h-6 rounded bg-gray-100" />
+                                <div className="w-9 h-9 rounded-lg bg-gray-100" />
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                    <div className="h-3 bg-gray-100 rounded w-2/3" />
+                                    <div className="h-2.5 bg-gray-100 rounded w-1/3" />
+                                </div>
+                                <div className="hidden sm:block w-24 h-3 bg-gray-100 rounded" />
+                                <div className="hidden sm:block w-16 h-3 bg-gray-100 rounded" />
+                                <div className="hidden sm:block w-14 h-5 bg-gray-100 rounded-full" />
+                                <div className="w-28 h-7 bg-gray-100 rounded-lg" />
+                            </div>
+                        ))}
                     </div>
                 ) : filteredProjetos.length === 0 ? (
                     <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
@@ -831,17 +1037,22 @@ export default function ProjetoPage() {
                 ) : (
                     <div className="flex flex-col h-full min-h-0">
                         {/* Headers */}
-                        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 z-10">
-                            <div className="w-6 h-6"></div>
-                            <div className="w-9 h-9"></div>
-                            <div className="flex-1 min-w-0">Projeto / Cliente</div>
-                            <div className="hidden sm:block w-28 text-center sm:text-left">Dt. Previsão</div>
-                            <div className="hidden sm:block w-24">Prazo</div>
-                            <div className="hidden sm:block w-[70px]">Status</div>
-                            <div className="flex items-center justify-end w-[140px]">Ações</div>
+                        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2a3830] bg-[#32423D] text-[10px] font-bold text-white uppercase tracking-wider sticky top-0 z-10">
+                            <div className="w-6 h-6 shrink-0"></div>
+                            <div className="w-9 h-9 shrink-0"></div>
+                            <div className="flex-1 min-w-0 max-w-[360px] flex items-center gap-2">
+                                Projeto / Cliente
+                                <span className="ml-1 text-[9px] font-normal text-white/50 normal-case tracking-normal">
+                                    {projetos.length} de {totalCount} registros
+                                </span>
+                            </div>
+                            <div className="hidden sm:block w-32 shrink-0 text-center">Dt. Previsão</div>
+                            <div className="hidden sm:block w-20 shrink-0">Prazo</div>
+                            <div className="hidden sm:block w-[72px] shrink-0">Status</div>
+                            <div className="flex items-center justify-end w-[136px] shrink-0">Ações</div>
                         </div>
                         <div className="divide-y divide-gray-100 overflow-y-auto min-h-0">
-                        {filteredProjetos.map((projeto, idx) => {
+                        {filteredProjetos.map((projeto) => {
                             const isExpanded = expandedProjects.has(projeto.IdProjeto!);
                             const tags = projectTags[projeto.IdProjeto!] || [];
                             const isLoadingTags = loadingTags.has(projeto.IdProjeto!);
@@ -850,9 +1061,9 @@ export default function ProjetoPage() {
                                 <div key={projeto.IdProjeto}>
                                     {/* Project Row */}
                                     <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: idx * 0.02 }}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.15 }}
                                         className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-[#E0E800]/5' : ''}`}
                                         onClick={() => projeto.IdProjeto && toggleProject(projeto.IdProjeto)}
                                     >
@@ -873,31 +1084,31 @@ export default function ProjetoPage() {
                                         </div>
 
                                         {/* Project Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-400 font-mono">{projeto.IdProjeto}</span>
+                                        <div className="flex-1 min-w-0 max-w-[360px]">
+                                            <div className="flex items-center gap-1.5 overflow-hidden">
+                                                <span className="text-xs text-gray-400 font-mono shrink-0">{projeto.IdProjeto}</span>
                                                 <span className="text-sm font-medium text-gray-900 truncate">{projeto.Projeto}</span>
-                                                <span className="text-xs text-gray-500 truncate ml-2 border-l border-gray-300 pl-2">
+                                                <span className="text-xs text-gray-500 truncate ml-1 border-l border-gray-200 pl-1.5">
                                                     {(projeto.DescEmpresa && !projeto.DescEmpresa.toLowerCase().includes('sem cliente') && projeto.DescEmpresa !== 'SEM CLIENTE DEFINIDO') ? projeto.DescEmpresa : (projeto.ClienteProjeto || 'Sem cliente')}
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Data Previsão */}
-                                        <div className={`hidden sm:flex items-center gap-1 text-sm w-28 ${isDateInPast(projeto.DataPrevisao) ? 'text-red-500 font-semibold' : 'text-gray-500'}`} title="Previsão de Entrega">
-                                            <Calendar size={14} className={isDateInPast(projeto.DataPrevisao) ? 'text-red-400' : 'text-gray-400'} />
+                                        <div className={`hidden sm:flex items-center gap-1 text-xs w-32 shrink-0 ${isDateInPast(projeto.DataPrevisao) ? 'text-red-500 font-semibold' : 'text-gray-500'}`} title="Previsão de Entrega">
+                                            <Calendar size={13} className={isDateInPast(projeto.DataPrevisao) ? 'text-red-400' : 'text-gray-400'} />
                                             {formatToBRDate(projeto.DataPrevisao)}
                                         </div>
 
                                         {/* Prazo */}
-                                        <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500 w-24" title="Prazo em dias">
-                                            <TagIcon size={14} className="text-gray-400" />
-                                            {projeto.PrazoEntrega ? `${projeto.PrazoEntrega} dias` : '-'}
+                                        <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500 w-20 shrink-0" title="Prazo em dias">
+                                            <TagIcon size={13} className="text-gray-400" />
+                                            {projeto.PrazoEntrega ? `${projeto.PrazoEntrega}d` : '-'}
                                         </div>
 
                                         {/* Status */}
-                                        <span className={`hidden sm:inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(projeto.StatusProj)}`}>
-                                            {projeto.DescStatus || 'Ativo'}
+                                        <span className={`hidden sm:inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full w-[72px] shrink-0 justify-center ${getStatusColor(projeto.StatusProj)}`}>
+                                            {getStatusLabel(projeto.StatusProj, projeto.DescStatus)}
                                         </span>
 
 
@@ -927,6 +1138,37 @@ export default function ProjetoPage() {
                                                     disabled={Number(projeto.temApontamento) > 0}
                                                 >
                                                     <RotateCcw size={16} />
+                                                </button>
+                                            )}
+                                            <div className="w-px h-4 bg-gray-200 mx-1"></div>
+                                            {/* Reativar (aparece se parado ou cancelado) */}
+                                            {(projeto.StatusProj === 'PA' || projeto.StatusProj === 'CA') && (
+                                                <button
+                                                    onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'AT')}
+                                                    className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                                    title="Reativar Projeto (Ativo)"
+                                                >
+                                                    <Play size={16} />
+                                                </button>
+                                            )}
+                                            {/* Parar Projeto (oculto se já parado) */}
+                                            {projeto.StatusProj !== 'PA' && (
+                                                <button
+                                                    onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'PA')}
+                                                    className="p-2 rounded-lg text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 transition-colors"
+                                                    title="Parar Projeto"
+                                                >
+                                                    <Pause size={16} />
+                                                </button>
+                                            )}
+                                            {/* Cancelar Projeto (oculto se já cancelado) */}
+                                            {projeto.StatusProj !== 'CA' && (
+                                                <button
+                                                    onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'CA')}
+                                                    className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                    title="Cancelar Projeto"
+                                                >
+                                                    <Ban size={16} />
                                                 </button>
                                             )}
                                             <div className="w-px h-4 bg-gray-200 mx-1"></div>
@@ -1054,17 +1296,31 @@ export default function ProjetoPage() {
                 )
                 }
 
-                {/* Footer */}
-                {
-                    !loading && filteredProjetos.length > 0 && (
-                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                            <p className="text-xs text-gray-500">
-                                <span className="font-medium">{filteredProjetos.length}</span> projetos •
-                                <span className="font-medium ml-1">{expandedProjects.size}</span> expandidos
-                            </p>
-                        </div>
-                    )
-                }
+                {/* Footer — Paginação / Carregar mais */}
+                {!loading && filteredProjetos.length > 0 && (
+                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                            <span className="font-medium">{projetos.length}</span> de{" "}
+                            <span className="font-medium">{totalCount}</span> projetos
+                            {expandedProjects.size > 0 && (
+                                <> · <span className="font-medium">{expandedProjects.size}</span> expandidos</>
+                            )}
+                        </p>
+                        {projetos.length < totalCount && (
+                            <button
+                                onClick={() => fetchProjetos(searchFilters, currentPage + 1, true)}
+                                disabled={loadingMore}
+                                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-[#32423D] border border-[#32423D]/30 rounded-lg hover:bg-[#32423D]/5 transition-colors disabled:opacity-50"
+                            >
+                                {loadingMore ? (
+                                    <><Loader2 size={13} className="animate-spin" /> Carregando...</>
+                                ) : (
+                                    <><RefreshCw size={13} /> Carregar mais ({totalCount - projetos.length} restantes)</>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                )}
             </div >
 
             {/* Projeto Form Modal */}

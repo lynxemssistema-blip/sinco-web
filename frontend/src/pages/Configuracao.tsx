@@ -531,7 +531,7 @@ export default function ConfiguracaoPage() {
     }
 
     return (
-        <div className="p-6 w-full max-w-[1920px] mx-auto animate-fade-in pb-20">
+        <div className="p-3 sm:p-6 w-full max-w-[1920px] mx-auto animate-fade-in pb-20">
             {showIconPicker && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowIconPicker(false)}>
                     <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
@@ -563,36 +563,37 @@ export default function ConfiguracaoPage() {
                 </div>
             )}
 
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-[#32423D] rounded-lg">
-                        <Settings2 size={24} className="text-[#E0E800]" />
+                        <Settings2 size={22} className="text-[#E0E800]" />
                     </div>
                     <div>
-                        
                         <p className="text-gray-500 text-sm">Gerencie o sistema</p>
                     </div>
                 </div>
                 <button
                     onClick={() => { localStorage.removeItem('adminUser'); setIsAdmin(false); }}
-                    className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1 px-3 py-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                    className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-end sm:self-auto"
                 >
                     Sair
                 </button>
             </div>
 
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6 w-full max-w-md">
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
                 <button
                     onClick={() => setActiveTab('regras')}
-                    className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                    Regras de Negócio
+                    <span className="hidden sm:inline">Regras de Negócio</span>
+                    <span className="sm:hidden">Regras</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('menu')}
-                    className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                    Menu do Sistema
+                    <span className="hidden sm:inline">Menu do Sistema</span>
+                    <span className="sm:hidden">Menu</span>
                 </button>
             </div>
 
@@ -604,27 +605,27 @@ export default function ConfiguracaoPage() {
                             Regras de Produção
                         </h2>
                     </div>
-                    <div className="p-6">
-                        <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-3">
                             <div>
                                 <h3 className="font-medium text-gray-900">Restringir sem saldo anterior</h3>
                                 <p className="text-sm text-gray-500 mt-1 max-w-xl">
                                     Impede o apontamento se não houver saldo no setor anterior.
                                 </p>
                             </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
+                            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                 <input type="checkbox" className="sr-only peer" checked={restringirApontamento === 'Sim'} onChange={(e) => setRestringirApontamento(e.target.checked ? 'Sim' : 'Não')} />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
                             </label>
                         </div>
-                        <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 gap-3">
                             <div>
                                 <h3 className="font-medium text-gray-900">Visualizar módulo Power Build</h3>
                                 <p className="text-sm text-gray-500 mt-1 max-w-xl">
                                     Habilita a exibição da seção lateral do sistema referente ao Power Build.
                                 </p>
                             </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
+                            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                 <input type="checkbox" className="sr-only peer" checked={mostrarPowerBuild === 'Sim'} onChange={(e) => setMostrarPowerBuild(e.target.checked ? 'Sim' : 'Não')} />
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
                             </label>
@@ -671,7 +672,7 @@ export default function ConfiguracaoPage() {
 
                         <div className="mt-8 border-t border-gray-100 pt-6">
                             <h3 className="font-medium text-gray-900 mb-4">Setores/Processos Visíveis</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                 {['corte', 'dobra', 'solda', 'pintura', 'montagem'].map(proc => {
                                     const isVisible = processosVisiveis.includes(proc);
                                     return (
@@ -706,7 +707,7 @@ export default function ConfiguracaoPage() {
                         {/* NOVO BLOCO: Setores/Processos Visíveis (ENGENHARIA) */}
                         <div className="mt-8 border-t border-gray-100 pt-6">
                             <h3 className="font-medium text-gray-900 mb-4">Setores Visíveis e Rótulos (Engenharia)</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'].map(proc => {
                                     const isVisible = processosVisiveis.includes(proc);
                                     return (
@@ -754,7 +755,7 @@ export default function ConfiguracaoPage() {
                         <div className="mt-8 border-t border-gray-100 pt-6">
                             <h3 className="font-medium text-gray-900 mb-3">Filtro Padrão — Plano de Corte</h3>
                             <p className="text-sm text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
-                            <div className="flex gap-3">
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => setPlanoCorteFiltroDC('corte')}
                                     className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
@@ -805,7 +806,7 @@ export default function ConfiguracaoPage() {
                                     </button>
                                 ))}
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                 <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
                                 <input
                                     type="number"
@@ -830,12 +831,12 @@ export default function ConfiguracaoPage() {
                 </div>
             ) : (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
-                    <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <h2 className="font-semibold text-gray-700 flex items-center gap-2">
                             <Menu size={18} className="text-[#32423D]" />
                             Editor de Menu
                         </h2>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                             <button 
                                 onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
                                 className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-sm font-bold transition-colors border border-blue-100"
@@ -849,13 +850,13 @@ export default function ConfiguracaoPage() {
                     </div>
 
                     <div className="p-6">
-                        <div className="bg-gray-50/50 p-4 rounded-lg border border-gray-200 min-h-[400px]">
+                        <div className="bg-gray-50/50 p-3 sm:p-4 rounded-lg border border-gray-200 min-h-[300px] sm:min-h-[400px]">
                             {menuItems.map((item, idx) => renderEditorItem(item, [idx]))}
                             {menuItems.length === 0 && <p className="text-gray-400 text-center italic py-10">O menu está vazio. Restaure o padrão.</p>}
                         </div>
 
-                        <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-                            <button onClick={() => setMenuItems(defaultMenuItems)} className="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors">
+                        <div className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-100">
+                            <button onClick={() => setMenuItems(defaultMenuItems)} className="px-4 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors text-center">
                                 Restaurar Padrão
                             </button>
                             <button onClick={handleSaveMenu} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-6 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">

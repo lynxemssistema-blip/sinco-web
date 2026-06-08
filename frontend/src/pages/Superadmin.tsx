@@ -44,37 +44,31 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     const [users, setUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        // Regra definitiva: SuperAdmin = lynxlocal + credenciais de superadmin
         const sincoUserRaw = localStorage.getItem('sinco_user');
-        if (sincoUserRaw) {
+        const sincoToken   = localStorage.getItem('sinco_token');
+
+        if (sincoUserRaw && sincoToken) {
             try {
                 const sincoUser = JSON.parse(sincoUserRaw);
-
-                // Qualifica como superadmin SOMENTE se:
-                // 1. Banco ativo é lynxlocal E
-                // 2. Tem credenciais de superadmin
-                const isLynxlocal = sincoUser.dbName === 'lynxlocal';
                 const hasSuperCreds =
                     sincoUser.isSuperadmin === true ||
                     sincoUser.superadmin === 'S' ||
                     sincoUser.login?.toLowerCase() === 'superadmin';
 
-                if (isLynxlocal && hasSuperCreds) {
-                    const mainToken = localStorage.getItem('sinco_token');
-                    if (mainToken) {
-                        localStorage.setItem('superadmin_token', mainToken);
-                        setIsAuthenticated(true);
-                        fetchTenants(mainToken);
-                        fetchUsers(mainToken);
-                        return;
-                    }
+                if (hasSuperCreds) {
+                    // Sempre sincronizar superadmin_token com o sinco_token atual
+                    localStorage.setItem('superadmin_token', sincoToken);
+                    setIsAuthenticated(true);
+                    fetchTenants(sincoToken);
+                    fetchUsers(sincoToken);
+                    return;
                 }
             } catch (e) {
                 console.error('Erro ao verificar sessão principal', e);
             }
         }
 
-        // Fallback: token de login manual do painel
+        // Fallback: token de login manual do painel admin
         const superToken = localStorage.getItem('superadmin_token');
         if (superToken) {
             checkAuth(superToken);
@@ -270,62 +264,57 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     const handleAccessTenant = async (tenant: any) => {
         if (!confirm(`Deseja acessar o sistema no ambiente: ${tenant.nome_cliente}?`)) return;
 
-        const superToken = localStorage.getItem('superadmin_token');
-        if (!superToken) return;
+        // sinco_token tem isSuperadmin=true — /api/superadmin/switch-db aceita diretamente
+        const activeToken = localStorage.getItem('sinco_token') || localStorage.getItem('superadmin_token');
+        if (!activeToken) {
+            addToast({ type: 'error', message: 'Sessão não encontrada. Faça login novamente.' });
+            return;
+        }
 
         setLoading(true);
         try {
-            const res = await fetch('/api/admin/impersonate', {
+            const res = await fetch('/api/superadmin/switch-db', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${superToken}`
+                    'Authorization': `Bearer ${activeToken}`
                 },
                 body: JSON.stringify({ dbName: tenant.db_name })
             });
 
             const data = await res.json();
-            if (data.success) {
+            console.log('[SuperAdmin] switch-db response:', data.success, data.message || '');
+
+            if (data.success && data.token) {
                 const userData = {
-                    id: 1, // Defaulting to 1 for superadmin impersonation
-                    nome: 'Superadmin',
-                    login: 'superadmin',
+                    id: data.user?.id || 1,
+                    nome: data.user?.nome || 'Superadmin',
+                    login: data.user?.login || 'superadmin',
                     role: 'admin',
                     isSuperadmin: true,
+                    superadmin: 'S',
                     clientName: tenant.nome_cliente,
                     dbName: tenant.db_name,
-                    dbHost: tenant.db_host,
-                    dbUser: tenant.db_user,
-                    dbPass: tenant.db_pass,
-                    dbPort: tenant.db_port,
-                    originalLogin: username || 'superadmin'
                 };
 
+                // Preservar token original para retorno ao painel
+                localStorage.setItem('superadmin_token', activeToken);
                 localStorage.setItem('sinco_token', data.token);
                 localStorage.setItem('sinco_user', JSON.stringify(userData));
-                // Explicitly saving superadmin status as requested
-                localStorage.setItem('original_superadmin', JSON.stringify({
-                    active: true,
-                    originalLogin: username || 'superadmin',
-                    token: superToken
-                }));
 
-                // Toast and reload
                 addToast({ type: 'success', message: `Conectando ao ambiente ${tenant.nome_cliente}...` });
-
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 1000);
+                setTimeout(() => { window.location.href = '/dashboard'; }, 800);
             } else {
-                addToast({ type: 'error', message: data.message || 'Erro ao gerar token de ambiente' });
+                addToast({ type: 'error', message: data.message || 'Erro ao trocar banco.' });
             }
         } catch (error) {
-            console.error('Error in impersonation:', error);
-            addToast({ type: 'error', message: 'Erro ao conectar ao ambiente' });
+            console.error('[SuperAdmin] Error switching tenant:', error);
+            addToast({ type: 'error', message: 'Erro de conexão ao trocar banco.' });
         } finally {
             setLoading(false);
         }
     };
+
 
     // --- SCHEMA COMPARE HANDLERS ---
     const handleCompareSchema = async () => {
