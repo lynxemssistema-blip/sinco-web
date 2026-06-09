@@ -25,7 +25,8 @@
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
     "ssh2": "^1.17.0",
-    "ssh2-sftp-client": "^12.1.1"
+    "ssh2-sftp-client": "^12.1.1",
+    "xlsx-populate": "^1.21.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

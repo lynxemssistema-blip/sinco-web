@@ -58,8 +58,8 @@ export default function ConfiguracaoPage() {
     const [loadingDbs, setLoadingDbs] = useState(false);
 
     useEffect(() => {
-        // Se o usuário global já for o 'Admin' (ou superadmin), desbloqueia automaticamente
-        if (globalUser && (globalUser.login?.toLowerCase() === 'admin' || globalUser.login?.toLowerCase() === 'superadmin' || globalUser.isSuperadmin)) {
+        // Se o usuário global já for 'admin' (Tipo A) ou superadmin, desbloqueia automaticamente
+        if (globalUser && (globalUser.role === 'admin' || globalUser.isSuperadmin)) {
             setIsAdmin(true);
             fetchConfig();
             fetchMenu();
@@ -70,7 +70,7 @@ export default function ConfiguracaoPage() {
         if (storedAdmin) {
             try {
                 const parsed = JSON.parse(storedAdmin);
-                if (parsed.login?.toLowerCase() === 'admin' || parsed.login?.toLowerCase() === 'superadmin' || parsed.isSuperadmin) {
+                if (parsed.role === 'admin' || parsed.isSuperadmin) {
                     setIsAdmin(true);
                     fetchConfig();
                     fetchMenu();
@@ -178,8 +178,8 @@ export default function ConfiguracaoPage() {
             });
             const data = await res.json();
             
-            // Restringir acesso APENAS para o usuário de login 'Admin'
-            if (data.success && data.user.login?.toLowerCase() === 'admin') {
+            // Restringir acesso para usuários tipo A (Admin)
+            if (data.success && data.user.role === 'admin') {
                 setIsAdmin(true);
                 localStorage.setItem('adminUser', JSON.stringify(data.user));
 
@@ -187,7 +187,7 @@ export default function ConfiguracaoPage() {
                 fetchMenu();
                 addToast({ type: 'success', title: 'Bem-vindo', message: 'Login realizado com sucesso' });
             } else {
-                addToast({ type: 'error', title: 'Acesso Negado', message: 'Apenas o usuário master Admin pode acessar e modificar as configurações.' });
+                addToast({ type: 'error', title: 'Acesso Negado', message: 'Apenas usuários do tipo Admin podem acessar e modificar as configurações.' });
             }
         } catch (err) {
             addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão' });

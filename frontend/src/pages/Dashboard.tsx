@@ -61,17 +61,29 @@ function SkeletonCard() {
 }
 
 export default function DashboardPage({ onNavigate }: DashboardProps) {
-    const [stats, setStats] = useState({ companies: 0, pendingDocs: 0, compliance: 0 });
+    const [stats, setStats] = useState({ 
+        companies: 0, 
+        projects: 0,
+        projectsSemLiberacao: 0,
+        projectsLiberados: 0,
+        projectsFinalizados: 0,
+        projectsCancelados: 0
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Simulate real API load time for dramatic effect
         setTimeout(() => {
-            fetch('/api/dashboard/stats')
+            const token = localStorage.getItem('sinco_token') || localStorage.getItem('token');
+            fetch('/api/dashboard/stats', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        setStats(data.stats);
+                        setStats(prev => ({...prev, ...data.stats}));
                     }
                 })
                 .catch(err => console.error('Error loading stats:', err))
@@ -106,7 +118,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
             <div className="absolute bottom-20 left-[-10%] w-96 h-96 bg-accent/20 rounded-full blur-[100px] pointer-events-none" />
 
             {/* Hero Section */}
-            <motion.div variants={item} className="relative overflow-hidden rounded-2xl bg-primary text-primary-foreground p-8 md:p-12 shadow-xl flex flex-col justify-end min-h-[300px]">
+            <motion.div initial={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-2xl bg-primary text-primary-foreground p-8 md:p-12 shadow-xl flex flex-col justify-end min-h-[300px]">
                 {/* Hero Decorators */}
                 <div className="absolute top-[-50%] right-[-10%] w-[80%] h-[150%] bg-white/5 rounded-full blur-3xl pointer-events-none mix-blend-overlay" />
                 <div className="absolute -bottom-10 -right-10 opacity-10 transform rotate-12 scale-150">
@@ -134,16 +146,15 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
             </motion.div>
 
             {/* Quick Stats Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                 {loading ? (
                     <>
-                        <SkeletonCard />
                         <SkeletonCard />
                         <SkeletonCard />
                     </>
                 ) : (
                     <>
-                        <motion.div variants={item} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-primary/20 transition-all duration-300 group">
+                        <motion.div initial={{ opacity: 1, y: 0 }} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-primary/20 transition-all duration-300 group">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="p-3.5 bg-[#E0E800]/200/10 rounded-xl text-[#32423D] group-hover:scale-110 group-hover:bg-[#E0E800]/100 group-hover:text-white transition-all duration-300">
                                     <Building2 size={24} strokeWidth={2.5} />
@@ -156,37 +167,43 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
                             </p>
                         </motion.div>
 
-                        <motion.div variants={item} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-orange-500/20 transition-all duration-300 group">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="p-3.5 bg-orange-500/10 rounded-xl text-orange-600 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
-                                    <AlertCircle size={24} strokeWidth={2.5} />
+                        <motion.div initial={{ opacity: 1, y: 0 }} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-blue-500/20 transition-all duration-300 group">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3.5 bg-blue-500/10 rounded-xl text-blue-600 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                                    <FileText size={24} strokeWidth={2.5} />
                                 </div>
-                                <span className="text-xs font-bold px-3 py-1 bg-orange-500/10 rounded-full text-orange-600">Atenção</span>
+                                <span className="text-xs font-bold px-3 py-1 bg-blue-500/10 rounded-full text-blue-600">Projetos</span>
                             </div>
-                            <h3 className="text-muted-foreground text-sm font-bold tracking-wide">Documentos Pendentes</h3>
-                            <p className="text-4xl md:text-5xl font-black mt-2 text-foreground tracking-tight tabular-nums">
-                                <AnimatedCounter value={stats.pendingDocs} />
+                            <h3 className="text-muted-foreground text-sm font-bold tracking-wide">Total de Projetos Cadastrados</h3>
+                            <p className="text-4xl md:text-5xl font-black mt-1 text-foreground tracking-tight tabular-nums">
+                                <AnimatedCounter value={stats.projects} />
                             </p>
-                        </motion.div>
-
-                        <motion.div variants={item} className="p-6 rounded-2xl bg-card border border-border shadow-md hover:shadow-lg hover:border-emerald-500/20 transition-all duration-300 group">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="p-3.5 bg-emerald-500/10 rounded-xl text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
-                                    <CheckCircle2 size={24} strokeWidth={2.5} />
+                            
+                            <div className="mt-5 space-y-2 border-t border-border pt-4">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="flex items-center gap-2 font-medium"><span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Sem Liberação</span>
+                                    <span className="font-bold text-muted-foreground">{stats.projects > 0 ? Math.round((stats.projectsSemLiberacao / stats.projects) * 100) : 0}%</span>
                                 </div>
-                                <span className="text-xs font-bold px-3 py-1 bg-emerald-500/10 rounded-full text-emerald-600">+2.5%</span>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="flex items-center gap-2 font-medium"><span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Liberados</span>
+                                    <span className="font-bold text-muted-foreground">{stats.projects > 0 ? Math.round((stats.projectsLiberados / stats.projects) * 100) : 0}%</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="flex items-center gap-2 font-medium"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Finalizados</span>
+                                    <span className="font-bold text-muted-foreground">{stats.projects > 0 ? Math.round((stats.projectsFinalizados / stats.projects) * 100) : 0}%</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="flex items-center gap-2 font-medium"><span className="w-2.5 h-2.5 rounded-full bg-red-500"></span> Cancelados/Desativados</span>
+                                    <span className="font-bold text-muted-foreground">{stats.projects > 0 ? Math.round((stats.projectsCancelados / stats.projects) * 100) : 0}%</span>
+                                </div>
                             </div>
-                            <h3 className="text-muted-foreground text-sm font-bold tracking-wide">Conformidade SST</h3>
-                            <p className="text-4xl md:text-5xl font-black mt-2 text-foreground tracking-tight tabular-nums">
-                                <AnimatedCounter value={stats.compliance} isPercent />
-                            </p>
                         </motion.div>
                     </>
                 )}
             </div>
 
             {/* Quick Access Section */}
-            <motion.div variants={item} className="relative z-10 pt-4">
+            <motion.div initial={{ opacity: 1, y: 0 }} className="relative z-10 pt-4">
                 <h2 className="text-2xl font-extrabold text-foreground mb-8 flex items-center gap-3">
                     <div className="p-2 bg-primary text-primary-foreground rounded-lg shadow-md">
                         <LayoutDashboard size={24} strokeWidth={2.5} />

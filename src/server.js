@@ -6642,22 +6642,36 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
             }
         }
 
-        const ExcelJS = require('exceljs');
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.readFile(templatePath);
-        const worksheet = workbook.worksheets[0];
+        const XlsxPopulate = require('xlsx-populate');
+        const workbook = await XlsxPopulate.fromFileAsync(templatePath);
+        const worksheet = workbook.sheet(0);
 
         const format5 = (num) => String(num).padStart(5, '0');
         const osString = format5(os.IdOrdemServico);
 
-        // Header mapping
-        worksheet.getCell('W1').value = osString;
-        worksheet.getCell('D8').value = (os.Projeto || '') + ' - ' + (os.DescEmpresa || '');
-        worksheet.getCell('D9').value = (os.Tag || '').trim().toUpperCase();
-        worksheet.getCell('N8').value = (os.Descricao || '').trim().toUpperCase();
-        worksheet.getCell('D10').value = (os.EnderecoOrdemServico || '').trim().toUpperCase();
-        worksheet.getCell('D13').value = (os.CriadoPor || '').trim().toUpperCase();
-        worksheet.getCell('D14').value = (os.DataCriacao || '').trim().toUpperCase();
+        const sanitize = (str) => String(str || '').replace(/[\x00-\x1F\x7F-\x9F]/g, "").trim().toUpperCase();
+
+        // Header mapping Sheet 0
+        const ws0 = workbook.sheet(0);
+        ws0.cell('W1').value(osString);
+        ws0.cell('D8').value(sanitize((os.Projeto || '') + ' - ' + (os.DescEmpresa || '')));
+        ws0.cell('D9').value(sanitize(os.Tag));
+        ws0.cell('T8').value(sanitize(os.Descricao));
+        ws0.cell('D10').value(sanitize(os.EnderecoOrdemServico));
+        ws0.cell('D13').value(sanitize(os.CriadoPor));
+        ws0.cell('D14').value(sanitize(os.DataCriacao));
+
+        // Header mapping Sheet 1 (if exists)
+        const ws1 = workbook.sheet(1);
+        if (ws1) {
+            ws1.cell('P1').value(osString);
+            ws1.cell('D8').value(sanitize((os.Projeto || '') + ' - ' + (os.DescEmpresa || '')));
+            ws1.cell('D9').value(sanitize(os.Tag));
+            ws1.cell('M8').value(sanitize(os.Descricao));
+            ws1.cell('D10').value(sanitize(os.EnderecoOrdemServico));
+            ws1.cell('D13').value(sanitize(os.CriadoPor));
+            ws1.cell('D14').value(sanitize(os.DataCriacao));
+        }
 
         const [itens] = await connection.query(`
             SELECT * FROM ordemservicoitem 
@@ -6665,34 +6679,38 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
             ORDER BY IdOrdemServicoItem
         `, [IdOrdemServico]);
 
-        // Items mapping starting at row 19 (using row 18 as template)
+        // Items mapping starting at row 18
         const startRow = 18;
         
         for (let i = 0; i < itens.length; i++) {
             const item = itens[i];
+            const rowNum = startRow + i;
             
-            // Insert row by duplicating style of row 18
-            worksheet.duplicateRow(startRow, 1, true);
-            const row = worksheet.getRow(startRow + 1 + i);
-            
-            row.getCell('A').value = String(item.IdOrdemServicoItem || '').trim().toUpperCase();
-            row.getCell('B').value = String(item.CodMatFabricante || '').trim().toUpperCase();
-            row.getCell('I').value = String(item.QtdeTotal || '').trim().toUpperCase();
-            row.getCell('J').value = String(item.MaterialSW || '').trim().toUpperCase();
-            row.getCell('K').value = String(item.Unidade || '').trim().toUpperCase();
-            row.getCell('L').value = String(item.Espessura || '').trim().toUpperCase();
-            row.getCell('M').value = String(item.Altura || '').trim().toUpperCase();
-            row.getCell('N').value = String(item.Largura || '').trim().toUpperCase();
-            row.getCell('O').value = String(item.txtItemEstoque || '').trim().toUpperCase();
-            row.getCell('P').value = String(item.DescResumo || '').trim().toUpperCase();
-            row.getCell('S').value = String(item.DescDetal || '').trim().toUpperCase();
-            row.getCell('V').value = String(item.Acabamento || '').trim().toUpperCase();
-            row.getCell('W').value = String(item.txtTipoDesenho || '').trim().toUpperCase();
-            row.commit();
-        }
+            // Populate Sheet 0
+            ws0.cell(`A${rowNum}`).value(item.IdOrdemServicoItem || '');
+            ws0.cell(`B${rowNum}`).value(sanitize(item.CodMatFabricante));
+            ws0.cell(`I${rowNum}`).value(Number(item.QtdeTotal) || 0);
+            ws0.cell(`J${rowNum}`).value(sanitize(item.MaterialSW));
+            ws0.cell(`K${rowNum}`).value(sanitize(item.Unidade));
+            ws0.cell(`L${rowNum}`).value(sanitize(item.Espessura));
+            ws0.cell(`M${rowNum}`).value(sanitize(item.Altura));
+            ws0.cell(`N${rowNum}`).value(sanitize(item.Largura));
+            ws0.cell(`O${rowNum}`).value(sanitize(item.txtItemEstoque));
+            ws0.cell(`P${rowNum}`).value(sanitize(item.DescResumo));
+            ws0.cell(`S${rowNum}`).value(sanitize(item.DescDetal));
+            ws0.cell(`V${rowNum}`).value(sanitize(item.Acabamento));
+            ws0.cell(`W${rowNum}`).value(sanitize(item.txtTipoDesenho));
 
-        // Deleta a linha template original (A18:W18)
-        worksheet.spliceRows(startRow, 1);
+            // Populate Sheet 1
+            if (ws1) {
+                ws1.cell(`A${rowNum}`).value(item.IdOrdemServicoItem || '');
+                ws1.cell(`D${rowNum}`).value(sanitize(item.CodMatFabricante));
+                ws1.cell(`G${rowNum}`).value(sanitize((item.DescResumo || '') + ' ' + (item.DescDetal || '')));
+                ws1.cell(`N${rowNum}`).value(Number(item.QtdeTotal) || 0);
+                ws1.cell(`O${rowNum}`).value(sanitize(item.Unidade));
+                ws1.cell(`P${rowNum}`).value(0); // PESO
+            }
+        }
 
         const destPath = os.EnderecoOrdemServico;
         if (!destPath || !fs.existsSync(destPath)) {
@@ -6703,7 +6721,7 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
         const path = require('path');
         const finalFile = path.join(destPath, fileName);
 
-        await workbook.xlsx.writeFile(finalFile);
+        await workbook.toFileAsync(finalFile);
 
         // Open Explorer
         try {
@@ -8898,11 +8916,25 @@ app.get('/api/dashboard/stats', async (req, res) => {
         // Using pool from context (tenant) or default pool
         const [rows] = await pool.execute("SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'");
 
-        // Mock other stats for now as user only requested companies count fix
+        // Consulta estatísticas dos projetos
+        const [projRows] = await pool.execute(`
+            SELECT 
+                COUNT(*) as total_projetos,
+                SUM(CASE WHEN TRIM(COALESCE(liberado, '')) != 'S' THEN 1 ELSE 0 END) as sem_liberacao,
+                SUM(CASE WHEN TRIM(COALESCE(liberado, '')) = 'S' THEN 1 ELSE 0 END) as liberados,
+                SUM(CASE WHEN TRIM(COALESCE(Finalizado, '')) = 'C' THEN 1 ELSE 0 END) as finalizados,
+                SUM(CASE WHEN TRIM(COALESCE(StatusProj, '')) = 'CA' THEN 1 ELSE 0 END) as cancelados
+            FROM projetos
+            WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+        `);
+
         const stats = {
             companies: rows[0].total,
-            pendingDocs: 12, // Placeholder
-            compliance: 98   // Placeholder
+            projects: projRows[0].total_projetos || 0,
+            projectsSemLiberacao: projRows[0].sem_liberacao || 0,
+            projectsLiberados: projRows[0].liberados || 0,
+            projectsFinalizados: projRows[0].finalizados || 0,
+            projectsCancelados: projRows[0].cancelados || 0
         };
 
         res.json({ success: true, stats });
