@@ -5737,3 +5737,80 @@
 07/06/2026 14:39:05: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
 07/06/2026 14:39:05:   npx update-browserslist-db@latest
 07/06/2026 14:39:05:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10/06/2026 08:23:27: (node:3832) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+10/06/2026 08:23:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+10/06/2026 08:25:03: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+10/06/2026 08:25:03:   npx update-browserslist-db@latest
+10/06/2026 08:25:03:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10/06/2026 08:30:06: (node:20784) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+10/06/2026 08:30:06: (Use `node --trace-deprecation ...` to show where the warning was created)
+10/06/2026 08:30:09: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+10/06/2026 08:30:09:   npx update-browserslist-db@latest
+10/06/2026 08:30:09:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10/06/2026 08:35:12: (node:14560) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+10/06/2026 08:35:12: (Use `node --trace-deprecation ...` to show where the warning was created)
+10/06/2026 08:35:15: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+10/06/2026 08:35:15:   npx update-browserslist-db@latest
+10/06/2026 08:35:15:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10/06/2026 08:39:12: (node:22532) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+10/06/2026 08:39:12: (Use `node --trace-deprecation ...` to show where the warning was created)
+10/06/2026 08:39:15: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+10/06/2026 08:39:15:   npx update-browserslist-db@latest
+10/06/2026 08:39:15:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10/06/2026 14:55:16: [2m14:55:16[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=500[39m
+10/06/2026 14:55:16: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:16:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:16: [2m14:55:16[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config?limit=500[39m
+10/06/2026 14:55:16: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:16:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:16: [2m14:55:16[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/config/menu?t=1781114116562&limit=500[39m
+10/06/2026 14:55:16: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:16:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:17: [2m14:55:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=500[39m
+10/06/2026 14:55:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:17: [2m14:55:17[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/dashboard/stats?limit=500[39m
+10/06/2026 14:55:17: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:17:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/rnc/sectors?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/processosfabricacao?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/admin/usuarios?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/rnc/sectors?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/processosfabricacao?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:25: [2m14:55:25[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/admin/usuarios?limit=500[39m
+10/06/2026 14:55:25: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:25:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:42: [2m14:55:42[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/apontamentos-parciais?limit=500[39m
+10/06/2026 14:55:42: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:42:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:42: [2m14:55:42[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/apontamentos-parciais?limit=500[39m
+10/06/2026 14:55:42: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:42:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/rnc/sectors?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/processosfabricacao?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/admin/usuarios?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/rnc/sectors?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/processosfabricacao?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+10/06/2026 14:55:49: [2m14:55:49[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/admin/usuarios?limit=500[39m
+10/06/2026 14:55:49: Error: connect ECONNREFUSED 127.0.0.1:3000
+10/06/2026 14:55:49:     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)

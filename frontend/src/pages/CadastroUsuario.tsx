@@ -140,8 +140,9 @@ export default function CadastroUsuarioPage() {
 
     // ── Carregar setores + processos no mount (independente de usuário) ──
     useEffect(() => {
+        if (!token) return;
         // Setores
-        fetch('/api/rnc/sectors')
+        fetch('/api/rnc/sectors', { headers: { 'Authorization': `Bearer ${token}` } })
             .then(r => r.json())
             .then(data => { if (data.success) setSetores(data.data || []); })
             .catch(() => {});
@@ -149,12 +150,12 @@ export default function CadastroUsuarioPage() {
         // Processos de fabricação — carregados uma única vez, independente de seleção
         // NOTA: rota renomeada para evitar conflito com /api/usuario/:id
         setLoadingProc(true);
-        fetch('/api/processosfabricacao')
+        fetch('/api/processosfabricacao', { headers: { 'Authorization': `Bearer ${token}` } })
             .then(r => r.json())
             .then(data => { if (data.success) setProcessos(data.data || []); })
             .catch(() => {})
             .finally(() => setLoadingProc(false));
-    }, []);
+    }, [token]);
 
     // ── Fetchusuários ──
     const fetchUsuarios = useCallback(async () => {
@@ -500,7 +501,20 @@ export default function CadastroUsuarioPage() {
 
                         {/* Col 3: Permissões */}
                         <div className="shrink-0 border-l border-slate-100 pl-4 min-w-[320px]">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Permissões / Módulos</label>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Permissões / Módulos</label>
+                                <button type="button" onClick={() => {
+                                    const allChecked = permissoes.every(p => form[p.key] === 'S');
+                                    const newValue = allChecked ? '' : 'S';
+                                    setForm(prev => {
+                                        const next = { ...prev };
+                                        permissoes.forEach(p => { next[p.key] = newValue; });
+                                        return next;
+                                    });
+                                }} className="text-[9px] text-indigo-500 hover:text-indigo-700 font-bold underline">
+                                    {permissoes.every(p => form[p.key] === 'S') ? 'Desmarcar Todos' : 'Marcar Todos'}
+                                </button>
+                            </div>
                             <div className="grid grid-cols-4 gap-1">
                                 {permissoes.map(p => {
                                     const checked = form[p.key] === 'S';
@@ -533,9 +547,39 @@ export default function CadastroUsuarioPage() {
                     <div className="flex gap-3 p-3">
                         {/* Grid 1: Todos os processos — carregado no mount, independente de usuário */}
                         <div className="flex-1 min-w-0">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">
-                                Processos Disponíveis <span className="text-slate-300 font-normal">({processos.length})</span>
-                            </p>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                                    Processos Disponíveis <span className="text-slate-300 font-normal">({processos.length})</span>
+                                </p>
+                                <button type="button" onClick={async () => {
+                                    if(loadingAction || !form.idUsuario) return;
+                                    setLoadingAction(true);
+                                    let successCount = 0;
+                                    for(const p of processos) {
+                                        if(!userProcessos.find(up => up.ProcessoFabricacao === p.ProcessoFabricacao)) {
+                                            try {
+                                                const res = await fetch('/api/processosfabricacao/associar', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                                    body: JSON.stringify({
+                                                        IdUsuario: form.idUsuario,
+                                                        IdProcessoFabricacao: p.IdProcessoFabricacao,
+                                                        ProcessoFabricacao: p.ProcessoFabricacao
+                                                    })
+                                                });
+                                                if(res.ok) successCount++;
+                                            } catch(e){}
+                                        }
+                                    }
+                                    setLoadingAction(false);
+                                    if(successCount > 0) {
+                                        addToast({ type: 'success', title: 'Sucesso', message: `${successCount} processos vinculados.` });
+                                        fetchUserProcessos(form.idUsuario);
+                                    }
+                                }} className="text-[9px] text-indigo-500 hover:text-indigo-700 font-bold underline">
+                                    Vincular Todos
+                                </button>
+                            </div>
                             <div className="border border-slate-200 rounded-lg overflow-hidden">
                                 {loadingProc ? (
                                     <div className="flex items-center justify-center h-16"><Loader2 className="animate-spin text-slate-400" size={18} /></div>

@@ -2369,8 +2369,8 @@ async function checkGlobalLoginUnique(login, senha, currentDbHost, currentDbName
         
         // Find our tenant DB ID
         const [dbRows] = await centralConn.execute(
-            'SELECT id FROM conexoes_bancos WHERE db_host = ? AND db_name = ?',
-            [currentDbHost, currentDbName]
+            'SELECT id FROM conexoes_bancos WHERE db_name = ?',
+            [currentDbName]
         );
         let currentDbId = dbRows.length > 0 ? dbRows[0].id : null;
 
@@ -2386,7 +2386,7 @@ async function checkGlobalLoginUnique(login, senha, currentDbHost, currentDbName
         
         // If it belongs to US (same DB) and is the SAME user (updating themselves), it's fine
         if (currentDbId && userCentral.id_conexao_banco === currentDbId && 
-            currentIdUsuarioOrigem && userCentral.id_usuario_origem === currentIdUsuarioOrigem) {
+            currentIdUsuarioOrigem && String(userCentral.id_usuario_origem) === String(currentIdUsuarioOrigem)) {
             return true;
         }
 
@@ -2400,12 +2400,14 @@ async function checkGlobalLoginUnique(login, senha, currentDbHost, currentDbName
     }
 }
 
-async function syncUserToCentral(userData) {
+async function syncUserToCentral(userData, tenantDbHost = null, tenantDbName = null) {
     let centralConn;
     try {
         // Get current tenant DB config
-        const currentConfig = pool.getConfig();
-        if (!currentConfig || !currentConfig.host || !currentConfig.database) {
+        const currentDbHost = tenantDbHost || pool.getConfig().host;
+        const currentDbName = tenantDbName || pool.getConfig().database;
+
+        if (!currentDbHost || !currentDbName) {
             console.warn('[SYNC] Cannot sync user: current DB config not available');
             return { success: false, message: 'Current DB config unavailable' };
         }
@@ -2415,8 +2417,8 @@ async function syncUserToCentral(userData) {
 
         // Find the conexao_banco ID for this tenant
         const [dbRows] = await centralConn.execute(
-            'SELECT id FROM conexoes_bancos WHERE db_host = ? AND db_name = ? AND ativo = 1',
-            [currentConfig.host, currentConfig.database]
+            'SELECT id FROM conexoes_bancos WHERE db_name = ? AND ativo = 1',
+            [currentDbName]
         );
 
         if (dbRows.length === 0) {
@@ -2471,7 +2473,7 @@ async function syncUserToCentral(userData) {
 // --- CRUD: UsuÃ¯Â¿Â½rio (with Central Sync) ---
 
 // LIST All Users
-app.get('/api/usuario', async (req, res) => {
+app.get('/api/usuario', tenantMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.execute(
             `SELECT idUsuario, NomeCompleto, Login, TipoUsuario, email, status 
@@ -2487,7 +2489,7 @@ app.get('/api/usuario', async (req, res) => {
 });
 
 // GET One User
-app.get('/api/usuario/:id', async (req, res) => {
+app.get('/api/usuario/:id', tenantMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.execute(
             'SELECT idUsuario, NomeCompleto, Login, TipoUsuario, email, status FROM usuario WHERE idUsuario = ?',
@@ -2505,7 +2507,7 @@ app.get('/api/usuario/:id', async (req, res) => {
 });
 
 // CREATE User (with Central Sync)
-app.post('/api/usuario', async (req, res) => {
+app.post('/api/usuario', tenantMiddleware, async (req, res) => {
     const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
             txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
             MapaProducao, Romaneio, OrdemServico, SolidWorks,
@@ -2535,8 +2537,9 @@ app.post('/api/usuario', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Nome de Login já Cadastrado, favor informar outro Login!' });
         }
 
-        const currentConfig = pool.getConfig();
-        const isGlobalUnique = await checkGlobalLoginUnique(Login.trim(), Senha, currentConfig.host, currentConfig.database);
+        const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
+        const currentDbName = req.tenantDb;
+        const isGlobalUnique = await checkGlobalLoginUnique(Login.trim(), Senha, currentDbHost, currentDbName);
         if (!isGlobalUnique) {
             return res.status(400).json({ success: false, message: 'Este login e senha já estão sendo usados. Escolha outro usuário ou mude a senha.' });
         }
@@ -2566,7 +2569,7 @@ app.post('/api/usuario', async (req, res) => {
         const newUserId = result.insertId;
 
         // Sync to Central DB (async, non-blocking)
-        syncUserToCentral({ idUsuario: newUserId, Login, Senha, NomeCompleto }).catch(err => {
+        syncUserToCentral({ idUsuario: newUserId, Login, Senha, NomeCompleto }, currentDbHost, currentDbName).catch(err => {
             console.error('[SYNC] Failed to sync new user to central:', err);
         });
 
@@ -2578,7 +2581,7 @@ app.post('/api/usuario', async (req, res) => {
 });
 
 // UPDATE User (with Central Sync)
-app.put('/api/usuario/:id', async (req, res) => {
+app.put('/api/usuario/:id', tenantMiddleware, async (req, res) => {
     const id = req.params.id;
     const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
             txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
@@ -2591,18 +2594,19 @@ app.put('/api/usuario/:id', async (req, res) => {
     }
 
     try {
-        const currentConfig = pool.getConfig();
+        const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
+        const currentDbName = req.tenantDb;
 
         // Obter senha real caso a enviada seja placeholder ou vazia
         let senhaFinal = Senha;
         if (!Senha || Senha.trim() === '' || Senha === '••••••••') {
-            const [userRows] = await pool.execute('SELECT Senha FROM usuario WHERE idUsuario = ?', [id]);
+            const [userRows] = await req.tenantDbPool.execute('SELECT Senha FROM usuario WHERE idUsuario = ?', [id]);
             if (userRows.length > 0) {
                 senhaFinal = userRows[0].Senha;
             }
         }
 
-        const isGlobalUnique = await checkGlobalLoginUnique(Login.trim(), senhaFinal, currentConfig.host, currentConfig.database, id);
+        const isGlobalUnique = await checkGlobalLoginUnique(Login.trim(), senhaFinal, currentDbHost, currentDbName, id);
         if (!isGlobalUnique) {
             return res.status(400).json({ success: false, message: 'Este login e senha já estão sendo usados. Escolha outro usuário ou mude a senha.' });
         }
@@ -2642,7 +2646,7 @@ app.put('/api/usuario/:id', async (req, res) => {
             'SELECT idUsuario, Login, Senha, NomeCompleto FROM usuario WHERE idUsuario = ?', [id]
         );
         if (userRows.length > 0) {
-            syncUserToCentral(userRows[0]).catch(err => {
+            syncUserToCentral(userRows[0], currentDbHost, currentDbName).catch(err => {
                 console.error('[SYNC] Failed to sync updated user to central:', err);
             });
         }
@@ -2655,20 +2659,22 @@ app.put('/api/usuario/:id', async (req, res) => {
 });
 
 // DELETE User (Soft Delete)
-app.delete('/api/usuario/:id', async (req, res) => {
+app.delete('/api/usuario/:id', tenantMiddleware, async (req, res) => {
     try {
         const now = getCurrentDateTimeBR();
-        await pool.execute(
+        await req.tenantDbPool.execute(
             "UPDATE usuario SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = 'Sistema' WHERE idUsuario = ?",
             [now, req.params.id]
         );
 
         // Sync delete to Central DB (async)
-        const [userRows] = await pool.execute(
+        const [userRows] = await req.tenantDbPool.execute(
             'SELECT idUsuario, Login, Senha, NomeCompleto FROM usuario WHERE idUsuario = ?', [req.params.id]
         );
         if (userRows.length > 0) {
-            syncUserToCentral({ ...userRows[0], forceInactive: true }).catch(err => {
+            const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
+            const currentDbName = req.tenantDb;
+            syncUserToCentral({ ...userRows[0], forceInactive: true }, currentDbHost, currentDbName).catch(err => {
                 console.error('[SYNC] Failed to sync deleted user to central:', err);
             });
         }
@@ -3532,6 +3538,11 @@ app.delete('/api/acabamento/:id', async (req, res) => {
 // LIST (Read All) with JOINs
 app.get('/api/material', async (req, res) => {
     try {
+        // Auto-patch missing columns for older tenants
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `ImagemProduto` LONGTEXT NULL'); } catch(e){}
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `acabamento` VARCHAR(150) NULL'); } catch(e){}
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `D_E_L_E_T_E` VARCHAR(1) NULL'); } catch(e){}
+
         const [rows] = await pool.execute(`
             SELECT 
                 m.IdMaterial, m.CodMatFabricante, m.DescResumo, m.DescDetal, m.NumeroRP,
@@ -6616,29 +6627,78 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
         const db = require('./config/db');
         const store = db.asyncLocalStorage.getStore();
         const dbName = store ? store.dbName : 'lynxlocal';
-        
-        // Caminho padrao fallback conforme instrucao (G:\Meu Drive\ConfiguraÃƒÂ§ÃƒÂµes + dbName + Configuracao...)
-        let templatePath = `G:\\Meu Drive\\ConfiguraÃƒÂ§ÃƒÂµes\\${dbName}\\Configuracao\\Template-OS-rev02.xlsx`;
-
-        // O usuÃƒÂ¡rio especificou que, para o lynxlocal, a base do arquivo ÃƒÂ© exatamente esta:
-        if (dbName === 'lynxlocal' || dbName === 'Lynx') {
-            templatePath = 'G:\\Meu Drive\\Estrutura padrÃƒÂ£o Lynx\\023-SGQ\\023-001-FORMULARIOS\\Templat-OS-Rev03.xlsx';
-        }
-        
-        // Tenta buscar da configuracaosistema primeiro (mais seguro se existir lÃƒÂ¡)
-        const [configRows] = await connection.query("SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoTemplateExcelOrdemServico'");
-        if (configRows.length > 0 && configRows[0].valor) {
-            templatePath = configRows[0].valor;
-        }
-
         const fs = require('fs');
-        if (!fs.existsSync(templatePath)) {
-            // Tentativa alternativa caso o nome do arquivo seja "Templat" sem E
-            const altPath = templatePath.replace('Template', 'Templat');
-            if (fs.existsSync(altPath)) {
-                templatePath = altPath;
+        const path = require('path');
+        
+        let templatePath = '';
+
+        // Tenta buscar da configuracaosistema primeiro (prioridade mÃ¡xima)
+        const [configRows] = await connection.query("SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoTemplateExcelOrdemServico'");
+        if (configRows.length > 0 && configRows[0].valor && fs.existsSync(configRows[0].valor)) {
+            templatePath = configRows[0].valor;
+        } else {
+            // LÃ³gica dinÃ¢mica baseada no tenant (banco ativo)
+            const BASE_DRIVE_PATH = 'G:\\Meu Drive\\ConfiguraÃ§Ãµes';
+            let tenantFolder = null;
+
+            // PossÃ­veis nomes da pasta do cliente no Google Drive
+            const possibleFolderNames = [
+                dbName, 
+                dbName.charAt(0).toUpperCase() + dbName.slice(1).toLowerCase(), 
+                dbName.toUpperCase(),
+                'Configuracao' + dbName,
+                'ConfiguraÃ§Ã£o' + dbName,
+                'Configuracao' + dbName.charAt(0).toUpperCase() + dbName.slice(1).toLowerCase()
+            ];
+
+            for (const folderName of possibleFolderNames) {
+                const fullPath = path.join(BASE_DRIVE_PATH, folderName);
+                if (fs.existsSync(fullPath)) {
+                    tenantFolder = fullPath;
+                    break;
+                }
+            }
+
+            if (!tenantFolder) {
+                // Caso nÃ£o encontre pasta especÃ­fica, tenta fallback para lynxlocal
+                if (dbName === 'lynxlocal' || dbName === 'Lynx') {
+                    const lynxPath = 'G:\\Meu Drive\\Estrutura padrÃ£o Lynx\\023-SGQ\\023-001-FORMULARIOS\\Templat-OS-Rev03.xlsx';
+                    if (fs.existsSync(lynxPath)) {
+                        templatePath = lynxPath;
+                    } else {
+                        return res.status(400).json({ success: false, message: 'Template Excel do Lynx nÃ£o encontrado.' });
+                    }
+                } else {
+                    return res.status(400).json({ success: false, message: `Pasta de configuraÃ§Ã£o nÃ£o encontrada para o banco: ${dbName}` });
+                }
             } else {
-                return res.status(400).json({ success: false, message: 'Template Excel nÃƒÂ£o encontrado: ' + templatePath });
+                // Procurar pelo arquivo de template de OS dentro da pasta do tenant
+                const templateNames = [
+                    'Template-OS-rev02.xlsx',
+                    'Templat-OS-rev02.xlsx',
+                    'Templat-OS-Rev03.xlsx',
+                    'Template-OS.xlsx',
+                    'Templat-OS.xlsx'
+                ];
+
+                for (const tName of templateNames) {
+                    // Tenta direto na raiz da pasta do cliente
+                    const testPath = path.join(tenantFolder, tName);
+                    if (fs.existsSync(testPath)) {
+                        templatePath = testPath;
+                        break;
+                    }
+                    // Tenta numa subpasta Configuracao por garantia
+                    const testPathSub = path.join(tenantFolder, 'Configuracao', tName);
+                    if (fs.existsSync(testPathSub)) {
+                        templatePath = testPathSub;
+                        break;
+                    }
+                }
+
+                if (!templatePath) {
+                    return res.status(400).json({ success: false, message: `Nenhum template Excel de OS (ex: Templat-OS-rev02.xlsx) encontrado na pasta: ${tenantFolder}` });
+                }
             }
         }
 
@@ -6685,7 +6745,7 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
         for (let i = 0; i < itens.length; i++) {
             const item = itens[i];
             const rowNum = startRow + i;
-            
+
             // Populate Sheet 0
             ws0.cell(`A${rowNum}`).value(item.IdOrdemServicoItem || '');
             ws0.cell(`B${rowNum}`).value(sanitize(item.CodMatFabricante));
@@ -6718,8 +6778,8 @@ app.post('/api/ordemservico/:id/excel', tenantMiddleware, async (req, res) => {
         }
 
         const fileName = `OS_${osString}.xlsx`;
-        const path = require('path');
-        const finalFile = path.join(destPath, fileName);
+        const p = require('path');
+        const finalFile = p.join(destPath, fileName);
 
         await workbook.toFileAsync(finalFile);
 
@@ -9625,15 +9685,15 @@ app.post('/api/producao/reposicao', async (req, res) => {
 // GET Menu Structure
 // COPY-ON-FIRST-READ: Se o banco ativo não tiver menu próprio, retorna o menu do lynxlocal como template.
 // Qualquer escrita (POST /api/config/menu) salva localmente e quebra o vínculo com lynxlocal.
-app.get('/api/config/menu', async (req, res) => {
+app.get('/api/config/menu', tenantMiddleware, async (req, res) => {
     try {
         // Verifica se o banco ativo já tem configuração própria (ao menos 1 linha)
-        const [countRows] = await pool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
+        const [countRows] = await req.tenantDbPool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
         const tenantHasOwnConfig = countRows[0].cnt > 0;
 
         if (tenantHasOwnConfig) {
             // Banco ativo tem linha própria: usa o MenuStructure local
-            const [rows] = await pool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
+            const [rows] = await req.tenantDbPool.execute('SELECT MenuStructure FROM configuracaosistema LIMIT 1');
             if (rows.length > 0 && rows[0].MenuStructure) {
                 try {
                     const menu = JSON.parse(rows[0].MenuStructure);
@@ -9671,16 +9731,16 @@ app.get('/api/config/menu', async (req, res) => {
 
 // SAVE Menu Structure
 // Esta escrita quebra o vínculo com o lynxlocal permanentemente para este banco.
-app.post('/api/config/menu', async (req, res) => {
+app.post('/api/config/menu', tenantMiddleware, async (req, res) => {
     const { menu } = req.body;
     try {
-        await ensureConfigColumns(pool);
+        await ensureConfigColumns(req.tenantDbPool);
         const menuJson = JSON.stringify(menu);
-        const [rows] = await pool.execute('SELECT id FROM configuracaosistema LIMIT 1');
+        const [rows] = await req.tenantDbPool.execute('SELECT id FROM configuracaosistema LIMIT 1');
         if (rows.length > 0) {
-            await pool.execute('UPDATE configuracaosistema SET MenuStructure = ? WHERE id = ?', [menuJson, rows[0].id]);
+            await req.tenantDbPool.execute('UPDATE configuracaosistema SET MenuStructure = ? WHERE id = ?', [menuJson, rows[0].id]);
         } else {
-            await pool.execute('INSERT INTO configuracaosistema (MenuStructure) VALUES (?)', [menuJson]);
+            await req.tenantDbPool.execute('INSERT INTO configuracaosistema (MenuStructure) VALUES (?)', [menuJson]);
         }
         console.log('[Config/Menu POST] Menu salvo localmente. Banco agora tem config própria.');
         res.json({ success: true });
@@ -9693,7 +9753,7 @@ app.post('/api/config/menu', async (req, res) => {
 // --- CRUD: UsuÃ¯Â¿Â½rios ---
 
 // LIST Users
-app.get('/api/usuario', async (req, res) => {
+app.get('/api/usuario', tenantMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.execute(`
             SELECT idUsuario, NomeCompleto, Login, TipoUsuario, email, status 
@@ -9758,7 +9818,7 @@ app.get('/api/usuario/:id', async (req, res) => {
 });
 
 // CREATE User (with Central Sync)
-app.post('/api/usuario', async (req, res) => {
+app.post('/api/usuario', tenantMiddleware, async (req, res) => {
     const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
             txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
             MapaProducao, Romaneio, OrdemServico, SolidWorks,
@@ -9816,7 +9876,7 @@ app.post('/api/usuario', async (req, res) => {
     }
 });
 // UPDATE User (with all permission fields)
-app.put('/api/usuario/:id', async (req, res) => {
+app.put('/api/usuario/:id', tenantMiddleware, async (req, res) => {
     const id = req.params.id;
     const { NomeCompleto, Login, Senha, TipoUsuario, Setor, email, Descricao, Sigla,
             txtCorte, txtDobra, txtSolda, txtPintura, txtMontagem, txtAlmoxarifado,
@@ -9868,7 +9928,7 @@ app.put('/api/usuario/:id', async (req, res) => {
 });
 
 // DELETE User (Soft)
-app.delete('/api/usuario/:id', async (req, res) => {
+app.delete('/api/usuario/:id', tenantMiddleware, async (req, res) => {
     try {
         const now = getCurrentDateTimeBR();
         await pool.execute(
@@ -9885,15 +9945,148 @@ app.delete('/api/usuario/:id', async (req, res) => {
 // --- RNC / PENDÃ¯Â¿Â½NCIA ROMANEIO ---
 
 // GET /api/rnc/sectors - List all sectors from dedicated table
-app.get('/api/rnc/sectors', async (req, res) => {
+app.get('/api/rnc/sectors', tenantMiddleware, async (req, res) => {
     try {
-        const [rows] = await pool.execute(
+        const [rows] = await req.tenantDbPool.execute(
             "SELECT DISTINCT Setor FROM setor WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Setor"
         );
         res.json({ success: true, data: rows.map(r => r.Setor) });
     } catch (error) {
-        console.error('Error fetching RNC sectors:', error);
+        console.error('Error fetching sectors:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar setores' });
+    }
+});
+
+// --- SETORES CRUD ---
+
+// GET /api/setores - Listar todos os setores (usado na tela de Manutenção)
+app.get('/api/setores', tenantMiddleware, async (req, res) => {
+    try {
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT idSetor, Setor, DataLiberada, Fabrica, DataCriacao, CriadoPor FROM setor WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY idSetor DESC"
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching setores:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar setores' });
+    }
+});
+
+// POST /api/setores - Criar novo setor
+app.post('/api/setores', tenantMiddleware, async (req, res) => {
+    const { Setor, Fabrica, DataLiberada } = req.body;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        await req.tenantDbPool.execute(
+            "INSERT INTO setor (Setor, Fabrica, DataLiberada, CriadoPor, DataCriacao) VALUES (?, ?, ?, ?, ?)",
+            [Setor, Fabrica || 'NAO', DataLiberada || 'NAO', usuario, nowFormat]
+        );
+        res.json({ success: true, message: 'Setor criado com sucesso' });
+    } catch (error) {
+        console.error('Error creating setor:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar setor' });
+    }
+});
+
+// PUT /api/setores/:id - Atualizar setor
+app.put('/api/setores/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { Setor, Fabrica, DataLiberada } = req.body;
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE setor SET Setor = ?, Fabrica = ?, DataLiberada = ? WHERE idSetor = ?",
+            [Setor, Fabrica, DataLiberada, id]
+        );
+        res.json({ success: true, message: 'Setor atualizado com sucesso' });
+    } catch (error) {
+        console.error('Error updating setor:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar setor' });
+    }
+});
+
+// DELETE /api/setores/:id - Excluir setor (Soft delete)
+app.delete('/api/setores/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE setor SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE idSetor = ?",
+            [nowFormat, usuario, id]
+        );
+        res.json({ success: true, message: 'Setor excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting setor:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir setor' });
+    }
+});
+
+// --- MOTORISTAS API ---
+
+// GET /api/motoristas - Listar todos os motoristas
+app.get('/api/motoristas', tenantMiddleware, async (req, res) => {
+    try {
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT * FROM motorista WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Motorista"
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching motoristas:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar motoristas' });
+    }
+});
+
+// POST /api/motoristas - Criar novo motorista
+app.post('/api/motoristas', tenantMiddleware, async (req, res) => {
+    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        await req.tenantDbPool.execute(
+            "INSERT INTO motorista (Motorista, CNH, Categoria, Telefone, DataCadastro) VALUES (?, ?, ?, ?, ?)",
+            [Motorista, CNH || '', Categoria || '', Telefone || '', nowFormat]
+        );
+        res.json({ success: true, message: 'Motorista criado com sucesso' });
+    } catch (error) {
+        console.error('Error creating motorista:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar motorista' });
+    }
+});
+
+// PUT /api/motoristas/:id - Atualizar motorista
+app.put('/api/motoristas/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE motorista SET Motorista = ?, CNH = ?, Categoria = ?, Telefone = ? WHERE IdMotorista = ?",
+            [Motorista, CNH || '', Categoria || '', Telefone || '', id]
+        );
+        res.json({ success: true, message: 'Motorista atualizado com sucesso' });
+    } catch (error) {
+        console.error('Error updating motorista:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar motorista' });
+    }
+});
+
+// DELETE /api/motoristas/:id - Excluir motorista (Soft delete)
+app.delete('/api/motoristas/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE motorista SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdMotorista = ?",
+            [nowFormat, usuario, id]
+        );
+        res.json({ success: true, message: 'Motorista excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting motorista:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir motorista' });
     }
 });
 

@@ -16,6 +16,8 @@ import AcabamentoPage from './pages/Acabamento';
 import MaterialPage from './pages/Material';
 import ProjetoPage from './pages/Projeto';
 import TipoProdutoPage from './pages/TipoProduto';
+import SetorPage from './pages/Setor';
+import MotoristaPage from './pages/Motorista';
 import OrdemServicoPage from './pages/OrdemServico';
 import ApontamentoProducaoPage from './pages/ApontamentoProducao';
 import ApontamentosParciaisPage from './pages/ApontamentosParciais';
@@ -375,6 +377,14 @@ function AppContent() {
         return <ProjetoPage />;
       case 'tipos-produto':
         return <TipoProdutoPage />;
+      case 'setor':
+      case 'group_1781115534701':
+      case 'cadastros_setor':
+        return <SetorPage />;
+      case 'motorista':
+      case 'group_1781115591581':
+      case 'cadastros_motorista':
+        return <MotoristaPage />;
       case 'ordens-servico':
         return <OrdemServicoPage />;
       case 'montagem-plano-corte':
