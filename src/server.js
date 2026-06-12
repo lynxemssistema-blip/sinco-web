@@ -1900,7 +1900,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 }
             });
         } else {
-            res.status(401).json({ success: false, message: 'Credenciais invÃ¯Â¿Â½lidas' });
+            res.status(401).json({ success: false, message: 'Credenciais inválidas' });
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -1981,7 +1981,7 @@ app.post('/api/admin/login', async (req, res) => {
         }
 
         console.warn(`[ADMIN AUTH] Invalid credentials for: ${username}`);
-        res.status(401).json({ success: false, message: 'Credenciais invÃ¯Â¿Â½lidas' });
+        res.status(401).json({ success: false, message: 'Credenciais inválidas' });
     } catch (error) {
         console.error('[ADMIN AUTH] Database Error:', error);
         res.status(500).json({ success: false, message: 'Erro no servidor' });
@@ -4173,7 +4173,7 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 p.IdProjeto, p.Projeto, p.DescProjeto, 
                 CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa,
                 p.DataPrevisao, p.DataCriacao,
-                TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.DescStatus,
+                TRIM(p.Finalizado) as Finalizado, p.DataFinalizado, p.liberado, p.StatusProj, p.DescStatus,
 
                 /* -- Tags / Pecas nativos da tabela Projetos -- */
                 COUNT(t.IdTag) AS QtdeTags,
@@ -6480,17 +6480,13 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
         ]);
 
         // Inicializar TotalExecutar do primeiro setor para todos os itens clonados
-        // Usa CASE WHEN para selecionar Corte → Dobra → Solda → Pintura → Montagem
-        await connection.query(`
-            UPDATE ordemservicoitem SET
-                CorteTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   = '1' THEN QtdeTotal ELSE CorteTotalExecutar   END,
-                DobraTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   = '1' THEN QtdeTotal ELSE DobraTotalExecutar   END,
-                SoldaTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   = '1' THEN QtdeTotal ELSE SoldaTotalExecutar   END,
-                PinturaTotalExecutar = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   = '1' THEN QtdeTotal ELSE PinturaTotalExecutar END,
-                MontagemTotalExecutar= CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   != '1' AND TRIM(COALESCE(TxtMontagem,'')) = '1' THEN QtdeTotal ELSE MontagemTotalExecutar END
-            WHERE IdOrdemServico = ?
-              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
-        `, [novoId]);
+        const [clonedItems] = await connection.query(
+            `SELECT IdOrdemServicoItem FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+            [novoId]
+        );
+        for (const cItem of clonedItems) {
+            await inicializarPrimeiroSetor(connection, cItem.IdOrdemServicoItem);
+        }
 
         // Recalcular as somatórias em cascata pelo fato de termos novos itens clonados
         await recalcularQuantidadesTotais(novoId, connection);
@@ -7673,8 +7669,8 @@ const setorColumns = {
 
 /**
  * Após inserir um ordemservicoitem, atualiza o campo TotalExecutar
- * do PRIMEIRO setor que tiver processo (txt* = '1') com o valor de QtdeTotal.
- * Ordem de verificação: Corte → Dobra → Solda → Pintura → Montagem
+ * do PRIMEIRO setor que tiver processo (txt* = '1' ou 'S') com o valor de QtdeTotal.
+ * Agora suporta qualquer setor dinâmico da base de dados.
  *
  * @param {object} conn  - conexão ativa (pool ou connection)
  * @param {number} id    - IdOrdemServicoItem recém-inserido
@@ -7682,33 +7678,47 @@ const setorColumns = {
 async function inicializarPrimeiroSetor(conn, id) {
     try {
         const [rows] = await conn.execute(
-            `SELECT QtdeTotal, txtCorte, txtDobra, txtSolda, txtPintura, TxtMontagem
-             FROM ordemservicoitem WHERE IdOrdemServicoItem = ? LIMIT 1`,
+            `SELECT * FROM ordemservicoitem WHERE IdOrdemServicoItem = ? LIMIT 1`,
             [id]
         );
         if (!rows || rows.length === 0) return;
 
         const item = rows[0];
-        const qtde = parseFloat(item.QtdeTotal) || 0;
+        const qtde = parseFloat(item.QtdeTotal ?? item.qtdetotal) || 0;
         if (qtde <= 0) return;
 
-        // Ordem de prioridade dos setores
-        const ordem = [
-            { campo: 'CorteTotalExecutar',     flag: item.txtCorte     },
-            { campo: 'DobraTotalExecutar',     flag: item.txtDobra     },
-            { campo: 'SoldaTotalExecutar',     flag: item.txtSolda     },
-            { campo: 'PinturaTotalExecutar',   flag: item.txtPintura   },
-            { campo: 'MontagemTotalExecutar',  flag: item.TxtMontagem  },
+        // Ordem base de processos da indústria
+        const sequenciaSetores = [
+            'ENGENHARIA', 'ISOMETRICO', 'MEDICAO', 'Corte', 'CorteaLaser',
+            'CortePuncionadeira', 'CorteSerradeFita', 'CorteLaser', 'Usinagem',
+            'PUNCIONADEIRA', 'SERRADEFITA', 'Dobra', 'CALDEIRARIA', 'SERRALHERIA',
+            'Solda', 'SoldaaLaser', 'SoldaMig', 'SoldaTg', 'Pintura', 'Montagem',
+            'ACABAMENTO', 'APROVACAO', 'APROVAÇÃO'
         ];
 
-        const primeiro = ordem.find(s => String(s.flag).trim() === '1');
-        if (!primeiro) return; // nenhum setor com processo
+        let primeiroSetor = null;
+        for (const sec of sequenciaSetores) {
+            const txtField = `txt${sec}`;
+            const val = item[txtField];
+            if (String(val).trim() === '1' || String(val).trim().toUpperCase() === 'S') {
+                primeiroSetor = sec;
+                break;
+            }
+        }
 
-        await conn.execute(
-            `UPDATE ordemservicoitem SET \`${primeiro.campo}\` = ? WHERE IdOrdemServicoItem = ?`,
-            [qtde, id]
-        );
-        console.log(`[inicializarPrimeiroSetor] Item ${id}: ${primeiro.campo} = ${qtde}`);
+        if (!primeiroSetor) return; // nenhum setor com processo
+
+        const campoAExecutar = `${primeiroSetor}TotalExecutar`;
+
+        // Verifica se a coluna existe e se já está preenchida
+        if (item[campoAExecutar] !== undefined && (item[campoAExecutar] === null || item[campoAExecutar] === '' || item[campoAExecutar] == 0)) {
+            await conn.execute(
+                `UPDATE ordemservicoitem SET \`${campoAExecutar}\` = ? WHERE IdOrdemServicoItem = ?`,
+                [qtde, id]
+            );
+        }
+
+        console.log(`[inicializarPrimeiroSetor] Item ${id}: ${campoAExecutar} = ${qtde}`);
     } catch (err) {
         console.error(`[inicializarPrimeiroSetor] Erro ao inicializar item ${id}:`, err.message);
     }

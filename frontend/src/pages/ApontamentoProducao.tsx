@@ -1224,13 +1224,13 @@ export default function ApontamentoProducaoPage() {
                         <span className="w-[140px] shrink-0">Código</span>
                         <span className="w-6 shrink-0 text-center">PDF</span>
                         <span className="w-12 shrink-0 text-center">PC</span>
+                        <span className="w-16 shrink-0 text-center">Apontar</span>
+                        <span className="w-10 shrink-0 text-center">Qt</span>
+                        <span className="w-14 shrink-0 text-center">Prod.</span>
                         <span className="w-28 shrink-0">Material</span>
                         <span className="w-12 shrink-0 text-center">Esp.</span>
                         <span className="w-48 shrink-0">Descrição</span>
                         <span className="w-20 shrink-0 text-center">Data Planej.</span>
-                        <span className="w-16 shrink-0 text-center">Apontar</span>
-                        <span className="w-10 shrink-0 text-center">Qt</span>
-                        <span className="w-14 shrink-0 text-center">Prod.</span>
                         <span className="w-12 shrink-0 text-center">%</span>
                         <span className="w-28 shrink-0 text-right pr-2">Ação</span>
                     </div>
@@ -1599,27 +1599,6 @@ export default function ApontamentoProducaoPage() {
                                                         {item.PlanoCorte || '-'}
                                                     </span>
                                                 </div>
-                                                <div className="w-28 shrink-0 flex items-center">
-                                                    <span className="text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
-                                                        {item.MaterialSW || '-'}
-                                                    </span>
-                                                </div>
-
-                                                {/* Espessura */}
-                                                <div className="w-12 shrink-0 text-center text-[10px] text-gray-600">
-                                                    {item.Espessura || '-'}
-                                                </div>
-
-                                                {/* Descrição */}
-                                                <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]" title={item.DescResumo?.trim() || '-'}>
-                                                    {item.DescResumo?.trim() || '-'}
-                                                </span>
-
-                                                {/* Data Planejamento */}
-                                                <div className="w-20 shrink-0 text-center text-[10px] text-gray-700 font-bold">
-                                                    {item.DataPlanejamento ? formatDate(item.DataPlanejamento) : '-'}
-                                                </div>
-
                                                 {/* Apontar Button */}
                                                 <div className="w-16 shrink-0 flex justify-center">
                                                     {(() => {
@@ -1660,6 +1639,27 @@ export default function ApontamentoProducaoPage() {
                                                     <span className={`font-bold text-[10px] ${concluido ? 'text-green-600' : 'text-gray-600'}`}>
                                                         {qtdeProduzida}/{qtdeTotal}
                                                     </span>
+                                                </div>
+
+                                                <div className="w-28 shrink-0 flex items-center">
+                                                    <span className="text-[10px] font-bold text-[#32423D] bg-[#E0E800]/20 px-1.5 py-0.5 rounded truncate">
+                                                        {item.MaterialSW || '-'}
+                                                    </span>
+                                                </div>
+
+                                                {/* Espessura */}
+                                                <div className="w-12 shrink-0 text-center text-[10px] text-gray-600">
+                                                    {item.Espessura || '-'}
+                                                </div>
+
+                                                {/* Descrição */}
+                                                <span className="w-48 shrink-0 text-gray-700 truncate text-[10px]" title={item.DescResumo?.trim() || '-'}>
+                                                    {item.DescResumo?.trim() || '-'}
+                                                </span>
+
+                                                {/* Data Planejamento */}
+                                                <div className="w-20 shrink-0 text-center text-[10px] text-gray-700 font-bold">
+                                                    {item.DataPlanejamento ? formatDate(item.DataPlanejamento) : '-'}
                                                 </div>
 
                                                 {/* Progress */}

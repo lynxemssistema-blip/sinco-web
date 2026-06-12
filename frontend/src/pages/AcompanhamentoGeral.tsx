@@ -26,6 +26,7 @@ interface ProjetoAcomp {
     DataPrevisao: string | null;
     liberado: string | null;
     Finalizado: string | null;
+    DataFinalizado: string | null;
     PlanejadoInicioAPROVACAO: string | null;
     PlanejadoFinalAPROVACAO: string | null;
     RealizadoInicioAPROVACAO: string | null;
@@ -707,7 +708,8 @@ function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: P
                 <div className="mt-4 grid grid-cols-5 gap-3">
                     {setoresVisiveis.map(s => {
                         const tot = totais[s.key as keyof typeof totais];
-                        const pct = tot[0] > 0 ? Math.round((tot[1] / tot[0]) * 100) : 0;
+                        const sumTotal = tot[0] + tot[1];
+                        const pct = sumTotal > 0 ? Math.round((tot[1] / sumTotal) * 100) : 0;
                         const IconComp = s.icon;
                         return (
                             <div key={s.key} className="flex flex-col gap-1.5 p-3 rounded-xl border" style={{ backgroundColor: s.bg, borderColor: s.border }}>
@@ -918,10 +920,10 @@ export default function AcompanhamentoGeralPage() {
                         )}
                     </div>
 
-                    {/* Data Final: De — Até */}
+                    {/* Data Previsao: De — Até */}
                     <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
                         <Calendar size={12} className="text-slate-400 shrink-0" />
-                        <span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">Data Final:</span>
+                        <span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">Data Previsao:</span>
                         <span className="text-[10px] text-slate-400 whitespace-nowrap">De</span>
                         <input id="acomp-data-de" type="date" value={fDataDe}
                             onChange={e => setFDataDe(e.target.value)} title="Data inicial"
@@ -1016,7 +1018,7 @@ export default function AcompanhamentoGeralPage() {
                             <thead className="bg-[#567469] text-white sticky top-0 z-20 shadow-sm">
                                 <tr className="bg-[#0B3A2D] text-white border-b border-[#0B3A2D]">
                                     <th className="px-3 py-2 text-left font-black tracking-wider uppercase border-r border-[#155A47]">Projeto / Cliente</th>
-                                    <th className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-24">Data Final</th>
+                                    <th className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-24">Data Previsao</th>
                                     {setoresAtivos.map(s => (
                                         <th key={s.key} className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-28">
                                             {s.label}
@@ -1029,6 +1031,52 @@ export default function AcompanhamentoGeralPage() {
                                 {projetos.map(p => {
                                     const isSelected = selected?.IdProjeto === p.IdProjeto;
                                     const finalizado = p.Finalizado === 'C';
+                                    
+                                    const firstSectorKey = setoresAtivos.length > 0 ? setoresAtivos[0].key : null;
+                                    let isAtrasado = false;
+                                    
+                                    const parseDateSafe = (dStr: string) => {
+                                        if (!dStr) return null;
+                                        // Verifica se está no formato DD/MM/YYYY (brasileiro)
+                                        if (/^\d{2}\/\d{2}\/\d{4}/.test(dStr)) {
+                                            const parts = dStr.split(/[\s/:]+/);
+                                            if (parts.length >= 3) {
+                                                return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+                                            }
+                                        }
+                                        // Caso contrário, tenta o parse nativo do JS (útil para formatos ISO como YYYY-MM-DDTHH:mm:ss.sssZ)
+                                        const d = new Date(dStr);
+                                        if (!isNaN(d.getTime())) return d;
+                                        return null;
+                                    };
+
+                                    if (firstSectorKey && p.DataPrevisao) {
+                                        const dataRealizado = (p as any)[`RealizadoInicio${firstSectorKey}`];
+                                        const dtPrevisao = parseDateSafe(p.DataPrevisao);
+                                        
+                                        if (dtPrevisao) {
+                                            dtPrevisao.setHours(0,0,0,0);
+                                            
+                                            if (dataRealizado) {
+                                                // Já tem apontamento inicial: verifica se começou atrasado
+                                                const dtRealizado = parseDateSafe(dataRealizado);
+                                                if (dtRealizado) {
+                                                    dtRealizado.setHours(0,0,0,0);
+                                                    if (dtRealizado > dtPrevisao) {
+                                                        isAtrasado = true;
+                                                    }
+                                                }
+                                            } else {
+                                                // Nenhum apontamento inicial ainda: verifica se a previsão já venceu hoje
+                                                const hoje = new Date();
+                                                hoje.setHours(0,0,0,0);
+                                                if (hoje > dtPrevisao) {
+                                                    isAtrasado = true;
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     return (
                                         <tr
                                             key={p.IdProjeto}
@@ -1043,8 +1091,15 @@ export default function AcompanhamentoGeralPage() {
                                                 </div>
                                             </td>
                                             
-                                            <td className="px-2 py-2 text-center border-r border-slate-100 font-black text-slate-600 whitespace-nowrap">
-                                                {fmtDate(p.DataPrevisao)}
+                                            <td className={`px-2 py-2 text-center border-r border-slate-100 font-black whitespace-nowrap ${isAtrasado && !finalizado ? 'text-red-600 bg-red-50' : 'text-slate-600'}`}>
+                                                <div className="flex flex-col items-center justify-center gap-0.5">
+                                                    <span>{fmtDate(p.DataPrevisao)}</span>
+                                                    {finalizado && p.DataFinalizado && (
+                                                        <span className="text-[9px] text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200" title="Data Finalização">
+                                                            ✓ {fmtDate(p.DataFinalizado)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             {setoresAtivos.map(s => (
                                                 <td key={s.key} className="px-1 py-1.5">

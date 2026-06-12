@@ -877,7 +877,7 @@ export default function VisaoGeralProducaoPage() {
                                     <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] border-b border-white/20 sticky top-0 z-10 shadow-sm">
                                         <tr>
                                             <th className="px-4 py-3 border-r border-slate-100">Projeto</th>
-                                            <th className="px-3 py-3 border-r border-slate-100 text-center">Progresso (Peças)</th>
+                                            <th className="px-3 py-3 border-r border-slate-100 text-center">Peças</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">TAGS / Qtde</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">OS / Itens</th>
                                             <th className="px-3 py-3 border-r border-slate-100 text-center">RNCs</th>
@@ -911,7 +911,7 @@ export default function VisaoGeralProducaoPage() {
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
                                                         <div className="flex flex-col items-center justify-center text-center gap-0.5">
                                                              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Peças</div>
-                                                             <div className="text-sm font-black text-slate-800">{p.QtdePecasExecutadas}<span className="text-[10px] text-slate-400 font-medium">/{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</span></div>
+                                                             <div className="text-sm font-black text-slate-800">{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</div>
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-3 align-middle text-center border-r border-slate-100">

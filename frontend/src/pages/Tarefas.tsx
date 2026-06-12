@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, ListTodo, CheckCircle, Edit3, Loader, Plus, Save, FileSpreadsheet, ChevronUp, ChevronDown } from 'lucide-react';
+import { Loader2, ListTodo, CheckCircle, Edit3, Loader, Plus, Save, FileSpreadsheet, ChevronUp, ChevronDown, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const API_BASE = '/api';
@@ -337,6 +337,15 @@ export default function TarefasPage() {
                             {formAberto ? 'Ocultar' : 'Exibir'}
                             {formAberto ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         </button>
+                        {rncForm.idRnc && (
+                            <button
+                                className="ml-1 flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 rounded-lg border border-red-200 transition-colors shadow-sm"
+                                onClick={() => { setRncForm({ ...limpo }); setFormAberto(false); }}
+                                title="Fechar Edição"
+                            >
+                                <X size={14} /> Fechar
+                            </button>
+                        )}
                     </div>
                 </div>
 
