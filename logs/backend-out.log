@@ -60625,3 +60625,701 @@
 10/06/2026 17:26:30: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
 10/06/2026 17:26:31: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
 10/06/2026 17:26:31: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+10/06/2026 17:27:07: [dotenv@17.2.3] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+10/06/2026 17:27:07: [DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+10/06/2026 17:27:08: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+10/06/2026 17:27:08: Server running on port 3000 and listening on all interfaces(0.0.0.0)
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/config?limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/config?limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/config/menu?t=1781123276270&limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"t":"1781123276270","limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/material?limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/familia/options?limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [API] GET /api/pj/options?limit=500
+10/06/2026 17:27:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:56: 
+10/06/2026 17:27:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: [API] 401 (1645ms)
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [API] GET /api/medida/options?limit=500
+10/06/2026 17:27:57: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:57: 
+10/06/2026 17:27:57: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: [API] 401 (1848ms)
+10/06/2026 17:27:58: [API] 401 (1797ms)
+10/06/2026 17:27:58: [API] 401 (1804ms)
+10/06/2026 17:27:58: [API] 401 (1739ms)
+10/06/2026 17:27:58: [API] 401 (1743ms)
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/material?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/familia/options?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/pj/options?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/medida/options?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: [API] 401 (186ms)
+10/06/2026 17:27:58: [API] 401 (161ms)
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:27:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: [API] 401 (169ms)
+10/06/2026 17:27:58: [API] 401 (172ms)
+10/06/2026 17:27:58: [API] 401 (175ms)
+10/06/2026 17:27:58: [API] 401 (178ms)
+10/06/2026 17:27:58: 
+10/06/2026 17:27:58: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+10/06/2026 17:27:58: [API] 401 (165ms)
+10/06/2026 17:28:17: 
+10/06/2026 17:28:17: [API] POST /api/login
+10/06/2026 17:28:17: [API]    BODY: {"login":"superadmin","senha":"sincoMaster2026!"}
+10/06/2026 17:28:17: [AUTH] Attempting central login for user: superadmin
+10/06/2026 17:28:18: [AUTH] Falling back to local DB auth
+10/06/2026 17:28:18: [API] 500 (1662ms)
+10/06/2026 17:28:33: 
+10/06/2026 17:28:33: [API] POST /api/login
+10/06/2026 17:28:33: [API]    BODY: {"login":"superadmin","senha":"SincoMaster2026!"}
+10/06/2026 17:28:33: [AUTH] Attempting central login for user: superadmin
+10/06/2026 17:28:36: [AUTH] Falling back to local DB auth
+10/06/2026 17:28:36: [API] 500 (2736ms)
+10/06/2026 17:28:55: 
+10/06/2026 17:28:55: [API] POST /api/login
+10/06/2026 17:28:55: [API]    BODY: {"login":"superadmin","senha":"SincoMaster2026!"}
+10/06/2026 17:28:55: [AUTH] Attempting central login for user: superadmin
+10/06/2026 17:28:56: [AUTH] Falling back to local DB auth
+10/06/2026 17:28:56: [API] 500 (1302ms)
+10/06/2026 17:29:45: 
+10/06/2026 17:29:45: [API] POST /api/login
+10/06/2026 17:29:45: [API]    BODY: {"login":"superadmin","senha":"SincoMaster2026!"}
+10/06/2026 17:29:45: [AUTH] Attempting central login for user: superadmin
+10/06/2026 17:29:47: [AUTH] Central user found. Switching to tenant DB: lynxlocal
+10/06/2026 17:29:47: [DB] Pool already exists for lynxlocal. Re-using.
+10/06/2026 17:29:47: [AUTH-DEBUG] Querying DB lynxlocal for login: "superadmin"
+10/06/2026 17:29:47: [AUTH-DEBUG] Found 1 rows in local DB
+10/06/2026 17:29:47: [AUTH-DEBUG] TipoUsuario found: "A"
+10/06/2026 17:29:47: [API] 200 (1630ms)
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/material?limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/familia/options?limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/pj/options?limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/medida/options?limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/config/menu?t=1781123387358&limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"t":"1781123387358","limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/config?limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:47: 
+10/06/2026 17:29:47: [API] GET /api/config/menu?t=1781123387731&limit=500
+10/06/2026 17:29:47: [API]    QUERY: {"t":"1781123387731","limit":"500"}
+10/06/2026 17:29:47: [API] 200 (186ms)
+10/06/2026 17:29:48: [API] 200 (449ms)
+10/06/2026 17:29:48: 
+10/06/2026 17:29:48: [API] GET /api/config?limit=500
+10/06/2026 17:29:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:48: [API] 304 (193ms)
+10/06/2026 17:29:48: 
+10/06/2026 17:29:48: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:29:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:48: [API] 200 (102ms)
+10/06/2026 17:29:48: 
+10/06/2026 17:29:48: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:29:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:48: [API] 304 (54ms)
+10/06/2026 17:29:56: 
+10/06/2026 17:29:56: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:29:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:56: 
+10/06/2026 17:29:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:29:56: 
+10/06/2026 17:29:56: [API] GET /api/admin/users?limit=500
+10/06/2026 17:29:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:56: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:29:56: [API] 304 (124ms)
+10/06/2026 17:29:56: 
+10/06/2026 17:29:56: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:29:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:56: 
+10/06/2026 17:29:56: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:29:56: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:29:56: [API] 304 (28ms)
+10/06/2026 17:29:58: [API] 304 (1642ms)
+10/06/2026 17:29:58: 
+10/06/2026 17:29:58: [API] GET /api/admin/users?limit=500
+10/06/2026 17:29:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:29:58: [API] 304 (202ms)
+10/06/2026 17:30:01: 
+10/06/2026 17:30:01: [API] POST /api/superadmin/switch-db
+10/06/2026 17:30:01: [API]    BODY: {"dbName":"ecoindustria"}
+10/06/2026 17:30:01: 
+10/06/2026 17:30:01: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+10/06/2026 17:30:01: [DB] [DEFAULT] 🟢 OK - Rows: 1
+10/06/2026 17:30:01: [DB] Additional Pool initialized for: ecoindustria
+10/06/2026 17:30:01: [SuperAdmin] Pool lazy-loaded for switch to: ecoindustria
+10/06/2026 17:30:01: [SuperAdmin] superadmin switched to DB: ecoindustria (Ecoindustria)
+10/06/2026 17:30:01: [API] 200 (54ms)
+10/06/2026 17:30:02: 
+10/06/2026 17:30:02: [API] GET /api/config?limit=500
+10/06/2026 17:30:02: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:02: 
+10/06/2026 17:30:02: [API] GET /api/config/menu?t=1781123402842&limit=500
+10/06/2026 17:30:02: [API]    QUERY: {"t":"1781123402842","limit":"500"}
+10/06/2026 17:30:03: [Config/Menu GET] Retornando menu do lynxlocal como template para banco sem config própria.
+10/06/2026 17:30:03: [API] 200 (615ms)
+10/06/2026 17:30:03: [API] 200 (778ms)
+10/06/2026 17:30:03: 
+10/06/2026 17:30:03: [API] GET /api/config?limit=500
+10/06/2026 17:30:03: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:03: 
+10/06/2026 17:30:03: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:30:03: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:03: [API] 200 (119ms)
+10/06/2026 17:30:03: 
+10/06/2026 17:30:03: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:30:03: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:03: [API] 304 (52ms)
+10/06/2026 17:30:03: [API] 304 (239ms)
+10/06/2026 17:30:11: 
+10/06/2026 17:30:11: [API] GET /api/material?limit=500
+10/06/2026 17:30:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:11: 
+10/06/2026 17:30:11: [API] GET /api/familia/options?limit=500
+10/06/2026 17:30:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:11: 
+10/06/2026 17:30:11: [API] GET /api/pj/options?limit=500
+10/06/2026 17:30:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:11: 
+10/06/2026 17:30:11: [API] GET /api/medida/options?limit=500
+10/06/2026 17:30:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:11: [API] 200 (67ms)
+10/06/2026 17:30:11: 
+10/06/2026 17:30:11: [API] GET /api/familia/options?limit=500
+10/06/2026 17:30:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:11: [API] 304 (29ms)
+10/06/2026 17:30:12: [API] 200 (650ms)
+10/06/2026 17:30:12: 
+10/06/2026 17:30:12: [API] GET /api/material?limit=500
+10/06/2026 17:30:12: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:12: [API] 304 (286ms)
+10/06/2026 17:30:12: [API] 200 (1283ms)
+10/06/2026 17:30:12: 
+10/06/2026 17:30:12: [API] GET /api/medida/options?limit=500
+10/06/2026 17:30:12: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:12: [API] 200 (1289ms)
+10/06/2026 17:30:12: 
+10/06/2026 17:30:12: [API] GET /api/pj/options?limit=500
+10/06/2026 17:30:12: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:12: [API] 304 (46ms)
+10/06/2026 17:30:12: [API] 304 (49ms)
+10/06/2026 17:30:17: 
+10/06/2026 17:30:17: [API] GET /api/familia?limit=500
+10/06/2026 17:30:17: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:17: [API] 200 (47ms)
+10/06/2026 17:30:17: 
+10/06/2026 17:30:17: [API] GET /api/familia?limit=500
+10/06/2026 17:30:17: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:17: [API] 304 (23ms)
+10/06/2026 17:30:20: 
+10/06/2026 17:30:20: [API] GET /api/acabamento?limit=500
+10/06/2026 17:30:20: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:20: [API] 200 (53ms)
+10/06/2026 17:30:20: 
+10/06/2026 17:30:20: [API] GET /api/acabamento?limit=500
+10/06/2026 17:30:20: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:20: [API] 304 (30ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/projetos?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/tags?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/projetos-clonagem?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/setores?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico?page=1&limit=50&filtroFinalizado=NAO_FINALIZADAS&filtroLiberado=LIBERADAS
+10/06/2026 17:30:31: [API]    QUERY: {"page":"1","limit":"50","filtroFinalizado":"NAO_FINALIZADAS","filtroLiberado":"LIBERADAS"}
+10/06/2026 17:30:31: [API] 304 (51ms)
+10/06/2026 17:30:31: [API] 200 (54ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/usuarios?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/espessuras?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 200 (59ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/materiais?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 500 (35ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/projetos-clonagem?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 200 (56ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/projetos?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 200 (58ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/ordemservico/tags?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 304 (52ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/espessuras?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 304 (24ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/usuarios?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 304 (57ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config/materiais?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 304 (176ms)
+10/06/2026 17:30:31: 
+10/06/2026 17:30:31: [API] GET /api/config?limit=500
+10/06/2026 17:30:31: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:31: [API] 500 (36ms)
+10/06/2026 17:30:31: [API] 304 (58ms)
+10/06/2026 17:30:31: [API] 304 (61ms)
+10/06/2026 17:30:32: [API] 304 (217ms)
+10/06/2026 17:30:33: [API] 200 (2021ms)
+10/06/2026 17:30:33: 
+10/06/2026 17:30:33: [API] GET /api/config/setores?limit=500
+10/06/2026 17:30:33: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:33: [API] 304 (27ms)
+10/06/2026 17:30:36: [API] 200 (4616ms)
+10/06/2026 17:30:36: 
+10/06/2026 17:30:36: [API] GET /api/ordemservico?page=1&limit=50&filtroFinalizado=NAO_FINALIZADAS&filtroLiberado=LIBERADAS
+10/06/2026 17:30:36: [API]    QUERY: {"page":"1","limit":"50","filtroFinalizado":"NAO_FINALIZADAS","filtroLiberado":"LIBERADAS"}
+10/06/2026 17:30:38: [API] 304 (2537ms)
+10/06/2026 17:30:38: 
+10/06/2026 17:30:38: [API] GET /api/ordemservico?page=1&limit=50&filtroFinalizado=NAO_FINALIZADAS&filtroLiberado=LIBERADAS
+10/06/2026 17:30:38: [API]    QUERY: {"page":"1","limit":"50","filtroFinalizado":"NAO_FINALIZADAS","filtroLiberado":"LIBERADAS"}
+10/06/2026 17:30:41: [API] 304 (2536ms)
+10/06/2026 17:30:43: 
+10/06/2026 17:30:43: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:30:43: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:43: 
+10/06/2026 17:30:43: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:30:43: 
+10/06/2026 17:30:43: [API] GET /api/admin/users?limit=500
+10/06/2026 17:30:43: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:43: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:30:43: [API] 304 (30ms)
+10/06/2026 17:30:43: 
+10/06/2026 17:30:43: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:30:43: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:43: 
+10/06/2026 17:30:43: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:30:43: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:30:43: [API] 304 (32ms)
+10/06/2026 17:30:44: [API] 304 (1266ms)
+10/06/2026 17:30:44: 
+10/06/2026 17:30:44: [API] GET /api/admin/users?limit=500
+10/06/2026 17:30:44: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:44: [API] 304 (153ms)
+10/06/2026 17:30:49: 
+10/06/2026 17:30:49: [API] POST /api/superadmin/switch-db
+10/06/2026 17:30:49: [API]    BODY: {"dbName":"mettapaineis"}
+10/06/2026 17:30:49: 
+10/06/2026 17:30:49: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+10/06/2026 17:30:49: [DB] [DEFAULT] 🟢 OK - Rows: 1
+10/06/2026 17:30:49: [DB] Additional Pool initialized for: mettapaineis
+10/06/2026 17:30:49: [SuperAdmin] Pool lazy-loaded for switch to: mettapaineis
+10/06/2026 17:30:49: [SuperAdmin] superadmin switched to DB: mettapaineis (Metta Paineis)
+10/06/2026 17:30:49: [API] 200 (26ms)
+10/06/2026 17:30:50: 
+10/06/2026 17:30:50: [API] GET /api/config?limit=500
+10/06/2026 17:30:50: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:50: 
+10/06/2026 17:30:50: [API] GET /api/config/menu?t=1781123450261&limit=500
+10/06/2026 17:30:50: [API]    QUERY: {"t":"1781123450261","limit":"500"}
+10/06/2026 17:30:50: [Config/Menu GET] Retornando menu do lynxlocal como template para banco sem config própria.
+10/06/2026 17:30:50: [API] 200 (446ms)
+10/06/2026 17:30:50: [API] 200 (612ms)
+10/06/2026 17:30:50: 
+10/06/2026 17:30:50: [API] GET /api/config?limit=500
+10/06/2026 17:30:50: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:50: [API] 304 (149ms)
+10/06/2026 17:30:51: 
+10/06/2026 17:30:51: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:30:51: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:51: [API] 200 (105ms)
+10/06/2026 17:30:51: 
+10/06/2026 17:30:51: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:30:51: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:51: [API] 304 (65ms)
+10/06/2026 17:30:55: 
+10/06/2026 17:30:55: [API] GET /api/setores?limit=500
+10/06/2026 17:30:55: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:55: [API] 200 (124ms)
+10/06/2026 17:30:55: 
+10/06/2026 17:30:55: [API] GET /api/setores?limit=500
+10/06/2026 17:30:55: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:55: [API] 304 (28ms)
+10/06/2026 17:30:57: 
+10/06/2026 17:30:57: [API] GET /api/motoristas?limit=500
+10/06/2026 17:30:57: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:57: [API] 200 (68ms)
+10/06/2026 17:30:57: 
+10/06/2026 17:30:57: [API] GET /api/motoristas?limit=500
+10/06/2026 17:30:57: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:30:57: [API] 304 (40ms)
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/material?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/familia/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/pj/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/medida/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: [API] 200 (57ms)
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/familia/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: [API] 304 (24ms)
+10/06/2026 17:31:00: [API] 200 (627ms)
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/pj/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: [API] 200 (632ms)
+10/06/2026 17:31:00: 
+10/06/2026 17:31:00: [API] GET /api/medida/options?limit=500
+10/06/2026 17:31:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:00: [API] 304 (26ms)
+10/06/2026 17:31:00: [API] 304 (24ms)
+10/06/2026 17:31:01: [API] 200 (1150ms)
+10/06/2026 17:31:01: 
+10/06/2026 17:31:01: [API] GET /api/material?limit=500
+10/06/2026 17:31:01: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:01: [API] 304 (204ms)
+10/06/2026 17:31:11: 
+10/06/2026 17:31:11: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:31:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:11: 
+10/06/2026 17:31:11: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:31:11: 
+10/06/2026 17:31:11: [API] GET /api/admin/users?limit=500
+10/06/2026 17:31:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:11: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:31:11: [API] 304 (36ms)
+10/06/2026 17:31:11: 
+10/06/2026 17:31:11: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:31:11: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:11: 
+10/06/2026 17:31:11: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:31:11: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:31:11: [API] 304 (29ms)
+10/06/2026 17:31:12: [API] 304 (1263ms)
+10/06/2026 17:31:12: 
+10/06/2026 17:31:12: [API] GET /api/admin/users?limit=500
+10/06/2026 17:31:12: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:13: [API] 304 (144ms)
+10/06/2026 17:31:22: 
+10/06/2026 17:31:22: [API] POST /api/superadmin/switch-db
+10/06/2026 17:31:22: [API]    BODY: {"dbName":"amceletrica"}
+10/06/2026 17:31:22: 
+10/06/2026 17:31:22: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+10/06/2026 17:31:22: [DB] [DEFAULT] 🟢 OK - Rows: 1
+10/06/2026 17:31:22: [DB] Additional Pool initialized for: amceletrica
+10/06/2026 17:31:22: [SuperAdmin] Pool lazy-loaded for switch to: amceletrica
+10/06/2026 17:31:22: [SuperAdmin] superadmin switched to DB: amceletrica (Bruno AMC)
+10/06/2026 17:31:22: [API] 200 (26ms)
+10/06/2026 17:31:23: 
+10/06/2026 17:31:23: [API] GET /api/config?limit=500
+10/06/2026 17:31:23: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:23: 
+10/06/2026 17:31:23: [API] GET /api/config/menu?t=1781123483708&limit=500
+10/06/2026 17:31:23: [API]    QUERY: {"t":"1781123483708","limit":"500"}
+10/06/2026 17:31:23: [Config/Menu GET] Retornando menu do lynxlocal como template para banco sem config própria.
+10/06/2026 17:31:23: [API] 200 (252ms)
+10/06/2026 17:31:24: [API] 500 (436ms)
+10/06/2026 17:31:24: 
+10/06/2026 17:31:24: [API] GET /api/config?limit=500
+10/06/2026 17:31:24: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:24: [API] 500 (100ms)
+10/06/2026 17:31:24: 
+10/06/2026 17:31:24: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:31:24: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:24: [API] 200 (91ms)
+10/06/2026 17:31:24: 
+10/06/2026 17:31:24: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:31:24: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:24: [API] 304 (49ms)
+10/06/2026 17:31:28: 
+10/06/2026 17:31:28: [API] GET /api/motoristas?limit=500
+10/06/2026 17:31:28: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:28: [API] 200 (111ms)
+10/06/2026 17:31:28: 
+10/06/2026 17:31:28: [API] GET /api/motoristas?limit=500
+10/06/2026 17:31:28: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:28: [API] 304 (29ms)
+10/06/2026 17:31:30: 
+10/06/2026 17:31:30: [API] GET /api/setores?limit=500
+10/06/2026 17:31:30: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:30: [API] 200 (50ms)
+10/06/2026 17:31:30: 
+10/06/2026 17:31:30: [API] GET /api/setores?limit=500
+10/06/2026 17:31:30: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:30: [API] 304 (27ms)
+10/06/2026 17:31:36: 
+10/06/2026 17:31:36: [API] GET /api/rnc/sectors?limit=500
+10/06/2026 17:31:36: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:36: 
+10/06/2026 17:31:36: [API] GET /api/processosfabricacao?limit=500
+10/06/2026 17:31:36: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:36: 
+10/06/2026 17:31:36: [API] GET /api/admin/usuarios?limit=500
+10/06/2026 17:31:36: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:36: [API] 200 (52ms)
+10/06/2026 17:31:36: 
+10/06/2026 17:31:36: [API] GET /api/processosfabricacao?limit=500
+10/06/2026 17:31:36: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:36: [API] 200 (58ms)
+10/06/2026 17:31:36: 
+10/06/2026 17:31:36: [API] GET /api/rnc/sectors?limit=500
+10/06/2026 17:31:36: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:36: [API] 304 (23ms)
+10/06/2026 17:31:36: [API] 304 (23ms)
+10/06/2026 17:31:37: [API] 200 (1277ms)
+10/06/2026 17:31:37: 
+10/06/2026 17:31:37: [API] GET /api/admin/usuarios?limit=500
+10/06/2026 17:31:37: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:37: [API] 304 (28ms)
+10/06/2026 17:31:53: 
+10/06/2026 17:31:53: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:31:53: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:53: 
+10/06/2026 17:31:53: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:31:53: 
+10/06/2026 17:31:53: [API] GET /api/admin/users?limit=500
+10/06/2026 17:31:53: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:53: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:31:53: [API] 304 (27ms)
+10/06/2026 17:31:53: 
+10/06/2026 17:31:53: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:31:53: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:53: 
+10/06/2026 17:31:53: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:31:53: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:31:53: [API] 304 (33ms)
+10/06/2026 17:31:56: [API] 304 (2481ms)
+10/06/2026 17:31:56: 
+10/06/2026 17:31:56: [API] GET /api/admin/users?limit=500
+10/06/2026 17:31:56: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:31:56: [API] 304 (145ms)
+10/06/2026 17:32:03: 
+10/06/2026 17:32:03: [API] POST /api/superadmin/switch-db
+10/06/2026 17:32:03: [API]    BODY: {"dbName":"alfatec2"}
+10/06/2026 17:32:03: 
+10/06/2026 17:32:03: [DB] 🔵 EXEC (DEFAULT): SELECT id, nome_cliente, db_name, db_host, db_user, db_pass, db_port FROM conexoes_bancos WHERE db_name = ? AND ativo = 1 LIMIT 1
+10/06/2026 17:32:03: [DB] [DEFAULT] 🟢 OK - Rows: 1
+10/06/2026 17:32:03: [DB] Additional Pool initialized for: alfatec2
+10/06/2026 17:32:03: [SuperAdmin] Pool lazy-loaded for switch to: alfatec2
+10/06/2026 17:32:03: [SuperAdmin] superadmin switched to DB: alfatec2 (alfatec2)
+10/06/2026 17:32:03: [API] 200 (49ms)
+10/06/2026 17:32:04: 
+10/06/2026 17:32:04: [API] GET /api/config?limit=500
+10/06/2026 17:32:04: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:32:04: 
+10/06/2026 17:32:04: [API] GET /api/config/menu?t=1781123524592&limit=500
+10/06/2026 17:32:04: [API]    QUERY: {"t":"1781123524592","limit":"500"}
+10/06/2026 17:32:05: [API] 200 (540ms)
+10/06/2026 17:32:05: [API] 200 (762ms)
+10/06/2026 17:32:05: 
+10/06/2026 17:32:05: [API] GET /api/config?limit=500
+10/06/2026 17:32:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:32:05: 
+10/06/2026 17:32:05: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:32:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:32:05: [API] 304 (159ms)
+10/06/2026 17:32:05: [API] 200 (100ms)
+10/06/2026 17:32:05: 
+10/06/2026 17:32:05: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:32:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:32:05: [API] 304 (48ms)
+10/06/2026 17:34:59: 
+10/06/2026 17:34:59: [API] GET /api/setores?limit=500
+10/06/2026 17:34:59: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:00: [API] 200 (1470ms)
+10/06/2026 17:35:00: 
+10/06/2026 17:35:00: [API] GET /api/setores?limit=500
+10/06/2026 17:35:00: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:00: [API] 304 (39ms)
+10/06/2026 17:35:45: 
+10/06/2026 17:35:45: [API] GET /api/config?limit=500
+10/06/2026 17:35:45: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:45: 
+10/06/2026 17:35:45: [API] GET /api/config?limit=500
+10/06/2026 17:35:45: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:45: 
+10/06/2026 17:35:45: [API] GET /api/config/menu?t=1781123745180&limit=500
+10/06/2026 17:35:45: [API]    QUERY: {"t":"1781123745180","limit":"500"}
+10/06/2026 17:35:46: 
+10/06/2026 17:35:46: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:35:46: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:46: [API] 304 (171ms)
+10/06/2026 17:35:46: 
+10/06/2026 17:35:46: [API] GET /api/dashboard/stats?limit=500
+10/06/2026 17:35:46: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:46: [API] 304 (76ms)
+10/06/2026 17:35:47: [API] 200 (2032ms)
+10/06/2026 17:35:49: [API] 200 (3956ms)
+10/06/2026 17:35:49: [API] 200 (3965ms)
+10/06/2026 17:35:51: 
+10/06/2026 17:35:51: [API] GET /api/setores?limit=500
+10/06/2026 17:35:51: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:51: [API] 304 (45ms)
+10/06/2026 17:35:51: 
+10/06/2026 17:35:51: [API] GET /api/setores?limit=500
+10/06/2026 17:35:51: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:51: [API] 304 (184ms)
+10/06/2026 17:35:53: 
+10/06/2026 17:35:53: [API] GET /api/motoristas?limit=500
+10/06/2026 17:35:53: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:53: [API] 200 (55ms)
+10/06/2026 17:35:53: 
+10/06/2026 17:35:53: [API] GET /api/motoristas?limit=500
+10/06/2026 17:35:53: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:53: [API] 304 (30ms)
+10/06/2026 17:35:58: 
+10/06/2026 17:35:58: [API] GET /api/familia?limit=500
+10/06/2026 17:35:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:58: [API] 200 (49ms)
+10/06/2026 17:35:58: 
+10/06/2026 17:35:58: [API] GET /api/familia?limit=500
+10/06/2026 17:35:58: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:35:58: [API] 304 (23ms)
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/rnc/sectors?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/processosfabricacao?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/admin/usuarios?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: [API] 500 (68ms)
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/processosfabricacao?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: [API] 200 (73ms)
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/rnc/sectors?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: [API] 304 (39ms)
+10/06/2026 17:36:05: [API] 500 (46ms)
+10/06/2026 17:36:05: [API] 200 (165ms)
+10/06/2026 17:36:05: 
+10/06/2026 17:36:05: [API] GET /api/admin/usuarios?limit=500
+10/06/2026 17:36:05: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:05: [API] 304 (32ms)
+10/06/2026 17:36:25: 
+10/06/2026 17:36:25: [API] DELETE /api/usuario/91
+10/06/2026 17:36:25: [API] 200 (230ms)
+10/06/2026 17:36:25: 
+10/06/2026 17:36:25: [API] GET /api/admin/usuarios?limit=500
+10/06/2026 17:36:25: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:25: [API] 200 (59ms)
+10/06/2026 17:36:27: [SYNC] Updated user in central: Admin (ativo: 0)
+10/06/2026 17:36:48: 
+10/06/2026 17:36:48: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:36:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:48: 
+10/06/2026 17:36:48: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:36:48: 
+10/06/2026 17:36:48: [API] GET /api/admin/users?limit=500
+10/06/2026 17:36:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:48: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:36:48: [API] 304 (98ms)
+10/06/2026 17:36:48: 
+10/06/2026 17:36:48: [API] GET /api/admin/databases?limit=500
+10/06/2026 17:36:48: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:48: 
+10/06/2026 17:36:48: [DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos ORDER BY id DESC
+10/06/2026 17:36:48: [DB] [DEFAULT] 🟢 OK - Rows: 6
+10/06/2026 17:36:48: [API] 304 (30ms)
+10/06/2026 17:36:49: [API] 304 (1950ms)
+10/06/2026 17:36:49: 
+10/06/2026 17:36:49: [API] GET /api/admin/users?limit=500
+10/06/2026 17:36:49: [API]    QUERY: {"limit":"500"}
+10/06/2026 17:36:50: [API] 304 (167ms)
