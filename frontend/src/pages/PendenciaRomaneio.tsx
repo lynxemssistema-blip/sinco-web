@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     AlertTriangle, ArrowLeft, Save, Loader2,
-    Calendar, User, Layers, MessageSquare, Clock
+    Calendar, User, Layers, MessageSquare, Clock, Search, X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -374,85 +374,82 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
             )}
 
             {/* Item Context Card - Premium Horizontal Layout */}
-            <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <h2 className="font-bold text-[#32423D] flex items-center gap-2 text-sm">
-                        <Layers size={16} className="text-[#E0E800]" />
-                        Informações do Item
-                    </h2>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-gray-50 px-4 py-1.5 border-b border-gray-100 flex items-center gap-2">
+                    <Layers size={13} className="text-[#E0E800]" />
+                    <h2 className="font-bold text-[#32423D] text-xs">Informações do Item</h2>
                 </div>
 
-                <div className="p-6">
+                <div className="px-4 py-2">
                     {/* Main Technical Summary Bar */}
-                    <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-8">
+                    <div className="grid grid-cols-4 md:grid-cols-7 gap-2 mb-2">
                         <div>
-                            <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">Item ID</p>
-                            <p className="text-sm font-bold text-[#32423D]">
+                            <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">Item ID</p>
+                            <p className="text-xs font-bold text-[#32423D]">
                                 #{idRomaneioItem}
                             </p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-amber-600 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">O.S.I.</p>
-                            <p className="text-sm font-bold text-amber-700">
+                            <p className="text-[9px] text-amber-600 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">O.S.I.</p>
+                            <p className="text-xs font-bold text-amber-700">
                                 {itemContext?.IdOrdemServicoItem || '-'}
                             </p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">Projeto</p>
-                            <p className="text-sm font-bold text-[#32423D] truncate" title={itemContext?.Projeto}>
+                            <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">Projeto</p>
+                            <p className="text-xs font-bold text-[#32423D] truncate" title={itemContext?.Projeto}>
                                 {itemContext?.Projeto || '-'}
                             </p>
                             <p className="text-[9px] text-gray-500 mt-1 line-clamp-1">{itemContext?.DescProjeto}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">Romaneio</p>
-                            <p className="text-sm font-bold text-[#32423D]">
+                            <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">Romaneio</p>
+                            <p className="text-xs font-bold text-[#32423D]">
                                 #{itemContext?.IdRomaneio} {itemContext?.DescricaoRomaneio || ''}
                             </p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">Tag / Desc. Tag</p>
-                            <p className="text-sm font-bold text-[#32423D]">
+                            <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">Tag / Desc. Tag</p>
+                            <p className="text-xs font-bold text-[#32423D]">
                                 {itemContext?.Tag || '-'}
                             </p>
                             <p className="text-[9px] text-gray-500 mt-1 line-clamp-1">{itemContext?.DescTag}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">O.S. (Geral)</p>
-                            <p className="text-sm font-bold text-[#32423D]">
+                            <p className="text-[9px] text-gray-400 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">O.S. (Geral)</p>
+                            <p className="text-xs font-bold text-[#32423D]">
                                 #{itemContext?.IdOrdemServico || '-'}
                             </p>
                             <p className="text-[9px] text-[#32423D] opacity-70 mt-1">Cliente: {itemContext?.DescEmpresa || '-'}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] text-orange-600 uppercase font-black mb-1.5 tracking-tighter whitespace-nowrap">Cód. Mat. Fabricante</p>
-                            <p className="text-sm font-black text-orange-600">
+                            <p className="text-[9px] text-orange-600 uppercase font-black mb-0.5 tracking-tighter whitespace-nowrap">Cód. Mat. Fabricante</p>
+                            <p className="text-xs font-black text-orange-600">
                                 {itemContext?.CodMatFabricante || '-'}
                             </p>
                         </div>
                     </div>
 
                     {/* Secondary Details Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-6 border-t border-gray-50 items-center">
+                    <div className="grid grid-cols-2 md:grid-cols-12 gap-2 pt-2 border-t border-gray-100 items-center">
                         <div className="md:col-span-4">
-                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Descrição Item</p>
-                            <p className="text-base font-bold text-[#32423D]">{itemContext?.DescResumo || 'Item sem descrição'}</p>
-                            <p className="text-[11px] text-gray-500 leading-tight mt-1">{itemContext?.DescDetal}</p>
+                            <p className="text-[9px] text-gray-400 uppercase font-bold mb-0.5">Descrição Item</p>
+                            <p className="text-xs font-bold text-[#32423D]">{itemContext?.DescResumo || 'Item sem descrição'} <span className="font-normal text-gray-400">· {itemContext?.DescDetal}</span></p>
                         </div>
                         <div className="md:col-span-2">
-                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Espessura</p>
-                            <p className="text-sm font-semibold text-[#32423D]">{itemContext?.Espessura || '-'}</p>
+                            <p className="text-[9px] text-gray-400 uppercase font-bold mb-0.5">Espessura</p>
+                            <p className="text-xs font-semibold text-[#32423D]">{itemContext?.Espessura || '-'}</p>
                         </div>
                         <div className="md:col-span-3">
-                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Material SW</p>
-                            <p className="text-sm font-semibold text-[#32423D]">{itemContext?.MaterialSW || '-'}</p>
+                            <p className="text-[9px] text-gray-400 uppercase font-bold mb-0.5">Material SW</p>
+                            <p className="text-xs font-semibold text-[#32423D]">{itemContext?.MaterialSW || '-'}</p>
                         </div>
                         <div className="md:col-span-3">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-xl border border-amber-100">
-                                <AlertTriangle size={14} className="text-amber-600" />
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 rounded-lg border border-amber-100">
+                                <AlertTriangle size={11} className="text-amber-600" />
                                 <div>
-                                    <p className="text-[9px] text-amber-700 font-bold uppercase">Situação Atual</p>
-                                    <p className="text-[11px] font-bold text-amber-900">{(itemContext as any)?.Situacao || 'AGUARDANDO APONTAMENTO'}</p>
+                                    <p className="text-[8px] text-amber-700 font-bold uppercase">Situação</p>
+                                    <p className="text-[10px] font-bold text-amber-900">{(itemContext as any)?.Situacao || 'AGUARDANDO'}</p>
                                 </div>
                             </div>
                         </div>
@@ -461,10 +458,10 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
             </div>
 
             {/* Main Form */}
-            <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-[#32423D] px-6 py-4 text-white flex items-center justify-between">
-                    <h3 className="font-semibold flex items-center gap-2">
-                        <Save size={18} />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-[#32423D] px-4 py-2 text-white flex items-center justify-between">
+                    <h3 className="font-semibold flex items-center gap-2 text-sm">
+                        <Save size={14} />
                         {formData.IdOrdemServicoItemPendencia ? `Editar RNC #${formData.IdOrdemServicoItemPendencia}` : 'Cadastrar Nova RNC/Pendência'}
                     </h3>
                     {formData.IdOrdemServicoItemPendencia && (
@@ -472,11 +469,11 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                     )}
                 </div>
 
-                <form onSubmit={handleSave} className="p-6 space-y-6">
+                <form onSubmit={handleSave} className="p-3 space-y-3">
 
                     {/* Read-Only Context Fields (Visible only in Edit Mode) */}
                     {formData.IdOrdemServicoItemPendencia && (
-                        <div className="bg-gray-50/80 p-4 rounded-xl border border-dashed border-gray-200 grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="bg-gray-50/80 p-2 rounded-lg border border-dashed border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-2">
                             <div>
                                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">
                                     ID Ordem Serviço
@@ -512,14 +509,14 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         {/* Sector Select */}
-                        <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide">
                                 Setor Responsável <span className="text-red-500">*</span>
                             </label>
                             <select
-                                className="w-full bg-amber-50/30 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+                                className="w-full bg-amber-50/30 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
                                 value={formData.setorResponsavel}
                                 onChange={(e) => setFormData({ ...formData, setorResponsavel: e.target.value })}
                             >
@@ -529,10 +526,10 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         </div>
 
                         {/* Responsible Select */}
-                        <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">Responsável</label>
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide">Responsável</label>
                             <select
-                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+                                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
                                 value={formData.idUsuarioResponsavel}
                                 onChange={(e) => {
                                     const colab = collaborators.find(c => String(c.idUsuario) === e.target.value);
@@ -549,11 +546,11 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         </div>
 
                         {/* Task Type Select */}
-                        <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">Tipo de Tarefa/RNC</label>
-                            <div className="flex gap-2">
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tipo de Tarefa/RNC</label>
+                            <div className="flex gap-1">
                                 <select
-                                    className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+                                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
                                     value={isCustomTaskType ? 'OUTRO' : formData.tipoTarefa}
                                     onChange={(e) => {
                                         if (e.target.value === 'OUTRO') {
@@ -573,7 +570,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                                     <input
                                         type="text"
                                         placeholder="Digite o novo tipo de tarefa..."
-                                        className="w-full mt-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+                                        className="w-full mt-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
                                         value={formData.tipoTarefa}
                                         onChange={(e) => setFormData({ ...formData, tipoTarefa: e.target.value.toUpperCase() })}
                                         autoFocus
@@ -583,29 +580,29 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                         {/* Execution Date */}
-                        <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-1.5">
-                                <Calendar size={12} />
+                        <div className="space-y-1">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                                <Calendar size={10} />
                                 Data de Execução
                             </label>
                             <input
                                 type="date"
-                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800]"
+                                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800]"
                                 value={formData.dataExecucao}
                                 onChange={(e) => setFormData({ ...formData, dataExecucao: e.target.value })}
                             />
                         </div>
 
                         {/* Description */}
-                        <div className="md:col-span-3 space-y-1.5">
-                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-1.5">
-                                <MessageSquare size={12} />
+                        <div className="md:col-span-3 space-y-1">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1">
+                                <MessageSquare size={10} />
                                 Descrição da Pendência
                             </label>
                             <textarea
-                                className="w-full bg-amber-50/10 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#E0E800]/20 focus:border-[#E0E800] min-h-[80px]"
+                                className="w-full bg-amber-50/10 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] min-h-[55px]"
                                 placeholder="Descreva os detalhes da não conformidade ou pendência encontrada..."
                                 value={formData.descricaoPendencia}
                                 onChange={(e) => setFormData({ ...formData, descricaoPendencia: e.target.value.toUpperCase() })}
@@ -613,7 +610,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-end gap-2 pt-2">
                         {formData.IdOrdemServicoItemPendencia && (
                             <button
                                 type="button"
@@ -630,7 +627,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                                     displayIdOrdemServicoItem: undefined,
                                     displayCodMatFabricante: ''
                                 })}
-                                className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all font-semibold text-sm"
+                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all font-semibold text-xs"
                             >
                                 Novo Cadastro
                             </button>
@@ -640,18 +637,18 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                                 type="button"
                                 onClick={handleFinalize}
                                 disabled={saving}
-                                className="bg-green-600 text-white px-6 py-2.5 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all shadow-md flex items-center gap-2 font-bold"
+                                className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all flex items-center gap-1.5 font-bold text-xs"
                             >
-                                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                                {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
                                 Finalizar RNC
                             </button>
                         )}
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-[#32423D] text-white px-8 py-2.5 rounded-xl hover:bg-[#3d4f49] disabled:opacity-50 transition-all shadow-md flex items-center gap-2 font-bold"
+                            className="bg-[#32423D] text-white px-4 py-1.5 rounded-lg hover:bg-[#3d4f49] disabled:opacity-50 transition-all flex items-center gap-1.5 font-bold text-xs"
                         >
-                            {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                            {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
                             {formData.IdOrdemServicoItemPendencia ? 'Atualizar RNC' : 'Salvar RNC/Pendência'}
                         </button>
                     </div>
@@ -659,39 +656,66 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
             </div>
 
             {/* List of existing pendencies */}
-            <div className="space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        <Clock size={16} />
-                        Histórico de Pendências (RNCs) do Item
+            <div className="space-y-2">
+                {/* Barra de controles do histórico */}
+                <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 shrink-0">
+                        <Clock size={13} />
+                        Histórico de Pendências (RNCs)
                     </h4>
-                    <div className="flex flex-wrap items-center gap-4">
-                        <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={showFinalized}
-                                onChange={(e) => setShowFinalized(e.target.checked)}
-                                className="w-4 h-4 rounded border-gray-300 text-[#E0E800] focus:ring-[#E0E800]"
-                            />
-                            + Finalizadas
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="Busca 1..."
-                                value={searchQuery1}
-                                onChange={(e) => setSearchQuery1(e.target.value)}
-                                className="bg-white border border-gray-200 rounded-lg px-3 py-1 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Busca 2..."
-                                value={searchQuery2}
-                                onChange={(e) => setSearchQuery2(e.target.value)}
-                                className="bg-white border border-gray-200 rounded-lg px-3 py-1 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]"
-                            />
-                        </div>
+                    <label className="flex items-center gap-1.5 text-xs font-bold text-gray-600 cursor-pointer shrink-0 ml-2">
+                        <input
+                            type="checkbox"
+                            checked={showFinalized}
+                            onChange={(e) => setShowFinalized(e.target.checked)}
+                            className="w-3.5 h-3.5 rounded border-gray-300 text-[#E0E800] focus:ring-[#E0E800]"
+                        />
+                        + Finalizadas
+                    </label>
+
+                    {/* Campo Busca 1 */}
+                    <div className="relative">
+                        <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        <input
+                            type="text"
+                            placeholder="Descrição / Tipo..."
+                            value={searchQuery1}
+                            onChange={(e) => setSearchQuery1(e.target.value)}
+                            className="bg-white border border-gray-200 rounded-lg pl-6 pr-6 py-1 text-xs outline-none focus:ring-1 focus:ring-[#E0E800] w-40"
+                        />
+                        {searchQuery1 && (
+                            <button onClick={() => setSearchQuery1('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                <X size={11} />
+                            </button>
+                        )}
                     </div>
+
+                    {/* Campo Busca 2 */}
+                    <div className="relative">
+                        <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        <input
+                            type="text"
+                            placeholder="Setor / Responsável..."
+                            value={searchQuery2}
+                            onChange={(e) => setSearchQuery2(e.target.value)}
+                            className="bg-white border border-gray-200 rounded-lg pl-6 pr-6 py-1 text-xs outline-none focus:ring-1 focus:ring-[#E0E800] w-44"
+                        />
+                        {searchQuery2 && (
+                            <button onClick={() => setSearchQuery2('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                <X size={11} />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Limpar global */}
+                    {(searchQuery1 || searchQuery2) && (
+                        <button
+                            onClick={() => { setSearchQuery1(''); setSearchQuery2(''); }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-500 text-xs font-bold hover:bg-red-100 transition-colors border border-red-100"
+                        >
+                            <X size={11} /> Limpar tudo
+                        </button>
+                    )}
                 </div>
 
                 {pendencies.length === 0 ? (
@@ -700,32 +724,33 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                         <p className="text-sm">Nenhuma rnc encontrada com os filtros atuais.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="grid gap-2">
                         {pendencies.map((p) => (
                             <motion.div
                                 key={p.IdOrdemServicoItemPendencia}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className={`bg-white rounded-2xl shadow-sm border ${p.Estatus === 'FINALIZADA' ? 'border-green-100' : 'border-amber-100'} p-5 flex flex-col md:flex-row gap-6 relative`}
+                                className={`bg-white rounded-xl shadow-sm border ${p.Estatus === 'FINALIZADA' ? 'border-green-100' : 'border-amber-100'} p-3 flex flex-col md:flex-row gap-3 relative`}
                             >
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${p.Estatus === 'FINALIZADA' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                <div className="flex-1">
+                                    {/* Linha principal: badges + descrição inline */}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${p.Estatus === 'FINALIZADA' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                                             {p.Estatus || 'ABERTA'}
                                         </span>
-                                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-mono font-bold">RNC #{p.IdOrdemServicoItemPendencia}</span>
-                                        <h5 className="font-bold text-[#32423D]">{p.TipoTarefa || 'Tipo não especificado'}</h5>
-                                        <span className="text-[10px] text-gray-400 font-medium">
-                                            por {p.Usuario} em {formatToBRDate(p.DataCriacao)}
-                                        </span>
+                                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-mono font-bold shrink-0">RNC #{p.IdOrdemServicoItemPendencia}</span>
+                                        <h5 className="font-bold text-[#32423D] text-xs shrink-0">{p.TipoTarefa || 'Tipo não especificado'}</h5>
+                                        <span className="text-[10px] text-gray-400 font-medium shrink-0">por {p.Usuario} em {formatToBRDate(p.DataCriacao)}</span>
+                                        {p.DescricaoPendencia && (
+                                            <span className="text-[10px] text-gray-500 italic border-l border-gray-200 pl-2 truncate max-w-xs">
+                                                "{p.DescricaoPendencia}"
+                                            </span>
+                                        )}
                                     </div>
-                                    <p className="text-sm text-gray-600 leading-relaxed italic border-l-4 border-gray-100 pl-4 py-1">
-                                        "{p.DescricaoPendencia}"
-                                    </p>
 
                                     {/* Finalization Details */}
                                     {p.Estatus === 'FINALIZADA' && (
-                                        <div className="mt-4 p-4 bg-green-50/50 rounded-xl border border-green-100/50 space-y-2">
+                                        <div className="mt-2 p-2 bg-green-50/50 rounded-lg border border-green-100/50 space-y-1">
                                             <div className="flex items-center gap-2 text-[10px] font-bold text-green-700 uppercase tracking-wider">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                                                 Detalhes da Correção / Finalização
@@ -752,7 +777,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-1">
                                         <div className="flex items-center gap-2 text-xs">
                                             <Layers size={14} className="text-gray-400" />
                                             <span className="text-gray-500 font-medium">Setor: {p.SetorResponsavel}</span>
