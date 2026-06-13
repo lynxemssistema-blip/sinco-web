@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Save, Loader2, Truck, ArrowLeft, FileText,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
 import { formatToBRDate } from '../utils/dateUtils';
+import PendenciaRomaneioPage from './PendenciaRomaneio';
 
 interface RomaneioPageProps {
     onNavigate: (pageId: string) => void;
@@ -75,14 +76,16 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     const [reportItems, setReportItems] = useState<any[]>([]);
     const [companies, setCompanies] = useState<PessoaJuridica[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchCliente, setSearchCliente] = useState('');
+    const [searchDescricao, setSearchDescricao] = useState('');
     const [fromGlobal, setFromGlobal] = useState(false);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const romaneioOpen = params.get('romaneio');
         if (romaneioOpen) {
-            setSearchTerm(romaneioOpen);
+            setSearchId(romaneioOpen);
         }
         const openFrom = params.get('from');
         if (openFrom === 'visao-geral-pendencias') {
@@ -137,6 +140,12 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         codFabricante: ''
     });
     const [selectedInsertedId, setSelectedInsertedId] = useState<number | null>(null);
+    // Sub-view dentro do modal de itens inseridos
+    const [insertedView, setInsertedView] = useState<'list' | 'rnc'>('list');
+    // Observação inline
+    const [obsOpenId, setObsOpenId] = useState<number | null>(null);
+    const [obsText, setObsText] = useState('');
+    const [obsSaving, setObsSaving] = useState(false);
 
     const insertedActions = [
         { id: 'pdf', label: 'Abrir desenho PDF', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
@@ -145,6 +154,26 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         { id: 'rnc', label: 'Gerar RNC - Pendência', icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50', hover: 'hover:bg-orange-100' },
         { id: 'obs', label: 'Gerar Observação', icon: MessageSquare, color: 'text-slate-600', bg: 'bg-slate-50', hover: 'hover:bg-slate-100' },
     ];
+
+    const saveObservacao = async (idRomaneioItem: number, text: string) => {
+        if (obsSaving) return;
+        if (!text.trim()) return; // ignorar se nada foi digitado
+        setObsSaving(true);
+        try {
+            const res = await fetch(`${API_BASE}/romaneio/item/${idRomaneioItem}/observacao`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ observacao: text })
+            });
+            const data = await res.json();
+            if (data.success) showAlert('Observação salva!', 'success');
+            else showAlert(data.message || 'Erro ao salvar observação.', 'error');
+        } catch {
+            showAlert('Erro de conexão ao salvar observação.', 'error');
+        } finally {
+            setObsSaving(false);
+        }
+    };
 
     const handleIncludeItem = async (item: any, qty: string) => {
         if (!selectedId) return;
@@ -373,13 +402,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             }
         }
 
-        let finalConfirmMsg = `Confirma a ação "${actionName}" para o Romaneio #${selectedId}?`;
-        if (actionId === 'cancelar_lib') {
-            finalConfirmMsg = `Atenção: Você está prestes a cancelar a liberação do Romaneio - ${selectedId}. Isso removerá os documentos gerados e retornará o status para Registrado. Deseja proceder com esta atualização?`;
-        }
-
-        if (!confirm(finalConfirmMsg)) return;
-
+        // Modais de itens: abre diretamente sem confirmação
         if (actionId === 'exibir_itens') {
             fetchAvailableItems();
             setShowItemsModal(true);
@@ -391,6 +414,13 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             setShowInsertedModal(true);
             return;
         }
+
+        let finalConfirmMsg = `Confirma a ação "${actionName}" para o Romaneio #${selectedId}?`;
+        if (actionId === 'cancelar_lib') {
+            finalConfirmMsg = `Atenção: Você está prestes a cancelar a liberação do Romaneio - ${selectedId}. Isso removerá os documentos gerados e retornará o status para Registrado. Deseja proceder com esta atualização?`;
+        }
+
+        if (!confirm(finalConfirmMsg)) return;
 
 
         if (actionId === 'abrir_pasta') {
@@ -495,7 +525,6 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     };
 
     const actions = [
-        { id: 'abrir_pasta', label: 'Abrir Pasta', icon: FolderOpen, color: 'text-yellow-600', bg: 'bg-yellow-50', hover: 'hover:bg-yellow-100' },
         { id: 'registrar', label: 'Registrar', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
         { id: 'liberar', label: 'Liberar', icon: FileCheck, color: 'text-green-600', bg: 'bg-green-50', hover: 'hover:bg-green-100' },
         { id: 'cancelar_lib', label: 'Cancelar Lib.', icon: FileX, color: 'text-red-500', bg: 'bg-red-50', hover: 'hover:bg-red-100' },
@@ -576,72 +605,94 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         }
     };
 
-    const filteredRomaneios = (romaneios || []).filter(r => // Guard against null romaneios
-        r && ( // Guard against null items
-            (r.Descricao && r.Descricao.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (r.EnviadoPara && r.EnviadoPara.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (r.idRomaneio && r.idRomaneio.toString().includes(searchTerm))
-        )
+    const filteredRomaneios = (romaneios || []).filter(r =>
+        r &&
+        (!searchId || r.idRomaneio?.toString().includes(searchId)) &&
+        (!searchCliente || (r.EnviadoPara && r.EnviadoPara.toLowerCase().includes(searchCliente.toLowerCase()))) &&
+        (!searchDescricao || (r.Descricao && r.Descricao.toLowerCase().includes(searchDescricao.toLowerCase())))
     );
 
     const handleRowClick = (id: number) => {
         setSelectedId(id === selectedId ? null : id);
     };
 
-    // --- RENDER ---
+    // --- ACCESS CONTROL FOR INLINE ACTIONS ---
+    // Returns { disabled: boolean, reason: string } for each action given a romaneio record
+    const getActionDisabledInfo = (actionId: string, romaneio: Romaneio): { disabled: boolean; reason: string } => {
+        const getVal = (obj: any, key: string) => {
+            if (!obj) return '';
+            const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+            return foundKey ? String(obj[foundKey] || '').trim().toUpperCase() : '';
+        };
+        const estatus   = getVal(romaneio, 'Estatus');   // 'F' = Finalizado
+        const liberado  = getVal(romaneio, 'Liberado');  // 'S' = Liberado
+        const enviado   = !!(romaneio.NomeMotorista || romaneio.DataEnvio); // Registrado/Enviado
+
+        // Regra 3 — FINALIZADO: todos desativados
+        if (estatus === 'F') {
+            if (actionId === 'abrir_pasta' || actionId === 'report') {
+                return { disabled: false, reason: '' };
+            }
+            return { disabled: true, reason: 'Romaneio finalizado — ação bloqueada.' };
+        }
+
+        // Regra 1 — ENVIADO/REGISTRADO: apenas abrir_pasta e report habilitados
+        if (enviado && liberado !== 'S') {
+            if (actionId === 'abrir_pasta' || actionId === 'report') {
+                return { disabled: false, reason: '' };
+            }
+            return { disabled: true, reason: 'Romaneio já enviado — apenas "Abrir Pasta" e "Ver Relatório" disponíveis.' };
+        }
+
+        // Regra 2 — LIBERADO
+        if (liberado === 'S') {
+            if (actionId === 'liberar') {
+                return { disabled: true, reason: 'Romaneio já está liberado.' };
+            }
+            // Regra 2.1 — cancelar_lib desativado se também foi enviado
+            if (actionId === 'cancelar_lib' && enviado) {
+                return { disabled: true, reason: 'Não é possível cancelar a liberação de um romaneio já enviado.' };
+            }
+            // Regra 2.2 — finalizar e cancelar_fin desativados
+            if (actionId === 'finalizar') {
+                return { disabled: true, reason: 'Liberado: use o fluxo correto para finalizar.' };
+            }
+            if (actionId === 'cancelar_fin') {
+                return { disabled: true, reason: 'Romaneio não está finalizado.' };
+            }
+        }
+
+        // Demais casos — ação habilitada
+        return { disabled: false, reason: '' };
+    };
+
 
     if (view === 'list') {
         return (
-        <div className="gap-6 flex-1 flex flex-col min-h-0">
-                {/* Header & Main Actions */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        {fromGlobal && (
-                            <button
-                                onClick={() => window.location.href = '/visao-geral-pendencias'}
-                                className="flex items-center justify-center p-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
-                                title="Voltar para Todas as Pendências"
-                            >
-                                <ArrowLeft size={20} />
-                            </button>
-                        )}
-                        <div>
-                            
-                            <p className="text-gray-500 mt-1">Selecione um romaneio abaixo para habilitar as ações.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* COMMAND CENTER (Actions Dashboard) */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-                    {/* Primary Creation Action */}
+        <div className="flex-1 flex flex-col min-h-0" style={{gap:'6px'}}>
+                {/* Header compacto */}
+                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100">
+                    {fromGlobal && (
+                        <button
+                            onClick={() => window.location.href = '/visao-geral-pendencias'}
+                            className="flex items-center justify-center p-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                            title="Voltar para Todas as Pendências"
+                        >
+                            <ArrowLeft size={16} />
+                        </button>
+                    )}
+                    <p className="text-gray-400 text-xs flex-1">
+                        {selectedId
+                            ? <span className="text-[#32423D] font-semibold">Romaneio #{selectedId} selecionado — clique nas ações abaixo da linha</span>
+                            : 'Clique em uma linha para selecionar e exibir as ações disponíveis.'}
+                    </p>
                     <button
                         onClick={handleCreateNew}
-                        className="col-span-2 md:col-span-2 lg:col-span-1 p-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 hover:bg-[#32423D] hover:text-white hover:border-[#32423D] transition-all group flex flex-col items-center justify-center gap-1 min-h-[70px]"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#32423D] text-white text-xs font-semibold hover:bg-[#2a3632] transition-colors shrink-0"
                     >
-                        <div className="p-1.5 bg-white rounded-full text-gray-400 group-hover:text-[#32423D]">
-                            <Plus size={18} />
-                        </div>
-                        <span className="font-semibold text-xs text-center leading-tight">Criar<br/>Novo</span>
+                        <Plus size={14} />
+                        Criar Novo
                     </button>
-
-                    {/* Dynamic Actions */}
-                    {actions.map(action => (
-                        <button
-                            key={action.id}
-                            onClick={() => handleAction(action.label, action.id)}
-                            disabled={!selectedId}
-                            className={`p-2 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 min-h-[70px] ${selectedId
-                                ? `bg-white border-gray-100 cursor-pointer hover:shadow-md ${action.hover}`
-                                : 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed grayscale'
-                                }`}
-                        >
-                            <action.icon size={18} className={selectedId ? action.color : 'text-gray-300'} />
-                            <span className={`text-[10px] font-medium text-center leading-tight ${selectedId ? 'text-gray-600' : 'text-gray-300'}`}>
-                                {action.label}
-                            </span>
-                        </button>
-                    ))}
                 </div>
 
                 {successMsg && (
@@ -652,28 +703,67 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                 {/* List */}
                 <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-3">
-                    <div className="p-3 border-b border-gray-100 bg-gray-50/50 flex gap-4 items-center">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <div className="p-3 border-b border-gray-100 bg-gray-50/50 flex flex-wrap gap-2 items-center">
+                        {/* Campo ID */}
+                        <div className="relative min-w-[100px] max-w-[120px]">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] font-bold uppercase pointer-events-none">ID</span>
                             <input
                                 type="search"
-                                placeholder="Buscar por Cliente, ID ou Descrição..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-9 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+                                placeholder="Ex: 15"
+                                value={searchId}
+                                onChange={(e) => setSearchId(e.target.value)}
+                                className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
                             />
-                            {searchTerm && (
-                                <button
-                                    onClick={() => setSearchTerm('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
-                                    title="Limpar busca"
-                                >
-                                    <X size={16} />
+                            {searchId && (
+                                <button onClick={() => setSearchId('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+                                    <X size={13} />
                                 </button>
                             )}
                         </div>
+                        {/* Campo Cliente */}
+                        <div className="relative flex-1 min-w-[150px]">
+                            <Building2 className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
+                            <input
+                                type="search"
+                                placeholder="Cliente..."
+                                value={searchCliente}
+                                onChange={(e) => setSearchCliente(e.target.value)}
+                                className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+                            />
+                            {searchCliente && (
+                                <button onClick={() => setSearchCliente('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+                                    <X size={13} />
+                                </button>
+                            )}
+                        </div>
+                        {/* Campo Descrição */}
+                        <div className="relative flex-1 min-w-[180px] max-w-md">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
+                            <input
+                                type="search"
+                                placeholder="Descrição..."
+                                value={searchDescricao}
+                                onChange={(e) => setSearchDescricao(e.target.value)}
+                                className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+                            />
+                            {searchDescricao && (
+                                <button onClick={() => setSearchDescricao('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+                                    <X size={13} />
+                                </button>
+                            )}
+                        </div>
+                        {/* Limpar tudo */}
+                        {(searchId || searchCliente || searchDescricao) && (
+                            <button
+                                onClick={() => { setSearchId(''); setSearchCliente(''); setSearchDescricao(''); }}
+                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold shrink-0"
+                                title="Limpar todos os filtros"
+                            >
+                                <X size={13} /> Limpar
+                            </button>
+                        )}
                         {selectedId && (
-                            <span className="text-sm text-[#32423D] font-medium animate-pulse ml-auto">
+                            <span className="text-sm text-[#32423D] font-medium ml-auto shrink-0">
                                 Romaneio #{selectedId} Selecionado
                             </span>
                         )}
@@ -711,16 +801,16 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     </tr>
                                 ) : (
                                     filteredRomaneios.map((romaneio) => (
+                                        <React.Fragment key={romaneio.idRomaneio}>
                                         <tr
-                                            key={romaneio.idRomaneio}
                                             onClick={() => handleRowClick(romaneio.idRomaneio)}
                                             className={`transition-colors cursor-pointer group border-l-4 ${selectedId === romaneio.idRomaneio
                                                 ? 'bg-[#E0E800]/10 border-[#32423D]'
                                                 : 'hover:bg-gray-50 border-transparent'
                                                 }`}
                                         >
-                                            <td className="px-3 py-2 text-gray-900 font-medium">#{romaneio.idRomaneio}</td>
-                                            <td className="px-3 py-2">
+                                            <td className="px-3 py-1.5 text-gray-900 font-medium text-[13px]">#{romaneio.idRomaneio}</td>
+                                            <td className="px-3 py-1.5">
                                                 {(() => {
                                                     const getVal = (obj: any, key: string) => {
                                                         if (!obj) return '';
@@ -743,7 +833,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                                                     return (
                                                         <span
-                                                            className={`px-2 py-1 rounded-full text-xs font-semibold ${badgeClass}`}
+                                                            className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${badgeClass}`}
                                                             title={`DB Status: Estatus="${estatus}", Liberado="${liberado}"`}
                                                         >
                                                             {label}
@@ -751,51 +841,51 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                     );
                                                 })()}
                                             </td>
-                                            <td className="px-3 py-2">
+                                            <td className="px-3 py-1.5">
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-[13px] text-gray-800 flex items-center gap-1.5 leading-tight">
-                                                        <Building2 size={14} className="text-gray-400 shrink-0" />
+                                                        <Building2 size={13} className="text-gray-400 shrink-0" />
                                                         {romaneio.EnviadoPara || 'Não informado'}
                                                     </span>
                                                     <span className="text-[11px] text-gray-500 md:hidden mt-0.5 line-clamp-1">{romaneio.Descricao}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 text-gray-600 hidden xl:table-cell">
-                                                <div className="flex items-center gap-1.5 text-[13px]">
-                                                    <Truck size={14} className="text-gray-400 shrink-0" />
-                                                    <span className="line-clamp-2 leading-tight">{romaneio.NomeMotorista || '-'}</span>
+                                            <td className="px-3 py-1.5 text-gray-600 hidden xl:table-cell">
+                                                <div className="flex items-center gap-1.5 text-[12px]">
+                                                    <Truck size={13} className="text-gray-400 shrink-0" />
+                                                    <span className="line-clamp-1 leading-tight">{romaneio.NomeMotorista || '-'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 text-gray-600 hidden md:table-cell max-w-xs truncate" title={romaneio.Descricao}>
-                                                <div className="flex items-center gap-1.5 text-[13px]">
-                                                    <FileText size={14} className="text-gray-400 shrink-0" />
+                                            <td className="px-3 py-1.5 text-gray-600 hidden md:table-cell max-w-xs truncate" title={romaneio.Descricao}>
+                                                <div className="flex items-center gap-1.5 text-[12px]">
+                                                    <FileText size={13} className="text-gray-400 shrink-0" />
                                                     {romaneio.Descricao}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 text-gray-500 text-sm hidden xl:table-cell">
-                                                <div className="flex items-center gap-1.5 text-[13px]">
-                                                    <Calendar size={14} className="text-gray-400 shrink-0" />
+                                            <td className="px-3 py-1.5 text-gray-500 text-sm hidden xl:table-cell">
+                                                <div className="flex items-center gap-1.5 text-[12px]">
+                                                    <Calendar size={13} className="text-gray-400 shrink-0" />
                                                     {formatToBRDate(romaneio.DataEnvio)}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 text-gray-500 text-sm hidden lg:table-cell">
-                                                <div className="flex items-center gap-1.5 text-[13px]">
-                                                    <Calendar size={14} className="text-gray-400 shrink-0" />
+                                            <td className="px-3 py-1.5 text-gray-500 text-sm hidden lg:table-cell">
+                                                <div className="flex items-center gap-1.5 text-[12px]">
+                                                    <Calendar size={13} className="text-gray-400 shrink-0" />
                                                     {formatToBRDate(romaneio.DATACRIACAO)}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                                            <td className="px-3 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
                                                 <div className="flex items-center justify-center gap-1">
                                                     <button
                                                         onClick={() => handleOpenFolder(romaneio.idRomaneio, romaneio.ENDERECORomaneio)}
-                                                        className="p-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 transition-colors"
+                                                        className="p-1 bg-[#E0E800]/30 text-[#32423D] rounded-md hover:bg-[#E0E800]/50 transition-colors"
                                                         title="Abrir Pasta"
                                                     >
-                                                        <FolderOpen size={16} />
+                                                        <FolderOpen size={14} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(romaneio.idRomaneio || romaneio.id!)}
-                                                        className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                                                        className="p-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
                                                         title="Excluir"
                                                     >
                                                         <Trash2 size={16} />
@@ -803,6 +893,57 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                 </div>
                                             </td>
                                         </tr>
+                                        {/* Linha de ações inline — aparece apenas quando a linha está selecionada */}
+                                        {selectedId === romaneio.idRomaneio && (() => {
+                                            const getVal = (obj: any, key: string) => {
+                                                if (!obj) return '';
+                                                const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+                                                return foundKey ? String(obj[foundKey] || '').trim().toUpperCase() : '';
+                                            };
+                                            const estatus  = getVal(romaneio, 'Estatus');
+                                            const liberado = getVal(romaneio, 'Liberado');
+                                            const enviado  = !!(romaneio.NomeMotorista || romaneio.DataEnvio);
+
+                                            // Label de contexto do status atual
+                                            let statusLabel = 'Novo';
+                                            let statusColor = 'text-gray-400';
+                                            if (estatus === 'F')      { statusLabel = 'FINALIZADO'; statusColor = 'text-green-600'; }
+                                            else if (liberado === 'S' && enviado) { statusLabel = 'LIBERADO + ENVIADO'; statusColor = 'text-[#32423D]'; }
+                                            else if (liberado === 'S') { statusLabel = 'LIBERADO'; statusColor = 'text-[#32423D]'; }
+                                            else if (enviado)          { statusLabel = 'ENVIADO/REGISTRADO'; statusColor = 'text-yellow-600'; }
+
+                                            return (
+                                                <tr className="bg-[#32423D]/5 border-l-4 border-[#32423D]">
+                                                    <td colSpan={8} className="px-3 py-1.5">
+                                                        <div className="flex flex-wrap items-center gap-1.5">
+                                                            <span className={`text-[10px] font-bold uppercase tracking-wider mr-1 ${statusColor}`}>
+                                                                {statusLabel} · Ações:
+                                                            </span>
+                                                            {actions.map(action => {
+                                                                const { disabled, reason } = getActionDisabledInfo(action.id, romaneio);
+                                                                return (
+                                                                     <button
+                                                                        key={action.id}
+                                                                        onClick={(e) => { e.stopPropagation(); if (!disabled) handleAction(action.label, action.id); }}
+                                                                        disabled={disabled}
+                                                                        title={disabled ? reason : action.label}
+                                                                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all ${
+                                                                            disabled
+                                                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                                                : `${action.bg} ${action.color} border-transparent hover:shadow-sm hover:border-gray-200 cursor-pointer`
+                                                                        }`}
+                                                                    >
+                                                                        <action.icon size={13} />
+                                                                        <span>{action.label}</span>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })()}
+                                        </React.Fragment>
                                     ))
                                 )}
                             </tbody>
@@ -1078,173 +1219,228 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white rounded-2xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
+                                className="bg-white rounded-2xl shadow-xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden"
                             >
-                                <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-cyan-50/50">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-cyan-800 flex items-center gap-2">
-                                            <FileCheck size={20} />
-                                            Itens Inseridos no Romaneio #{selectedId}
-                                        </h3>
-                                        <p className="text-xs text-cyan-600 mt-1">Lista de itens que já foram adicionados a este romaneio.</p>
-                                    </div>
-                                    <button onClick={() => setShowInsertedModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-full transition-all">
-                                        <XCircle size={24} />
-                                    </button>
-                                </div>
-
-                                {/* SEARCH FILTERS */}
-                                <div className="p-6 bg-white border-b border-gray-100">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        <div className="flex flex-col gap-1 col-span-1 md:col-span-1 lg:col-span-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
-                                            <input
-                                                type="search"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-cyan-500/20 outline-none uppercase"
-                                                placeholder="RESUMO..."
-                                                value={insertedFilters.resumo}
-                                                onChange={(e) => setInsertedFilters(prev => ({ ...prev, resumo: e.target.value.toUpperCase() }))}
+                                {/* ── Sub-view: RNC/Pendência embarcada ─────────────────────── */}
+                                {insertedView === 'rnc' ? (
+                                    <>
+                                        {/* Cabeçalho da sub-view */}
+                                        <div className="px-4 py-2.5 bg-[#32423D] flex items-center gap-3 border-b border-white/10">
+                                            <button
+                                                onClick={() => setInsertedView('list')}
+                                                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-colors"
+                                            >
+                                                <ArrowLeft size={14} /> Voltar para itens
+                                            </button>
+                                            <AlertTriangle size={15} className="text-orange-400" />
+                                            <span className="text-sm font-bold text-white">RNC / Pendência — Item #{selectedInsertedId}</span>
+                                            <button
+                                                onClick={() => { setShowInsertedModal(false); setInsertedView('list'); setSelectedInsertedId(null); }}
+                                                className="ml-auto p-1 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        </div>
+                                        {/* Conteúdo da pendência */}
+                                        <div className="flex-1 overflow-auto p-4">
+                                            <PendenciaRomaneioPage
+                                                idRomaneioItem={selectedInsertedId}
+                                                onNavigate={() => setInsertedView('list')}
                                             />
                                         </div>
-                                        <div className="flex items-end">
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* ── Vista de lista ───────────────────────────────────── */}
+                                        {/* Cabeçalho — linha 1: título + fechar */}
+                                        <div className="px-4 py-2.5 border-b border-gray-100 bg-[#32423D] flex items-center gap-3">
+                                            <FileCheck size={16} className="text-[#E0E800] shrink-0" />
+                                            <span className="text-sm font-bold text-white">Itens Inseridos — Romaneio #{selectedId}</span>
+                                            {selectedInsertedId && (
+                                                <span className="text-[11px] text-[#E0E800] font-semibold ml-2 shrink-0">
+                                                    Item #{selectedInsertedId} selecionado
+                                                </span>
+                                            )}
+                                            <button
+                                                onClick={() => { setShowInsertedModal(false); setSelectedInsertedId(null); setInsertedView('list'); }}
+                                                className="ml-auto p-1 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        </div>
+
+                                        {/* Linha 2: filtros + total de peso */}
+                                        <div className="px-4 py-2 bg-[#3d4f49] border-b border-white/10 flex items-center gap-2">
+                                            <div className="relative">
+                                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
+                                                <input
+                                                    type="search"
+                                                    placeholder="Filtrar descrição..."
+                                                    className="pl-6 pr-6 py-1 text-xs rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-1 focus:ring-[#E0E800] w-56"
+                                                    value={insertedFilters.resumo}
+                                                    onChange={(e) => setInsertedFilters(prev => ({ ...prev, resumo: e.target.value.toUpperCase() }))}
+                                                />
+                                                {insertedFilters.resumo && (
+                                                    <button onClick={() => setInsertedFilters(prev => ({ ...prev, resumo: '' }))} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-white/60 hover:text-white">
+                                                        <X size={11} />
+                                                    </button>
+                                                )}
+                                            </div>
                                             <button
                                                 onClick={fetchInsertedItems}
                                                 disabled={loadingInserted}
-                                                className="w-full flex items-center justify-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-cyan-700 transition-all disabled:opacity-50"
+                                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E0E800] text-[#32423D] text-xs font-bold hover:bg-[#d4dc00] transition-colors disabled:opacity-50"
                                             >
-                                                {loadingInserted ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                                                FILTRAR
+                                                {loadingInserted ? <Loader2 size={11} className="animate-spin" /> : <Search size={11} />}
+                                                Filtrar
                                             </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* COMMAND CENTER (Dashboard Style) */}
-                                <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                                <div className="w-1 h-3 bg-cyan-500 rounded-full"></div>
-                                                Centro de Comandos do Item
-                                            </h3>
-                                            {!selectedInsertedId && (
-                                                <span className="text-[10px] text-orange-500 font-bold bg-orange-50 px-2 py-0.5 rounded-full">
-                                                    SELECIONE UM ITEM ABAIXO
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                            {insertedActions.map(action => (
-                                                <button
-                                                    key={action.id}
-                                                    onClick={async () => {
-                                                        if (action.id === 'pdf') {
-                                                            window.open(`${API_BASE}/files/open-pdf/${selectedInsertedId}`, '_blank');
-                                                        } else if (action.id === '3d') {
-                                                            window.open(`${API_BASE}/files/open-3d/${selectedInsertedId}`, '_blank');
-                                                        } else if (action.id === 'excluir') {
-                                                            if (window.confirm('Deseja realmente excluir este item do romaneio? Esta ação irá estornar o saldo para a Ordem de Serviço.')) {
-                                                                try {
-                                                                    const response = await fetch(`${API_BASE}/romaneio/item/${selectedInsertedId}`, {
-                                                                        method: 'DELETE'
-                                                                    });
-                                                                    const data = await response.json();
-                                                                    if (data.success) {
-                                                                        // Refresh list and clear selection
-                                                                        fetchInsertedItems();
-                                                                        setSelectedInsertedId(null);
-                                                                    } else {
-                                                                        showAlert(data.message || 'Erro ao excluir item.', "error");
-                                                                    }
-                                                                } catch (err) {
-                                                                    console.error('Error deleting item:', err);
-                                                                    showAlert('Erro técnico ao processar exclusão.', "error");
-                                                                }
-                                                            }
-                                                        } else if (action.id === 'rnc') {
-                                                            if (onSetRncItem) {
-                                                                onSetRncItem(selectedInsertedId);
-                                                                onNavigate('pendencia-romaneio');
-                                                            }
-                                                        }
-                                                    }}
-                                                    disabled={!selectedInsertedId}
-                                                    className={`
-                                                        flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 gap-2
-                                                        ${selectedInsertedId
-                                                            ? `${action.bg} ${action.hover} border-transparent shadow-sm hover:shadow-md cursor-pointer`
-                                                            : 'bg-gray-50 border-gray-100 opacity-40 cursor-not-allowed'}
-                                                    `}
-                                                >
-                                                    <action.icon className={`${action.color}`} size={20} />
-                                                    <span className={`text-[10px] font-bold text-center leading-tight ${selectedInsertedId ? 'text-gray-700' : 'text-gray-400'}`}>
-                                                        {action.label}
+                                            <div className="ml-auto flex items-center gap-3 text-[11px] text-white/60">
+                                                <span>{insertedItems.length} itens</span>
+                                                {insertedItems.length > 0 && (
+                                                    <span className="text-[#E0E800] font-bold">
+                                                        Peso total: {insertedItems.reduce((acc, it) => acc + Number(String(it.PesoTotal || '0').replace(/[^\d.]/g, '')), 0).toFixed(2)} kg
                                                     </span>
-                                                </button>
-                                            ))}
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* RESULTS TABLE */}
-                                <div className="flex-1 overflow-auto p-6">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0  border-b border-white/20 z-10">
-                                            <tr className="text-white font-bold uppercase text-[10px] tracking-wider">
-                                                <th className="px-4 py-3 text-left">Descrição</th>
-                                                <th className="px-4 py-3 text-center">Unidade</th>
-                                                <th className="px-4 py-3 text-right">Qtde Romaneio</th>
-                                                <th className="px-4 py-3 text-right">Saldo</th>
-                                                <th className="px-4 py-3 text-right">Peso Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {loadingInserted ? (
-                                                <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-medium">Buscando itens...</td></tr>
-                                            ) : insertedItems.length === 0 ? (
-                                                <tr><td colSpan={5} className="py-20 text-center text-gray-400 font-medium">Nenhum item encontrado no romaneio.</td></tr>
-                                            ) : (
-                                                insertedItems.map((item, idx) => (
-                                                    <tr
-                                                        key={idx}
-                                                        onClick={() => setSelectedInsertedId(item.IdRomaneioItem)}
-                                                        className={`
-                                                            hover:bg-cyan-50/30 transition-colors border-l-2 cursor-pointer
-                                                            ${selectedInsertedId === item.IdRomaneioItem
-                                                                ? 'bg-cyan-50 border-cyan-500'
-                                                                : 'border-transparent hover:border-cyan-200'}
-                                                        `}
-                                                    >
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex flex-col">
-                                                                <span className="font-medium text-gray-800">{item.DescResumo}</span>
-                                                                <span className="text-[10px] text-gray-400 truncate max-w-xs">{item.DescDetal}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-center text-gray-500">{item.Unidade}</td>
-                                                        <td className="px-4 py-3 text-right font-bold text-cyan-700">{item.QtdeRomaneio}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-500">{item.SaldoRomaneio}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-700 font-medium">{item.PesoTotal}kg</td>
+                                        {/* Tabela — ocupa todo o espaço restante */}
+                                        <div className="flex-1 overflow-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
+                                                    <tr>
+                                                        <th className="px-3 py-2">Descrição</th>
+                                                        <th className="px-3 py-2 text-center">Unidade</th>
+                                                        <th className="px-3 py-2 text-right">Qtde Romaneio</th>
+                                                        <th className="px-3 py-2 text-right">Saldo</th>
+                                                        <th className="px-3 py-2 text-right">Peso Total</th>
                                                     </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100 text-[12px]">
+                                                    {loadingInserted ? (
+                                                        <tr><td colSpan={5} className="py-16 text-center text-gray-400">
+                                                            <Loader2 size={20} className="animate-spin mx-auto text-[#32423D]" />
+                                                        </td></tr>
+                                                    ) : insertedItems.length === 0 ? (
+                                                        <tr><td colSpan={5} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
+                                                    ) : insertedItems.map((item, idx) => (
+                                                        <React.Fragment key={idx}>
+                                                            {/* Linha principal */}
+                                                            <tr
+                                                                onClick={() => {
+                                                                    const newId = selectedInsertedId === item.IdRomaneioItem ? null : item.IdRomaneioItem;
+                                                                    setSelectedInsertedId(newId);
+                                                                    if (!newId) { setObsOpenId(null); setObsText(''); }
+                                                                }}
+                                                                className={`hover:bg-cyan-50/30 transition-colors cursor-pointer border-l-4 ${selectedInsertedId === item.IdRomaneioItem ? 'bg-cyan-50 border-cyan-500' : 'border-transparent'}`}
+                                                            >
+                                                                <td className="px-3 py-1.5">
+                                                                    {/* Descrição em linha única */}
+                                                                    <span className="font-medium text-gray-800">{item.DescResumo}</span>
+                                                                    {item.DescDetal && (
+                                                                        <span className="text-gray-400 ml-2">· {item.DescDetal}</span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-3 py-1.5 text-center text-gray-500">{item.Unidade}</td>
+                                                                <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio}</td>
+                                                                <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio}</td>
+                                                                <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal}kg</td>
+                                                            </tr>
 
-                                <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-                                    <span className="text-xs text-gray-500 font-medium">{insertedItems.length} itens encontrados</span>
-                                    <button
-                                        onClick={() => setShowInsertedModal(false)}
-                                        className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-300 transition-all"
-                                    >
-                                        FECHAR
-                                    </button>
-                                </div>
+                                                            {/* Linha de ações inline */}
+                                                            {selectedInsertedId === item.IdRomaneioItem && (
+                                                                <tr className="bg-cyan-50 border-l-4 border-cyan-500">
+                                                                    <td colSpan={5} className="px-3 py-1.5">
+                                                                        <div className="flex flex-wrap items-center gap-1.5">
+                                                                            <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mr-1">Ações:</span>
+                                                                            {insertedActions.map(action => (
+                                                                                <button
+                                                                                    key={action.id}
+                                                                                    onClick={async (e) => {
+                                                                                        e.stopPropagation();
+                                                                                        if (action.id === 'pdf') {
+                                                                                            window.open(`${API_BASE}/files/open-pdf/${selectedInsertedId}`, '_blank');
+                                                                                        } else if (action.id === '3d') {
+                                                                                            window.open(`${API_BASE}/files/open-3d/${selectedInsertedId}`, '_blank');
+                                                                                        } else if (action.id === 'excluir') {
+                                                                                            if (window.confirm('Deseja excluir este item do romaneio? O saldo será estornado para a OS.')) {
+                                                                                                try {
+                                                                                                    const response = await fetch(`${API_BASE}/romaneio/item/${selectedInsertedId}`, { method: 'DELETE' });
+                                                                                                    const data = await response.json();
+                                                                                                    if (data.success) { fetchInsertedItems(); setSelectedInsertedId(null); }
+                                                                                                    else showAlert(data.message || 'Erro ao excluir item.', 'error');
+                                                                                                } catch { showAlert('Erro ao excluir.', 'error'); }
+                                                                                            }
+                                                                                        } else if (action.id === 'rnc') {
+                                                                                            // Abre sub-view RNC embarcada
+                                                                                            setInsertedView('rnc');
+                                                                                        } else if (action.id === 'obs') {
+                                                                                            // Abre/fecha linha inline de observação
+                                                                                            if (obsOpenId === item.IdRomaneioItem) {
+                                                                                                setObsOpenId(null);
+                                                                                                setObsText('');
+                                                                                            } else {
+                                                                                                setObsOpenId(item.IdRomaneioItem);
+                                                                                                setObsText(item.Observacao || '');
+                                                                                            }
+                                                                                        }
+                                                                                    }}
+                                                                                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all hover:shadow-sm ${action.bg} ${action.color} border-transparent hover:border-gray-200 ${action.id === 'obs' && obsOpenId === item.IdRomaneioItem ? 'ring-1 ring-slate-400' : ''}`}
+                                                                                    title={action.label}
+                                                                                >
+                                                                                    <action.icon size={13} />
+                                                                                    <span>{action.label}</span>
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+
+                                                            {/* Linha de observação inline */}
+                                                            {obsOpenId === item.IdRomaneioItem && (
+                                                                <tr className="bg-slate-50 border-l-4 border-slate-400">
+                                                                    <td colSpan={5} className="px-3 py-2">
+                                                                        <div className="flex items-start gap-2">
+                                                                            <MessageSquare size={14} className="text-slate-500 mt-1 shrink-0" />
+                                                                            <textarea
+                                                                                autoFocus
+                                                                                rows={2}
+                                                                                placeholder="Digite a observação sobre este item..."
+                                                                                className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white resize-none"
+                                                                                value={obsText}
+                                                                                onChange={(e) => setObsText(e.target.value)}
+                                                                                onBlur={() => saveObservacao(item.IdRomaneioItem, obsText)}
+                                                                            />
+                                                                            <button
+                                                                                onClick={() => saveObservacao(item.IdRomaneioItem, obsText)}
+                                                                                disabled={obsSaving}
+                                                                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#32423D] text-white text-xs font-bold hover:bg-[#26312D] disabled:opacity-50 transition-colors"
+                                                                            >
+                                                                                {obsSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                                                                                Salvar
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </React.Fragment>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {/* Rodapé */}
+                                        <div className="px-4 py-1.5 border-t border-gray-100 bg-gray-50">
+                                            <span className="text-xs text-gray-400">Clique em uma linha para ver as ações disponíveis.</span>
+                                        </div>
+                                    </>
+                                )}
                             </motion.div>
                         </div>
                     )
                 }
+
             </div>
         );
     }

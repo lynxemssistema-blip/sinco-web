@@ -1623,6 +1623,80 @@ app.delete('/api/romaneio-retorno/history/:idControle', async (req, res) => {
     }
 });
 
+// GET /api/romaneio-retorno/controle/:idOrdemServicoItem - busca romaneioitemcontrole pelo IdOrdemServicoItem
+app.get('/api/romaneio-retorno/controle/:idOrdemServicoItem', async (req, res) => {
+    const { idOrdemServicoItem } = req.params;
+    try {
+        const [rows] = await pool.execute(
+            `SELECT ric.*, ri.QtdeUsuario AS QtdeAtualItem, ri.IdRomaneioItem
+             FROM romaneioitemcontrole ric
+             LEFT JOIN romaneioitem ri ON ri.IdRomaneioItem = ric.IdRomaneioItem
+             WHERE ric.IDOrdemServicoITEM = ?
+               AND (ric.D_E_L_E_T_E IS NULL OR ric.D_E_L_E_T_E = '')
+             ORDER BY ric.DataCriacao DESC`,
+            [idOrdemServicoItem]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('[RETORNO] Erro ao buscar controle:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar controle.' });
+    }
+});
+
+// POST /api/romaneio-retorno/estorno/:idControle - Estorna um registro de romaneioitemcontrole
+app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
+    const { idControle } = req.params;
+    const { usuario } = req.body;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Buscar o registro de controle
+        const [ctrlRows] = await connection.execute(
+            `SELECT idromaneioitemcontrole, IdRomaneioItem, QtdeIdentificadores, QtdeUsuario, Situacao
+             FROM romaneioitemcontrole WHERE idromaneioitemcontrole = ?`,
+            [idControle]
+        );
+        if (ctrlRows.length === 0) throw new Error('Registro não encontrado.');
+        const ctrl = ctrlRows[0];
+
+        if (ctrl.Situacao === 'ESTORNO') {
+            throw new Error('Este registro já foi estornado.');
+        }
+
+        // Quantidade a devolver: qtdeusuario do controle
+        const qtdeDevolucao = Number(ctrl.QtdeUsuario || ctrl.QtdeIdentificadores || 0);
+
+        // 2. Acrescentar qtdeusuario de volta ao romaneioitem
+        const [itemRows] = await connection.execute(
+            `SELECT QtdeUsuario FROM romaneioitem WHERE IdRomaneioItem = ?`,
+            [ctrl.IdRomaneioItem]
+        );
+        if (itemRows.length > 0) {
+            const novaQtde = (Number(itemRows[0].QtdeUsuario) || 0) + qtdeDevolucao;
+            await connection.execute(
+                `UPDATE romaneioitem SET QtdeUsuario = ? WHERE IdRomaneioItem = ?`,
+                [novaQtde, ctrl.IdRomaneioItem]
+            );
+        }
+
+        // 3. Marcar o registro de controle como ESTORNO
+        await connection.execute(
+            `UPDATE romaneioitemcontrole SET Situacao = 'ESTORNO', UsuarioLogado = ? WHERE idromaneioitemcontrole = ?`,
+            [usuario || 'Sistema', idControle]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: `Estorno realizado. ${qtdeDevolucao} unidade(s) devolvidas ao item.` });
+    } catch (error) {
+        await connection.rollback();
+        console.error('[RETORNO] Erro no estorno:', error);
+        res.status(500).json({ success: false, message: error.message || 'Erro ao realizar estorno.' });
+    } finally {
+        connection.release();
+    }
+});
+
 // ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o do Sistema (Admin only)
 const configuracaoSistemaRouter = require('./routes/configuracao-sistema');
 app.use('/api/configuracao-sistema', configuracaoSistemaRouter);
