@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Database, Save, AlertTriangle, ShieldCheck, RefreshCcw, Server, Users, Plus, GitCompare, ArrowRight, CheckCircle, Code, LogOut, XCircle } from 'lucide-react';
+import { Database, Save, AlertTriangle, ShieldCheck, RefreshCcw, Server, Users, Plus, GitCompare, ArrowRight, CheckCircle, Code, LogOut, XCircle, Search, X } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 
 interface SuperadminPageProps {
@@ -39,6 +39,9 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     const [syncing, setSyncing] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [history, setHistory] = useState<any[]>([]);
+
+    // Tenant Search
+    const [tenantSearch, setTenantSearch] = useState('');
 
     // Users State
     const [users, setUsers] = useState<any[]>([]);
@@ -534,21 +537,52 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                         </div>
                     </div>
                     
-                    {/* Bulk Actions */}
-                    <div className="flex justify-end mb-4">
-                        <button 
-                            onClick={handleSyncAllUsers} 
-                            disabled={loading} 
-                            className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 flex items-center gap-2 shadow-sm transition-colors"
-                        >
-                            {loading ? <RefreshCcw className="animate-spin" size={18} /> : <RefreshCcw size={18} />}
-                            {loading ? 'Sincronizando...' : 'Sincronizar Todos os Clientes'}
-                        </button>
+                    {/* Search + Bulk Actions */}
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="relative flex-1 max-w-sm">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                            <input
+                                type="search"
+                                placeholder="Pesquisar banco de dados..."
+                                value={tenantSearch}
+                                onChange={(e) => setTenantSearch(e.target.value)}
+                                className="w-full pl-9 pr-8 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+                            />
+                            {tenantSearch && (
+                                <button onClick={() => setTenantSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+                                    <X size={14} />
+                                </button>
+                            )}
+                        </div>
+                        {tenantSearch && (
+                            <span className="text-xs text-gray-500 font-medium">
+                                {tenants.filter(t =>
+                                    t.nome_cliente.toLowerCase().includes(tenantSearch.toLowerCase()) ||
+                                    t.db_name.toLowerCase().includes(tenantSearch.toLowerCase())
+                                ).length} resultado(s)
+                            </span>
+                        )}
+                        <div className="ml-auto">
+                            <button
+                                onClick={handleSyncAllUsers}
+                                disabled={loading}
+                                className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 flex items-center gap-2 shadow-sm transition-colors text-sm"
+                            >
+                                {loading ? <RefreshCcw className="animate-spin" size={16} /> : <RefreshCcw size={16} />}
+                                {loading ? 'Sincronizando...' : 'Sincronizar Todos'}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Tenant List */}
                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {tenants.map(tenant => (
+                        {tenants
+                            .filter(t =>
+                                !tenantSearch ||
+                                t.nome_cliente.toLowerCase().includes(tenantSearch.toLowerCase()) ||
+                                t.db_name.toLowerCase().includes(tenantSearch.toLowerCase())
+                            )
+                            .map(tenant => (
                             <motion.div key={tenant.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-blue-300 transition-colors flex flex-col">
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="p-1.5 bg-[#E0E800]/20 rounded-md"><Server className="text-[#32423D]" size={20} /></div>
