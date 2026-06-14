@@ -190,21 +190,47 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         }
 
         try {
-            const res = await fetch(`${API_BASE}/romaneio/${selectedId}/items`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    IdOrdemServicoItem: item.IdOrdemServicoItem,
-                    qtde: q,
-                    usuario: 'Edson'
-                })
-            });
-            const json = await res.json();
-            if (json.success) {
-                setItemInclusion(null);
-                fetchAvailableItems();
+            // Verifica se o item já existe no romaneio — se sim, soma a quantidade
+            const resCheck = await fetch(`${API_BASE}/romaneio/${selectedId}/inserted-items`);
+            const jsonCheck = await resCheck.json();
+            const jaInserido = jsonCheck.success
+                ? (jsonCheck.data || []).find((r: any) => r.IdOrdemServicoItem === item.IdOrdemServicoItem)
+                : null;
+
+            if (jaInserido) {
+                // Atualiza somando a quantidade
+                const novaQtde = (parseFloat(jaInserido.QtdeRomaneio) || 0) + q;
+                const resUpd = await fetch(`${API_BASE}/romaneio/${selectedId}/items/${jaInserido.idRomaneioItem}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qtde: novaQtde, usuario: 'Edson' })
+                });
+                const jsonUpd = await resUpd.json();
+                if (jsonUpd.success) {
+                    showAlert(`Quantidade somada: ${novaQtde} no romaneio.`, 'success');
+                    setItemInclusion(null);
+                    fetchAvailableItems();
+                } else {
+                    showAlert("Erro ao atualizar quantidade: " + jsonUpd.message, "error");
+                }
             } else {
-                showAlert("Erro ao incluir item: " + json.message, "error");
+                // Insere novo registro
+                const res = await fetch(`${API_BASE}/romaneio/${selectedId}/items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        IdOrdemServicoItem: item.IdOrdemServicoItem,
+                        qtde: q,
+                        usuario: 'Edson'
+                    })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    setItemInclusion(null);
+                    fetchAvailableItems();
+                } else {
+                    showAlert("Erro ao incluir item: " + json.message, "error");
+                }
             }
         } catch (error) {
             console.error("Error including item:", error);
@@ -1020,102 +1046,90 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="bg-white rounded-2xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
                             >
-                                <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-[#32423D] flex items-center gap-2">
-                                            <List size={20} />
-                                            Lista de Peças e Desenhos
-                                        </h3>
-                                        <p className="text-xs text-gray-500 mt-1">Busque e selecione itens para incluir no romaneio.</p>
-                                    </div>
-                                    <button onClick={() => setShowItemsModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-full transition-all">
-                                        <XCircle size={24} />
+                                <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                    <h3 className="text-sm font-bold text-[#32423D] flex items-center gap-2">
+                                        <List size={16} />
+                                        Lista de Peças e Desenhos
+                                        <span className="text-[10px] text-gray-400 font-normal ml-1">Busque e selecione itens para incluir no romaneio.</span>
+                                    </h3>
+                                    <button
+                                        onClick={() => setShowItemsModal(false)}
+                                        className="flex items-center gap-1 px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all text-xs font-bold"
+                                    >
+                                        <X size={13} /> Fechar
                                     </button>
                                 </div>
 
-                                {/* SEARCH FILTERS */}
-                                <div className="p-6 bg-white border-b border-gray-100">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Projeto</label>
+                                {/* SEARCH FILTERS — COMPACTO */}
+                                <div className="px-4 py-2 bg-white border-b border-gray-100">
+                                    <div className="flex flex-wrap gap-2 items-end">
+                                        <div className="flex flex-col gap-0.5">
+                                            <label className="text-[9px] font-bold text-gray-400 uppercase">Projeto</label>
                                             <input
                                                 type="search"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
+                                                className="w-28 px-2 py-1 rounded border border-gray-200 text-xs focus:ring-1 focus:ring-[#E0E800]/30 outline-none uppercase"
                                                 placeholder="BUSCAR PROJETO..."
                                                 value={itemFilters.projeto}
                                                 onChange={(e) => setItemFilters(prev => ({ ...prev, projeto: e.target.value.toUpperCase() }))}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Tag</label>
+                                        <div className="flex flex-col gap-0.5">
+                                            <label className="text-[9px] font-bold text-gray-400 uppercase">Tag</label>
                                             <input
                                                 type="search"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
+                                                className="w-28 px-2 py-1 rounded border border-gray-200 text-xs focus:ring-1 focus:ring-[#E0E800]/30 outline-none uppercase"
                                                 placeholder="BUSCAR TAG..."
                                                 value={itemFilters.tag}
                                                 onChange={(e) => setItemFilters(prev => ({ ...prev, tag: e.target.value.toUpperCase() }))}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
+                                        <div className="flex flex-col gap-0.5 flex-1 min-w-[140px]">
+                                            <label className="text-[9px] font-bold text-gray-400 uppercase">Descrição Resumo</label>
                                             <input
                                                 type="search"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
+                                                className="w-full px-2 py-1 rounded border border-gray-200 text-xs focus:ring-1 focus:ring-[#E0E800]/30 outline-none uppercase"
                                                 placeholder="BUSCAR RESUMO..."
                                                 value={itemFilters.resumo}
                                                 onChange={(e) => setItemFilters(prev => ({ ...prev, resumo: e.target.value.toUpperCase() }))}
                                             />
                                         </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase">Cod. FabricANTE</label>
+                                        <div className="flex flex-col gap-0.5">
+                                            <label className="text-[9px] font-bold text-gray-400 uppercase">Cod. Fabricante</label>
                                             <input
                                                 type="search"
-                                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#E0E800]/20 outline-none uppercase"
+                                                className="w-32 px-2 py-1 rounded border border-gray-200 text-xs focus:ring-1 focus:ring-[#E0E800]/30 outline-none uppercase"
                                                 placeholder="BUSCAR CÓDIGO..."
                                                 value={itemFilters.codFabricante}
                                                 onChange={(e) => setItemFilters(prev => ({ ...prev, codFabricante: e.target.value.toUpperCase() }))}
                                             />
                                         </div>
-                                        <div className="flex items-end gap-2">
+                                        <button
+                                            onClick={fetchAvailableItems}
+                                            disabled={loadingItems}
+                                            className="flex items-center gap-1 bg-[#32423D] text-[#E0E800] px-3 py-1 rounded font-bold text-xs hover:bg-[#3d4f49] transition-all disabled:opacity-50"
+                                        >
+                                            {loadingItems ? <Loader2 size={13} className="animate-spin" /> : <Search size={13} />}
+                                            FILTRAR
+                                        </button>
+                                        {(itemFilters.projeto || itemFilters.tag || itemFilters.resumo || itemFilters.codFabricante) && (
                                             <button
-                                                onClick={fetchAvailableItems}
-                                                disabled={loadingItems}
-                                                className="flex-1 flex items-center justify-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#3d4f49] transition-all disabled:opacity-50"
+                                                onClick={() => setItemFilters(prev => ({ ...prev, projeto: '', tag: '', resumo: '', codFabricante: '' }))}
+                                                className="flex items-center gap-1 px-2 py-1 rounded border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-medium"
                                             >
-                                                {loadingItems ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                                                FILTRAR
+                                                <X size={12} /> Limpar
                                             </button>
-                                            {(itemFilters.projeto || itemFilters.tag || itemFilters.resumo || itemFilters.codFabricante) && (
-                                                <button
-                                                    onClick={() => setItemFilters(prev => ({ ...prev, projeto: '', tag: '', resumo: '', codFabricante: '' }))}
-                                                    className="flex items-center gap-1 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-sm font-medium"
-                                                    title="Limpar filtros"
-                                                >
-                                                    <XCircle size={15} /> Limpar
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="mt-3 flex items-center gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="chkMostrarEnviados"
-                                                className="w-4 h-4 text-[#32423D]"
-                                                checked={itemFilters.mostrarEnviados}
-                                                onChange={(e) => setItemFilters(prev => ({ ...prev, mostrarEnviados: e.target.checked }))}
-                                            />
-                                            <label htmlFor="chkMostrarEnviados" className="text-xs text-gray-600 font-medium">Mostrar peças já enviadas</label>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="chkMostrarFinalizados"
-                                                className="w-4 h-4 text-[#32423D]"
-                                                checked={itemFilters.mostrarFinalizados}
-                                                onChange={(e) => setItemFilters(prev => ({ ...prev, mostrarFinalizados: e.target.checked }))}
-                                            />
-                                            <label htmlFor="chkMostrarFinalizados" className="text-xs text-gray-600 font-medium">Mostrar itens finalizados</label>
+                                        )}
+                                        <div className="flex items-center gap-3 ml-auto">
+                                            <label className="flex items-center gap-1 text-[10px] text-gray-600 cursor-pointer">
+                                                <input type="checkbox" className="w-3 h-3" checked={itemFilters.mostrarEnviados}
+                                                    onChange={(e) => setItemFilters(prev => ({ ...prev, mostrarEnviados: e.target.checked }))} />
+                                                Mostrar peças já enviadas
+                                            </label>
+                                            <label className="flex items-center gap-1 text-[10px] text-gray-600 cursor-pointer">
+                                                <input type="checkbox" className="w-3 h-3" checked={itemFilters.mostrarFinalizados}
+                                                    onChange={(e) => setItemFilters(prev => ({ ...prev, mostrarFinalizados: e.target.checked }))} />
+                                                Mostrar itens finalizados
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -1125,34 +1139,41 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     <table className="w-full text-sm">
                                         <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white sticky top-0 bg-[#567469] border-b border-white/20 z-10">
                                             <tr className="text-white font-bold uppercase text-[10px] tracking-wider">
-                                                <th className="px-4 py-3 text-left">Projeto</th>
-                                                <th className="px-4 py-3 text-left">Tag</th>
-                                                <th className="px-4 py-3 text-left">Descrição</th>
-                                                <th className="px-4 py-3 text-center">Unidade</th>
-                                                <th className="px-4 py-3 text-right">Qtde Total</th>
-                                                <th className="px-4 py-3 text-right">Já Enviado</th>
-                                                <th className="px-4 py-3 text-center">Ações</th>
+                                                <th className="px-3 py-2 text-left">Projeto</th>
+                                                <th className="px-3 py-2 text-left">Tag</th>
+                                                <th className="px-3 py-2 text-left">Cod.Fabricante</th>
+                                                <th className="px-3 py-2 text-left">Descrição</th>
+                                                <th className="px-3 py-2 text-center">Unidade</th>
+                                                <th className="px-3 py-2 text-right">Qtde Total</th>
+                                                <th className="px-3 py-2 text-right">Já Enviado</th>
+                                                <th className="px-3 py-2 text-center">Ações</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {loadingItems ? (
-                                                <tr><td colSpan={7} className="py-20 text-center text-gray-400 font-medium">Buscando itens...</td></tr>
+                                                <tr><td colSpan={8} className="py-20 text-center text-gray-400 font-medium">Buscando itens...</td></tr>
                                             ) : availableItems.length === 0 ? (
-                                                <tr><td colSpan={7} className="py-20 text-center text-gray-400 font-medium">Nenhum item encontrado com os filtros aplicados.</td></tr>
+                                                <tr><td colSpan={8} className="py-20 text-center text-gray-400 font-medium">Nenhum item encontrado com os filtros aplicados.</td></tr>
                                             ) : (
                                                 availableItems.map((item, idx) => (
                                                     <tr key={idx} className="hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-[#E0E800]">
-                                                        <td className="px-4 py-3 font-semibold text-gray-700">{item.Projeto}</td>
-                                                        <td className="px-4 py-3 text-gray-600 font-mono text-xs">{item.Tag}</td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex flex-col">
-                                                                <span className="font-medium text-gray-800">{item.DescResumo}</span>
-                                                                <span className="text-[10px] text-gray-400 truncate max-w-xs">{item.DescDetal}</span>
-                                                            </div>
+                                                        <td className="px-3 py-2 font-semibold text-gray-700 text-xs">{item.Projeto}</td>
+                                                        <td className="px-3 py-2 text-gray-600 font-mono text-[10px]">{item.Tag}</td>
+                                                        <td className="px-3 py-2">
+                                                            <span className="font-mono text-[10px] text-[#32423D] font-bold">
+                                                                {item.CodMatFabricante || '—'}
+                                                                <span className="text-gray-400 font-normal ml-1"># {item.IdOrdemServicoItem}</span>
+                                                            </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-center text-gray-500">{item.Unidade}</td>
-                                                        <td className="px-4 py-3 text-right font-bold text-gray-700">{item.QtdeTotal}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-500">{item.RomaneioTotalEnviado || 0}</td>
+                                                        <td className="px-3 py-2">
+                                                            <span className="text-xs text-gray-800">
+                                                                <span className="font-medium">{item.DescResumo}</span>
+                                                                {item.DescDetal && <span className="text-gray-400 ml-1">{item.DescDetal}</span>}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-3 py-2 text-center text-gray-500 text-xs">{item.Unidade}</td>
+                                                        <td className="px-3 py-2 text-right font-bold text-gray-700 text-xs">{item.QtdeTotal}</td>
+                                                        <td className="px-3 py-2 text-right text-gray-500 text-xs">{item.RomaneioTotalEnviado || 0}</td>
                                                         <td className="px-4 py-3 text-center">
                                                             {itemInclusion?.idx === idx ? (
                                                                 <div className="flex items-center gap-1">
@@ -1199,14 +1220,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     </table>
                                 </div>
 
-                                <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-                                    <span className="text-xs text-gray-500 font-medium">{availableItems.length} itens encontrados</span>
-                                    <button
-                                        onClick={() => setShowItemsModal(false)}
-                                        className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-300 transition-all"
-                                    >
-                                        FECHAR
-                                    </button>
+                                <div className="px-4 py-1.5 border-t border-gray-100 bg-gray-50">
+                                    <span className="text-[10px] text-gray-400 font-medium">{availableItems.length} itens encontrados</span>
                                 </div>
                             </motion.div>
                         </div>
@@ -1309,6 +1324,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                             <table className="w-full text-left border-collapse">
                                                 <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
                                                     <tr>
+                                                        <th className="px-3 py-2 text-right w-12">#ID</th>
                                                         <th className="px-3 py-2">Descrição</th>
                                                         <th className="px-3 py-2 text-center">Unidade</th>
                                                         <th className="px-3 py-2 text-right">Qtde Romaneio</th>
@@ -1318,11 +1334,11 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 text-[12px]">
                                                     {loadingInserted ? (
-                                                        <tr><td colSpan={5} className="py-16 text-center text-gray-400">
+                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400">
                                                             <Loader2 size={20} className="animate-spin mx-auto text-[#32423D]" />
                                                         </td></tr>
                                                     ) : insertedItems.length === 0 ? (
-                                                        <tr><td colSpan={5} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
+                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
                                                     ) : insertedItems.map((item, idx) => (
                                                         <React.Fragment key={idx}>
                                                             {/* Linha principal */}
@@ -1334,23 +1350,25 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                 }}
                                                                 className={`hover:bg-cyan-50/30 transition-colors cursor-pointer border-l-4 ${selectedInsertedId === item.IdRomaneioItem ? 'bg-cyan-50 border-cyan-500' : 'border-transparent'}`}
                                                             >
+                                                                <td className="px-3 py-1.5 text-right text-gray-400 text-[10px] font-mono">{item.IdRomaneioItem || '—'}</td>
                                                                 <td className="px-3 py-1.5">
-                                                                    {/* Descrição em linha única */}
-                                                                    <span className="font-medium text-gray-800">{item.DescResumo}</span>
+                                                                    {item.DescResumo && (
+                                                                        <span className="font-medium text-gray-800">{item.DescResumo}</span>
+                                                                    )}
                                                                     {item.DescDetal && (
                                                                         <span className="text-gray-400 ml-2">· {item.DescDetal}</span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-3 py-1.5 text-center text-gray-500">{item.Unidade}</td>
-                                                                <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio}</td>
-                                                                <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio}</td>
-                                                                <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal}kg</td>
+                                                                <td className="px-3 py-1.5 text-center text-gray-500">{item.Unidade || ''}</td>
+                                                                <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio ?? '—'}</td>
+                                                                <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio ?? '—'}</td>
+                                                                <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal != null ? `${item.PesoTotal}kg` : '—'}</td>
                                                             </tr>
 
                                                             {/* Linha de ações inline */}
                                                             {selectedInsertedId === item.IdRomaneioItem && (
                                                                 <tr className="bg-cyan-50 border-l-4 border-cyan-500">
-                                                                    <td colSpan={5} className="px-3 py-1.5">
+                                                                    <td colSpan={6} className="px-3 py-1.5">
                                                                         <div className="flex flex-wrap items-center gap-1.5">
                                                                             <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mr-1">Ações:</span>
                                                                             {insertedActions.map(action => (
@@ -1400,7 +1418,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                             {/* Linha de observação inline */}
                                                             {obsOpenId === item.IdRomaneioItem && (
                                                                 <tr className="bg-slate-50 border-l-4 border-slate-400">
-                                                                    <td colSpan={5} className="px-3 py-2">
+                                                                    <td colSpan={6} className="px-3 py-2">
                                                                         <div className="flex items-start gap-2">
                                                                             <MessageSquare size={14} className="text-slate-500 mt-1 shrink-0" />
                                                                             <textarea

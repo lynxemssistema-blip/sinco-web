@@ -13300,6 +13300,161 @@ app.post('/api/plano-corte/:id/atualizar-arquivos', async (req, res) => {
 });
 
 // ============================================================================
+// SKILL: correçãoTotalExecutar
+// Varre de baixo para cima: Itens → OS → Tag → Projeto
+// Recalcula [setor]TotalExecutar em todos os níveis da hierarquia.
+// POST /api/admin/correcao-total-executar
+// Body (opcional): { IdProjeto: 10 }   → processa só esse projeto
+// Body vazio                            → processa todos os projetos
+// ============================================================================
+
+const SETORES_EXECUTAR = [
+    { txt: 'txtCorte',    executar: 'CorteTotalExecutar'    },
+    { txt: 'txtDobra',    executar: 'DobraTotalExecutar'    },
+    { txt: 'txtSolda',    executar: 'SoldaTotalExecutar'    },
+    { txt: 'txtPintura',  executar: 'PinturaTotalExecutar'  },
+    { txt: 'TxtMontagem', executar: 'MontagemTotalExecutar' },
+];
+
+async function corrigirTotalExecutar(dbPool, idProjeto = null) {
+    const conn = await dbPool.getConnection();
+    const log = [];
+    try {
+        let projetos;
+        if (idProjeto) {
+            const [rows] = await conn.execute(
+                `SELECT IdProjeto FROM projetos WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [idProjeto]
+            );
+            projetos = rows;
+        } else {
+            const [rows] = await conn.execute(
+                `SELECT IdProjeto FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY IdProjeto`
+            );
+            projetos = rows;
+        }
+
+        log.push(`[correcao] ${projetos.length} projeto(s) a processar`);
+        let totalOS = 0, totalTags = 0, totalProjetos = 0;
+
+        for (const { IdProjeto } of projetos) {
+            // NIVEL 1: Item -> OS
+            const [ordens] = await conn.execute(
+                `SELECT IdOrdemServico, IdTag
+                 FROM ordemservico
+                 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [IdProjeto]
+            );
+
+            for (const os of ordens) {
+                const selectParts = SETORES_EXECUTAR.map(s =>
+                    `COALESCE(SUM(CASE WHEN IFNULL(\`${s.txt}\`,'') = '1' THEN COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0) ELSE 0 END), 0) AS \`${s.executar}\``
+                ).join(', ');
+
+                const [sums] = await conn.execute(
+                    `SELECT ${selectParts}
+                     FROM ordemservicoitem
+                     WHERE IdOrdemServico = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                    [os.IdOrdemServico]
+                );
+
+                const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+                const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+                await conn.execute(
+                    `UPDATE ordemservico SET ${setParts} WHERE IdOrdemServico = ?`,
+                    [...vals, os.IdOrdemServico]
+                );
+                totalOS++;
+            }
+
+            // NIVEL 2: OS -> Tag
+            // Agrupa pelos IdTag que VÊEM DAS PRÓPRIAS OS (não enumera a tabela tags).
+            // Isso garante que a tag correta seja atualizada independente do IdProjeto na tabela tags.
+            const tagsDistintas = [...new Set(ordens.map(os => os.IdTag).filter(id => id != null))];
+
+            for (const idTag of tagsDistintas) {
+                const selectParts = SETORES_EXECUTAR.map(s =>
+                    `COALESCE(SUM(COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0)), 0) AS \`${s.executar}\``
+                ).join(', ');
+
+                const [sums] = await conn.execute(
+                    `SELECT ${selectParts}
+                     FROM ordemservico
+                     WHERE IdTag = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                    [idTag]
+                );
+
+                const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+                const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+                await conn.execute(
+                    `UPDATE tags SET ${setParts} WHERE IdTag = ?`,
+                    [...vals, idTag]
+                );
+                totalTags++;
+            }
+
+            // NIVEL 3: Tag -> Projeto
+            const selectParts = SETORES_EXECUTAR.map(s =>
+                `COALESCE(SUM(COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0)), 0) AS \`${s.executar}\``
+            ).join(', ');
+
+            const [sums] = await conn.execute(
+                `SELECT ${selectParts}
+                 FROM tags
+                 WHERE IdProjeto = ?
+                   AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [IdProjeto]
+            );
+
+            const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+            const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+            await conn.execute(
+                `UPDATE projetos SET ${setParts} WHERE IdProjeto = ?`,
+                [...vals, IdProjeto]
+            );
+            totalProjetos++;
+
+            log.push(`Projeto ${IdProjeto}: ${ordens.length} OS, ${tagsDistintas.length} tags atualizadas`);
+        }
+
+        log.push(`Concluido: OS=${totalOS} Tags=${totalTags} Projetos=${totalProjetos}`);
+        return { success: true, log, totalOS, totalTags, totalProjetos };
+
+    } catch (err) {
+        log.push(`ERRO: ${err.message}`);
+        console.error('[corrigirTotalExecutar]', err);
+        return { success: false, log, error: err.message };
+    } finally {
+        conn.release();
+    }
+}
+
+app.post('/api/admin/correcao-total-executar', async (req, res) => {
+    const dbPool = req.tenantDbPool || pool;
+    const { IdProjeto } = req.body || {};
+    const label = IdProjeto ? `projeto ${IdProjeto}` : 'todos os projetos';
+
+    console.log(`[corrigirTotalExecutar] Iniciando para ${label}...`);
+    const inicio = Date.now();
+
+    const resultado = await corrigirTotalExecutar(dbPool, IdProjeto || null);
+    const ms = Date.now() - inicio;
+
+    console.log(`[corrigirTotalExecutar] Finalizado em ${ms}ms. OS=${resultado.totalOS} Tags=${resultado.totalTags} Projetos=${resultado.totalProjetos}`);
+
+    if (resultado.success) {
+        res.json({ success: true, ms, ...resultado });
+    } else {
+        res.status(500).json({ success: false, ms, ...resultado });
+    }
+});
+
+// ============================================================================
 // HELPER CASCATA DE QUANTIDADES E PERCENTUAIS (OS -> TAG -> PROJETO)
 // ============================================================================
 async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
