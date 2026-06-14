@@ -106,12 +106,90 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     const [showShipmentModal, setShowShipmentModal] = useState(false);
     const [shipmentData, setShipmentData] = useState({
         motorista: '',
-        placa: '',
         cnh: '',
         categoria: '',
         telefone: '',
         tipoTransporte: ''
     });
+
+    // Motoristas list for combobox
+    const [motoristas, setMotoristas] = useState<any[]>([]);
+
+    const fetchMotoristas = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/motoristas`);
+            const json = await res.json();
+            if (json.success) setMotoristas(json.data);
+        } catch (err) {
+            console.error('Error fetching motoristas:', err);
+        }
+    };
+
+    // Tipos de Transporte list for combobox
+    const [tiposTransporte, setTiposTransporte] = useState<any[]>([]);
+    const [showTipoModal, setShowTipoModal] = useState(false);
+    const [tipoForm, setTipoForm] = useState({ TipoVeiculo: '', Placa: '' });
+    const [tipoEditId, setTipoEditId] = useState<number | null>(null);
+    const [tipoSaving, setTipoSaving] = useState(false);
+
+    const fetchTiposTransporte = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/tipotransporte`);
+            const json = await res.json();
+            if (json.success) setTiposTransporte(json.data);
+        } catch (err) {
+            console.error('Error fetching tipotransporte:', err);
+        }
+    };
+
+    const saveTipoTransporte = async () => {
+        if (!tipoForm.TipoVeiculo.trim()) {
+            showAlert('Informe o Tipo de Veículo.', 'warning');
+            return;
+        }
+        setTipoSaving(true);
+        try {
+            const url = tipoEditId
+                ? `${API_BASE}/tipotransporte/${tipoEditId}`
+                : `${API_BASE}/tipotransporte`;
+            const method = tipoEditId ? 'PUT' : 'POST';
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tipoForm)
+            });
+            const json = await res.json();
+            if (json.success) {
+                setTipoForm({ TipoVeiculo: '', Placa: '' });
+                setTipoEditId(null);
+                fetchTiposTransporte();
+            } else {
+                showAlert(json.message || 'Erro ao salvar.', 'error');
+            }
+        } catch {
+            showAlert('Erro de conexão.', 'error');
+        } finally {
+            setTipoSaving(false);
+        }
+    };
+
+    const deleteTipoTransporte = async (id: number) => {
+        if (!confirm('Confirma exclusão deste tipo de transporte?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/tipotransporte/${id}`, { method: 'DELETE' });
+            const json = await res.json();
+            if (json.success) {
+                fetchTiposTransporte();
+                if (shipmentData.tipoTransporte === String(id)) {
+                    setShipmentData(prev => ({ ...prev, tipoTransporte: '' }));
+                }
+            } else {
+                showAlert(json.message || 'Erro ao excluir.', 'error');
+            }
+        } catch {
+            showAlert('Erro de conexão.', 'error');
+        }
+    };
 
     // Items Management State
     const [showItemsModal, setShowItemsModal] = useState(false);
@@ -279,15 +357,31 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
     const handleShipmentInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setShipmentData(prev => ({ ...prev, [name]: value.toUpperCase() }));
+        if (name === 'telefone') {
+            // Aplica máscara (XX) XXXXX-XXXX
+            const digits = value.replace(/\D/g, '').slice(0, 11);
+            let formatted = '';
+            if (digits.length === 0) {
+                formatted = '';
+            } else if (digits.length <= 2) {
+                formatted = `(${digits}`;
+            } else if (digits.length <= 7) {
+                formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+            } else {
+                formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+            }
+            setShipmentData(prev => ({ ...prev, telefone: formatted }));
+        } else {
+            setShipmentData(prev => ({ ...prev, [name]: value.toUpperCase() }));
+        }
     };
 
     const submitShipment = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedId) return;
 
-        if (!shipmentData.motorista || !shipmentData.placa || !shipmentData.tipoTransporte || !shipmentData.cnh || !shipmentData.categoria || !shipmentData.telefone) {
-            showAlert("Preencha TODOS os campos obrigatórios: Motorista, Placa, CNH, Categoria, Telefone e Tipo Transporte.", "warning");
+        if (!shipmentData.motorista || !shipmentData.tipoTransporte || !shipmentData.cnh || !shipmentData.categoria || !shipmentData.telefone) {
+            showAlert("Preencha TODOS os campos obrigatórios: Motorista, CNH, Categoria, Telefone e Tipo Transporte.", "warning");
             return;
         }
 
@@ -306,7 +400,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             if (json.success) {
                 setSuccessMsg("Registro efetuado com sucesso!");
                 setShowShipmentModal(false);
-                setShipmentData({ motorista: '', placa: '', cnh: '', categoria: '', telefone: '', tipoTransporte: '' }); // Reset
+                setShipmentData({ motorista: '', cnh: '', categoria: '', telefone: '', tipoTransporte: '' }); // Reset
                 setSelectedId(null); // Force re-selection as requested
                 setTimeout(() => setSuccessMsg(null), 3000);
                 fetchRomaneios();
@@ -441,12 +535,18 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             return;
         }
 
-        let finalConfirmMsg = `Confirma a ação "${actionName}" para o Romaneio #${selectedId}?`;
-        if (actionId === 'cancelar_lib') {
-            finalConfirmMsg = `Atenção: Você está prestes a cancelar a liberação do Romaneio - ${selectedId}. Isso removerá os documentos gerados e retornará o status para Registrado. Deseja proceder com esta atualização?`;
+        // Ações que não precisam de confirmação: registrar, liberar
+        // cancelar_lib, cancelar_registro e demais confirmam
+        if (actionId !== 'registrar' && actionId !== 'liberar') {
+            let finalConfirmMsg = `Confirma a ação "${actionName}" para o Romaneio #${selectedId}?`;
+            if (actionId === 'cancelar_lib') {
+                finalConfirmMsg = `Atenção: Você está prestes a cancelar a liberação do Romaneio - ${selectedId}. Isso removerá os documentos gerados e retornará o status para Registrado. Deseja proceder com esta atualização?`;
+            }
+            if (actionId === 'cancelar_registro') {
+                finalConfirmMsg = `Atenção: Isso irá DESFAZER o registro do Romaneio #${selectedId}, limpando motorista, veículo, datas e cancelando também a liberação. O romaneio voltara ao status NOVO. Confirma?`;
+            }
+            if (!confirm(finalConfirmMsg)) return;
         }
-
-        if (!confirm(finalConfirmMsg)) return;
 
 
         if (actionId === 'abrir_pasta') {
@@ -490,6 +590,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                 return;
             }
 
+            fetchMotoristas(); // carrega lista antes de abrir
+            fetchTiposTransporte(); // carrega tipos de transporte
             setShowShipmentModal(true);
             return;
         }
@@ -552,6 +654,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
     const actions = [
         { id: 'registrar', label: 'Registrar', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
+        { id: 'cancelar_registro', label: 'Cancelar Reg.', icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50', hover: 'hover:bg-rose-100' },
         { id: 'liberar', label: 'Liberar', icon: FileCheck, color: 'text-green-600', bg: 'bg-green-50', hover: 'hover:bg-green-100' },
         { id: 'cancelar_lib', label: 'Cancelar Lib.', icon: FileX, color: 'text-red-500', bg: 'bg-red-50', hover: 'hover:bg-red-100' },
         { id: 'atualizar', label: 'Atualizar Docs', icon: RefreshCw, color: 'text-indigo-600', bg: 'bg-indigo-50', hover: 'hover:bg-indigo-100' },
@@ -559,7 +662,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         { id: 'finalizar', label: 'Finalizar', icon: CheckCircle, color: 'text-teal-600', bg: 'bg-teal-50', hover: 'hover:bg-teal-100' },
         { id: 'cancelar_fin', label: 'Cancelar Fin.', icon: XCircle, color: 'text-orange-600', bg: 'bg-orange-50', hover: 'hover:bg-orange-100' },
         { id: 'exibir_itens', label: 'Lista de Peças e Desenhos', icon: List, color: 'text-slate-600', bg: 'bg-slate-50', hover: 'hover:bg-slate-100' },
-        { id: 'itens_inseridos', label: 'Itens Inseridos no Romaneio', icon: FileCheck, color: 'text-cyan-600', bg: 'bg-cyan-50', hover: 'hover:bg-cyan-100' },
+        { id: 'itens_inseridos', label: 'Manutenção de Itens no Romaneio', icon: FileCheck, color: 'text-cyan-600', bg: 'bg-cyan-50', hover: 'hover:bg-cyan-100' },
         { id: 'report', label: 'Ver Relatório', icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50', hover: 'hover:bg-purple-100' },
     ];
 
@@ -650,45 +753,35 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
             return foundKey ? String(obj[foundKey] || '').trim().toUpperCase() : '';
         };
-        const estatus   = getVal(romaneio, 'Estatus');   // 'F' = Finalizado
-        const liberado  = getVal(romaneio, 'Liberado');  // 'S' = Liberado
-        const enviado   = !!(romaneio.NomeMotorista || romaneio.DataEnvio); // Registrado/Enviado
+        const estatus  = getVal(romaneio, 'Estatus');   // 'F' = Finalizado
+        const liberado = getVal(romaneio, 'Liberado');  // 'S' = Liberado
+        const enviado  = !!(romaneio.NomeMotorista || romaneio.DataEnvio); // Registrado
+        const registrado = enviado && liberado !== 'S' && estatus !== 'F';
 
-        // Regra 3 — FINALIZADO: todos desativados
+        // Regra global — cancelar_lib: somente quando Liberado
+        if (actionId === 'cancelar_lib' && liberado !== 'S') {
+            return { disabled: true, reason: 'Dispon\u00edvel somente quando o romaneio estiver Liberado.' };
+        }
+
+        // Regra global — cancelar_fin: somente quando Finalizado
+        if (actionId === 'cancelar_fin' && estatus !== 'F') {
+            return { disabled: true, reason: 'Dispon\u00edvel somente quando o romaneio estiver Finalizado.' };
+        }
+
+        // Regra global — cancelar_registro: somente quando Registrado (tem motorista, n\u00e3o liberado, n\u00e3o finalizado)
+        if (actionId === 'cancelar_registro' && !registrado) {
+            return { disabled: true, reason: 'Dispon\u00edvel somente quando o romaneio estiver Registrado.' };
+        }
+
+        // Finalizado: bloqueia tudo (cancelar_fin, abrir_pasta e report j\u00e1 tratados acima)
         if (estatus === 'F') {
             if (actionId === 'abrir_pasta' || actionId === 'report') {
                 return { disabled: false, reason: '' };
             }
-            return { disabled: true, reason: 'Romaneio finalizado — ação bloqueada.' };
+            return { disabled: true, reason: 'Romaneio finalizado \u2014 a\u00e7\u00e3o bloqueada.' };
         }
 
-        // Regra 1 — ENVIADO/REGISTRADO: apenas abrir_pasta e report habilitados
-        if (enviado && liberado !== 'S') {
-            if (actionId === 'abrir_pasta' || actionId === 'report') {
-                return { disabled: false, reason: '' };
-            }
-            return { disabled: true, reason: 'Romaneio já enviado — apenas "Abrir Pasta" e "Ver Relatório" disponíveis.' };
-        }
-
-        // Regra 2 — LIBERADO
-        if (liberado === 'S') {
-            if (actionId === 'liberar') {
-                return { disabled: true, reason: 'Romaneio já está liberado.' };
-            }
-            // Regra 2.1 — cancelar_lib desativado se também foi enviado
-            if (actionId === 'cancelar_lib' && enviado) {
-                return { disabled: true, reason: 'Não é possível cancelar a liberação de um romaneio já enviado.' };
-            }
-            // Regra 2.2 — finalizar e cancelar_fin desativados
-            if (actionId === 'finalizar') {
-                return { disabled: true, reason: 'Liberado: use o fluxo correto para finalizar.' };
-            }
-            if (actionId === 'cancelar_fin') {
-                return { disabled: true, reason: 'Romaneio não está finalizado.' };
-            }
-        }
-
-        // Demais casos — ação habilitada
+        // Todos os outros estados e a\u00e7\u00f5es: habilitado
         return { disabled: false, reason: '' };
     };
 
@@ -999,11 +1092,33 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Nome do Motorista *</label>
-                                            <input required type="text" name="motorista" value={shipmentData.motorista} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase" placeholder="NOME COMPLETO" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Placa Veículo *</label>
-                                            <input required type="text" name="placa" value={shipmentData.placa} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase" placeholder="ABC-1234" />
+                                            <select
+                                                required
+                                                name="motorista"
+                                                value={shipmentData.motorista}
+                                                onChange={(e) => {
+                                                    const selected = motoristas.find(m => m.Motorista === e.target.value);
+                                                    if (selected) {
+                                                        setShipmentData(prev => ({
+                                                            ...prev,
+                                                            motorista: selected.Motorista,
+                                                            cnh: selected.CNH || '',
+                                                            categoria: selected.Categoria || '',
+                                                            telefone: selected.Telefone || ''
+                                                        }));
+                                                    } else {
+                                                        setShipmentData(prev => ({ ...prev, motorista: e.target.value }));
+                                                    }
+                                                }}
+                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white uppercase"
+                                            >
+                                                <option value="">SELECIONE O MOTORISTA...</option>
+                                                {motoristas.map(m => (
+                                                    <option key={m.IdMotorista} value={m.Motorista}>
+                                                        {m.Motorista}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Telefone *</label>
@@ -1019,12 +1134,30 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Transporte *</label>
-                                            <select required name="tipoTransporte" value={shipmentData.tipoTransporte} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase bg-white">
-                                                <option value="">SELECIONE...</option>
-                                                <option value="PROPRIO">PRÓPRIO</option>
-                                                <option value="TERCEIROS">TERCEIROS / TRANSPORTADORA</option>
-                                                <option value="CLIENTE">RETIRA CLIENTE</option>
-                                            </select>
+                                            <div className="flex gap-2 items-center">
+                                                <select
+                                                    required
+                                                    name="tipoTransporte"
+                                                    value={shipmentData.tipoTransporte}
+                                                    onChange={handleShipmentInputChange}
+                                                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 uppercase bg-white"
+                                                >
+                                                    <option value="">SELECIONE...</option>
+                                                    {tiposTransporte.map(t => (
+                                                        <option key={t.IdTipoTransporte} value={t.TipoVeiculo}>
+                                                            {t.TipoVeiculo}{t.Placa ? ` — ${t.Placa}` : ''}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setShowTipoModal(true); setTipoForm({ TipoVeiculo: '', Placa: '' }); setTipoEditId(null); }}
+                                                    title="Gerenciar tipos de transporte"
+                                                    className="flex items-center gap-1 px-2.5 py-2 rounded-lg border border-[#32423D] bg-[#32423D]/5 text-[#32423D] hover:bg-[#32423D]/15 transition-colors text-xs font-bold shrink-0"
+                                                >
+                                                    <Plus size={14} /> Gerenciar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1037,9 +1170,117 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                         </div>
                     )
                 }
+                {/* TIPO DE TRANSPORTE MANAGEMENT MODAL */}
+                {showTipoModal && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+                        >
+                            {/* Header */}
+                            <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-[#32423D]">
+                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                    <Truck size={16} /> Tipos de Transporte
+                                </h3>
+                                <button
+                                    onClick={() => { setShowTipoModal(false); setTipoForm({ TipoVeiculo: '', Placa: '' }); setTipoEditId(null); }}
+                                    className="px-3 py-1 rounded-lg bg-white/15 text-white hover:bg-white/25 text-xs font-bold transition-colors"
+                                >
+                                    Fechar
+                                </button>
+                            </div>
+
+                            {/* Form */}
+                            <div className="p-4 border-b border-gray-100 bg-gray-50">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">
+                                    {tipoEditId ? `Editando ID #${tipoEditId}` : 'Novo Tipo de Transporte'}
+                                </p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Tipo de Veículo *"
+                                        value={tipoForm.TipoVeiculo}
+                                        onChange={e => setTipoForm(prev => ({ ...prev, TipoVeiculo: e.target.value.toUpperCase() }))}
+                                        className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Placa"
+                                        maxLength={10}
+                                        value={tipoForm.Placa}
+                                        onChange={e => setTipoForm(prev => ({ ...prev, Placa: e.target.value.toUpperCase() }))}
+                                        className="w-28 px-3 py-1.5 rounded-lg border border-gray-200 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
+                                    />
+                                    <button
+                                        onClick={saveTipoTransporte}
+                                        disabled={tipoSaving}
+                                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#32423D] text-white text-xs font-bold hover:bg-[#2a3632] disabled:opacity-50 transition-colors shrink-0"
+                                    >
+                                        {tipoSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                                        {tipoEditId ? 'Atualizar' : 'Incluir'}
+                                    </button>
+                                    {tipoEditId && (
+                                        <button
+                                            onClick={() => { setTipoForm({ TipoVeiculo: '', Placa: '' }); setTipoEditId(null); }}
+                                            className="px-2.5 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 text-xs transition-colors"
+                                            title="Cancelar edição"
+                                        >
+                                            <X size={13} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* List */}
+                            <div className="overflow-auto max-h-72">
+                                {tiposTransporte.length === 0 ? (
+                                    <p className="text-center text-gray-400 text-sm py-8">Nenhum tipo cadastrado.</p>
+                                ) : (
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-gray-50 sticky top-0">
+                                            <tr className="text-[10px] font-bold uppercase text-gray-500 border-b border-gray-100">
+                                                <th className="px-4 py-2 text-left">Tipo de Veículo</th>
+                                                <th className="px-4 py-2 text-left">Placa</th>
+                                                <th className="px-2 py-2 text-center w-20">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {tiposTransporte.map(t => (
+                                                <tr key={t.IdTipoTransporte} className={`hover:bg-gray-50 transition-colors ${tipoEditId === t.IdTipoTransporte ? 'bg-[#E0E800]/10 border-l-2 border-[#32423D]' : ''}`}>
+                                                    <td className="px-4 py-2 font-medium text-gray-800 text-xs">{t.TipoVeiculo}</td>
+                                                    <td className="px-4 py-2 text-gray-500 text-xs font-mono">{t.Placa || '—'}</td>
+                                                    <td className="px-2 py-2 text-center">
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <button
+                                                                onClick={() => { setTipoEditId(t.IdTipoTransporte); setTipoForm({ TipoVeiculo: t.TipoVeiculo, Placa: t.Placa || '' }); }}
+                                                                className="p-1 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                                                                title="Editar"
+                                                            >
+                                                                <RefreshCw size={12} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteTipoTransporte(t.IdTipoTransporte)}
+                                                                className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                                title="Excluir"
+                                                            >
+                                                                <Trash2 size={12} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
                 {/* ITEMS MANAGEMENT MODAL */}
                 {
                     showItemsModal && (
+
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -1270,7 +1511,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                         {/* Cabeçalho — linha 1: título + fechar */}
                                         <div className="px-4 py-2.5 border-b border-gray-100 bg-[#32423D] flex items-center gap-3">
                                             <FileCheck size={16} className="text-[#E0E800] shrink-0" />
-                                            <span className="text-sm font-bold text-white">Itens Inseridos — Romaneio #{selectedId}</span>
+                                            <span className="text-sm font-bold text-white">Manutenção de Itens — Romaneio #{selectedId}</span>
                                             {selectedInsertedId && (
                                                 <span className="text-[11px] text-[#E0E800] font-semibold ml-2 shrink-0">
                                                     Item #{selectedInsertedId} selecionado
@@ -1330,15 +1571,16 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                         <th className="px-3 py-2 text-right">Qtde Romaneio</th>
                                                         <th className="px-3 py-2 text-right">Saldo</th>
                                                         <th className="px-3 py-2 text-right">Peso Total</th>
+                                                        <th className="px-3 py-2 w-10"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 text-[12px]">
                                                     {loadingInserted ? (
-                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400">
+                                                        <tr><td colSpan={7} className="py-16 text-center text-gray-400">
                                                             <Loader2 size={20} className="animate-spin mx-auto text-[#32423D]" />
                                                         </td></tr>
                                                     ) : insertedItems.length === 0 ? (
-                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
+                                                        <tr><td colSpan={7} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
                                                     ) : insertedItems.map((item, idx) => (
                                                         <React.Fragment key={idx}>
                                                             {/* Linha principal */}
@@ -1363,12 +1605,30 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                 <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio ?? '—'}</td>
                                                                 <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio ?? '—'}</td>
                                                                 <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal != null ? `${item.PesoTotal}kg` : '—'}</td>
+                                                                <td className="px-2 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
+                                                                    <button
+                                                                        onClick={async (e) => {
+                                                                            e.stopPropagation();
+                                                                            if (!window.confirm(`Excluir item #${item.IdRomaneioItem} do romaneio? A quantidade será estornada para o saldo da OS.`)) return;
+                                                                            try {
+                                                                                const r = await fetch(`${API_BASE}/romaneio/item/${item.IdRomaneioItem}`, { method: 'DELETE' });
+                                                                                const d = await r.json();
+                                                                                if (d.success) { fetchInsertedItems(); if (selectedInsertedId === item.IdRomaneioItem) setSelectedInsertedId(null); }
+                                                                                else showAlert(d.message || 'Erro ao excluir item.', 'error');
+                                                                            } catch { showAlert('Erro ao excluir.', 'error'); }
+                                                                        }}
+                                                                        className="p-1 rounded-md text-red-400 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                                                        title="Excluir item do romaneio"
+                                                                    >
+                                                                        <Trash2 size={13} />
+                                                                    </button>
+                                                                </td>
                                                             </tr>
 
                                                             {/* Linha de ações inline */}
                                                             {selectedInsertedId === item.IdRomaneioItem && (
                                                                 <tr className="bg-cyan-50 border-l-4 border-cyan-500">
-                                                                    <td colSpan={6} className="px-3 py-1.5">
+                                                                    <td colSpan={7} className="px-3 py-1.5">
                                                                         <div className="flex flex-wrap items-center gap-1.5">
                                                                             <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mr-1">Ações:</span>
                                                                             {insertedActions.map(action => (
@@ -1769,3 +2029,5 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         </div>
     );
 }
+
+
