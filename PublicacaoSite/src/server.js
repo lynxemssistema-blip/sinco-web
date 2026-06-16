@@ -362,7 +362,7 @@ const ExportarRomaneioExcelPadrao = async (idRomaneio) => {
 
         // 2. Buscar Itens
         const [items] = await pool.execute(
-            "SELECT * FROM viewromaneioitem WHERE IdRomaneio = ?",
+            "SELECT * FROM v_rom_itens_incluidos WHERE IdRomaneio = ?",
             [idRomaneio]
         );
 
@@ -602,14 +602,15 @@ app.get('/api/romaneio/v-itens-projeto-aberto', async (req, res) => {
             conditionFinalizado = "(OrdemServicoItemFinalizado = '' OR OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado = 'C')";
         }
 
-        let sql = `SELECT * FROM viewitensprojetoemaberto WHERE 
+        let sql = `SELECT * FROM v_rom_itens_disponiveis WHERE 
             ${conditionFinalizado} AND 
             (Liberado_Engenharia = 'S')`;
 
         const params = [];
 
         if (mostrarEnviados !== 'true') {
-            sql += ` AND (QtdeTotal <> RomaneioTotalEnviado OR RomaneioTotalEnviado IS NULL OR RomaneioTotalEnviado = '')`;
+            // Mostra apenas itens com saldo real > 0 (QtdeTotal - já enviado)
+            sql += ` AND (QtdeTotal - COALESCE(RomaneioTotalEnviado, 0)) > 0`;
         }
 
         if (projeto) {
@@ -633,7 +634,7 @@ app.get('/api/romaneio/v-itens-projeto-aberto', async (req, res) => {
             params.push(`%${codFabricante}%`);
         }
 
-        sql += ` LIMIT 100`;
+        sql += ` LIMIT 500`;
 
         const [rows] = await pool.execute(sql, params);
         res.json({ success: true, data: rows });
@@ -673,7 +674,7 @@ app.post('/api/romaneio/:id/items', async (req, res) => {
     try {
         // 1. Fetch item details and check balance from view
         const [viewRows] = await pool.execute(
-            "SELECT * FROM viewitensprojetoemaberto WHERE IdOrdemServicoItem = ?",
+            "SELECT * FROM v_rom_itens_disponiveis WHERE IdOrdemServicoItem = ?",
             [IdOrdemServicoItem]
         );
 
@@ -691,62 +692,61 @@ app.post('/api/romaneio/:id/items', async (req, res) => {
             });
         }
 
-        // 2. Insert into romaneioitem
-        // Note: Field names based on DESCRIBE results. 
-        // We populate Unit values from view and calculate Totals.
+        // 2. UPSERT: verificar se item já existe neste romaneio (evitar duplicata)
+        const [existing] = await pool.execute(
+            "SELECT IdRomaneioItem, qtdeUsuario FROM romaneioitem WHERE IdRomaneio = ? AND IDOrdemServicoITEM = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') LIMIT 1",
+            [id, IdOrdemServicoItem]
+        );
+
         const pesoUnit = item.PesoUnitario || 0;
         const areaUnit = item.AreaPinturaUnitario || 0;
+
+        if (existing.length > 0) {
+            // Item já existe → somar quantidade ao registro existente
+            const reg = existing[0];
+            const novaQtde = Number(reg.qtdeUsuario) + Number(qtde);
+            const novoPeso = pesoUnit * novaQtde;
+            const novaArea = areaUnit * novaQtde;
+
+            await pool.execute(
+                "UPDATE romaneioitem SET qtdeUsuario = ?, qtdeGrid = ?, QtdeRomaneio = ?, PesoTotal = ?, AreaPinturaTotal = ? WHERE IdRomaneioItem = ?",
+                [novaQtde, novaQtde, novaQtde, novoPeso, novaArea, reg.IdRomaneioItem]
+            );
+            // Atualiza ordemservicoitem com referências ao romaneio
+            await pool.execute(
+                `UPDATE ordemservicoitem
+                 SET idRomaneio = ?, IdRomaneioItem = ?, QtdeRomaneio = ?, EnviadoParaRomaneio = 'S'
+                 WHERE IdOrdemServicoItem = ?`,
+                [id, reg.IdRomaneioItem, novaQtde, IdOrdemServicoItem]
+            );
+            await pool.execute(
+                "INSERT INTO ordemservicoitemcontrole (IdOrdemServico, IdOrdemServicoItem, Processo, QtdeTotal, QtdeProduzida, Origem, CriadoPor, DataCriacao, D_E_L_E_T_E) VALUES (?, ?, 'Expedicao', ?, ?, 'Expedicao', ?, ?, '')",
+                [item.IdOrdemServico || null, IdOrdemServicoItem, item.QtdeTotal || qtde, qtde, usuario || 'Sistema', getCurrentDateTimeBR()]
+            );
+            return res.json({ success: true, message: `Quantidade somada ao item existente. Nova qtde: ${novaQtde}` });
+        }
+
+        // Item não existe → INSERT novo registro
         const pesoTotal = pesoUnit * qtde;
         const areaTotal = areaUnit * qtde;
 
-        const sql = `
-            INSERT INTO romaneioitem (
-                IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao, 
-                qtdeUsuario, qtdeGrid, QtdeRomaneio,
-                PesoUnitario, PesoTotal, 
-                AreaPintura, AreaPinturaTotal,
-                CodMatFabricante, Situacao
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ITEM LOCALIZADO')
-        `;
-
-        const params = [
-            id, IdOrdemServicoItem, usuario || 'Sistema', getCurrentDateTimeBR(),
-            qtde, qtde, qtde,
-            pesoUnit, pesoTotal,
-            areaUnit, areaTotal,
-            item.CodMatFabricante || '',
-        ];
-
-        await pool.execute(sql, params);
-
-        // --- ATUALIZAÃ¯Â¿Â½Ã¯Â¿Â½O REQUISITADA: SalvarDados em ordemservicoitemcontrole para 'Expedicao' ---
-        // Mapeando os parÃ¯Â¿Â½metros do VB.NET para a inserÃ¯Â¿Â½Ã¯Â¿Â½o:
-        // ClasseordemservicoitemControle.SalvarDados(..., "Expedicao", ...)
-        const historicoSql = `
-            INSERT INTO ordemservicoitemcontrole (
-                IdOrdemServico,
-                IdOrdemServicoItem,
-                Processo,
-                QtdeTotal,
-                QtdeProduzida,
-                Origem,
-                CriadoPor,
-                DataCriacao,
-                D_E_L_E_T_E
-            ) VALUES (?, ?, 'Expedicao', ?, ?, 'Expedicao', ?, ?, '')
-        `;
-        const historicoParams = [
-            item.IdOrdemServico,
-            IdOrdemServicoItem,
-            item.QtdeTotal || qtde, // QtdeTotal
-            qtde,                   // QtdeProduzida
-            usuario || 'Sistema',
-            getCurrentDateTimeBR()
-        ];
-
-        await pool.execute(historicoSql, historicoParams);
-
-        res.json({ success: true, message: 'Item adicionado ao romaneio com sucesso e controle logado!' });
+        const [insertResult] = await pool.execute(
+            "INSERT INTO romaneioitem (IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao, qtdeUsuario, qtdeGrid, QtdeRomaneio, PesoUnitario, PesoTotal, AreaPintura, AreaPinturaTotal, CodMatFabricante, Situacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ITEM LOCALIZADO')",
+            [id, IdOrdemServicoItem, usuario || 'Sistema', getCurrentDateTimeBR(), qtde, qtde, qtde, pesoUnit, pesoTotal, areaUnit, areaTotal, item.CodMatFabricante || '']
+        );
+        const novoIdRomaneioItem = insertResult.insertId;
+        // Atualiza ordemservicoitem com referências ao romaneio
+        await pool.execute(
+            `UPDATE ordemservicoitem
+             SET idRomaneio = ?, IdRomaneioItem = ?, QtdeRomaneio = ?, EnviadoParaRomaneio = 'S'
+             WHERE IdOrdemServicoItem = ?`,
+            [id, novoIdRomaneioItem, qtde, IdOrdemServicoItem]
+        );
+        await pool.execute(
+            "INSERT INTO ordemservicoitemcontrole (IdOrdemServico, IdOrdemServicoItem, Processo, QtdeTotal, QtdeProduzida, Origem, CriadoPor, DataCriacao, D_E_L_E_T_E) VALUES (?, ?, 'Expedicao', ?, ?, 'Expedicao', ?, ?, '')",
+            [item.IdOrdemServico || null, IdOrdemServicoItem, item.QtdeTotal || qtde, qtde, usuario || 'Sistema', getCurrentDateTimeBR()]
+        );
+        res.json({ success: true, message: 'Item adicionado ao romaneio com sucesso!' });
     } catch (error) {
         console.error('Error adding item to romaneio:', error);
         res.status(500).json({ success: false, message: 'Erro ao incluir item no romaneio.' });
@@ -759,7 +759,7 @@ app.get('/api/romaneio/:id/inserted-items', async (req, res) => {
     const { projeto, tag, resumo, detalhe, codFabricante } = req.query;
 
     try {
-        let sql = `SELECT * FROM viewromaneioitem WHERE IdRomaneio = ?`;
+        let sql = `SELECT * FROM v_rom_itens_incluidos WHERE IdRomaneio = ?`;
         const params = [id];
 
         if (projeto) {
@@ -803,7 +803,7 @@ app.get('/api/files/open-pdf/:idRomaneioItem', async (req, res) => {
 
     try {
         const [rows] = await pool.execute(
-            "SELECT EnderecoArquivo FROM viewromaneioitem WHERE IdRomaneioItem = ?",
+            "SELECT EnderecoArquivo FROM v_rom_itens_incluidos WHERE IdRomaneioItem = ?",
             [idRomaneioItem]
         );
 
@@ -861,7 +861,7 @@ app.get('/api/files/open-3d/:idRomaneioItem', async (req, res) => {
 
     try {
         const [rows] = await pool.execute(
-            "SELECT EnderecoArquivo FROM viewromaneioitem WHERE IdRomaneioItem = ?",
+            "SELECT EnderecoArquivo FROM v_rom_itens_incluidos WHERE IdRomaneioItem = ?",
             [idRomaneioItem]
         );
 
@@ -919,7 +919,174 @@ app.put('/api/romaneio/item/:idRomaneioItem/observacao', async (req, res) => {
     }
 });
 
-// DELETE /api/romaneio/item/:idRomaneioItem - Delete item from romaneio with balance updates
+// POST /api/romaneio/item/:idRomaneioItem/estorno - Estorno de quantidade
+app.post('/api/romaneio/item/:idRomaneioItem/estorno', async (req, res) => {
+    const { idRomaneioItem } = req.params;
+    const { qtdeEstorno, usuario } = req.body;
+    let conn = null;
+    try {
+        const qtde = Number(qtdeEstorno);
+        if (!qtde || qtde <= 0) {
+            return res.status(400).json({ success: false, message: 'Quantidade de estorno inválida.' });
+        }
+
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // 1. Busca o item do romaneio com todos os dados necessários
+        const [rows] = await conn.execute(
+            `SELECT IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM,
+                    qtdeRomaneio, SaldoRomaneio, PesoUnitario, AreaPintura
+             FROM romaneioitem
+             WHERE IdRomaneioItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+             LIMIT 1`,
+            [idRomaneioItem]
+        );
+
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ success: false, message: 'Item não encontrado no romaneio.' });
+        }
+
+        const item = rows[0];
+        const qtdeAtual = Number(item.qtdeRomaneio || 0);
+        const saldoAtual = Number(item.SaldoRomaneio || 0);
+
+        // 2. Validação: qtdeEstorno <= qtdeRomaneio
+        if (qtde > qtdeAtual) {
+            await conn.rollback();
+            return res.status(400).json({
+                success: false,
+                message: `Quantidade de estorno (${qtde}) não pode ser maior que a quantidade no romaneio (${qtdeAtual}).`
+            });
+        }
+
+        const novaQtdeRomaneio = qtdeAtual - qtde;
+        const novoSaldo = saldoAtual + qtde;
+        const now = getCurrentDateTimeBR();
+
+        // 3. Atualiza romaneioitem
+        await conn.execute(
+            `UPDATE romaneioitem SET qtdeRomaneio = ?, SaldoRomaneio = ? WHERE IdRomaneioItem = ?`,
+            [novaQtdeRomaneio, novoSaldo, idRomaneioItem]
+        );
+
+        // 4. Registra em romaneioitemcontrole com Situacao = 'ESTORNO'
+        const pesoCalc = Number(item.PesoUnitario || 0) * qtde;
+        const areaCalc = Number(item.AreaPintura || 0) * qtde;
+
+        await conn.execute(
+            `INSERT INTO romaneioitemcontrole
+                (IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao,
+                 qtdeUsuario, qtdeGrid, PesoUnitario, Pesocalculado, AreaPintura, AreaPinturaCalculada,
+                 Situacao, D_E_L_E_T_E)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ESTORNO', '')`,
+            [
+                idRomaneioItem,
+                item.IdRomaneio,
+                item.IDOrdemServicoITEM,
+                usuario || 'Sistema',
+                now,
+                qtde,
+                qtde,
+                item.PesoUnitario || 0,
+                pesoCalc,
+                item.AreaPintura || 0,
+                areaCalc
+            ]
+        );
+
+        await conn.commit();
+        console.log(`[Estorno] Item #${idRomaneioItem}: -${qtde} | Nova qtde: ${novaQtdeRomaneio} | Novo saldo: ${novoSaldo}`);
+        res.json({
+            success: true,
+            message: `Estorno de ${qtde} unidade(s) realizado com sucesso.`,
+            novaQtdeRomaneio,
+            novoSaldo
+        });
+
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error('[Estorno] Erro:', err);
+        res.status(500).json({ success: false, message: 'Erro interno ao processar estorno.' });
+    } finally {
+        if (conn) conn.release();
+    }
+});
+
+// POST /api/romaneio/item/:idRomaneioItem/alterar-qtde - Alterar (subtrair) qtdeUsuario e devolver saldo à OS
+app.post('/api/romaneio/item/:idRomaneioItem/alterar-qtde', async (req, res) => {
+    const { idRomaneioItem } = req.params;
+    const { qtdeAlterar, usuario } = req.body;
+    let conn = null;
+    try {
+        const qtde = Number(qtdeAlterar);
+        if (!qtde || qtde <= 0) {
+            return res.status(400).json({ success: false, message: 'Quantidade inválida.' });
+        }
+
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // 1. Busca o item do romaneio
+        const [rows] = await conn.execute(
+            `SELECT IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, qtdeUsuario
+             FROM romaneioitem
+             WHERE IdRomaneioItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+             LIMIT 1`,
+            [idRomaneioItem]
+        );
+
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ success: false, message: 'Item não encontrado no romaneio.' });
+        }
+
+        const item = rows[0];
+        const qtdeAtual = Number(item.qtdeUsuario || 0);
+
+        // 2. Validação: qtdeAlterar <= qtdeUsuario
+        if (qtde > qtdeAtual) {
+            await conn.rollback();
+            return res.status(400).json({
+                success: false,
+                message: `Quantidade (${qtde}) não pode ser maior que a qtde do item (${qtdeAtual}).`
+            });
+        }
+
+        const novaQtdeUsuario = qtdeAtual - qtde;
+
+        // 3. Atualiza qtdeUsuario no romaneioitem
+        await conn.execute(
+            `UPDATE romaneioitem SET qtdeUsuario = ?, qtdeGrid = ?, QtdeRomaneio = ? WHERE IdRomaneioItem = ?`,
+            [novaQtdeUsuario, novaQtdeUsuario, novaQtdeUsuario, idRomaneioItem]
+        );
+
+        // 4. Devolve a quantidade ao RomaneioSaldoEnviar da OS
+        await conn.execute(
+            `UPDATE ordemservicoitem
+             SET RomaneioSaldoEnviar = COALESCE(RomaneioSaldoEnviar, 0) + ?
+             WHERE IdOrdemServicoItem = ?`,
+            [qtde, item.IDOrdemServicoITEM]
+        );
+
+        await conn.commit();
+        console.log(`[AlterarQtde] Item #${idRomaneioItem}: qtdeUsuario ${qtdeAtual} -> ${novaQtdeUsuario} | +${qtde} devolvido ao saldo OS`);
+        res.json({
+            success: true,
+            message: `Quantidade alterada. Nova qtde: ${novaQtdeUsuario}. Saldo devolvido à OS: +${qtde}.`,
+            novaQtdeUsuario
+        });
+
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error('[AlterarQtde] Erro:', err);
+        res.status(500).json({ success: false, message: 'Erro ao processar alteração de quantidade.' });
+    } finally {
+        if (conn) conn.release();
+    }
+});
+
 app.delete('/api/romaneio/item/:idRomaneioItem', async (req, res) => {
     const { idRomaneioItem } = req.params;
     const { usuario } = req.query; // Pega o usuÃ¯Â¿Â½rio da query string ou header se disponÃ¯Â¿Â½vel
@@ -984,15 +1151,34 @@ app.delete('/api/romaneio/item/:idRomaneioItem', async (req, res) => {
             let totalEnviado = (osItemRows[0].RomaneioTotalEnviado || 0) - qtdeRemover;
             let saldoEnviar = (osItemRows[0].RomaneioSaldoEnviar || 0) + qtdeRemover;
 
-            // Garantir que nÃ¯Â¿Â½o fiquem negativos por erro de arredondamento ou dados prÃ¯Â¿Â½vios
+            // Garantir que não fiquem negativos por erro de arredondamento ou dados prévios
             totalEnviado = Math.max(0, totalEnviado);
 
-            const liberadoStatus = totalEnviado === 0 ? '' : 'S';
-
-            await connection.execute(
-                "UPDATE ordemservicoitem SET RomaneioTotalEnviado = ?, RomaneioSaldoEnviar = ?, EnviadoParaRomaneio = ? WHERE IdOrdemServicoItem = ?",
-                [totalEnviado, saldoEnviar, liberadoStatus, idOSItem]
-            );
+            if (totalEnviado === 0) {
+                // Item totalmente removido do romaneio → limpar todos os campos de referência
+                await connection.execute(
+                    `UPDATE ordemservicoitem
+                     SET RomaneioTotalEnviado = 0,
+                         RomaneioSaldoEnviar  = ?,
+                         EnviadoParaRomaneio  = '',
+                         idRomaneio           = NULL,
+                         IdRomaneioItem       = NULL,
+                         QtdeRomaneio         = NULL
+                     WHERE IdOrdemServicoItem = ?`,
+                    [saldoEnviar, idOSItem]
+                );
+                console.log(`[DELETE] OS Item #${idOSItem}: referências ao romaneio limpas.`);
+            } else {
+                // Ainda há quantidade enviada → apenas atualiza saldos
+                await connection.execute(
+                    `UPDATE ordemservicoitem
+                     SET RomaneioTotalEnviado = ?,
+                         RomaneioSaldoEnviar  = ?,
+                         EnviadoParaRomaneio  = 'S'
+                     WHERE IdOrdemServicoItem = ?`,
+                    [totalEnviado, saldoEnviar, idOSItem]
+                );
+            }
         }
 
         // 6. Recalcular Totais do Romaneio
@@ -1053,33 +1239,35 @@ app.post('/api/admin/shutdown', async (req, res) => {
 
 // POST /api/romaneio/open - Open Folder on Server
 app.post('/api/romaneio/open', async (req, res) => {
-    const { id } = req.body;
+    const { id, path: clientPath } = req.body;
     try {
-        // 1. Get Root Path Config
-        const [configRows] = await pool.execute(
-            "SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoPastaRaizRomaneio' LIMIT 1"
-        );
+        let folderPath = clientPath || null;
 
-        if (configRows.length === 0) {
-            return res.status(400).json({ success: false, message: 'ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o EnderecoPastaRaizRomaneio nÃ¯Â¿Â½o encontrada.' });
+        // Se o frontend não enviou o path, busca no banco pelo id
+        if (!folderPath && id) {
+            const [rows] = await pool.execute(
+                "SELECT ENDERECORomaneio FROM romaneio WHERE idRomaneio = ? LIMIT 1",
+                [id]
+            );
+            if (rows.length > 0 && rows[0].ENDERECORomaneio) {
+                folderPath = rows[0].ENDERECORomaneio;
+            }
         }
 
-        const rootPath = configRows[0].valor;
+        if (!folderPath) {
+            return res.status(400).json({ success: false, message: 'Caminho da pasta não definido para este romaneio.' });
+        }
 
-        // 2. Construct Folder Path (RO_paddedId)
-        const paddedId = String(id).padStart(4, '0');
-        const folderPath = `${rootPath}\\RO_${paddedId}`;
-
-        console.log(`[Action] Attempting to open Romaneio folder: ${folderPath}`);
+        console.log(`[Action] Abrindo pasta do Romaneio #${id}: ${folderPath}`);
 
         if (!fs.existsSync(folderPath)) {
-            return res.status(404).json({ success: false, message: `Pasta nÃ¯Â¿Â½o encontrada no servidor: ${folderPath}` });
+            return res.status(404).json({ success: false, message: `Pasta não encontrada no servidor: ${folderPath}` });
         }
 
-        // Execute command to open folder (Windows)
+        // Abre no Windows Explorer
         require('child_process').exec(`start "" "${folderPath}"`, (err) => {
             if (err) {
-                console.error('Error opening folder:', err);
+                console.error('Erro ao abrir pasta:', err);
             }
         });
 
@@ -1152,16 +1340,20 @@ app.post('/api/romaneio', async (req, res) => {
         // Let's interpret "\RO_" as a prefix for the folder name.
         // If ID=10, Path = Root\RO_0010 (padded).
 
-        const paddedId = String(newId).padStart(4, '0'); // User example '0001' implies 4 digits
-        // Using straight backslashes for Windows path
+        const paddedId = String(newId).padStart(4, '0'); // 4 digits: 0001, 0023, etc.
         const folderPath = `${rootPath}\\RO_${paddedId}`;
 
-        // Note: User said "exemplo: ...\RO\0001". If they meant a subfolder "RO", the formula would be "\RO\" & ID.
-        // But they wrote "\RO_" & ID. I'm checking the previous code...
-        // Previous code was `RO_${paddedId}\PDF`.
-        // I will stick to `RO_${paddedId}` as the main folder for the Romaneio.
+        // 4. Criar pasta fisicamente no disco
+        try {
+            fs.mkdirSync(folderPath, { recursive: true });
+            fs.mkdirSync(`${folderPath}\\PDF`, { recursive: true });
+            console.log(`[Romaneio] Pasta criada: ${folderPath}`);
+        } catch (mkdirErr) {
+            // Nao bloqueia a criacao do romaneio se a pasta falhar (ex: drive nao mapeado)
+            console.error(`[Romaneio] Erro ao criar pasta ${folderPath}:`, mkdirErr.message);
+        }
 
-        // 4. Update with Path
+        // 5. Salvar caminho no banco
         await conn.execute(
             "UPDATE romaneio SET ENDERECORomaneio = ? WHERE idRomaneio = ?",
             [folderPath, newId]
@@ -1267,9 +1459,9 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
 
                 // Validate mandatory fields if this is a registration with data
                 if (dadosEnvio) {
-                    if (!dadosEnvio.motorista || !dadosEnvio.placa || !dadosEnvio.tipoTransporte || !dadosEnvio.cnh || !dadosEnvio.categoria || !dadosEnvio.telefone) {
+                    if (!dadosEnvio.motorista || !dadosEnvio.tipoTransporte || !dadosEnvio.cnh || !dadosEnvio.categoria || !dadosEnvio.telefone) {
                         // Strict validation as requested
-                        return res.status(400).json({ success: false, message: 'Dados de envio incompletos. Preencha todos os campos obrigatÃ¯Â¿Â½rios.' });
+                        return res.status(400).json({ success: false, message: 'Dados de envio incompletos. Preencha todos os campos obrigatorios.' });
                     }
 
                     const dataEnvio = getCurrentDateBR();
@@ -1291,7 +1483,7 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
                         dataEnvio,
                         horaEnvio,
                         dadosEnvio.motorista.toUpperCase(),
-                        dadosEnvio.placa.toUpperCase(),
+                        dadosEnvio.placa ? dadosEnvio.placa.toUpperCase() : dadosEnvio.tipoTransporte.toUpperCase(),
                         dadosEnvio.cnh ? dadosEnvio.cnh.toUpperCase() : '',
                         dadosEnvio.categoria ? dadosEnvio.categoria.toUpperCase() : '',
                         dadosEnvio.telefone || '',
@@ -1404,6 +1596,45 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
                 params = [id];
                 break;
 
+            case 'cancelar_registro':
+                // Valida: so permitido quando romaneio esta Registrado (tem motorista, nao liberado, nao finalizado)
+                const [crRows] = await pool.execute(
+                    "SELECT Estatus, Liberado, NomeMotorista FROM romaneio WHERE idRomaneio = ?",
+                    [id]
+                );
+                if (crRows.length === 0) {
+                    return res.status(404).json({ success: false, message: `Romaneio #${id} nao encontrado.` });
+                }
+                const crRec      = crRows[0];
+                const crLiberado = String(crRec.Liberado     || '').trim().toUpperCase();
+                const crEstatus  = String(crRec.Estatus      || '').trim().toUpperCase();
+                const crMotorista= String(crRec.NomeMotorista|| '').trim();
+
+                if (crEstatus === 'F') {
+                    return res.status(400).json({ success: false, message: `Romaneio #${id} esta FINALIZADO e nao pode ter o registro cancelado.` });
+                }
+                if (crLiberado === 'S') {
+                    return res.status(400).json({ success: false, message: `Romaneio #${id} ja esta Liberado. Cancele a liberacao primeiro.` });
+                }
+                if (!crMotorista) {
+                    return res.status(400).json({ success: false, message: `Romaneio #${id} nao possui registro de motorista para cancelar.` });
+                }
+
+                // Desfaz tudo que o "Registrar" fez — volta ao estado Novo
+                updateQuery = `UPDATE romaneio SET
+                    Estatus = '',
+                    NomeMotorista = '',
+                    PlacaVeiculo = '',
+                    Cnh = '',
+                    Categoria = '',
+                    Telefone = '',
+                    TipoTransporte = '',
+                    DataEnvio = '',
+                    HoraEnvio = ''
+                    WHERE idRomaneio = ?`;
+                params = [id];
+                break;
+
             case 'atualizar':
                 // For now, maybe just update status to 'Atualizado'? Or just a touch? 
                 // "Atualizar Docs" might imply checking files on disk. For now, let's just log it.
@@ -1470,7 +1701,8 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
 app.get('/api/romaneio-retorno/items', async (req, res) => {
     const { romaneio, projeto, tag, numDoc, mostrarConcluidos } = req.query;
     try {
-        let sql = `SELECT * FROM viewromaneioitem WHERE 1=1`;
+        let sql = `SELECT * FROM view_retorno_itens WHERE 1=1
+            AND IdRomaneio IN (SELECT idRomaneio FROM romaneio WHERE Liberado = 'S')`;
         const params = [];
 
         if (romaneio) {
@@ -1490,9 +1722,12 @@ app.get('/api/romaneio-retorno/items', async (req, res) => {
             params.push(`%${numDoc}%`);
         }
 
-        // Se 'mostrarConcluidos' nÃ¯Â¿Â½o for true, filtra apenas os que nÃ¯Â¿Â½o foram finalizados
-        if (mostrarConcluidos !== 'true') {
-            sql += ` AND (MarcarComoFinalizado IS NULL OR MarcarComoFinalizado != 'S')`;
+        if (mostrarConcluidos === 'true') {
+            // Mostrar concluídos: exibe apenas registros finalizados manualmente ou com saldo zerado
+            sql += ` AND (MarcarComoFinalizado = 'S' OR Saldo <= 0)`;
+        } else {
+            // Padrão (não marcados): exibe apenas registros em aberto com saldo maior que zero
+            sql += ` AND (MarcarComoFinalizado IS NULL OR MarcarComoFinalizado != 'S') AND Saldo > 0`;
         }
 
         sql += ` ORDER BY IdRomaneio DESC, IdRomaneioItem ASC LIMIT 500`;
@@ -1569,6 +1804,54 @@ app.post('/api/romaneio-retorno/process', async (req, res) => {
     }
 });
 
+// POST /api/romaneio-retorno/registrar-retorno — Registra qtde de retorno em romaneioitemcontrole
+app.post('/api/romaneio-retorno/registrar-retorno', async (req, res) => {
+    const { idRomaneioItem, idRomaneio, qtdeGrid, usuario, nomeCompleto } = req.body;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Buscar dados do item — usa qtdeUsuario como quantidade enviada real
+        const [itemRows] = await connection.execute(
+            'SELECT qtdeUsuario AS QtdeEnviada, QtdeTotalRetorno, IDOrdemServicoITEM FROM romaneioitem WHERE IdRomaneioItem = ?',
+            [idRomaneioItem]
+        );
+        if (itemRows.length === 0) throw new Error('Item do romaneio não encontrado.');
+
+        const item = itemRows[0];
+        const qtdeEnviada = Number(item.QtdeEnviada) || 0;
+        const qtde = Number(qtdeGrid);
+
+        // 2. Validar quantidade
+        if (!qtde || qtde <= 0) throw new Error('Quantidade deve ser maior que zero.');
+        if (qtde > qtdeEnviada) throw new Error(`Quantidade (${qtde}) não pode ser maior que a quantidade enviada (${qtdeEnviada}).`);
+
+        // 3. Inserir em romaneioitemcontrole com qtdeUsuario, IdRomaneio, DataRetorno, UsuarioRetorno e Situacao = RETORNO
+        await connection.execute(
+            `INSERT INTO romaneioitemcontrole
+             (IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, qtdeUsuario, DataRetorno, UsuarioRetorno, DataCriacao, Usuario, Situacao)
+             VALUES (?, ?, ?, ?, CURDATE(), ?, NOW(), ?, 'RETORNO')`,
+            [idRomaneioItem, idRomaneio, item.IDOrdemServicoITEM, qtde, nomeCompleto, nomeCompleto]
+        );
+
+        // 4. Atualizar saldo de retorno no romaneioitem
+        const novaQtdeRetorno = (Number(item.QtdeTotalRetorno) || 0) + qtde;
+        await connection.execute(
+            "UPDATE romaneioitem SET QtdeTotalRetorno = ?, Situacao = 'RETORNO' WHERE IdRomaneioItem = ?",
+            [novaQtdeRetorno, idRomaneioItem]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: `Retorno de ${qtde} peça(s) registrado com sucesso.` });
+    } catch (error) {
+        await connection.rollback();
+        console.error('[REGISTRAR-RETORNO]', error.message);
+        res.status(400).json({ success: false, message: error.message || 'Erro ao registrar retorno.' });
+    } finally {
+        connection.release();
+    }
+});
+
 // DELETE /api/romaneio-retorno/history/:idControle - Cancel a return entry
 app.delete('/api/romaneio-retorno/history/:idControle', async (req, res) => {
     const { idControle } = req.params;
@@ -1618,6 +1901,85 @@ app.delete('/api/romaneio-retorno/history/:idControle', async (req, res) => {
         await connection.rollback();
         console.error('[RETORNO] Erro ao cancelar retorno:', error);
         res.status(500).json({ success: false, message: error.message || 'Erro ao cancelar retorno.' });
+    } finally {
+        connection.release();
+    }
+});
+
+// GET /api/romaneio-retorno/controle/:idOrdemServicoItem - busca romaneioitemcontrole pelo IdOrdemServicoItem
+app.get('/api/romaneio-retorno/controle/:idOrdemServicoItem', async (req, res) => {
+    const { idOrdemServicoItem } = req.params;
+    try {
+        const [rows] = await pool.execute(
+            `SELECT ric.*, ri.QtdeUsuario AS QtdeAtualItem, ri.IdRomaneioItem
+             FROM romaneioitemcontrole ric
+             LEFT JOIN romaneioitem ri ON ri.IdRomaneioItem = ric.IdRomaneioItem
+             WHERE ric.IDOrdemServicoITEM = ?
+               AND (ric.D_E_L_E_T_E IS NULL OR ric.D_E_L_E_T_E = '')
+             ORDER BY ric.DataCriacao DESC`,
+            [idOrdemServicoItem]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('[RETORNO] Erro ao buscar controle:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar controle.' });
+    }
+});
+
+// POST /api/romaneio-retorno/estorno/:idControle - Estorna um registro de romaneioitemcontrole
+app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
+    const { idControle } = req.params;
+    const { usuario, observacao, qtdeEstorno } = req.body;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Buscar o registro de controle (usando IdRomaneioItem)
+        const [ctrlRows] = await connection.execute(
+            `SELECT idromaneioitemcontrole, IdRomaneioItem, qtdeUsuario, Situacao
+             FROM romaneioitemcontrole 
+             WHERE IdRomaneioItem = ? AND Situacao = 'RETORNO' 
+             ORDER BY DataCriacao DESC LIMIT 1`,
+            [idControle]
+        );
+        if (ctrlRows.length === 0) throw new Error('Registro não encontrado.');
+        const ctrl = ctrlRows[0];
+
+        if (ctrl.Situacao === 'ESTORNO') {
+            throw new Error('Este registro já foi estornado.');
+        }
+
+        // Quantidade a devolver: usa qtdeEstorno digitado pelo usuário (validado no frontend)
+        const maxQtde = Number(ctrl.qtdeUsuario || 0);
+        const qtdeDevolucao = qtdeEstorno ? Math.min(Number(qtdeEstorno), maxQtde) : maxQtde;
+        if (qtdeDevolucao <= 0) throw new Error('Quantidade de estorno inválida.');
+
+        // 2. Subtrair qtdeDevolucao de QtdeTotalRetorno no romaneioitem
+        const [itemRows] = await connection.execute(
+            `SELECT QtdeTotalRetorno FROM romaneioitem WHERE IdRomaneioItem = ?`,
+            [ctrl.IdRomaneioItem]
+        );
+        if (itemRows.length > 0) {
+            const novaQtde = Math.max(0, (Number(itemRows[0].QtdeTotalRetorno) || 0) - qtdeDevolucao);
+            const situacaoUpdate = novaQtde === 0 ? "Situacao = 'ITEM LOCALIZADO'" : "Situacao = 'RETORNO'";
+            await connection.execute(
+                `UPDATE romaneioitem SET QtdeTotalRetorno = ?, ${situacaoUpdate} WHERE IdRomaneioItem = ?`,
+                [novaQtde, ctrl.IdRomaneioItem]
+            );
+        }
+
+        // 3. Marcar o registro de controle como ESTORNO e salvar Observacao
+        await connection.execute(
+            `UPDATE romaneioitemcontrole SET Situacao = 'ESTORNO', Usuario = ?, Observacao = ? WHERE idromaneioitemcontrole = ?`,
+            [usuario || 'Sistema', observacao || '', ctrl.idromaneioitemcontrole]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: `Estorno realizado. ${qtdeDevolucao} unidade(s) devolvidas ao item.` });
+    } catch (error) {
+        await connection.rollback();
+        console.error('[RETORNO] Erro no estorno:', error);
+        res.status(500).json({ success: false, message: error.message || 'Erro ao realizar estorno.' });
     } finally {
         connection.release();
     }
@@ -1900,7 +2262,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 }
             });
         } else {
-            res.status(401).json({ success: false, message: 'Credenciais invÃ¯Â¿Â½lidas' });
+            res.status(401).json({ success: false, message: 'Credenciais inválidas' });
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -1981,7 +2343,7 @@ app.post('/api/admin/login', async (req, res) => {
         }
 
         console.warn(`[ADMIN AUTH] Invalid credentials for: ${username}`);
-        res.status(401).json({ success: false, message: 'Credenciais invÃ¯Â¿Â½lidas' });
+        res.status(401).json({ success: false, message: 'Credenciais inválidas' });
     } catch (error) {
         console.error('[ADMIN AUTH] Database Error:', error);
         res.status(500).json({ success: false, message: 'Erro no servidor' });
@@ -3538,6 +3900,11 @@ app.delete('/api/acabamento/:id', async (req, res) => {
 // LIST (Read All) with JOINs
 app.get('/api/material', async (req, res) => {
     try {
+        // Auto-patch missing columns for older tenants
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `ImagemProduto` LONGTEXT NULL'); } catch(e){}
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `acabamento` VARCHAR(150) NULL'); } catch(e){}
+        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `D_E_L_E_T_E` VARCHAR(1) NULL'); } catch(e){}
+
         const [rows] = await pool.execute(`
             SELECT 
                 m.IdMaterial, m.CodMatFabricante, m.DescResumo, m.DescDetal, m.NumeroRP,
@@ -3705,8 +4072,167 @@ app.delete('/api/material/:id', async (req, res) => {
     }
 });
 
-// --- CRUD: Projetos ---
+// --- PEÇA MANUFATURADA (Monta Peça) ---
+// 1. GET /api/peca-manufaturada/desenhos - Desenhos (peças finais)
+app.get('/api/peca-manufaturada/desenhos', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND EnderecoArquivo <> ''`;
+        const params = [];
 
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching desenhos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar desenhos: ' + error.message });
+    }
+});
+
+// 1.5 GET /api/peca-manufaturada/pecas - Peças manufaturadas (PecaManufat = 'S')
+app.get('/api/peca-manufaturada/pecas', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND PecaManufat = 'S'`;
+        const params = [];
+
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching pecas manufaturadas:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar peças manufaturadas: ' + error.message });
+    }
+});
+
+// 2. GET /api/peca-manufaturada/composicao/:idMaterialPeca - Composição atual
+app.get('/api/peca-manufaturada/composicao/:idMaterialPeca', async (req, res) => {
+    try {
+        const { idMaterialPeca } = req.params;
+        const sql = `SELECT IdMontaPeca, IdMaterial, IdMaterialpeca, CodMatFabricante, DescDetal, PecaQtde, txtItemEstoque 
+                     FROM viewmontapeca1 
+                     WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                       AND idmaterialpeca = ?
+                     ORDER BY CodMatFabricante`;
+        const [rows] = await pool.execute(sql, [idMaterialPeca]);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar composição: ' + error.message });
+    }
+});
+
+// 3. GET /api/peca-manufaturada/materiais - Matérias-primas
+app.get('/api/peca-manufaturada/materiais', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescDetal, FamiliaMat AS Familia, Peso, Valor, Qtde, IdEmpresa
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND (EnderecoArquivo IS NULL OR EnderecoArquivo = '')`;
+        const params = [];
+
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescDetal LIKE ? OR NumeroRP LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching materiais brutos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar materiais brutos: ' + error.message });
+    }
+});
+
+// 4. POST /api/peca-manufaturada/composicao - Adicionar insumo
+app.post('/api/peca-manufaturada/composicao', async (req, res) => {
+    try {
+        const { idMaterialPeca, idMaterial, quantidade, usuario } = req.body;
+        
+        // Obter dados do material para copiar peso/valor/empresa, conforme VB
+        const [matRows] = await pool.execute(`SELECT FamiliaMat, Peso, Valor, IdEmpresa, CodMatFabricante FROM material WHERE IdMaterial = ?`, [idMaterial]);
+        if (matRows.length === 0) return res.status(404).json({ success: false, message: 'Material base não encontrado.' });
+        
+        const mat = matRows[0];
+        const qtde = quantidade || 1; // Default 1
+
+        const sql = `INSERT INTO montapeca 
+            (TipoPeca, IdMaterial, PecaQtde, IdMaterialPeca, IdEmpresa, D_E_L_E_T_E, Peso, Valor, UsuarioD_E_L_E_T_E, DataD_E_L_E_T_E, CodMatFabricante, UsuarioCriacao, DataCriacao)
+            VALUES (?, ?, ?, ?, ?, '', ?, ?, '', '', ?, ?, NOW())`;
+            
+        await pool.execute(sql, [
+            mat.FamiliaMat || 0,
+            idMaterial,
+            qtde,
+            idMaterialPeca,
+            mat.IdEmpresa || 0,
+            mat.Peso || 0,
+            mat.Valor || 0,
+            mat.CodMatFabricante || '',
+            usuario || 'Sistema'
+        ]);
+
+        // Atualiza a flag do material pai para indicar que agora é uma Peça Manufaturada
+        await pool.execute(`UPDATE material SET PecaManufat = 'S' WHERE IdMaterial = ?`, [idMaterialPeca]);
+        
+        res.json({ success: true, message: 'Material adicionado à composição com sucesso.' });
+    } catch (error) {
+        console.error('Error adding to composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao adicionar na composição: ' + error.message });
+    }
+});
+
+// 5. DELETE /api/peca-manufaturada/composicao/:idMontaPeca - Remover insumo
+app.delete('/api/peca-manufaturada/composicao/:idMontaPeca', async (req, res) => {
+    try {
+        const { idMontaPeca } = req.params;
+        const { usuario } = req.body;
+        
+        await pool.execute(
+            `UPDATE montapeca SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = NOW(), UsuarioD_E_L_E_T_E = ? WHERE idmontapeca = ?`,
+            [usuario || 'Sistema', idMontaPeca]
+        );
+        res.json({ success: true, message: 'Material removido da composição.' });
+    } catch (error) {
+        console.error('Error deleting from composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao remover da composição: ' + error.message });
+    }
+});
+
+// --- CRUD: Projetos ---
 // LIST (Read All) 
 app.get('/api/projeto', async (req, res) => {
     try {
@@ -4168,7 +4694,7 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 p.IdProjeto, p.Projeto, p.DescProjeto, 
                 CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa,
                 p.DataPrevisao, p.DataCriacao,
-                TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.DescStatus,
+                TRIM(p.Finalizado) as Finalizado, p.DataFinalizado, p.liberado, p.StatusProj, p.DescStatus,
 
                 /* -- Tags / Pecas nativos da tabela Projetos -- */
                 COUNT(t.IdTag) AS QtdeTags,
@@ -6475,17 +7001,13 @@ app.post('/api/ordemservico/clonar', tenantMiddleware, async (req, res) => {
         ]);
 
         // Inicializar TotalExecutar do primeiro setor para todos os itens clonados
-        // Usa CASE WHEN para selecionar Corte → Dobra → Solda → Pintura → Montagem
-        await connection.query(`
-            UPDATE ordemservicoitem SET
-                CorteTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   = '1' THEN QtdeTotal ELSE CorteTotalExecutar   END,
-                DobraTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   = '1' THEN QtdeTotal ELSE DobraTotalExecutar   END,
-                SoldaTotalExecutar   = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   = '1' THEN QtdeTotal ELSE SoldaTotalExecutar   END,
-                PinturaTotalExecutar = CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   = '1' THEN QtdeTotal ELSE PinturaTotalExecutar END,
-                MontagemTotalExecutar= CASE WHEN TRIM(COALESCE(txtCorte,''))   != '1' AND TRIM(COALESCE(txtDobra,''))   != '1' AND TRIM(COALESCE(txtSolda,''))   != '1' AND TRIM(COALESCE(txtPintura,''))   != '1' AND TRIM(COALESCE(TxtMontagem,'')) = '1' THEN QtdeTotal ELSE MontagemTotalExecutar END
-            WHERE IdOrdemServico = ?
-              AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
-        `, [novoId]);
+        const [clonedItems] = await connection.query(
+            `SELECT IdOrdemServicoItem FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+            [novoId]
+        );
+        for (const cItem of clonedItems) {
+            await inicializarPrimeiroSetor(connection, cItem.IdOrdemServicoItem);
+        }
 
         // Recalcular as somatórias em cascata pelo fato de termos novos itens clonados
         await recalcularQuantidadesTotais(novoId, connection);
@@ -7668,8 +8190,8 @@ const setorColumns = {
 
 /**
  * Após inserir um ordemservicoitem, atualiza o campo TotalExecutar
- * do PRIMEIRO setor que tiver processo (txt* = '1') com o valor de QtdeTotal.
- * Ordem de verificação: Corte → Dobra → Solda → Pintura → Montagem
+ * do PRIMEIRO setor que tiver processo (txt* = '1' ou 'S') com o valor de QtdeTotal.
+ * Agora suporta qualquer setor dinâmico da base de dados.
  *
  * @param {object} conn  - conexão ativa (pool ou connection)
  * @param {number} id    - IdOrdemServicoItem recém-inserido
@@ -7677,33 +8199,47 @@ const setorColumns = {
 async function inicializarPrimeiroSetor(conn, id) {
     try {
         const [rows] = await conn.execute(
-            `SELECT QtdeTotal, txtCorte, txtDobra, txtSolda, txtPintura, TxtMontagem
-             FROM ordemservicoitem WHERE IdOrdemServicoItem = ? LIMIT 1`,
+            `SELECT * FROM ordemservicoitem WHERE IdOrdemServicoItem = ? LIMIT 1`,
             [id]
         );
         if (!rows || rows.length === 0) return;
 
         const item = rows[0];
-        const qtde = parseFloat(item.QtdeTotal) || 0;
+        const qtde = parseFloat(item.QtdeTotal ?? item.qtdetotal) || 0;
         if (qtde <= 0) return;
 
-        // Ordem de prioridade dos setores
-        const ordem = [
-            { campo: 'CorteTotalExecutar',     flag: item.txtCorte     },
-            { campo: 'DobraTotalExecutar',     flag: item.txtDobra     },
-            { campo: 'SoldaTotalExecutar',     flag: item.txtSolda     },
-            { campo: 'PinturaTotalExecutar',   flag: item.txtPintura   },
-            { campo: 'MontagemTotalExecutar',  flag: item.TxtMontagem  },
+        // Ordem base de processos da indústria
+        const sequenciaSetores = [
+            'ENGENHARIA', 'ISOMETRICO', 'MEDICAO', 'Corte', 'CorteaLaser',
+            'CortePuncionadeira', 'CorteSerradeFita', 'CorteLaser', 'Usinagem',
+            'PUNCIONADEIRA', 'SERRADEFITA', 'Dobra', 'CALDEIRARIA', 'SERRALHERIA',
+            'Solda', 'SoldaaLaser', 'SoldaMig', 'SoldaTg', 'Pintura', 'Montagem',
+            'ACABAMENTO', 'APROVACAO', 'APROVAÇÃO'
         ];
 
-        const primeiro = ordem.find(s => String(s.flag).trim() === '1');
-        if (!primeiro) return; // nenhum setor com processo
+        let primeiroSetor = null;
+        for (const sec of sequenciaSetores) {
+            const txtField = `txt${sec}`;
+            const val = item[txtField];
+            if (String(val).trim() === '1' || String(val).trim().toUpperCase() === 'S') {
+                primeiroSetor = sec;
+                break;
+            }
+        }
 
-        await conn.execute(
-            `UPDATE ordemservicoitem SET \`${primeiro.campo}\` = ? WHERE IdOrdemServicoItem = ?`,
-            [qtde, id]
-        );
-        console.log(`[inicializarPrimeiroSetor] Item ${id}: ${primeiro.campo} = ${qtde}`);
+        if (!primeiroSetor) return; // nenhum setor com processo
+
+        const campoAExecutar = `${primeiroSetor}TotalExecutar`;
+
+        // Verifica se a coluna existe e se já está preenchida
+        if (item[campoAExecutar] !== undefined && (item[campoAExecutar] === null || item[campoAExecutar] === '' || item[campoAExecutar] == 0)) {
+            await conn.execute(
+                `UPDATE ordemservicoitem SET \`${campoAExecutar}\` = ? WHERE IdOrdemServicoItem = ?`,
+                [qtde, id]
+            );
+        }
+
+        console.log(`[inicializarPrimeiroSetor] Item ${id}: ${campoAExecutar} = ${qtde}`);
     } catch (err) {
         console.error(`[inicializarPrimeiroSetor] Erro ao inicializar item ${id}:`, err.message);
     }
@@ -10082,6 +10618,90 @@ app.delete('/api/motoristas/:id', tenantMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error deleting motorista:', error);
         res.status(500).json({ success: false, message: 'Erro ao excluir motorista' });
+    }
+});
+
+// --- TIPO DE TRANSPORTE API ---
+
+// GET /api/tipotransporte - Listar todos os tipos de transporte (não deletados)
+app.get('/api/tipotransporte', tenantMiddleware, async (req, res) => {
+    try {
+        // Auto-create table if not exists
+        await req.tenantDbPool.execute(`
+            CREATE TABLE IF NOT EXISTS tipotransporte (
+                IdTipoTransporte INT AUTO_INCREMENT PRIMARY KEY,
+                TipoVeiculo VARCHAR(80) NOT NULL,
+                Placa VARCHAR(10) DEFAULT '',
+                DataCadastro VARCHAR(30) DEFAULT '',
+                D_E_L_E_T_E VARCHAR(2) DEFAULT '',
+                DataD_E_L_E_T_E VARCHAR(30) DEFAULT '',
+                UsuarioD_E_L_E_T_E VARCHAR(80) DEFAULT ''
+            )
+        `);
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT IdTipoTransporte, TipoVeiculo, Placa FROM tipotransporte WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoVeiculo"
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching tipotransporte:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar tipos de transporte' });
+    }
+});
+
+// POST /api/tipotransporte - Criar novo tipo de transporte
+app.post('/api/tipotransporte', tenantMiddleware, async (req, res) => {
+    const { TipoVeiculo, Placa } = req.body;
+    if (!TipoVeiculo || !TipoVeiculo.trim()) {
+        return res.status(400).json({ success: false, message: 'Tipo de Veículo é obrigatório' });
+    }
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        const [result] = await req.tenantDbPool.execute(
+            "INSERT INTO tipotransporte (TipoVeiculo, Placa, DataCadastro) VALUES (?, ?, ?)",
+            [TipoVeiculo.trim().toUpperCase(), (Placa || '').trim().toUpperCase(), nowFormat]
+        );
+        res.json({ success: true, message: 'Tipo de transporte criado com sucesso', id: result.insertId });
+    } catch (error) {
+        console.error('Error creating tipotransporte:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar tipo de transporte' });
+    }
+});
+
+// PUT /api/tipotransporte/:id - Atualizar tipo de transporte
+app.put('/api/tipotransporte/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { TipoVeiculo, Placa } = req.body;
+    if (!TipoVeiculo || !TipoVeiculo.trim()) {
+        return res.status(400).json({ success: false, message: 'Tipo de Veículo é obrigatório' });
+    }
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE tipotransporte SET TipoVeiculo = ?, Placa = ? WHERE IdTipoTransporte = ?",
+            [TipoVeiculo.trim().toUpperCase(), (Placa || '').trim().toUpperCase(), id]
+        );
+        res.json({ success: true, message: 'Tipo de transporte atualizado com sucesso' });
+    } catch (error) {
+        console.error('Error updating tipotransporte:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar tipo de transporte' });
+    }
+});
+
+// DELETE /api/tipotransporte/:id - Excluir tipo de transporte (Soft delete)
+app.delete('/api/tipotransporte/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE tipotransporte SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdTipoTransporte = ?",
+            [nowFormat, usuario, id]
+        );
+        res.json({ success: true, message: 'Tipo de transporte excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting tipotransporte:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir tipo de transporte' });
     }
 });
 
@@ -13207,6 +13827,161 @@ app.post('/api/plano-corte/:id/atualizar-arquivos', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro ao atualizar arquivos: ' + err.message });
     } finally {
         if (connection) connection.release();
+    }
+});
+
+// ============================================================================
+// SKILL: correçãoTotalExecutar
+// Varre de baixo para cima: Itens → OS → Tag → Projeto
+// Recalcula [setor]TotalExecutar em todos os níveis da hierarquia.
+// POST /api/admin/correcao-total-executar
+// Body (opcional): { IdProjeto: 10 }   → processa só esse projeto
+// Body vazio                            → processa todos os projetos
+// ============================================================================
+
+const SETORES_EXECUTAR = [
+    { txt: 'txtCorte',    executar: 'CorteTotalExecutar'    },
+    { txt: 'txtDobra',    executar: 'DobraTotalExecutar'    },
+    { txt: 'txtSolda',    executar: 'SoldaTotalExecutar'    },
+    { txt: 'txtPintura',  executar: 'PinturaTotalExecutar'  },
+    { txt: 'TxtMontagem', executar: 'MontagemTotalExecutar' },
+];
+
+async function corrigirTotalExecutar(dbPool, idProjeto = null) {
+    const conn = await dbPool.getConnection();
+    const log = [];
+    try {
+        let projetos;
+        if (idProjeto) {
+            const [rows] = await conn.execute(
+                `SELECT IdProjeto FROM projetos WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [idProjeto]
+            );
+            projetos = rows;
+        } else {
+            const [rows] = await conn.execute(
+                `SELECT IdProjeto FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY IdProjeto`
+            );
+            projetos = rows;
+        }
+
+        log.push(`[correcao] ${projetos.length} projeto(s) a processar`);
+        let totalOS = 0, totalTags = 0, totalProjetos = 0;
+
+        for (const { IdProjeto } of projetos) {
+            // NIVEL 1: Item -> OS
+            const [ordens] = await conn.execute(
+                `SELECT IdOrdemServico, IdTag
+                 FROM ordemservico
+                 WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [IdProjeto]
+            );
+
+            for (const os of ordens) {
+                const selectParts = SETORES_EXECUTAR.map(s =>
+                    `COALESCE(SUM(CASE WHEN IFNULL(\`${s.txt}\`,'') = '1' THEN COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0) ELSE 0 END), 0) AS \`${s.executar}\``
+                ).join(', ');
+
+                const [sums] = await conn.execute(
+                    `SELECT ${selectParts}
+                     FROM ordemservicoitem
+                     WHERE IdOrdemServico = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                    [os.IdOrdemServico]
+                );
+
+                const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+                const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+                await conn.execute(
+                    `UPDATE ordemservico SET ${setParts} WHERE IdOrdemServico = ?`,
+                    [...vals, os.IdOrdemServico]
+                );
+                totalOS++;
+            }
+
+            // NIVEL 2: OS -> Tag
+            // Agrupa pelos IdTag que VÊEM DAS PRÓPRIAS OS (não enumera a tabela tags).
+            // Isso garante que a tag correta seja atualizada independente do IdProjeto na tabela tags.
+            const tagsDistintas = [...new Set(ordens.map(os => os.IdTag).filter(id => id != null))];
+
+            for (const idTag of tagsDistintas) {
+                const selectParts = SETORES_EXECUTAR.map(s =>
+                    `COALESCE(SUM(COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0)), 0) AS \`${s.executar}\``
+                ).join(', ');
+
+                const [sums] = await conn.execute(
+                    `SELECT ${selectParts}
+                     FROM ordemservico
+                     WHERE IdTag = ?
+                       AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                    [idTag]
+                );
+
+                const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+                const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+                await conn.execute(
+                    `UPDATE tags SET ${setParts} WHERE IdTag = ?`,
+                    [...vals, idTag]
+                );
+                totalTags++;
+            }
+
+            // NIVEL 3: Tag -> Projeto
+            const selectParts = SETORES_EXECUTAR.map(s =>
+                `COALESCE(SUM(COALESCE(CAST(\`${s.executar}\` AS DECIMAL(18,4)), 0)), 0) AS \`${s.executar}\``
+            ).join(', ');
+
+            const [sums] = await conn.execute(
+                `SELECT ${selectParts}
+                 FROM tags
+                 WHERE IdProjeto = ?
+                   AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [IdProjeto]
+            );
+
+            const setParts = SETORES_EXECUTAR.map(s => `\`${s.executar}\` = ?`).join(', ');
+            const vals = SETORES_EXECUTAR.map(s => sums[0][s.executar]);
+
+            await conn.execute(
+                `UPDATE projetos SET ${setParts} WHERE IdProjeto = ?`,
+                [...vals, IdProjeto]
+            );
+            totalProjetos++;
+
+            log.push(`Projeto ${IdProjeto}: ${ordens.length} OS, ${tagsDistintas.length} tags atualizadas`);
+        }
+
+        log.push(`Concluido: OS=${totalOS} Tags=${totalTags} Projetos=${totalProjetos}`);
+        return { success: true, log, totalOS, totalTags, totalProjetos };
+
+    } catch (err) {
+        log.push(`ERRO: ${err.message}`);
+        console.error('[corrigirTotalExecutar]', err);
+        return { success: false, log, error: err.message };
+    } finally {
+        conn.release();
+    }
+}
+
+app.post('/api/admin/correcao-total-executar', async (req, res) => {
+    const dbPool = req.tenantDbPool || pool;
+    const { IdProjeto } = req.body || {};
+    const label = IdProjeto ? `projeto ${IdProjeto}` : 'todos os projetos';
+
+    console.log(`[corrigirTotalExecutar] Iniciando para ${label}...`);
+    const inicio = Date.now();
+
+    const resultado = await corrigirTotalExecutar(dbPool, IdProjeto || null);
+    const ms = Date.now() - inicio;
+
+    console.log(`[corrigirTotalExecutar] Finalizado em ${ms}ms. OS=${resultado.totalOS} Tags=${resultado.totalTags} Projetos=${resultado.totalProjetos}`);
+
+    if (resultado.success) {
+        res.json({ success: true, ms, ...resultado });
+    } else {
+        res.status(500).json({ success: false, ms, ...resultado });
     }
 });
 
