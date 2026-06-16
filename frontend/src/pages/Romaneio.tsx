@@ -4,7 +4,7 @@ import {
     Save, Loader2, Truck, ArrowLeft, FileText,
     FolderOpen, Trash2, Plus, Calendar, Building2, Search, X,
     CheckCircle, XCircle, FileCheck, FileX, RefreshCw, FileSpreadsheet,
-    List, PlusSquare, Box, AlertTriangle, MessageSquare, Printer, Copy
+    List, PlusSquare, Box, AlertTriangle, MessageSquare, Printer, Copy, Edit3
 } from 'lucide-react';
 import { useAlert } from '../contexts/AlertContext';
 import { formatToBRDate } from '../utils/dateUtils';
@@ -224,6 +224,8 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
     const [obsOpenId, setObsOpenId] = useState<number | null>(null);
     const [obsText, setObsText] = useState('');
     const [obsSaving, setObsSaving] = useState(false);
+    const [alterarQtdeId, setAlterarQtdeId] = useState<number | null>(null);
+    const [alterarQtdeVal, setAlterarQtdeVal] = useState('');
 
     const insertedActions = [
         { id: 'pdf', label: 'Abrir desenho PDF', icon: FileText, color: 'text-[#32423D]', bg: 'bg-[#E0E800]/20', hover: 'hover:bg-[#E0E800]/20' },
@@ -231,6 +233,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
         { id: 'excluir', label: 'Excluir item', icon: Trash2, color: 'text-red-600', bg: 'bg-red-50', hover: 'hover:bg-red-100' },
         { id: 'rnc', label: 'Gerar RNC - Pendência', icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-50', hover: 'hover:bg-orange-100' },
         { id: 'obs', label: 'Gerar Observação', icon: MessageSquare, color: 'text-slate-600', bg: 'bg-slate-50', hover: 'hover:bg-slate-100' },
+        { id: 'alterar_qtde', label: 'Desfazer Qtde Envio', icon: Edit3, color: 'text-violet-600', bg: 'bg-violet-50', hover: 'hover:bg-violet-100' },
     ];
 
     const saveObservacao = async (idRomaneioItem: number, text: string) => {
@@ -494,31 +497,54 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             return;
         }
 
-        // Check status for 특정 actions
-        if (actionId === 'cancelar_lib') {
-            const romaneio = romaneios.find(r => Number(r.idRomaneio) === Number(selectedId));
+        // ── Validações por estado ─────────────────────────────────────────────
+        const _gv = (obj: any, key: string) => {
+            if (!obj) return '';
+            const fk = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+            return fk ? String((obj as any)[fk] || '').trim().toUpperCase() : '';
+        };
+        const _rom = romaneios.find(r => Number(r.idRomaneio) === Number(selectedId));
+        if (_rom) {
+            const _estatus  = _gv(_rom, 'Estatus');
+            const _liberado = _gv(_rom, 'Liberado');
+            const _enviado  = !!(_rom.NomeMotorista || _rom.DataEnvio);
+            const _registrado = _enviado && _liberado !== 'S' && _estatus !== 'F';
 
-            if (romaneio) {
-                // Robust access to Liberado/Estatus/Any key
-                const getVal = (obj: any, key: string) => {
-                    if (!obj) return '';
-                    const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
-                    return foundKey ? String(obj[foundKey] || '').trim().toUpperCase() : '';
-                };
-
-                const estatus = getVal(romaneio, 'Estatus');
-                const liberado = getVal(romaneio, 'Liberado');
-
-                console.log(`[DEBUG] Action: ${actionId} | ID: ${selectedId} | Estatus: "${estatus}" | Liberado: "${liberado}"`, romaneio);
-
-                if (estatus === 'F') {
-                    showAlert(`O Romaneio #${selectedId} está FINALIZADO e não pode ter a liberação cancelada.`, "error");
-                    return;
-                }
-                if (liberado !== 'S') {
-                    showAlert(`Este romaneio (#${selectedId}) não está liberado (Status detectado: "${liberado}") e não pode ser cancelado. Por favor, verifique se o romaneio está marcado como 'Liberado' (Azul) na lista.`, "error");
-                    return;
-                }
+            if (actionId === 'registrar' && (_registrado || _liberado === 'S' || _estatus === 'F')) {
+                const st = _estatus === 'F' ? 'FINALIZADO' : _liberado === 'S' ? 'LIBERADO' : 'REGISTRADO';
+                showAlert(`Romaneio #${selectedId} já está ${st}. Cancele o estado atual primeiro.`, "warning");
+                return;
+            }
+            if (actionId === 'cancelar_registro' && !_registrado) {
+                const st = _estatus === 'F' ? 'FINALIZADO' : _liberado === 'S' ? 'LIBERADO' : 'NOVO';
+                showAlert(`Romaneio #${selectedId} está ${st} e não possui registro para cancelar.`, "warning");
+                return;
+            }
+            if (actionId === 'liberar' && (_liberado === 'S' || _estatus === 'F')) {
+                showAlert(`Romaneio #${selectedId} já está ${_estatus === 'F' ? 'FINALIZADO' : 'LIBERADO'}.`, "warning");
+                return;
+            }
+            if (actionId === 'cancelar_lib' && _liberado !== 'S') {
+                const st = _estatus === 'F' ? 'FINALIZADO' : _registrado ? 'REGISTRADO' : 'NOVO';
+                showAlert(`Romaneio #${selectedId} não está Liberado (estado: ${st}). Não há liberação a cancelar.`, "warning");
+                return;
+            }
+            if (actionId === 'finalizar' && (_liberado === 'S' || _estatus === 'F')) {
+                const st = _estatus === 'F' ? 'FINALIZADO' : 'LIBERADO';
+                showAlert(`Romaneio #${selectedId} está ${st}. Para finalizar, cancele a liberação primeiro.`, "warning");
+                return;
+            }
+            if (actionId === 'cancelar_fin' && _estatus !== 'F') {
+                showAlert(`Romaneio #${selectedId} não está Finalizado. Ação não aplicável.`, "warning");
+                return;
+            }
+            if (actionId === 'exibir_itens' && (_liberado === 'S' || _estatus === 'F')) {
+                showAlert(`Romaneio #${selectedId} está ${_estatus === 'F' ? 'FINALIZADO' : 'LIBERADO'}. "Lista de Peças" não disponível neste estado.`, "warning");
+                return;
+            }
+            if (actionId === 'itens_inseridos' && (_liberado === 'S' || _estatus === 'F')) {
+                showAlert(`Romaneio #${selectedId} está ${_estatus === 'F' ? 'FINALIZADO' : 'LIBERADO'}. Manutenção de itens não permitida neste estado.`, "warning");
+                return;
             }
         }
 
@@ -1653,13 +1679,16 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                                             // Abre sub-view RNC embarcada
                                                                                             setInsertedView('rnc');
                                                                                         } else if (action.id === 'obs') {
-                                                                                            // Abre/fecha linha inline de observação
                                                                                             if (obsOpenId === item.IdRomaneioItem) {
-                                                                                                setObsOpenId(null);
-                                                                                                setObsText('');
+                                                                                                setObsOpenId(null); setObsText('');
                                                                                             } else {
-                                                                                                setObsOpenId(item.IdRomaneioItem);
-                                                                                                setObsText(item.Observacao || '');
+                                                                                                setObsOpenId(item.IdRomaneioItem); setObsText(item.Observacao || '');
+                                                                                            }
+                                                                                        } else if (action.id === 'alterar_qtde') {
+                                                                                            if (alterarQtdeId === item.IdRomaneioItem) {
+                                                                                                setAlterarQtdeId(null); setAlterarQtdeVal('');
+                                                                                            } else {
+                                                                                                setAlterarQtdeId(item.IdRomaneioItem); setAlterarQtdeVal('');
                                                                                             }
                                                                                         }
                                                                                     }}
@@ -1702,7 +1731,62 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                     </td>
                                                                 </tr>
                                                             )}
-                                                        </React.Fragment>
+                                                        
+
+                                                                             {/* Linha inline — Desfazer Qtde Envio */}
+                                                                             {alterarQtdeId === item.IdRomaneioItem && (
+                                                                                 <tr className="bg-violet-50 border-l-4 border-violet-500">
+                                                                                     <td colSpan={7} className="px-3 py-2">
+                                                                                         <div className="flex items-center gap-2 flex-wrap">
+                                                                                             <span className="text-[10px] font-bold text-violet-600 uppercase tracking-wider whitespace-nowrap">
+                                                                                                 Desfazer Qtde Envio (atual: {item.QtdeRomaneio ?? item.qtdeUsuario ?? '?'}):
+                                                                                             </span>
+                                                                                             <input
+                                                                                                 type="number"
+                                                                                                 min={1}
+                                                                                                 max={Number(item.QtdeRomaneio ?? item.qtdeUsuario ?? 0)}
+                                                                                                 value={alterarQtdeVal}
+                                                                                                 onChange={(e) => setAlterarQtdeVal(e.target.value)}
+                                                                                                 onClick={(e) => e.stopPropagation()}
+                                                                                                 placeholder="Qtde a subtrair"
+                                                                                                 className="w-36 px-2 py-1 text-[11px] border border-violet-300 rounded-md focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                                                                             />
+                                                                                             <button
+                                                                                                 onClick={async (e) => {
+                                                                                                     e.stopPropagation();
+                                                                                                     const qtde = Number(alterarQtdeVal);
+                                                                                                     const maxQ = Number(item.QtdeRomaneio ?? item.qtdeUsuario ?? 0);
+                                                                                                     if (!qtde || qtde <= 0) { showAlert('Informe uma quantidade válida.', 'warning'); return; }
+                                                                                                     if (qtde > maxQ) { showAlert(`Quantidade (${qtde}) maior que a qtde atual (${maxQ}).`, 'warning'); return; }
+                                                                                                     try {
+                                                                                                         const r = await fetch(`${API_BASE}/romaneio/item/${item.IdRomaneioItem}/alterar-qtde`, {
+                                                                                                             method: 'POST',
+                                                                                                             headers: { 'Content-Type': 'application/json' },
+                                                                                                             body: JSON.stringify({ qtdeAlterar: qtde, usuario: 'Sistema' })
+                                                                                                         });
+                                                                                                         const d = await r.json();
+                                                                                                         if (d.success) {
+                                                                                                             showAlert(d.message, 'success');
+                                                                                                             setAlterarQtdeId(null); setAlterarQtdeVal('');
+                                                                                                             fetchInsertedItems();
+                                                                                                         } else { showAlert(d.message || 'Erro ao alterar quantidade.', 'error'); }
+                                                                                                     } catch { showAlert('Erro de conexão.', 'error'); }
+                                                                                                 }}
+                                                                                                 className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                                                                                             >
+                                                                                                 Confirmar
+                                                                                             </button>
+                                                                                             <button
+                                                                                                 onClick={(e) => { e.stopPropagation(); setAlterarQtdeId(null); setAlterarQtdeVal(''); }}
+                                                                                                 className="px-2 py-1 text-[11px] font-medium rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                                                                                             >
+                                                                                                 Cancelar
+                                                                                             </button>
+                                                                                         </div>
+                                                                                     </td>
+                                                                                 </tr>
+                                                                             )}
+                                                                         </React.Fragment>
                                                     ))}
                                                 </tbody>
                                             </table>
@@ -1771,53 +1855,42 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                 {/* Report Content */}
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden print:shadow-none print:border-none">
                     {/* Header Info */}
-                    <div className="p-8 bg-gray-50/50 border-b border-gray-100">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="md:col-span-2 space-y-4">
+                    <div className="p-4 bg-gray-50/50 border-b border-gray-100">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="md:col-span-2 space-y-2">
                                 <div>
-                                    <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Destinatário / Endereço de Entrega</label>
-                                    <p className="text-lg font-extrabold text-[#32423D] leading-tight uppercase">
+                                    <label className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Destinatário / Endereço de Entrega</label>
+                                    <p className="text-sm font-extrabold text-[#32423D] leading-tight uppercase">
                                         {reportData.EnviadoPara}
                                     </p>
-                                    <p className="text-sm text-gray-600 uppercase mt-1">
+                                    <p className="text-xs text-gray-600 uppercase mt-0.5">
                                         {reportData.endereco}, {reportData.numero} - {reportData.bairro}<br />
                                         {reportData.cidade} / {reportData.estado} - {reportData.cep}
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Descrição do Romaneio</label>
-                                        <p className="text-sm font-medium text-gray-700 uppercase">{reportData.Descricao || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Caminho de Gravação</label>
-                                        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => { navigator.clipboard.writeText(reportData.ENDERECORomaneio || ''); showAlert('Caminho copiado!', 'success'); }}>
-                                            <p className="text-[11px] font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded break-all">
-                                                {reportData.ENDERECORomaneio || 'Não configurado'}
-                                            </p>
-                                            <Copy size={12} className="text-gray-400 group-hover:text-[#32423D] transition-colors shrink-0" />
-                                        </div>
-                                    </div>
+                                <div>
+                                    <label className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Descrição do Romaneio</label>
+                                    <p className="text-xs font-medium text-gray-700 uppercase">{reportData.Descricao || 'N/A'}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-4 bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-[10px] uppercase font-bold text-gray-400">Emissão</span>
-                                    <span className="text-sm font-bold text-gray-700">{formatToBRDate(reportData.DATACRIACAO)}</span>
+                            <div className="space-y-2 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex justify-between items-center border-b border-gray-50 pb-1.5">
+                                    <span className="text-[9px] uppercase font-bold text-gray-400">Emissão</span>
+                                    <span className="text-xs font-bold text-gray-700">{formatToBRDate(reportData.DATACRIACAO)}</span>
                                 </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-[10px] uppercase font-bold text-gray-400">Motorista</span>
-                                    <span className="text-sm font-bold text-[#32423D] uppercase">{reportData.NomeMotorista || 'N/A'}</span>
+                                <div className="flex justify-between items-center border-b border-gray-50 pb-1.5">
+                                    <span className="text-[9px] uppercase font-bold text-gray-400">Motorista</span>
+                                    <span className="text-xs font-bold text-[#32423D] uppercase">{reportData.NomeMotorista || 'N/A'}</span>
                                 </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-[10px] uppercase font-bold text-gray-400">Envio</span>
-                                    <span className="text-sm font-bold text-gray-700">{reportData.DataEnvio ? formatToBRDate(reportData.DataEnvio) : 'PENDENTE'}</span>
+                                <div className="flex justify-between items-center border-b border-gray-50 pb-1.5">
+                                    <span className="text-[9px] uppercase font-bold text-gray-400">Envio</span>
+                                    <span className="text-xs font-bold text-gray-700">{reportData.DataEnvio ? formatToBRDate(reportData.DataEnvio) : 'PENDENTE'}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] uppercase font-bold text-gray-400">Status</span>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${reportData.Liberado === 'S' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    <span className="text-[9px] uppercase font-bold text-gray-400">Status</span>
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${reportData.Liberado === 'S' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                         {reportData.Liberado === 'S' ? 'Liberado' : 'Registrado'}
                                     </span>
                                 </div>
@@ -1830,41 +1903,41 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                         <table className="w-full text-left border-collapse">
                             <thead className="bg-[#567469] text-white bg-[#567469] text-white">
                                 <tr className="bg-[#32423D] text-white text-[10px] uppercase tracking-widest font-bold">
-                                    <th className="px-6 py-4">Item</th>
-                                    <th className="px-6 py-4">Projeto</th>
-                                    <th className="px-6 py-4">Tag</th>
-                                    <th className="px-6 py-4">Descrição Completa</th>
-                                    <th className="px-6 py-4 text-center">Qtd</th>
-                                    <th className="px-6 py-4 text-right">Peso Un.</th>
-                                    <th className="px-6 py-4 text-right">Peso Tot.</th>
+                                    <th className="px-3 py-2">Item</th>
+                                    <th className="px-3 py-2">Projeto</th>
+                                    <th className="px-3 py-2">Tag</th>
+                                    <th className="px-3 py-2">Descrição Completa</th>
+                                    <th className="px-3 py-2 text-center">Qtd</th>
+                                    <th className="px-3 py-2 text-right">Peso Un.</th>
+                                    <th className="px-3 py-2 text-right">Peso Tot.</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {reportItems.map((item, idx) => (
                                     <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 text-xs font-bold text-gray-500">{idx + 1}</td>
-                                        <td className="px-6 py-4 text-xs font-bold text-[#32423D]">{item.PROJETO}</td>
-                                        <td className="px-6 py-4 text-xs font-medium text-[#32423D]">{item.TAG}</td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 py-2 text-xs font-bold text-gray-500">{idx + 1}</td>
+                                        <td className="px-3 py-2 text-xs font-bold text-[#32423D]">{item.PROJETO}</td>
+                                        <td className="px-3 py-2 text-xs font-medium text-[#32423D]">{item.TAG}</td>
+                                        <td className="px-3 py-2">
                                             <p className="text-xs font-bold text-gray-800 uppercase">{item.DescResumo}</p>
                                             <p className="text-[10px] text-gray-500 uppercase mt-0.5">{item.DescDetal}</p>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-black text-gray-700">{item.QtdeRomaneio}</span>
+                                        <td className="px-3 py-2 text-center">
+                                            <span className="px-2 py-0.5 bg-gray-100 rounded-full text-xs font-black text-gray-700">{item.QtdeRomaneio}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-xs text-gray-500">{item.PesoUnit}</td>
-                                        <td className="px-6 py-4 text-right text-xs font-bold text-gray-800">{item.PesoTotal}kg</td>
+                                        <td className="px-3 py-2 text-right text-xs text-gray-500">{item.PesoUnit}</td>
+                                        <td className="px-3 py-2 text-right text-xs font-bold text-gray-800">{item.PesoTotal}kg</td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot className="bg-gray-50 font-bold">
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-6 text-right uppercase text-xs text-gray-500">Total do Romaneio</td>
-                                    <td className="px-6 py-6 text-center text-sm text-[#32423D]">
+                                    <td colSpan={4} className="px-3 py-3 text-right uppercase text-xs text-gray-500">Total do Romaneio</td>
+                                    <td className="px-3 py-3 text-center text-sm text-[#32423D]">
                                         {reportItems.reduce((acc, curr) => acc + (Number(curr.QtdeRomaneio) || 0), 0)}
                                     </td>
                                     <td></td>
-                                    <td className="px-6 py-6 text-right text-sm text-[#32423D]">
+                                    <td className="px-3 py-3 text-right text-sm text-[#32423D]">
                                         {reportItems.reduce((acc, curr) => acc + (Number(curr.PesoTotal) || 0), 0).toFixed(2)}kg
                                     </td>
                                 </tr>
