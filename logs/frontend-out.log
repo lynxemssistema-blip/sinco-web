@@ -2103,3 +2103,512 @@
 10/06/2026 16:48:11: [2m16:48:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Motorista.tsx[22m
 10/06/2026 17:34:56: [2m17:34:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
 10/06/2026 17:34:56: [2m17:34:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+12/06/2026 07:47:39: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+12/06/2026 07:47:41: 
+12/06/2026 07:47:41:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m521[22m[2m[0m ms[22m
+12/06/2026 07:47:41: 
+12/06/2026 07:47:41:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+12/06/2026 07:47:41:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+12/06/2026 07:47:41:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+12/06/2026 07:48:06: 
+12/06/2026 07:48:06: PWA v1.2.0
+12/06/2026 07:48:06: mode      generateSW
+12/06/2026 07:48:06: precache  2 entries (0.12 KiB)
+12/06/2026 07:48:06: files generated
+12/06/2026 07:48:06:   dev-dist/sw.js
+12/06/2026 07:48:06:   dev-dist/workbox-5a5d9309.js
+15/06/2026 08:07:05: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 08:07:07: 
+15/06/2026 08:07:07:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m478[22m[2m[0m ms[22m
+15/06/2026 08:07:07: 
+15/06/2026 08:07:07:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 08:07:07:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 08:07:07:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 08:07:53: 
+15/06/2026 08:07:53: PWA v1.2.0
+15/06/2026 08:07:53: mode      generateSW
+15/06/2026 08:07:53: precache  2 entries (0.12 KiB)
+15/06/2026 08:07:53: files generated
+15/06/2026 08:07:53:   dev-dist/sw.js
+15/06/2026 08:07:53:   dev-dist/workbox-5a5d9309.js
+15/06/2026 08:16:26: [2m08:16:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 08:16:57: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 08:16:59: 
+15/06/2026 08:16:59:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m269[22m[2m[0m ms[22m
+15/06/2026 08:16:59: 
+15/06/2026 08:16:59:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 08:16:59:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 08:16:59:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 08:17:08: 
+15/06/2026 08:17:08: PWA v1.2.0
+15/06/2026 08:17:08: mode      generateSW
+15/06/2026 08:17:08: precache  2 entries (0.12 KiB)
+15/06/2026 08:17:08: files generated
+15/06/2026 08:17:08:   dev-dist/sw.js
+15/06/2026 08:17:08:   dev-dist/workbox-5a5d9309.js
+15/06/2026 08:22:23: [2m08:22:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 08:30:02: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 08:30:04: 
+15/06/2026 08:30:04:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m643[22m[2m[0m ms[22m
+15/06/2026 08:30:04: 
+15/06/2026 08:30:04:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 08:30:04:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 08:30:04:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 08:30:10: 
+15/06/2026 08:30:10: PWA v1.2.0
+15/06/2026 08:30:10: mode      generateSW
+15/06/2026 08:30:10: precache  2 entries (0.12 KiB)
+15/06/2026 08:30:10: files generated
+15/06/2026 08:30:10:   dev-dist/sw.js
+15/06/2026 08:30:10:   dev-dist/workbox-5a5d9309.js
+15/06/2026 09:04:56: [2m09:04:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 09:04:56: [2m09:04:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 09:05:48: [2m09:05:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 09:06:21: [2m09:06:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 09:06:36: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 09:06:39: 
+15/06/2026 09:06:39:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m718[22m[2m[0m ms[22m
+15/06/2026 09:06:39: 
+15/06/2026 09:06:39:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 09:06:39:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 09:06:39:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 09:24:09: 
+15/06/2026 09:24:09: PWA v1.2.0
+15/06/2026 09:24:09: mode      generateSW
+15/06/2026 09:24:09: precache  2 entries (0.12 KiB)
+15/06/2026 09:24:09: files generated
+15/06/2026 09:24:09:   dev-dist/sw.js
+15/06/2026 09:24:09:   dev-dist/workbox-5a5d9309.js
+15/06/2026 10:03:34: [2m10:03:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:03:34: [2m10:03:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:04:33: [2m10:04:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:04:48: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 10:04:51: 
+15/06/2026 10:04:51:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m685[22m[2m[0m ms[22m
+15/06/2026 10:04:51: 
+15/06/2026 10:04:51:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 10:04:51:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 10:04:51:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 10:15:01: 
+15/06/2026 10:15:01: PWA v1.2.0
+15/06/2026 10:15:01: mode      generateSW
+15/06/2026 10:15:01: precache  2 entries (0.12 KiB)
+15/06/2026 10:15:01: files generated
+15/06/2026 10:15:01:   dev-dist/sw.js
+15/06/2026 10:15:01:   dev-dist/workbox-5a5d9309.js
+15/06/2026 10:21:06: [2m10:21:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:21:25: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 10:21:27: 
+15/06/2026 10:21:27:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m249[22m[2m[0m ms[22m
+15/06/2026 10:21:27: 
+15/06/2026 10:21:27:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 10:21:27:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 10:21:27:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 10:21:33: 
+15/06/2026 10:21:33: PWA v1.2.0
+15/06/2026 10:21:33: mode      generateSW
+15/06/2026 10:21:33: precache  2 entries (0.12 KiB)
+15/06/2026 10:21:33: files generated
+15/06/2026 10:21:33:   dev-dist/sw.js
+15/06/2026 10:21:33:   dev-dist/workbox-5a5d9309.js
+15/06/2026 10:23:47: [2m10:23:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:24:10: [2m10:24:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 10:24:26: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 10:24:28: 
+15/06/2026 10:24:28:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m248[22m[2m[0m ms[22m
+15/06/2026 10:24:28: 
+15/06/2026 10:24:28:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 10:24:28:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 10:24:28:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 10:24:38: 
+15/06/2026 10:24:38: PWA v1.2.0
+15/06/2026 10:24:38: mode      generateSW
+15/06/2026 10:24:38: precache  2 entries (0.12 KiB)
+15/06/2026 10:24:38: files generated
+15/06/2026 10:24:38:   dev-dist/sw.js
+15/06/2026 10:24:38:   dev-dist/workbox-5a5d9309.js
+15/06/2026 11:08:58: [2m11:08:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 11:08:58: [2m11:08:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 11:37:50: [2m11:37:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 11:38:22: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 11:38:24: 
+15/06/2026 11:38:24:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m911[22m[2m[0m ms[22m
+15/06/2026 11:38:24: 
+15/06/2026 11:38:24:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 11:38:24:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 11:38:24:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 11:38:55: 
+15/06/2026 11:38:55: PWA v1.2.0
+15/06/2026 11:38:55: mode      generateSW
+15/06/2026 11:38:55: precache  2 entries (0.12 KiB)
+15/06/2026 11:38:55: files generated
+15/06/2026 11:38:55:   dev-dist/sw.js
+15/06/2026 11:38:55:   dev-dist/workbox-5a5d9309.js
+15/06/2026 12:16:58: [2m12:16:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 12:18:16: [2m12:18:16[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 12:20:21: [2m12:20:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 12:22:24: [2m12:22:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 12:47:03: [2m12:47:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 12:48:18: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 12:48:20: 
+15/06/2026 12:48:20:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m629[22m[2m[0m ms[22m
+15/06/2026 12:48:20: 
+15/06/2026 12:48:20:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 12:48:20:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 12:48:20:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 12:48:30: 
+15/06/2026 12:48:30: PWA v1.2.0
+15/06/2026 12:48:30: mode      generateSW
+15/06/2026 12:48:30: precache  2 entries (0.12 KiB)
+15/06/2026 12:48:30: files generated
+15/06/2026 12:48:30:   dev-dist/sw.js
+15/06/2026 12:48:30:   dev-dist/workbox-5a5d9309.js
+15/06/2026 14:54:37: [2m14:54:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 14:55:26: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 14:55:29: 
+15/06/2026 14:55:29:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m911[22m[2m[0m ms[22m
+15/06/2026 14:55:29: 
+15/06/2026 14:55:29:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 14:55:29:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 14:55:29:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 14:56:01: 
+15/06/2026 14:56:01: PWA v1.2.0
+15/06/2026 14:56:01: mode      generateSW
+15/06/2026 14:56:01: precache  2 entries (0.12 KiB)
+15/06/2026 14:56:01: files generated
+15/06/2026 14:56:01:   dev-dist/sw.js
+15/06/2026 14:56:01:   dev-dist/workbox-5a5d9309.js
+15/06/2026 15:19:20: [2m15:19:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:19:20: [2m15:19:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:20:10: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 15:20:12: 
+15/06/2026 15:20:12:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m702[22m[2m[0m ms[22m
+15/06/2026 15:20:12: 
+15/06/2026 15:20:12:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 15:20:12:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 15:20:12:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 15:20:19: 
+15/06/2026 15:20:19: PWA v1.2.0
+15/06/2026 15:20:19: mode      generateSW
+15/06/2026 15:20:19: precache  2 entries (0.12 KiB)
+15/06/2026 15:20:19: files generated
+15/06/2026 15:20:19:   dev-dist/sw.js
+15/06/2026 15:20:19:   dev-dist/workbox-5a5d9309.js
+15/06/2026 15:24:28: [2m15:24:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:25:56: [2m15:25:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:28:22: [2m15:28:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:29:04: [2m15:29:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:29:30: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 15:29:32: 
+15/06/2026 15:29:32:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m338[22m[2m[0m ms[22m
+15/06/2026 15:29:32: 
+15/06/2026 15:29:32:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 15:29:32:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 15:29:32:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 15:29:40: 
+15/06/2026 15:29:40: PWA v1.2.0
+15/06/2026 15:29:40: mode      generateSW
+15/06/2026 15:29:40: precache  2 entries (0.12 KiB)
+15/06/2026 15:29:40: files generated
+15/06/2026 15:29:40:   dev-dist/sw.js
+15/06/2026 15:29:40:   dev-dist/workbox-5a5d9309.js
+15/06/2026 15:56:19: [2m15:56:19[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:56:19: [2m15:56:19[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 15:56:32: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 15:56:34: 
+15/06/2026 15:56:34:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m299[22m[2m[0m ms[22m
+15/06/2026 15:56:34: 
+15/06/2026 15:56:34:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 15:56:34:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 15:56:34:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 15:56:43: 
+15/06/2026 15:56:43: PWA v1.2.0
+15/06/2026 15:56:43: mode      generateSW
+15/06/2026 15:56:43: precache  2 entries (0.12 KiB)
+15/06/2026 15:56:43: files generated
+15/06/2026 15:56:43:   dev-dist/sw.js
+15/06/2026 15:56:43:   dev-dist/workbox-5a5d9309.js
+15/06/2026 16:01:22: [2m16:01:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:01:22: [2m16:01:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:01:51: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 16:01:54: 
+15/06/2026 16:01:54:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m672[22m[2m[0m ms[22m
+15/06/2026 16:01:54: 
+15/06/2026 16:01:54:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 16:01:54:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 16:01:54:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 16:02:05: 
+15/06/2026 16:02:05: PWA v1.2.0
+15/06/2026 16:02:05: mode      generateSW
+15/06/2026 16:02:05: precache  2 entries (0.12 KiB)
+15/06/2026 16:02:05: files generated
+15/06/2026 16:02:05:   dev-dist/sw.js
+15/06/2026 16:02:05:   dev-dist/workbox-5a5d9309.js
+15/06/2026 16:05:53: [2m16:05:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:06:08: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 16:06:10: 
+15/06/2026 16:06:10:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m621[22m[2m[0m ms[22m
+15/06/2026 16:06:10: 
+15/06/2026 16:06:10:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 16:06:10:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 16:06:10:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 16:06:19: 
+15/06/2026 16:06:19: PWA v1.2.0
+15/06/2026 16:06:19: mode      generateSW
+15/06/2026 16:06:19: precache  2 entries (0.12 KiB)
+15/06/2026 16:06:19: files generated
+15/06/2026 16:06:19:   dev-dist/sw.js
+15/06/2026 16:06:19:   dev-dist/workbox-5a5d9309.js
+15/06/2026 16:13:27: [2m16:13:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:14:06: [2m16:14:06[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:14:21: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 16:14:23: 
+15/06/2026 16:14:23:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m691[22m[2m[0m ms[22m
+15/06/2026 16:14:23: 
+15/06/2026 16:14:23:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 16:14:23:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 16:14:23:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 16:14:34: 
+15/06/2026 16:14:34: PWA v1.2.0
+15/06/2026 16:14:34: mode      generateSW
+15/06/2026 16:14:34: precache  2 entries (0.12 KiB)
+15/06/2026 16:14:34: files generated
+15/06/2026 16:14:34:   dev-dist/sw.js
+15/06/2026 16:14:34:   dev-dist/workbox-5a5d9309.js
+15/06/2026 16:33:44: [2m16:33:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:33:44: [2m16:33:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+15/06/2026 16:39:53: [2m16:39:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 16:40:19: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 16:40:21: 
+15/06/2026 16:40:21:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m267[22m[2m[0m ms[22m
+15/06/2026 16:40:21: 
+15/06/2026 16:40:21:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 16:40:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 16:40:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 16:40:32: 
+15/06/2026 16:40:32: PWA v1.2.0
+15/06/2026 16:40:32: mode      generateSW
+15/06/2026 16:40:32: precache  2 entries (0.12 KiB)
+15/06/2026 16:40:32: files generated
+15/06/2026 16:40:32:   dev-dist/sw.js
+15/06/2026 16:40:32:   dev-dist/workbox-5a5d9309.js
+15/06/2026 16:44:45: [2m16:44:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 16:44:45: [2m16:44:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 16:45:03: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 16:45:05: 
+15/06/2026 16:45:05:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m652[22m[2m[0m ms[22m
+15/06/2026 16:45:05: 
+15/06/2026 16:45:05:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 16:45:05:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 16:45:05:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 16:45:13: 
+15/06/2026 16:45:13: PWA v1.2.0
+15/06/2026 16:45:13: mode      generateSW
+15/06/2026 16:45:13: precache  2 entries (0.12 KiB)
+15/06/2026 16:45:13: files generated
+15/06/2026 16:45:13:   dev-dist/sw.js
+15/06/2026 16:45:13:   dev-dist/workbox-5a5d9309.js
+15/06/2026 17:13:47: [2m17:13:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 17:13:47: [2m17:13:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 17:15:56: [2m17:15:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 17:16:27: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 17:16:30: 
+15/06/2026 17:16:30:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m937[22m[2m[0m ms[22m
+15/06/2026 17:16:30: 
+15/06/2026 17:16:30:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 17:16:30:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 17:16:30:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 17:16:39: 
+15/06/2026 17:16:39: PWA v1.2.0
+15/06/2026 17:16:39: mode      generateSW
+15/06/2026 17:16:39: precache  2 entries (0.12 KiB)
+15/06/2026 17:16:39: files generated
+15/06/2026 17:16:39:   dev-dist/sw.js
+15/06/2026 17:16:39:   dev-dist/workbox-5a5d9309.js
+15/06/2026 18:22:36: [2m18:22:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/RomaneioRetorno.tsx[22m
+15/06/2026 18:22:52: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 18:22:54: 
+15/06/2026 18:22:54:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m718[22m[2m[0m ms[22m
+15/06/2026 18:22:54: 
+15/06/2026 18:22:54:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 18:22:54:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 18:22:54:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 18:23:02: 
+15/06/2026 18:23:02: PWA v1.2.0
+15/06/2026 18:23:02: mode      generateSW
+15/06/2026 18:23:02: precache  2 entries (0.12 KiB)
+15/06/2026 18:23:02: files generated
+15/06/2026 18:23:02:   dev-dist/sw.js
+15/06/2026 18:23:02:   dev-dist/workbox-5a5d9309.js
+15/06/2026 18:29:35: [2m18:29:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 18:30:24: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 18:30:27: 
+15/06/2026 18:30:27:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m685[22m[2m[0m ms[22m
+15/06/2026 18:30:27: 
+15/06/2026 18:30:27:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 18:30:27:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 18:30:27:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 18:30:33: 
+15/06/2026 18:30:33: PWA v1.2.0
+15/06/2026 18:30:33: mode      generateSW
+15/06/2026 18:30:33: precache  2 entries (0.12 KiB)
+15/06/2026 18:30:33: files generated
+15/06/2026 18:30:33:   dev-dist/sw.js
+15/06/2026 18:30:33:   dev-dist/workbox-5a5d9309.js
+15/06/2026 18:40:58: [2m18:40:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 18:40:58: [2m18:40:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+15/06/2026 18:41:22: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 18:41:24: 
+15/06/2026 18:41:24:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m300[22m[2m[0m ms[22m
+15/06/2026 18:41:24: 
+15/06/2026 18:41:24:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 18:41:24:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 18:41:24:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+15/06/2026 18:41:33: 
+15/06/2026 18:41:33: PWA v1.2.0
+15/06/2026 18:41:33: mode      generateSW
+15/06/2026 18:41:33: precache  2 entries (0.12 KiB)
+15/06/2026 18:41:33: files generated
+15/06/2026 18:41:33:   dev-dist/sw.js
+15/06/2026 18:41:33:   dev-dist/workbox-5a5d9309.js
+15/06/2026 21:55:11: [ViteWrapper] Vite encerrou com codigo 3221225786
+15/06/2026 21:55:15: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+15/06/2026 21:55:17: 
+15/06/2026 21:55:17:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m463[22m[2m[0m ms[22m
+15/06/2026 21:55:17: 
+15/06/2026 21:55:17:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+15/06/2026 21:55:17:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+15/06/2026 21:55:17:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 08:23:36: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 08:23:39: 
+16/06/2026 08:23:39:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m1180[22m[2m[0m ms[22m
+16/06/2026 08:23:39: 
+16/06/2026 08:23:39:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 08:23:39:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 08:23:39:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 08:24:41: 
+16/06/2026 08:24:41: PWA v1.2.0
+16/06/2026 08:24:41: mode      generateSW
+16/06/2026 08:24:41: precache  2 entries (0.12 KiB)
+16/06/2026 08:24:41: files generated
+16/06/2026 08:24:41:   dev-dist/sw.js
+16/06/2026 08:24:41:   dev-dist/workbox-5a5d9309.js
+16/06/2026 08:50:18: [2m08:50:18[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/CadastroUsuario.tsx, /src/index.css[22m
+16/06/2026 08:51:15: [2m08:51:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+16/06/2026 08:51:27: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 08:51:29: 
+16/06/2026 08:51:29:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m265[22m[2m[0m ms[22m
+16/06/2026 08:51:29: 
+16/06/2026 08:51:29:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 08:51:29:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 08:51:29:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 08:51:36: 
+16/06/2026 08:51:36: PWA v1.2.0
+16/06/2026 08:51:36: mode      generateSW
+16/06/2026 08:51:36: precache  2 entries (0.12 KiB)
+16/06/2026 08:51:36: files generated
+16/06/2026 08:51:36:   dev-dist/sw.js
+16/06/2026 08:51:36:   dev-dist/workbox-5a5d9309.js
+16/06/2026 08:53:44: [2m08:53:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+16/06/2026 08:55:34: [2m08:55:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+16/06/2026 08:55:54: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 08:55:55: 
+16/06/2026 08:55:55:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m259[22m[2m[0m ms[22m
+16/06/2026 08:55:55: 
+16/06/2026 08:55:55:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 08:55:55:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 08:55:55:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 08:56:03: 
+16/06/2026 08:56:03: PWA v1.2.0
+16/06/2026 08:56:03: mode      generateSW
+16/06/2026 08:56:03: precache  2 entries (0.12 KiB)
+16/06/2026 08:56:03: files generated
+16/06/2026 08:56:03:   dev-dist/sw.js
+16/06/2026 08:56:03:   dev-dist/workbox-5a5d9309.js
+16/06/2026 09:10:53: [2m09:10:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/CadastroUsuario.tsx, /src/index.css[22m
+16/06/2026 09:11:15: [2m09:11:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+16/06/2026 09:39:07: [2m09:39:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+16/06/2026 09:40:13: [2m09:40:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/layout/AppLayout.tsx[22m
+16/06/2026 10:13:08: [2m10:13:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Romaneio.tsx, /src/index.css[22m
+16/06/2026 10:13:46: [2m10:13:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RomaneioRetorno.tsx, /src/index.css[22m
+16/06/2026 10:51:56: [2m10:51:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Material.tsx, /src/index.css[22m
+16/06/2026 10:52:09: [2m10:52:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Material.tsx, /src/index.css[22m
+16/06/2026 10:52:31: [2m10:52:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Material.tsx, /src/index.css[22m
+16/06/2026 10:57:42: [2m10:57:42[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/MontaPecaManufaturadaModal.tsx[22m
+16/06/2026 11:04:28: [2m11:04:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Material.tsx, /src/index.css[22m
+16/06/2026 11:04:35: [2m11:04:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Material.tsx, /src/index.css[22m
+16/06/2026 11:05:17: [2m11:05:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 11:05:25: [2m11:05:25[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 11:05:37: [2m11:05:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Configuracao.tsx, /src/index.css[22m
+16/06/2026 11:05:51: [2m11:05:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 11:21:26: [2m11:21:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Configuracao.tsx, /src/index.css[22m
+16/06/2026 11:21:38: [2m11:21:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 11:21:46: [2m11:21:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 12:59:41: [2m12:59:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/layout/AppLayout.tsx[22m
+16/06/2026 13:00:00: [2m13:00:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+16/06/2026 13:00:51: [2m13:00:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/MontaPecaManufaturada.tsx[22m
+16/06/2026 13:05:00: [2m13:05:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/MontaPecaManufaturada.tsx[22m
+16/06/2026 13:08:19: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 13:08:21: 
+16/06/2026 13:08:21:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m513[22m[2m[0m ms[22m
+16/06/2026 13:08:21: 
+16/06/2026 13:08:21:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 13:08:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 13:08:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 13:08:59: 
+16/06/2026 13:08:59: PWA v1.2.0
+16/06/2026 13:08:59: mode      generateSW
+16/06/2026 13:08:59: precache  2 entries (0.12 KiB)
+16/06/2026 13:08:59: files generated
+16/06/2026 13:08:59:   dev-dist/sw.js
+16/06/2026 13:08:59:   dev-dist/workbox-5a5d9309.js
+16/06/2026 13:13:10: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 13:13:12: 
+16/06/2026 13:13:12:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m264[22m[2m[0m ms[22m
+16/06/2026 13:13:12: 
+16/06/2026 13:13:12:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 13:13:12:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 13:13:12:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 13:13:19: 
+16/06/2026 13:13:19: PWA v1.2.0
+16/06/2026 13:13:19: mode      generateSW
+16/06/2026 13:13:19: precache  2 entries (0.12 KiB)
+16/06/2026 13:13:19: files generated
+16/06/2026 13:13:19:   dev-dist/sw.js
+16/06/2026 13:13:19:   dev-dist/workbox-5a5d9309.js
+16/06/2026 13:13:35: [2m13:13:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+16/06/2026 13:15:58: [2m13:15:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+16/06/2026 13:18:23: [2m13:18:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+16/06/2026 13:18:51: [2m13:18:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+16/06/2026 13:34:51: [2m13:34:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/layout/AppLayout.tsx, /src/index.css[22m
+16/06/2026 13:34:51: [2m13:34:51[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/layout/AppLayout.tsx, /src/index.css[22m
+16/06/2026 14:02:53: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 14:02:56: 
+16/06/2026 14:02:56:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m966[22m[2m[0m ms[22m
+16/06/2026 14:02:56: 
+16/06/2026 14:02:56:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 14:02:56:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 14:02:56:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 14:03:25: 
+16/06/2026 14:03:25: PWA v1.2.0
+16/06/2026 14:03:25: mode      generateSW
+16/06/2026 14:03:25: precache  2 entries (0.12 KiB)
+16/06/2026 14:03:25: files generated
+16/06/2026 14:03:25:   dev-dist/sw.js
+16/06/2026 14:03:25:   dev-dist/workbox-5a5d9309.js
+16/06/2026 14:15:19: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+16/06/2026 14:15:21: 
+16/06/2026 14:15:21:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m265[22m[2m[0m ms[22m
+16/06/2026 14:15:21: 
+16/06/2026 14:15:21:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+16/06/2026 14:15:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+16/06/2026 14:15:21:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+16/06/2026 14:15:28: 
+16/06/2026 14:15:28: PWA v1.2.0
+16/06/2026 14:15:28: mode      generateSW
+16/06/2026 14:15:28: precache  2 entries (0.12 KiB)
+16/06/2026 14:15:28: files generated
+16/06/2026 14:15:28:   dev-dist/sw.js
+16/06/2026 14:15:28:   dev-dist/workbox-5a5d9309.js
+16/06/2026 14:17:10: [2m14:17:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+16/06/2026 14:33:04: [2m14:33:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m

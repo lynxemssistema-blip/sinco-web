@@ -20,7 +20,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, menuItems, activePageId, activeLabel, onNavigate, onLogout, user }: AppLayoutProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isDark, setIsDark] = useState(false);
     const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
@@ -148,7 +148,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                         }
                     }}
                     className={cn(
-                        "w-full flex items-center px-3 py-2.5 rounded-md transition-all duration-200 group relative",
+                        "w-full flex items-center px-2 py-1.5 rounded-md transition-all duration-200 group relative",
                         isCollapsed ? "justify-center" : "gap-3",
                         isActive && !hasChildren
                             ? "bg-primary text-primary-foreground font-semibold shadow-sm"
@@ -162,12 +162,12 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             ? "bg-primary-foreground/20" 
                             : isCollapsed ? "group-hover:bg-primary/10" : "bg-transparent group-hover:bg-primary/5"
                     )}>
-                        <Icon size={18} strokeWidth={isActive ? 2 : 1.5} />
+                        <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
                     </div>
                     
                     {!isCollapsed && (
                         <>
-                            <span className="font-medium text-sm flex-1 text-left tracking-wide">{item.label}</span>
+                            <span className="font-medium text-xs flex-1 text-left tracking-wide">{item.label}</span>
                             {hasChildren && (
                                 <span className="opacity-60 group-hover:opacity-100 transition-opacity">
                                     {isExpanded ? <ChevronDown size={14} strokeWidth={2.5} /> : <ChevronRight size={14} strokeWidth={2.5} />}

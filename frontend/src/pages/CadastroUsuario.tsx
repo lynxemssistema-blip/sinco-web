@@ -6,7 +6,8 @@ import {
     Scissors, FoldVertical, Flame, Paintbrush, Wrench,
     Warehouse, Map, ClipboardList, PackageCheck, Box,
     TrendingUp, Eye, Briefcase, DollarSign, FlaskConical, Truck,
-    Plus, Save, Trash2, Settings, ChevronDown, ChevronUp, Lock
+    Plus, Save, Trash2, Settings, ChevronDown, ChevronUp, Lock,
+    Maximize2, Minimize2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -129,6 +130,7 @@ export default function CadastroUsuarioPage() {
     const [isNewMode, setIsNewMode] = useState(false);
     const [setores, setSetores] = useState<string[]>([]);
     const [showSenha, setShowSenha] = useState(false);
+    const [isFormMaximized, setIsFormMaximized] = useState(true);
 
     // Processos
     const [showProcessos, setShowProcessos] = useState(false);
@@ -197,6 +199,7 @@ export default function CadastroUsuarioPage() {
         setSelectedId(null); setForm({ ...emptyForm });
         setIsNewMode(true); setShowForm(true);
         setShowProcessos(false); setShowSenha(false);
+        setIsFormMaximized(true);
     };
 
     const handleSelectUser = (u: UsuarioAdmin) => {
@@ -206,12 +209,18 @@ export default function CadastroUsuarioPage() {
         setSelectedId(u.idUsuario); setForm(userToForm(u));
         setIsNewMode(false); setShowForm(true); setShowSenha(false);
         setShowProcessos(false); setUserProcessos([]);
+        setIsFormMaximized(true);
     };
 
     const handleToggleProcessos = () => {
         if (!showProcessos && form.idUsuario) fetchUserProcessos(form.idUsuario);
         setShowProcessos(prev => !prev);
     };
+
+    // Garantir que o form abre sempre maximizado
+    useEffect(() => {
+        if (showForm) setIsFormMaximized(true);
+    }, [showForm]);
 
     const handleAssociarProcesso = async (p: ProcessoFabricacao) => {
         if (!form.idUsuario || loadingAction) return;
@@ -408,13 +417,24 @@ export default function CadastroUsuarioPage() {
             </div>
 
             {/* ── Form Panel ── */}
+            {showForm && isFormMaximized && (
+                <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setIsFormMaximized(false)} />
+            )}
             {showForm && (
-                <div className="bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 overflow-hidden">
+                <div className={isFormMaximized
+                    ? 'fixed inset-6 z-50 bg-white border border-slate-200 rounded-xl shadow-2xl flex flex-col overflow-hidden'
+                    : 'bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 overflow-hidden'
+                }>
                     <div className={`flex items-center justify-between px-4 py-1.5 ${isNewMode ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' : 'bg-gradient-to-r from-indigo-600 to-indigo-500'}`}>
                         <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
                             {isNewMode ? <><Plus size={12} /> Novo Usuário</> : <><User size={12} /> Dados — ID {form.idUsuario}</>}
                         </span>
-                        <button onClick={() => { setShowForm(false); setSelectedId(null); setIsNewMode(false); setShowProcessos(false); }} className="p-0.5 text-white/60 hover:text-white rounded"><X size={14} /></button>
+                        <div className="flex items-center gap-1.5">
+                            <button onClick={() => setIsFormMaximized(v => !v)} className="p-0.5 text-white/70 hover:text-white rounded transition-colors" title={isFormMaximized ? 'Minimizar' : 'Maximizar'}>
+                                {isFormMaximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+                            </button>
+                            <button onClick={() => { setShowForm(false); setSelectedId(null); setIsNewMode(false); setShowProcessos(false); }} className="p-0.5 text-white/60 hover:text-white rounded"><X size={14} /></button>
+                        </div>
                     </div>
                     <div className="flex gap-4 p-3">
                         {/* Col 1: Avatar + Tipo */}
@@ -532,7 +552,49 @@ export default function CadastroUsuarioPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                    {isFormMaximized && showProcessos && form.idUsuario && (
+                        <div className="border-t border-amber-200 bg-white overflow-auto shrink-0 max-h-64">
+                        <div className="flex gap-3 p-3">
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Processos Disponíveis <span className="text-slate-300 font-normal">({processos.length})</span></p>
+                                <div className="border border-slate-200 rounded-lg overflow-auto max-h-44">
+                                    <table className="w-full text-[11px]">
+                                        <thead className="bg-[#567469] text-white sticky top-0"><tr>
+                                            <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Processo</th>
+                                            <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Código</th>
+                                            <th className="px-3 py-1.5 w-8"></th>
+                                        </tr></thead>
+                                        <tbody>{processos.map(p => (
+                                            <tr key={p.IdProcessoFabricacao} className="border-b border-slate-50 hover:bg-slate-50">
+                                                <td className="px-3 py-1 text-slate-700">{p.ProcessoFabricacao}</td>
+                                                <td className="px-3 py-1 text-slate-500 font-mono text-[10px]">{p.CodigoProcessoFabricacao}</td>
+                                                <td className="px-3 py-1 text-right"><button onClick={() => handleAssociarProcesso(p)} className="p-1.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-all"><Plus size={12}/></button></td>
+                                            </tr>
+                                        ))}</tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Vinculados a <strong className="text-slate-600">{form.NomeCompleto}</strong> <span className="text-slate-300">({userProcessos.length})</span></p>
+                                <div className="border border-amber-200 rounded-lg overflow-auto max-h-44">
+                                    <table className="w-full text-[11px]">
+                                        <thead className="bg-[#567469] text-white sticky top-0"><tr>
+                                            <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Processo</th>
+                                            <th className="px-3 py-1.5 w-8"></th>
+                                        </tr></thead>
+                                        <tbody>{userProcessos.map(p => (
+                                            <tr key={p.IdUsuarioprocessofabricacao} className="border-b border-amber-50 hover:bg-amber-50">
+                                                <td className="px-3 py-1 text-slate-700">{p.ProcessoFabricacao}</td>
+                                                <td className="px-3 py-1 text-right"><button onClick={() => handleDesvincularProcesso(p.IdUsuarioprocessofabricacao)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 size={12}/></button></td>
+                                            </tr>
+                                        ))}</tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             )}
 
             {/* ── Painel de Processos ── */}
@@ -695,13 +757,13 @@ export default function CadastroUsuarioPage() {
                                         <tr key={u.idUsuario} onClick={() => handleSelectUser(u)}
                                             className={`cursor-pointer transition-colors border-b border-slate-50 ${selected ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-200' : 'hover:bg-slate-50'}`}>
                                             
-                                            <td className="px-4 py-2">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-[10px] shrink-0">
-                                                        {u.NomeCompleto?.charAt(0)?.toUpperCase() || '?'}
-                                                    </div>
-                                                    <span className="font-bold text-slate-800">{u.NomeCompleto}</span>
+                                            <td className="px-4 py-2 text-center w-12">
+                                                <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-[10px] mx-auto">
+                                                    {u.NomeCompleto?.charAt(0)?.toUpperCase() || '?'}
                                                 </div>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <span className="font-bold text-slate-800">{u.NomeCompleto}</span>
                                             </td>
                                             <td className="px-4 py-2 font-mono text-slate-500 text-[10px]">{u.Login}</td>
                                             <td className="px-4 py-2 text-slate-600">{u.Setor || <span className="text-slate-300">—</span>}</td>

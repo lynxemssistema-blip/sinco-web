@@ -563,7 +563,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
         // Ações que não precisam de confirmação: registrar, liberar
         // cancelar_lib, cancelar_registro e demais confirmam
-        if (actionId !== 'registrar' && actionId !== 'liberar') {
+        if (actionId !== 'registrar' && actionId !== 'liberar' && actionId !== 'report' && actionId !== 'abrir_pasta') {
             let finalConfirmMsg = `Confirma a ação "${actionName}" para o Romaneio #${selectedId}?`;
             if (actionId === 'cancelar_lib') {
                 finalConfirmMsg = `Atenção: Você está prestes a cancelar a liberação do Romaneio - ${selectedId}. Isso removerá os documentos gerados e retornará o status para Registrado. Deseja proceder com esta atualização?`;
@@ -631,8 +631,6 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
             const json = await res.json();
 
             if (json.success) {
-                setSuccessMsg(json.message);
-
                 // --- NEW: Go to Report View immediately after Liberation ---
                 if (actionId === 'liberar' && json.excel?.success) {
                     // Start download in background
@@ -640,6 +638,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                     // Show report on screen
                     await fetchReportData(selectedId);
                 } else {
+                    setSuccessMsg(json.message);
                     setTimeout(() => setSuccessMsg(null), 3000);
                     setSelectedId(null); // Force re-selection
                     fetchRomaneios(); // Refresh list
@@ -925,13 +924,13 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                     <th className="px-3 py-2 text-left hidden md:table-cell">Descrição</th>
                                     <th className="px-3 py-2 text-left hidden xl:table-cell">Envio</th>
                                     <th className="px-3 py-2 text-left hidden lg:table-cell">Criado em</th>
-                                    <th className="px-3 py-2 text-center">Ações</th>
+
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 text-sm">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
+                                        <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
                                             <div className="flex flex-col items-center gap-2">
                                                 <Loader2 size={24} className="animate-spin text-[#32423D]" />
                                                 Carregando...
@@ -1019,24 +1018,7 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                     {formatToBRDate(romaneio.DATACRIACAO)}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
-                                                <div className="flex items-center justify-center gap-1">
-                                                    <button
-                                                        onClick={() => handleOpenFolder(romaneio.idRomaneio, romaneio.ENDERECORomaneio)}
-                                                        className="p-1 bg-[#E0E800]/30 text-[#32423D] rounded-md hover:bg-[#E0E800]/50 transition-colors"
-                                                        title="Abrir Pasta"
-                                                    >
-                                                        <FolderOpen size={14} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(romaneio.idRomaneio || romaneio.id!)}
-                                                        className="p-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                                                        title="Excluir"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
+
                                         </tr>
                                         {/* Linha de ações inline — aparece apenas quando a linha está selecionada */}
                                         {selectedId === romaneio.idRomaneio && (() => {
@@ -1059,11 +1041,13 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
 
                                             return (
                                                 <tr className="bg-[#32423D]/5 border-l-4 border-[#32423D]">
-                                                    <td colSpan={8} className="px-3 py-1.5">
+                                                    <td colSpan={7} className="px-3 py-1.5">
                                                         <div className="flex flex-wrap items-center gap-1.5">
                                                             <span className={`text-[10px] font-bold uppercase tracking-wider mr-1 ${statusColor}`}>
                                                                 {statusLabel} · Ações:
                                                             </span>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleOpenFolder(romaneio.idRomaneio, romaneio.ENDERECORomaneio); }} className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border bg-[#E0E800]/20 text-[#32423D] border-transparent hover:shadow-sm hover:border-gray-200 cursor-pointer transition-all" title="Abrir Pasta"><FolderOpen size={13} /><span>Abrir Pasta</span></button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleDelete(romaneio.idRomaneio || romaneio.id!); }} className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border bg-red-50 text-red-600 border-transparent hover:shadow-sm hover:border-gray-200 cursor-pointer transition-all" title="Excluir Romaneio"><Trash2 size={13} /><span>Excluir</span></button>
                                                             {actions.map(action => {
                                                                 const { disabled, reason } = getActionDisabledInfo(action.id, romaneio);
                                                                 return (
@@ -1597,16 +1581,16 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                         <th className="px-3 py-2 text-right">Qtde Romaneio</th>
                                                         <th className="px-3 py-2 text-right">Saldo</th>
                                                         <th className="px-3 py-2 text-right">Peso Total</th>
-                                                        <th className="px-3 py-2 w-10"></th>
+
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100 text-[12px]">
                                                     {loadingInserted ? (
-                                                        <tr><td colSpan={7} className="py-16 text-center text-gray-400">
+                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400">
                                                             <Loader2 size={20} className="animate-spin mx-auto text-[#32423D]" />
                                                         </td></tr>
                                                     ) : insertedItems.length === 0 ? (
-                                                        <tr><td colSpan={7} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
+                                                        <tr><td colSpan={6} className="py-16 text-center text-gray-400 italic">Nenhum item encontrado no romaneio.</td></tr>
                                                     ) : insertedItems.map((item, idx) => (
                                                         <React.Fragment key={idx}>
                                                             {/* Linha principal */}
@@ -1631,30 +1615,13 @@ export default function RomaneioPage({ onNavigate, onSetRncItem }: RomaneioPageP
                                                                 <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio ?? '—'}</td>
                                                                 <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio ?? '—'}</td>
                                                                 <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal != null ? `${item.PesoTotal}kg` : '—'}</td>
-                                                                <td className="px-2 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
-                                                                    <button
-                                                                        onClick={async (e) => {
-                                                                            e.stopPropagation();
-                                                                            if (!window.confirm(`Excluir item #${item.IdRomaneioItem} do romaneio? A quantidade será estornada para o saldo da OS.`)) return;
-                                                                            try {
-                                                                                const r = await fetch(`${API_BASE}/romaneio/item/${item.IdRomaneioItem}`, { method: 'DELETE' });
-                                                                                const d = await r.json();
-                                                                                if (d.success) { fetchInsertedItems(); if (selectedInsertedId === item.IdRomaneioItem) setSelectedInsertedId(null); }
-                                                                                else showAlert(d.message || 'Erro ao excluir item.', 'error');
-                                                                            } catch { showAlert('Erro ao excluir.', 'error'); }
-                                                                        }}
-                                                                        className="p-1 rounded-md text-red-400 hover:bg-red-100 hover:text-red-700 transition-colors"
-                                                                        title="Excluir item do romaneio"
-                                                                    >
-                                                                        <Trash2 size={13} />
-                                                                    </button>
-                                                                </td>
+
                                                             </tr>
 
                                                             {/* Linha de ações inline */}
                                                             {selectedInsertedId === item.IdRomaneioItem && (
                                                                 <tr className="bg-cyan-50 border-l-4 border-cyan-500">
-                                                                    <td colSpan={7} className="px-3 py-1.5">
+                                                                    <td colSpan={6} className="px-3 py-1.5">
                                                                         <div className="flex flex-wrap items-center gap-1.5">
                                                                             <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mr-1">Ações:</span>
                                                                             {insertedActions.map(action => (

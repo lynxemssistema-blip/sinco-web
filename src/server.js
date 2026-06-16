@@ -1701,7 +1701,8 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
 app.get('/api/romaneio-retorno/items', async (req, res) => {
     const { romaneio, projeto, tag, numDoc, mostrarConcluidos } = req.query;
     try {
-        let sql = `SELECT * FROM view_retorno_itens WHERE 1=1`;
+        let sql = `SELECT * FROM view_retorno_itens WHERE 1=1
+            AND IdRomaneio IN (SELECT idRomaneio FROM romaneio WHERE Liberado = 'S')`;
         const params = [];
 
         if (romaneio) {
@@ -1721,9 +1722,12 @@ app.get('/api/romaneio-retorno/items', async (req, res) => {
             params.push(`%${numDoc}%`);
         }
 
-        // Se 'mostrarConcluidos' nao for true, filtra apenas os nao finalizados
-        if (mostrarConcluidos !== 'true') {
-            sql += ` AND (MarcarComoFinalizado IS NULL OR MarcarComoFinalizado != 'S')`;
+        if (mostrarConcluidos === 'true') {
+            // Mostrar concluídos: exibe apenas registros finalizados manualmente ou com saldo zerado
+            sql += ` AND (MarcarComoFinalizado = 'S' OR Saldo <= 0)`;
+        } else {
+            // Padrão (não marcados): exibe apenas registros em aberto com saldo maior que zero
+            sql += ` AND (MarcarComoFinalizado IS NULL OR MarcarComoFinalizado != 'S') AND Saldo > 0`;
         }
 
         sql += ` ORDER BY IdRomaneio DESC, IdRomaneioItem ASC LIMIT 500`;
@@ -1930,10 +1934,12 @@ app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        // 1. Buscar o registro de controle
+        // 1. Buscar o registro de controle (usando IdRomaneioItem)
         const [ctrlRows] = await connection.execute(
             `SELECT idromaneioitemcontrole, IdRomaneioItem, qtdeUsuario, Situacao
-             FROM romaneioitemcontrole WHERE idromaneioitemcontrole = ?`,
+             FROM romaneioitemcontrole 
+             WHERE IdRomaneioItem = ? AND Situacao = 'RETORNO' 
+             ORDER BY DataCriacao DESC LIMIT 1`,
             [idControle]
         );
         if (ctrlRows.length === 0) throw new Error('Registro não encontrado.');
@@ -1948,15 +1954,16 @@ app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
         const qtdeDevolucao = qtdeEstorno ? Math.min(Number(qtdeEstorno), maxQtde) : maxQtde;
         if (qtdeDevolucao <= 0) throw new Error('Quantidade de estorno inválida.');
 
-        // 2. Acrescentar qtdeusuario de volta ao romaneioitem
+        // 2. Subtrair qtdeDevolucao de QtdeTotalRetorno no romaneioitem
         const [itemRows] = await connection.execute(
-            `SELECT QtdeUsuario FROM romaneioitem WHERE IdRomaneioItem = ?`,
+            `SELECT QtdeTotalRetorno FROM romaneioitem WHERE IdRomaneioItem = ?`,
             [ctrl.IdRomaneioItem]
         );
         if (itemRows.length > 0) {
-            const novaQtde = (Number(itemRows[0].QtdeUsuario) || 0) + qtdeDevolucao;
+            const novaQtde = Math.max(0, (Number(itemRows[0].QtdeTotalRetorno) || 0) - qtdeDevolucao);
+            const situacaoUpdate = novaQtde === 0 ? "Situacao = 'ITEM LOCALIZADO'" : "Situacao = 'RETORNO'";
             await connection.execute(
-                `UPDATE romaneioitem SET QtdeUsuario = ? WHERE IdRomaneioItem = ?`,
+                `UPDATE romaneioitem SET QtdeTotalRetorno = ?, ${situacaoUpdate} WHERE IdRomaneioItem = ?`,
                 [novaQtde, ctrl.IdRomaneioItem]
             );
         }
@@ -1964,7 +1971,7 @@ app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
         // 3. Marcar o registro de controle como ESTORNO e salvar Observacao
         await connection.execute(
             `UPDATE romaneioitemcontrole SET Situacao = 'ESTORNO', Usuario = ?, Observacao = ? WHERE idromaneioitemcontrole = ?`,
-            [usuario || 'Sistema', observacao || '', idControle]
+            [usuario || 'Sistema', observacao || '', ctrl.idromaneioitemcontrole]
         );
 
         await connection.commit();
@@ -4065,8 +4072,167 @@ app.delete('/api/material/:id', async (req, res) => {
     }
 });
 
-// --- CRUD: Projetos ---
+// --- PEÇA MANUFATURADA (Monta Peça) ---
+// 1. GET /api/peca-manufaturada/desenhos - Desenhos (peças finais)
+app.get('/api/peca-manufaturada/desenhos', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND EnderecoArquivo <> ''`;
+        const params = [];
 
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching desenhos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar desenhos: ' + error.message });
+    }
+});
+
+// 1.5 GET /api/peca-manufaturada/pecas - Peças manufaturadas (PecaManufat = 'S')
+app.get('/api/peca-manufaturada/pecas', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND PecaManufat = 'S'`;
+        const params = [];
+
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching pecas manufaturadas:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar peças manufaturadas: ' + error.message });
+    }
+});
+
+// 2. GET /api/peca-manufaturada/composicao/:idMaterialPeca - Composição atual
+app.get('/api/peca-manufaturada/composicao/:idMaterialPeca', async (req, res) => {
+    try {
+        const { idMaterialPeca } = req.params;
+        const sql = `SELECT IdMontaPeca, IdMaterial, IdMaterialpeca, CodMatFabricante, DescDetal, PecaQtde, txtItemEstoque 
+                     FROM viewmontapeca1 
+                     WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                       AND idmaterialpeca = ?
+                     ORDER BY CodMatFabricante`;
+        const [rows] = await pool.execute(sql, [idMaterialPeca]);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar composição: ' + error.message });
+    }
+});
+
+// 3. GET /api/peca-manufaturada/materiais - Matérias-primas
+app.get('/api/peca-manufaturada/materiais', async (req, res) => {
+    try {
+        const { codigo, descricao } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescDetal, FamiliaMat AS Familia, Peso, Valor, Qtde, IdEmpresa
+                   FROM material 
+                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
+                     AND (EnderecoArquivo IS NULL OR EnderecoArquivo = '')`;
+        const params = [];
+
+        if (codigo) {
+            sql += ` AND CodMatFabricante LIKE ?`;
+            params.push(`%${codigo}%`);
+        }
+        if (descricao) {
+            sql += ` AND (DescDetal LIKE ? OR NumeroRP LIKE ?)`;
+            params.push(`%${descricao}%`, `%${descricao}%`);
+        }
+
+        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
+
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching materiais brutos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar materiais brutos: ' + error.message });
+    }
+});
+
+// 4. POST /api/peca-manufaturada/composicao - Adicionar insumo
+app.post('/api/peca-manufaturada/composicao', async (req, res) => {
+    try {
+        const { idMaterialPeca, idMaterial, quantidade, usuario } = req.body;
+        
+        // Obter dados do material para copiar peso/valor/empresa, conforme VB
+        const [matRows] = await pool.execute(`SELECT FamiliaMat, Peso, Valor, IdEmpresa, CodMatFabricante FROM material WHERE IdMaterial = ?`, [idMaterial]);
+        if (matRows.length === 0) return res.status(404).json({ success: false, message: 'Material base não encontrado.' });
+        
+        const mat = matRows[0];
+        const qtde = quantidade || 1; // Default 1
+
+        const sql = `INSERT INTO montapeca 
+            (TipoPeca, IdMaterial, PecaQtde, IdMaterialPeca, IdEmpresa, D_E_L_E_T_E, Peso, Valor, UsuarioD_E_L_E_T_E, DataD_E_L_E_T_E, CodMatFabricante, UsuarioCriacao, DataCriacao)
+            VALUES (?, ?, ?, ?, ?, '', ?, ?, '', '', ?, ?, NOW())`;
+            
+        await pool.execute(sql, [
+            mat.FamiliaMat || 0,
+            idMaterial,
+            qtde,
+            idMaterialPeca,
+            mat.IdEmpresa || 0,
+            mat.Peso || 0,
+            mat.Valor || 0,
+            mat.CodMatFabricante || '',
+            usuario || 'Sistema'
+        ]);
+
+        // Atualiza a flag do material pai para indicar que agora é uma Peça Manufaturada
+        await pool.execute(`UPDATE material SET PecaManufat = 'S' WHERE IdMaterial = ?`, [idMaterialPeca]);
+        
+        res.json({ success: true, message: 'Material adicionado à composição com sucesso.' });
+    } catch (error) {
+        console.error('Error adding to composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao adicionar na composição: ' + error.message });
+    }
+});
+
+// 5. DELETE /api/peca-manufaturada/composicao/:idMontaPeca - Remover insumo
+app.delete('/api/peca-manufaturada/composicao/:idMontaPeca', async (req, res) => {
+    try {
+        const { idMontaPeca } = req.params;
+        const { usuario } = req.body;
+        
+        await pool.execute(
+            `UPDATE montapeca SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = NOW(), UsuarioD_E_L_E_T_E = ? WHERE idmontapeca = ?`,
+            [usuario || 'Sistema', idMontaPeca]
+        );
+        res.json({ success: true, message: 'Material removido da composição.' });
+    } catch (error) {
+        console.error('Error deleting from composicao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao remover da composição: ' + error.message });
+    }
+});
+
+// --- CRUD: Projetos ---
 // LIST (Read All) 
 app.get('/api/projeto', async (req, res) => {
     try {

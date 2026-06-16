@@ -19,6 +19,16 @@ export const helpContents: Record<string, HelpContent> = {
         description: 'Manutenção do cadastro de empresas (clientes e fornecedores): incluir, alterar e excluir registros. Os dados aqui cadastrados são usados em romaneios, projetos e documentos de expedição.',
         icon: '🏢'
     },
+    'group_1781618991422': {
+        title: 'Monta Peça Manufaturada',
+        description: 'Para criar uma peça manufaturada selecione um desenho (lado esquerdo). Depois de selecionado, busque os itens que farão parte desta nova peça no catálogo e adicione à receita.',
+        icon: '📦'
+    },
+    'monta-peca-manufaturada': {
+        title: 'Monta Peça Manufaturada',
+        description: 'Para criar uma peça manufaturada selecione um desenho (lado esquerdo). Depois de selecionado, busque os itens que farão parte desta nova peça no catálogo e adicione à receita.',
+        icon: '📦'
+    },
     'unidades-medida': {
         title: 'Unidades de Medida',
         description: 'Manutenção das unidades de medida do sistema (ex: kg, m², peça, conjunto): incluir, alterar e excluir. As unidades cadastradas aqui são usadas em Ordens de Serviço e relatórios de produção.',
@@ -111,7 +121,7 @@ export const helpContents: Record<string, HelpContent> = {
     },
     'romaneio-retorno': {
         title: 'Romaneio de Retorno',
-        description: 'Registre e acompanhe o retorno de peças enviadas para serviços externos (galvanização, pintura, etc.). Controle quais itens voltaram, em que quantidade e condição, fechando o ciclo de expedição e retorno.',
+        description: 'Registre e acompanhe o retorno de peças enviadas para serviços externos (galvanização, pintura, etc.). Controle quais itens voltaram, em que quantidade e condição, fechando o ciclo de expedição e retorno. ⚠️ Exibe apenas romaneios já liberados — itens de romaneios em status "Novo" ou "Registrado" não aparecem nesta tela.',
         icon: '↩️'
     },
     'controle-expedicao': {

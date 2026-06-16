@@ -48,6 +48,8 @@ import PowerBuildListPage from './pages/BlockSet/PowerBuildList';
 import PowerBuildImportPage from './pages/BlockSet/PowerBuildImport';
 import PowerBuildRevisionPage from './pages/BlockSet/PowerBuildRevision';
 import PowerBuildAgglutinationPage from './pages/BlockSet/PowerBuildAgglutination';
+import MontaPecaManufaturadaPage from './pages/MontaPecaManufaturada';
+
 function AppContent() {
   const { user, logout, token } = useAuth();
   const { mostrarPowerBuild } = useAppConfig();
@@ -246,8 +248,6 @@ function AppContent() {
               }
             }
           }
-
-
 
           // Force add 'apontamentos-parciais' if missing
           if (!savedMenu.find(item => item.id === 'apontamentos-parciais')) {
@@ -472,6 +472,9 @@ function AppContent() {
       case 'visualizacao-aglutinacao':
       case 'powerbuild-agglutination':
         return <PowerBuildAgglutinationPage onNavigate={handleNavigate} />;
+      case 'group_1781618991422':
+      case 'monta-peca-manufaturada':
+        return <MontaPecaManufaturadaPage usuario={user?.nomeCompleto || user?.login} />;
       default:
         // Handle custom pages or IDs dynamically if needed, for now fallback to Dashboard
         return <DashboardPage onNavigate={handleNavigate} />;

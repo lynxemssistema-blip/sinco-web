@@ -19,6 +19,7 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [estornoModal, setEstornoModal] = useState<{ ctrl: any; obs: string; qtde: string } | null>(null);
+    const [dateFilter, setDateFilter] = useState({ inicio: '', fim: '' });
 
     const fetchControles = async () => {
         setLoading(true);
@@ -39,6 +40,12 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
     const handleEstorno = async () => {
         if (!estornoModal) return;
         const { ctrl, obs, qtde } = estornoModal;
+        const ctrlId = ctrl.idromaneioitem ?? ctrl.IdRomaneioItem ?? null;
+        if (!ctrlId) {
+            showAlert('ID do registro de controle não identificado. Atualize a lista e tente novamente.', 'error');
+            setEstornoModal(null);
+            return;
+        }
         const maxQtde = Number(ctrl.qtdeUsuario ?? ctrl.QtdeUsuario ?? 0);
         const qtdeNum = Number(qtde);
         if (!qtdeNum || qtdeNum <= 0) {
@@ -49,10 +56,10 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
             showAlert(`Quantidade (${qtdeNum}) não pode ser maior que a registrada (${maxQtde}).`, 'warning');
             return;
         }
-        setProcessingId(ctrl.idromaneioitemcontrole);
+        setProcessingId(ctrlId);
         setEstornoModal(null);
         try {
-            const res = await fetch(`${API_BASE}/estorno/${ctrl.idromaneioitemcontrole}`, {
+            const res = await fetch(`${API_BASE}/estorno/${ctrlId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario: user?.nome || 'Sistema', observacao: obs, qtdeEstorno: qtdeNum })
@@ -89,7 +96,10 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
                 <div>
                     <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         <History size={16} className="text-[#32423D]" />
-                        Histórico de Controle — ID OS Item: <span className="text-[#32423D]">{item.IdOrdemServicoItem || item.IDOrdemServicoITEM}</span>
+                        Histórico de Controle —{' '}
+                        <span className="text-[#32423D]">
+                            {item.DescResumo || item.CodMatFabricante || `ID: ${item.IdOrdemServicoItem || item.IDOrdemServicoITEM}`}
+                        </span>
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
                         Projeto: <strong>{item.PROJETO}</strong> &nbsp;|&nbsp; Tag: <strong>{item.TAG}</strong> &nbsp;|&nbsp; Romaneio: <strong>#{item.IdRomaneio}</strong>
@@ -107,17 +117,37 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
             {/* Tabela romaneioitemcontrole */}
             <main className="flex-1 overflow-auto p-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-600 uppercase tracking-wide">Tabela: romaneioitemcontrole</span>
-                        <span className="text-xs text-gray-400 font-mono">{controles.length} registro(s)</span>
+                    {/* Filtro por data de retorno */}
+                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center gap-3 flex-wrap">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Data Retorno:</span>
+                        <div className="flex items-center gap-1.5">
+                            <label className="text-[10px] text-gray-400 font-semibold uppercase">De</label>
+                            <input type="date" value={dateFilter.inicio} onChange={e => setDateFilter(f => ({ ...f, inicio: e.target.value }))}
+                                className="px-2 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-[#32423D]/30 outline-none" />
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <label className="text-[10px] text-gray-400 font-semibold uppercase">Até</label>
+                            <input type="date" value={dateFilter.fim} onChange={e => setDateFilter(f => ({ ...f, fim: e.target.value }))}
+                                className="px-2 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-[#32423D]/30 outline-none" />
+                        </div>
+                        {(dateFilter.inicio || dateFilter.fim) && (
+                            <button onClick={() => setDateFilter({ inicio: '', fim: '' })} className="text-[10px] text-red-500 hover:text-red-700 font-semibold flex items-center gap-0.5">
+                                <X size={11} /> Limpar
+                            </button>
+                        )}
+                        <span className="ml-auto text-xs text-gray-400 font-mono">{controles.filter(ctrl => {
+                            if (!dateFilter.inicio && !dateFilter.fim) return true;
+                            const d = ctrl.DataRetorno ? new Date(ctrl.DataRetorno) : null;
+                            if (!d) return false;
+                            if (dateFilter.inicio && d < new Date(dateFilter.inicio)) return false;
+                            if (dateFilter.fim) { const fim = new Date(dateFilter.fim); fim.setHours(23,59,59); if (d > fim) return false; }
+                            return true;
+                        }).length} registro(s)</span>
                     </div>
                     <div className="overflow-auto">
                         <table className="w-full text-left border-collapse">
                             <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-3 py-2">ID Controle</th>
-                                    <th className="px-3 py-2">ID Item Rom.</th>
-                                    <th className="px-3 py-2">ID OS Item</th>
                                     <th className="px-3 py-2 text-center">Qtde Usuário</th>
                                     <th className="px-3 py-2">Situação</th>
                                     <th className="px-3 py-2">Data Retorno</th>
@@ -129,21 +159,27 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
                             <tbody className="divide-y divide-gray-100 text-sm">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={9} className="px-4 py-10 text-center">
+                                        <td colSpan={6} className="px-4 py-10 text-center">
                                             <Loader2 size={22} className="animate-spin text-[#32423D] mx-auto" />
                                         </td>
                                     </tr>
-                                ) : controles.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={9} className="px-4 py-10 text-center text-gray-400 italic text-sm">
-                                            Nenhum registro encontrado para este ID de OS Item.
-                                        </td>
-                                    </tr>
-                                ) : controles.map((ctrl) => (
-                                    <tr key={ctrl.idromaneioitemcontrole} className={`hover:bg-gray-50 transition-colors ${ctrl.Situacao === 'ESTORNO' ? 'opacity-60' : ''}`}>
-                                        <td className="px-3 py-1.5 font-mono text-xs text-gray-500">{ctrl.idromaneioitemcontrole}</td>
-                                        <td className="px-3 py-1.5 font-mono text-xs">{ctrl.IdRomaneioItem}</td>
-                                        <td className="px-3 py-1.5 font-mono text-xs font-bold text-[#32423D]">{ctrl.IDOrdemServicoITEM}</td>
+                                ) : (() => {
+                                    const filtered = controles.filter(ctrl => {
+                                        if (!dateFilter.inicio && !dateFilter.fim) return true;
+                                        const d = ctrl.DataRetorno ? new Date(ctrl.DataRetorno) : null;
+                                        if (!d) return false;
+                                        if (dateFilter.inicio && d < new Date(dateFilter.inicio)) return false;
+                                        if (dateFilter.fim) { const fim = new Date(dateFilter.fim); fim.setHours(23,59,59); if (d > fim) return false; }
+                                        return true;
+                                    });
+                                    return filtered.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={6} className="px-4 py-10 text-center text-gray-400 italic text-sm">
+                                                {controles.length === 0 ? 'Nenhum registro encontrado para este ID de OS Item.' : 'Nenhum registro no período selecionado.'}
+                                            </td>
+                                        </tr>
+                                    ) : filtered.map((ctrl) => (
+                                    <tr key={ctrl.idromaneioitem ?? ctrl.IdRomaneioItem} className={`hover:bg-gray-50 transition-colors ${ctrl.Situacao === 'ESTORNO' ? 'opacity-60' : ''}`}>
                                         <td className="px-3 py-1.5 text-center font-bold text-blue-700">{ctrl.qtdeUsuario ?? ctrl.QtdeUsuario ?? '-'}</td>
                                         <td className="px-3 py-1.5">
                                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${situacaoBadge(ctrl.Situacao)}`}>
@@ -159,11 +195,11 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
                                             ) : (
                                                 <button
                                                     onClick={() => setEstornoModal({ ctrl, obs: '', qtde: String(ctrl.qtdeUsuario ?? ctrl.QtdeUsuario ?? '') })}
-                                                    disabled={processingId === ctrl.idromaneioitemcontrole}
+                                                    disabled={processingId === (ctrl.idromaneioitem ?? ctrl.IdRomaneioItem)}
                                                     className="flex items-center gap-1 px-2 py-1 rounded-md bg-orange-50 text-orange-700 text-[11px] font-semibold border border-orange-200 hover:bg-orange-100 transition-colors disabled:opacity-50 mx-auto"
                                                     title="Realizar Estorno: devolve qtde ao item do romaneio"
                                                 >
-                                                    {processingId === ctrl.idromaneioitemcontrole
+                                                    {processingId === (ctrl.idromaneioitem ?? ctrl.IdRomaneioItem)
                                                         ? <Loader2 size={12} className="animate-spin" />
                                                         : <RotateCcw size={12} />}
                                                     Estornar
@@ -171,7 +207,7 @@ function HistoricoControleView({ item, onBack }: { item: any; onBack: () => void
                                             )}
                                         </td>
                                     </tr>
-                                ))}
+                                ))})()}
                             </tbody>
                         </table>
                     </div>

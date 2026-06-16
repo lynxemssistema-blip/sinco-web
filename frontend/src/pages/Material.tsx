@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Plus, Search, Edit2, Trash2, X, Package, Save, Filter,
+    Plus, Search, Edit2, Trash2, X, Package, Save, Filter, Layers,
     Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon, Globe
 } from 'lucide-react';
 
@@ -58,6 +58,8 @@ const emptyForm: Material = {
     ImagemProduto: '',
 };
 
+import MontaPecaManufaturadaModal from '../components/MontaPecaManufaturadaModal';
+
 export default function MaterialPage() {
     const [materiais, setMateriais] = useState<Material[]>([]);
     const [showFilters, setShowFilters] = useState(true);
@@ -65,6 +67,7 @@ export default function MaterialPage() {
     const [isEditing, setIsEditing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [showMontaPecaModal, setShowMontaPecaModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
