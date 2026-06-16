@@ -712,6 +712,13 @@ app.post('/api/romaneio/:id/items', async (req, res) => {
                 "UPDATE romaneioitem SET qtdeUsuario = ?, qtdeGrid = ?, QtdeRomaneio = ?, PesoTotal = ?, AreaPinturaTotal = ? WHERE IdRomaneioItem = ?",
                 [novaQtde, novaQtde, novaQtde, novoPeso, novaArea, reg.IdRomaneioItem]
             );
+            // Atualiza ordemservicoitem com referências ao romaneio
+            await pool.execute(
+                `UPDATE ordemservicoitem
+                 SET idRomaneio = ?, IdRomaneioItem = ?, QtdeRomaneio = ?, EnviadoParaRomaneio = 'S'
+                 WHERE IdOrdemServicoItem = ?`,
+                [id, reg.IdRomaneioItem, novaQtde, IdOrdemServicoItem]
+            );
             await pool.execute(
                 "INSERT INTO ordemservicoitemcontrole (IdOrdemServico, IdOrdemServicoItem, Processo, QtdeTotal, QtdeProduzida, Origem, CriadoPor, DataCriacao, D_E_L_E_T_E) VALUES (?, ?, 'Expedicao', ?, ?, 'Expedicao', ?, ?, '')",
                 [item.IdOrdemServico || null, IdOrdemServicoItem, item.QtdeTotal || qtde, qtde, usuario || 'Sistema', getCurrentDateTimeBR()]
@@ -723,9 +730,17 @@ app.post('/api/romaneio/:id/items', async (req, res) => {
         const pesoTotal = pesoUnit * qtde;
         const areaTotal = areaUnit * qtde;
 
-        await pool.execute(
+        const [insertResult] = await pool.execute(
             "INSERT INTO romaneioitem (IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao, qtdeUsuario, qtdeGrid, QtdeRomaneio, PesoUnitario, PesoTotal, AreaPintura, AreaPinturaTotal, CodMatFabricante, Situacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ITEM LOCALIZADO')",
             [id, IdOrdemServicoItem, usuario || 'Sistema', getCurrentDateTimeBR(), qtde, qtde, qtde, pesoUnit, pesoTotal, areaUnit, areaTotal, item.CodMatFabricante || '']
+        );
+        const novoIdRomaneioItem = insertResult.insertId;
+        // Atualiza ordemservicoitem com referências ao romaneio
+        await pool.execute(
+            `UPDATE ordemservicoitem
+             SET idRomaneio = ?, IdRomaneioItem = ?, QtdeRomaneio = ?, EnviadoParaRomaneio = 'S'
+             WHERE IdOrdemServicoItem = ?`,
+            [id, novoIdRomaneioItem, qtde, IdOrdemServicoItem]
         );
         await pool.execute(
             "INSERT INTO ordemservicoitemcontrole (IdOrdemServico, IdOrdemServicoItem, Processo, QtdeTotal, QtdeProduzida, Origem, CriadoPor, DataCriacao, D_E_L_E_T_E) VALUES (?, ?, 'Expedicao', ?, ?, 'Expedicao', ?, ?, '')",
@@ -904,7 +919,174 @@ app.put('/api/romaneio/item/:idRomaneioItem/observacao', async (req, res) => {
     }
 });
 
-// DELETE /api/romaneio/item/:idRomaneioItem - Delete item from romaneio with balance updates
+// POST /api/romaneio/item/:idRomaneioItem/estorno - Estorno de quantidade
+app.post('/api/romaneio/item/:idRomaneioItem/estorno', async (req, res) => {
+    const { idRomaneioItem } = req.params;
+    const { qtdeEstorno, usuario } = req.body;
+    let conn = null;
+    try {
+        const qtde = Number(qtdeEstorno);
+        if (!qtde || qtde <= 0) {
+            return res.status(400).json({ success: false, message: 'Quantidade de estorno inválida.' });
+        }
+
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // 1. Busca o item do romaneio com todos os dados necessários
+        const [rows] = await conn.execute(
+            `SELECT IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM,
+                    qtdeRomaneio, SaldoRomaneio, PesoUnitario, AreaPintura
+             FROM romaneioitem
+             WHERE IdRomaneioItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+             LIMIT 1`,
+            [idRomaneioItem]
+        );
+
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ success: false, message: 'Item não encontrado no romaneio.' });
+        }
+
+        const item = rows[0];
+        const qtdeAtual = Number(item.qtdeRomaneio || 0);
+        const saldoAtual = Number(item.SaldoRomaneio || 0);
+
+        // 2. Validação: qtdeEstorno <= qtdeRomaneio
+        if (qtde > qtdeAtual) {
+            await conn.rollback();
+            return res.status(400).json({
+                success: false,
+                message: `Quantidade de estorno (${qtde}) não pode ser maior que a quantidade no romaneio (${qtdeAtual}).`
+            });
+        }
+
+        const novaQtdeRomaneio = qtdeAtual - qtde;
+        const novoSaldo = saldoAtual + qtde;
+        const now = getCurrentDateTimeBR();
+
+        // 3. Atualiza romaneioitem
+        await conn.execute(
+            `UPDATE romaneioitem SET qtdeRomaneio = ?, SaldoRomaneio = ? WHERE IdRomaneioItem = ?`,
+            [novaQtdeRomaneio, novoSaldo, idRomaneioItem]
+        );
+
+        // 4. Registra em romaneioitemcontrole com Situacao = 'ESTORNO'
+        const pesoCalc = Number(item.PesoUnitario || 0) * qtde;
+        const areaCalc = Number(item.AreaPintura || 0) * qtde;
+
+        await conn.execute(
+            `INSERT INTO romaneioitemcontrole
+                (IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, Usuario, DataCriacao,
+                 qtdeUsuario, qtdeGrid, PesoUnitario, Pesocalculado, AreaPintura, AreaPinturaCalculada,
+                 Situacao, D_E_L_E_T_E)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ESTORNO', '')`,
+            [
+                idRomaneioItem,
+                item.IdRomaneio,
+                item.IDOrdemServicoITEM,
+                usuario || 'Sistema',
+                now,
+                qtde,
+                qtde,
+                item.PesoUnitario || 0,
+                pesoCalc,
+                item.AreaPintura || 0,
+                areaCalc
+            ]
+        );
+
+        await conn.commit();
+        console.log(`[Estorno] Item #${idRomaneioItem}: -${qtde} | Nova qtde: ${novaQtdeRomaneio} | Novo saldo: ${novoSaldo}`);
+        res.json({
+            success: true,
+            message: `Estorno de ${qtde} unidade(s) realizado com sucesso.`,
+            novaQtdeRomaneio,
+            novoSaldo
+        });
+
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error('[Estorno] Erro:', err);
+        res.status(500).json({ success: false, message: 'Erro interno ao processar estorno.' });
+    } finally {
+        if (conn) conn.release();
+    }
+});
+
+// POST /api/romaneio/item/:idRomaneioItem/alterar-qtde - Alterar (subtrair) qtdeUsuario e devolver saldo à OS
+app.post('/api/romaneio/item/:idRomaneioItem/alterar-qtde', async (req, res) => {
+    const { idRomaneioItem } = req.params;
+    const { qtdeAlterar, usuario } = req.body;
+    let conn = null;
+    try {
+        const qtde = Number(qtdeAlterar);
+        if (!qtde || qtde <= 0) {
+            return res.status(400).json({ success: false, message: 'Quantidade inválida.' });
+        }
+
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // 1. Busca o item do romaneio
+        const [rows] = await conn.execute(
+            `SELECT IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, qtdeUsuario
+             FROM romaneioitem
+             WHERE IdRomaneioItem = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+             LIMIT 1`,
+            [idRomaneioItem]
+        );
+
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ success: false, message: 'Item não encontrado no romaneio.' });
+        }
+
+        const item = rows[0];
+        const qtdeAtual = Number(item.qtdeUsuario || 0);
+
+        // 2. Validação: qtdeAlterar <= qtdeUsuario
+        if (qtde > qtdeAtual) {
+            await conn.rollback();
+            return res.status(400).json({
+                success: false,
+                message: `Quantidade (${qtde}) não pode ser maior que a qtde do item (${qtdeAtual}).`
+            });
+        }
+
+        const novaQtdeUsuario = qtdeAtual - qtde;
+
+        // 3. Atualiza qtdeUsuario no romaneioitem
+        await conn.execute(
+            `UPDATE romaneioitem SET qtdeUsuario = ?, qtdeGrid = ?, QtdeRomaneio = ? WHERE IdRomaneioItem = ?`,
+            [novaQtdeUsuario, novaQtdeUsuario, novaQtdeUsuario, idRomaneioItem]
+        );
+
+        // 4. Devolve a quantidade ao RomaneioSaldoEnviar da OS
+        await conn.execute(
+            `UPDATE ordemservicoitem
+             SET RomaneioSaldoEnviar = COALESCE(RomaneioSaldoEnviar, 0) + ?
+             WHERE IdOrdemServicoItem = ?`,
+            [qtde, item.IDOrdemServicoITEM]
+        );
+
+        await conn.commit();
+        console.log(`[AlterarQtde] Item #${idRomaneioItem}: qtdeUsuario ${qtdeAtual} -> ${novaQtdeUsuario} | +${qtde} devolvido ao saldo OS`);
+        res.json({
+            success: true,
+            message: `Quantidade alterada. Nova qtde: ${novaQtdeUsuario}. Saldo devolvido à OS: +${qtde}.`,
+            novaQtdeUsuario
+        });
+
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error('[AlterarQtde] Erro:', err);
+        res.status(500).json({ success: false, message: 'Erro ao processar alteração de quantidade.' });
+    } finally {
+        if (conn) conn.release();
+    }
+});
+
 app.delete('/api/romaneio/item/:idRomaneioItem', async (req, res) => {
     const { idRomaneioItem } = req.params;
     const { usuario } = req.query; // Pega o usuÃ¯Â¿Â½rio da query string ou header se disponÃ¯Â¿Â½vel
@@ -969,15 +1151,34 @@ app.delete('/api/romaneio/item/:idRomaneioItem', async (req, res) => {
             let totalEnviado = (osItemRows[0].RomaneioTotalEnviado || 0) - qtdeRemover;
             let saldoEnviar = (osItemRows[0].RomaneioSaldoEnviar || 0) + qtdeRemover;
 
-            // Garantir que nÃ¯Â¿Â½o fiquem negativos por erro de arredondamento ou dados prÃ¯Â¿Â½vios
+            // Garantir que não fiquem negativos por erro de arredondamento ou dados prévios
             totalEnviado = Math.max(0, totalEnviado);
 
-            const liberadoStatus = totalEnviado === 0 ? '' : 'S';
-
-            await connection.execute(
-                "UPDATE ordemservicoitem SET RomaneioTotalEnviado = ?, RomaneioSaldoEnviar = ?, EnviadoParaRomaneio = ? WHERE IdOrdemServicoItem = ?",
-                [totalEnviado, saldoEnviar, liberadoStatus, idOSItem]
-            );
+            if (totalEnviado === 0) {
+                // Item totalmente removido do romaneio → limpar todos os campos de referência
+                await connection.execute(
+                    `UPDATE ordemservicoitem
+                     SET RomaneioTotalEnviado = 0,
+                         RomaneioSaldoEnviar  = ?,
+                         EnviadoParaRomaneio  = '',
+                         idRomaneio           = NULL,
+                         IdRomaneioItem       = NULL,
+                         QtdeRomaneio         = NULL
+                     WHERE IdOrdemServicoItem = ?`,
+                    [saldoEnviar, idOSItem]
+                );
+                console.log(`[DELETE] OS Item #${idOSItem}: referências ao romaneio limpas.`);
+            } else {
+                // Ainda há quantidade enviada → apenas atualiza saldos
+                await connection.execute(
+                    `UPDATE ordemservicoitem
+                     SET RomaneioTotalEnviado = ?,
+                         RomaneioSaldoEnviar  = ?,
+                         EnviadoParaRomaneio  = 'S'
+                     WHERE IdOrdemServicoItem = ?`,
+                    [totalEnviado, saldoEnviar, idOSItem]
+                );
+            }
         }
 
         // 6. Recalcular Totais do Romaneio
@@ -1038,33 +1239,35 @@ app.post('/api/admin/shutdown', async (req, res) => {
 
 // POST /api/romaneio/open - Open Folder on Server
 app.post('/api/romaneio/open', async (req, res) => {
-    const { id } = req.body;
+    const { id, path: clientPath } = req.body;
     try {
-        // 1. Get Root Path Config
-        const [configRows] = await pool.execute(
-            "SELECT valor FROM configuracaosistema WHERE chave = 'EnderecoPastaRaizRomaneio' LIMIT 1"
-        );
+        let folderPath = clientPath || null;
 
-        if (configRows.length === 0) {
-            return res.status(400).json({ success: false, message: 'ConfiguraÃ¯Â¿Â½Ã¯Â¿Â½o EnderecoPastaRaizRomaneio nÃ¯Â¿Â½o encontrada.' });
+        // Se o frontend não enviou o path, busca no banco pelo id
+        if (!folderPath && id) {
+            const [rows] = await pool.execute(
+                "SELECT ENDERECORomaneio FROM romaneio WHERE idRomaneio = ? LIMIT 1",
+                [id]
+            );
+            if (rows.length > 0 && rows[0].ENDERECORomaneio) {
+                folderPath = rows[0].ENDERECORomaneio;
+            }
         }
 
-        const rootPath = configRows[0].valor;
+        if (!folderPath) {
+            return res.status(400).json({ success: false, message: 'Caminho da pasta não definido para este romaneio.' });
+        }
 
-        // 2. Construct Folder Path (RO_paddedId)
-        const paddedId = String(id).padStart(4, '0');
-        const folderPath = `${rootPath}\\RO_${paddedId}`;
-
-        console.log(`[Action] Attempting to open Romaneio folder: ${folderPath}`);
+        console.log(`[Action] Abrindo pasta do Romaneio #${id}: ${folderPath}`);
 
         if (!fs.existsSync(folderPath)) {
-            return res.status(404).json({ success: false, message: `Pasta nÃ¯Â¿Â½o encontrada no servidor: ${folderPath}` });
+            return res.status(404).json({ success: false, message: `Pasta não encontrada no servidor: ${folderPath}` });
         }
 
-        // Execute command to open folder (Windows)
+        // Abre no Windows Explorer
         require('child_process').exec(`start "" "${folderPath}"`, (err) => {
             if (err) {
-                console.error('Error opening folder:', err);
+                console.error('Erro ao abrir pasta:', err);
             }
         });
 
@@ -1137,16 +1340,20 @@ app.post('/api/romaneio', async (req, res) => {
         // Let's interpret "\RO_" as a prefix for the folder name.
         // If ID=10, Path = Root\RO_0010 (padded).
 
-        const paddedId = String(newId).padStart(4, '0'); // User example '0001' implies 4 digits
-        // Using straight backslashes for Windows path
+        const paddedId = String(newId).padStart(4, '0'); // 4 digits: 0001, 0023, etc.
         const folderPath = `${rootPath}\\RO_${paddedId}`;
 
-        // Note: User said "exemplo: ...\RO\0001". If they meant a subfolder "RO", the formula would be "\RO\" & ID.
-        // But they wrote "\RO_" & ID. I'm checking the previous code...
-        // Previous code was `RO_${paddedId}\PDF`.
-        // I will stick to `RO_${paddedId}` as the main folder for the Romaneio.
+        // 4. Criar pasta fisicamente no disco
+        try {
+            fs.mkdirSync(folderPath, { recursive: true });
+            fs.mkdirSync(`${folderPath}\\PDF`, { recursive: true });
+            console.log(`[Romaneio] Pasta criada: ${folderPath}`);
+        } catch (mkdirErr) {
+            // Nao bloqueia a criacao do romaneio se a pasta falhar (ex: drive nao mapeado)
+            console.error(`[Romaneio] Erro ao criar pasta ${folderPath}:`, mkdirErr.message);
+        }
 
-        // 4. Update with Path
+        // 5. Salvar caminho no banco
         await conn.execute(
             "UPDATE romaneio SET ENDERECORomaneio = ? WHERE idRomaneio = ?",
             [folderPath, newId]
@@ -1494,7 +1701,7 @@ app.put('/api/romaneio/:id/action', async (req, res) => {
 app.get('/api/romaneio-retorno/items', async (req, res) => {
     const { romaneio, projeto, tag, numDoc, mostrarConcluidos } = req.query;
     try {
-        let sql = `SELECT * FROM viewromaneioitem WHERE 1=1`;
+        let sql = `SELECT * FROM view_retorno_itens WHERE 1=1`;
         const params = [];
 
         if (romaneio) {
@@ -1514,7 +1721,7 @@ app.get('/api/romaneio-retorno/items', async (req, res) => {
             params.push(`%${numDoc}%`);
         }
 
-        // Se 'mostrarConcluidos' nÃ¯Â¿Â½o for true, filtra apenas os que nÃ¯Â¿Â½o foram finalizados
+        // Se 'mostrarConcluidos' nao for true, filtra apenas os nao finalizados
         if (mostrarConcluidos !== 'true') {
             sql += ` AND (MarcarComoFinalizado IS NULL OR MarcarComoFinalizado != 'S')`;
         }
@@ -1588,6 +1795,54 @@ app.post('/api/romaneio-retorno/process', async (req, res) => {
         await connection.rollback();
         console.error('[RETORNO] Erro ao processar:', error);
         res.status(500).json({ success: false, message: error.message || 'Erro ao processar retorno.' });
+    } finally {
+        connection.release();
+    }
+});
+
+// POST /api/romaneio-retorno/registrar-retorno — Registra qtde de retorno em romaneioitemcontrole
+app.post('/api/romaneio-retorno/registrar-retorno', async (req, res) => {
+    const { idRomaneioItem, idRomaneio, qtdeGrid, usuario, nomeCompleto } = req.body;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Buscar dados do item — usa qtdeUsuario como quantidade enviada real
+        const [itemRows] = await connection.execute(
+            'SELECT qtdeUsuario AS QtdeEnviada, QtdeTotalRetorno, IDOrdemServicoITEM FROM romaneioitem WHERE IdRomaneioItem = ?',
+            [idRomaneioItem]
+        );
+        if (itemRows.length === 0) throw new Error('Item do romaneio não encontrado.');
+
+        const item = itemRows[0];
+        const qtdeEnviada = Number(item.QtdeEnviada) || 0;
+        const qtde = Number(qtdeGrid);
+
+        // 2. Validar quantidade
+        if (!qtde || qtde <= 0) throw new Error('Quantidade deve ser maior que zero.');
+        if (qtde > qtdeEnviada) throw new Error(`Quantidade (${qtde}) não pode ser maior que a quantidade enviada (${qtdeEnviada}).`);
+
+        // 3. Inserir em romaneioitemcontrole com qtdeUsuario, IdRomaneio, DataRetorno, UsuarioRetorno e Situacao = RETORNO
+        await connection.execute(
+            `INSERT INTO romaneioitemcontrole
+             (IdRomaneioItem, IdRomaneio, IDOrdemServicoITEM, qtdeUsuario, DataRetorno, UsuarioRetorno, DataCriacao, Usuario, Situacao)
+             VALUES (?, ?, ?, ?, CURDATE(), ?, NOW(), ?, 'RETORNO')`,
+            [idRomaneioItem, idRomaneio, item.IDOrdemServicoITEM, qtde, nomeCompleto, nomeCompleto]
+        );
+
+        // 4. Atualizar saldo de retorno no romaneioitem
+        const novaQtdeRetorno = (Number(item.QtdeTotalRetorno) || 0) + qtde;
+        await connection.execute(
+            "UPDATE romaneioitem SET QtdeTotalRetorno = ?, Situacao = 'RETORNO' WHERE IdRomaneioItem = ?",
+            [novaQtdeRetorno, idRomaneioItem]
+        );
+
+        await connection.commit();
+        res.json({ success: true, message: `Retorno de ${qtde} peça(s) registrado com sucesso.` });
+    } catch (error) {
+        await connection.rollback();
+        console.error('[REGISTRAR-RETORNO]', error.message);
+        res.status(400).json({ success: false, message: error.message || 'Erro ao registrar retorno.' });
     } finally {
         connection.release();
     }
@@ -1670,14 +1925,14 @@ app.get('/api/romaneio-retorno/controle/:idOrdemServicoItem', async (req, res) =
 // POST /api/romaneio-retorno/estorno/:idControle - Estorna um registro de romaneioitemcontrole
 app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
     const { idControle } = req.params;
-    const { usuario } = req.body;
+    const { usuario, observacao, qtdeEstorno } = req.body;
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
 
         // 1. Buscar o registro de controle
         const [ctrlRows] = await connection.execute(
-            `SELECT idromaneioitemcontrole, IdRomaneioItem, QtdeIdentificadores, QtdeUsuario, Situacao
+            `SELECT idromaneioitemcontrole, IdRomaneioItem, qtdeUsuario, Situacao
              FROM romaneioitemcontrole WHERE idromaneioitemcontrole = ?`,
             [idControle]
         );
@@ -1688,8 +1943,10 @@ app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
             throw new Error('Este registro já foi estornado.');
         }
 
-        // Quantidade a devolver: qtdeusuario do controle
-        const qtdeDevolucao = Number(ctrl.QtdeUsuario || ctrl.QtdeIdentificadores || 0);
+        // Quantidade a devolver: usa qtdeEstorno digitado pelo usuário (validado no frontend)
+        const maxQtde = Number(ctrl.qtdeUsuario || 0);
+        const qtdeDevolucao = qtdeEstorno ? Math.min(Number(qtdeEstorno), maxQtde) : maxQtde;
+        if (qtdeDevolucao <= 0) throw new Error('Quantidade de estorno inválida.');
 
         // 2. Acrescentar qtdeusuario de volta ao romaneioitem
         const [itemRows] = await connection.execute(
@@ -1704,10 +1961,10 @@ app.post('/api/romaneio-retorno/estorno/:idControle', async (req, res) => {
             );
         }
 
-        // 3. Marcar o registro de controle como ESTORNO
+        // 3. Marcar o registro de controle como ESTORNO e salvar Observacao
         await connection.execute(
-            `UPDATE romaneioitemcontrole SET Situacao = 'ESTORNO', UsuarioLogado = ? WHERE idromaneioitemcontrole = ?`,
-            [usuario || 'Sistema', idControle]
+            `UPDATE romaneioitemcontrole SET Situacao = 'ESTORNO', Usuario = ?, Observacao = ? WHERE idromaneioitemcontrole = ?`,
+            [usuario || 'Sistema', observacao || '', idControle]
         );
 
         await connection.commit();
