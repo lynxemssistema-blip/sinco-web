@@ -20,7 +20,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, menuItems, activePageId, activeLabel, onNavigate, onLogout, user }: AppLayoutProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [isDark, setIsDark] = useState(false);
     const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
@@ -144,7 +144,11 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             toggleExpand(item.id);
                         } else {
                             onNavigate(item.id);
-                            if (isMobile) setIsMobileMenuOpen(false);
+                            if (isMobile) {
+                                setIsMobileMenuOpen(false);
+                            } else {
+                                setIsSidebarCollapsed(true);
+                            }
                         }
                     }}
                     className={cn(
@@ -284,7 +288,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         <div className="h-screen overflow-hidden bg-background transition-colors duration-500 flex font-sans">
             {/* Desktop Sidebar (Glassmorphism) */}
             <aside className={cn(
-                "hidden md:flex bg-card border-r border-border fixed inset-y-0 left-0 z-30 shadow-lg flex-col transition-all duration-400 ease-in-out h-full",
+                "hidden md:flex bg-card border-r border-border fixed inset-y-0 left-0 z-50 shadow-lg flex-col transition-all duration-400 ease-in-out h-full",
                 isSidebarCollapsed ? "w-20" : "w-72"
             )}>
                 {SidebarContent({ scrollRef: sidebarScrollRef, isCollapsed: isSidebarCollapsed })}
@@ -335,7 +339,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
 
             {/* Main Content Area */}
             <main className={cn(
-                "pt-16 md:pt-0 h-full flex-1 flex flex-col min-h-0 transition-all duration-400 ease-in-out bg-background relative z-40 overflow-hidden",
+                "pt-16 md:pt-0 h-full flex-1 flex flex-col min-h-0 transition-all duration-400 ease-in-out bg-background relative z-30 overflow-hidden",
                 isSidebarCollapsed ? "md:ml-20" : "md:ml-72"
             )}>
                 {/* Floating Decorative Blur */}

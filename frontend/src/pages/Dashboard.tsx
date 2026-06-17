@@ -111,7 +111,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
             variants={container}
             initial="hidden"
             animate="show"
-            className="space-y-6 pb-8 relative max-w-7xl mx-auto"
+            className="space-y-6 pb-8 relative max-w-full mx-auto"
         >
             {/* Background Blurs */}
             <div className="absolute top-20 right-[-10%] w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
