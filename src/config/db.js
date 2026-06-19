@@ -73,6 +73,8 @@ const getPool = () => {
   return defaultPool;
 };
 
+const verifiedTablesCache = new Map();
+
 const execute = async (sql, params, retries = 1) => {
   const pool = getPool();
   if (!pool) {
@@ -81,6 +83,36 @@ const execute = async (sql, params, retries = 1) => {
 
   const SLOW_QUERY_MS = parseInt(process.env.SLOW_QUERY_MS) || 200;
   const cleanSql = sql.replace(/\s+/g, ' ').trim();
+
+  // --- IdMatriz Global Interceptor ---
+  const store = asyncLocalStorage.getStore();
+  if (store && store.dbName && store.tenantId) {
+    // Basic regex to find table name in INSERT INTO or UPDATE
+    const match = cleanSql.match(/^(?:INSERT\s+INTO|UPDATE)\s+`?([a-zA-Z0-9_]+)`?/i);
+    if (match) {
+      const tableName = match[1];
+      const cacheKey = store.dbName + '_' + tableName;
+      
+      if (!verifiedTablesCache.has(cacheKey)) {
+        try {
+          const [cols] = await pool.execute(`SHOW COLUMNS FROM \`${tableName}\` LIKE 'IdMatriz'`);
+          if (cols.length === 0) {
+            console.log(`[DB] Injecting IdMatriz into table: ${tableName} for tenant ${store.tenantId}`);
+            await pool.execute(`ALTER TABLE \`${tableName}\` ADD COLUMN IdMatriz INT DEFAULT ${store.tenantId}`);
+            
+            // Asynchronously populate existing rows if it's an UPDATE that might affect rows without IdMatriz
+            if (cleanSql.toUpperCase().startsWith('UPDATE')) {
+              pool.execute(`UPDATE \`${tableName}\` SET IdMatriz = ${store.tenantId} WHERE IdMatriz IS NULL`).catch(e => console.error(`[DB] Async IdMatriz update failed:`, e.message));
+            }
+          }
+          verifiedTablesCache.set(cacheKey, true);
+        } catch (e) {
+          console.error(`[DB] Failed to verify/inject IdMatriz for table ${tableName}:`, e.message);
+        }
+      }
+    }
+  }
+  // --- End Interceptor ---
 
   try {
     const start = Date.now();

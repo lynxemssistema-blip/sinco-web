@@ -2026,7 +2026,7 @@ async function authenticateCentralUser(login, password) {
         // Use LEFT JOIN to allow users without tenant (global) - though logic below assumes tenantConfig.
         const [rows] = await connection.execute(
             `SELECT u.id, u.login, u.id_usuario_origem, u.superadmin,
-                    c.nome_cliente, c.db_host, c.db_user, c.db_pass, c.db_name, c.db_port 
+                    c.id as id_conexao_banco, c.nome_cliente, c.db_host, c.db_user, c.db_pass, c.db_name, c.db_port 
              FROM usuarios_central u
              LEFT JOIN conexoes_bancos c ON u.id_conexao_banco = c.id
              WHERE u.login = ? AND u.senha = ? AND (c.ativo = 1 OR c.id IS NULL) AND (u.ativo = 1 OR u.ativo IS NULL)`,
@@ -2038,6 +2038,7 @@ async function authenticateCentralUser(login, password) {
             return {
                 found: true,
                 tenantConfig: user.db_host ? {
+                    id: user.id_conexao_banco,
                     host: user.db_host,
                     user: user.db_user,
                     password: user.db_pass,
@@ -2093,7 +2094,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     role: role,
                     nomeCompleto: user.NomeCompleto,
                     dbName: banco,
-                    isSuperadmin: isSuperFinal
+                    isSuperadmin: isSuperFinal,
+                    tenantId: centralAuth?.tenantConfig?.id
                 }, JWT_SECRET, { expiresIn: '12h' });
 
                 return res.json({
@@ -2146,7 +2148,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             role: role,
                             nomeCompleto: user.NomeCompleto,
                             dbName: centralAuth.tenantConfig.database,
-                            isSuperadmin: centralAuth.isSuperadmin
+                            isSuperadmin: centralAuth.isSuperadmin,
+                            tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
                         return res.json({
@@ -2173,7 +2176,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             login: login,
                             role: 'user',
                             dbName: centralAuth.tenantConfig.database,
-                            isSuperadmin: centralAuth.isSuperadmin
+                            isSuperadmin: centralAuth.isSuperadmin,
+                            tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
                         return res.json({
@@ -2201,7 +2205,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                         login: login,
                         role: 'admin',
                         dbName: 'lynxlocal', // Default central
-                        isSuperadmin: true
+                        isSuperadmin: true,
+                        tenantId: 1
                     }, JWT_SECRET, { expiresIn: '12h' });
 
                     return res.json({
@@ -2244,7 +2249,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 role: role,
                 mapaProducao: user.MapaProducao,
                 dbName: 'lynxlocal',
-                isSuperadmin: isSuperFinal
+                isSuperadmin: isSuperFinal,
+                tenantId: 1
             }, JWT_SECRET, { expiresIn: '12h' });
 
             return res.json({
@@ -2477,7 +2483,7 @@ app.post('/api/superadmin/switch-db', async (req, res) => {
 // List Tenant Databases
 app.get('/api/admin/databases', authenticateAdmin, async (req, res) => {
     try {
-        const [rows] = await pool.executeOnDefault('SELECT * FROM conexoes_bancos ORDER BY id DESC', []);
+        const [rows] = await pool.executeOnDefault('SELECT * FROM conexoes_bancos ORDER BY nome_cliente ASC', []);
         res.json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error fetching databases: ' + error.message });
@@ -2560,16 +2566,16 @@ app.post('/api/admin/sync-users/:dbId', authenticateAdmin, async (req, res) => {
 
             if (existing.length === 0) {
                 await centralConn.execute(
-                    `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo) 
-                     VALUES (?, ?, ?, ?, ?)`,
-                    [user.Login, user.Senha, dbId, user.idUsuario, isAtivo]
+                    `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo, IdMatriz) 
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [user.Login, user.Senha, dbId, user.idUsuario, isAtivo, user.IdMatriz || null]
                 );
                 syncedCount++;
             } else {
                 await centralConn.execute(
-                    `UPDATE usuarios_central SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ? 
+                    `UPDATE usuarios_central SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ?, IdMatriz = ? 
                      WHERE id = ?`,
-                    [user.Senha, dbId, user.idUsuario, isAtivo, existing[0].id]
+                    [user.Senha, dbId, user.idUsuario, isAtivo, user.IdMatriz || null, existing[0].id]
                 );
                 updatedCount++;
             }
@@ -2586,8 +2592,7 @@ app.post('/api/admin/sync-users/:dbId', authenticateAdmin, async (req, res) => {
     }
 });
 
-// Sincronizar TODOS os clientes
-app.post('/api/admin/sync-all', authenticateAdmin, async (req, res) => {
+async function runGlobalUserSync() {
     let centralConn;
     try {
         centralConn = await mysql.createConnection(CENTRAL_DB_CONFIG);
@@ -2623,16 +2628,16 @@ app.post('/api/admin/sync-all', authenticateAdmin, async (req, res) => {
 
                     if (existing.length === 0) {
                         await centralConn.execute(
-                            `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo) 
-                             VALUES (?, ?, ?, ?, ?)`,
-                            [user.Login, user.Senha, dbConfig.id, user.idUsuario, isAtivo]
+                            `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo, IdMatriz) 
+                             VALUES (?, ?, ?, ?, ?, ?)`,
+                            [user.Login, user.Senha, dbConfig.id, user.idUsuario, isAtivo, user.IdMatriz || null]
                         );
                         totalCreated++;
                     } else {
                         await centralConn.execute(
-                            `UPDATE usuarios_central SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ? 
+                            `UPDATE usuarios_central SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ?, IdMatriz = ? 
                              WHERE id = ?`,
-                            [user.Senha, dbConfig.id, user.idUsuario, isAtivo, existing[0].id]
+                            [user.Senha, dbConfig.id, user.idUsuario, isAtivo, user.IdMatriz || null, existing[0].id]
                         );
                         totalUpdated++;
                     }
@@ -2645,19 +2650,32 @@ app.post('/api/admin/sync-all', authenticateAdmin, async (req, res) => {
             }
         }
 
-        res.json({ 
-            success: true, 
-            message: `Sincronização Global Concluída. ${totalCreated} criados, ${totalUpdated} atualizados. Erros: ${errors.length}`,
-            details: { created: totalCreated, updated: totalUpdated, errors }
-        });
+        console.log(`[BACKGROUND SYNC] Concluído. ${totalCreated} criados, ${totalUpdated} atualizados. Erros: ${errors.length}`);
+        return { success: true, message: `Sincronização Global Concluída. ${totalCreated} criados, ${totalUpdated} atualizados. Erros: ${errors.length}`, details: { created: totalCreated, updated: totalUpdated, errors } };
 
     } catch (error) {
-        console.error('Global Sync Error:', error);
-        res.status(500).json({ success: false, message: 'Erro na sincronização global: ' + error.message });
+        console.error('[BACKGROUND SYNC] Global Sync Error:', error);
+        return { success: false, message: 'Erro na sincronização global: ' + error.message };
     } finally {
         if (centralConn) await centralConn.end();
     }
+}
+
+// Sincronizar TODOS os clientes (API Trigger)
+app.post('/api/admin/sync-all', authenticateAdmin, async (req, res) => {
+    const result = await runGlobalUserSync();
+    if (result.success) {
+        res.json(result);
+    } else {
+        res.status(500).json(result);
+    }
 });
+
+// Iniciar a checagem a cada 10 horas (36000000 ms)
+setInterval(async () => {
+    console.log('[BACKGROUND SYNC] Iniciando sincronização automática de usuários (10h)...');
+    await runGlobalUserSync();
+}, 10 * 60 * 60 * 1000);
 
 
 // List Central Users
@@ -2807,17 +2825,17 @@ async function syncUserToCentral(userData, tenantDbHost = null, tenantDbName = n
             // Update existing
             await centralConn.execute(
                 `UPDATE usuarios_central 
-                 SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ?, updated_at = NOW()
+                 SET senha = ?, id_conexao_banco = ?, id_usuario_origem = ?, ativo = ?, IdMatriz = ?, updated_at = NOW()
                  WHERE id = ?`,
-                [userData.Senha, idConexaoBanco, userData.idUsuario, isAtivo, existingUser[0].id]
+                [userData.Senha, idConexaoBanco, userData.idUsuario, isAtivo, userData.IdMatriz || null, existingUser[0].id]
             );
             console.log(`[SYNC] Updated user in central: ${userData.Login} (ativo: ${isAtivo})`);
         } else {
             // Insert new
             await centralConn.execute(
-                `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo)
-                 VALUES (?, ?, ?, ?, ?)`,
-                [userData.Login, userData.Senha, idConexaoBanco, userData.idUsuario, isAtivo]
+                `INSERT INTO usuarios_central (login, senha, id_conexao_banco, id_usuario_origem, ativo, IdMatriz)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [userData.Login, userData.Senha, idConexaoBanco, userData.idUsuario, isAtivo, userData.IdMatriz || null]
             );
             console.log(`[SYNC] Inserted new user to central: ${userData.Login} (ativo: ${isAtivo})`);
         }
