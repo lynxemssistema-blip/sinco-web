@@ -4250,6 +4250,106 @@ app.delete('/api/peca-manufaturada/composicao/:idMontaPeca', async (req, res) =>
     }
 });
 
+// 6. GET /api/peca-manufaturada/processos - Lista processos de fabricação
+app.get('/api/peca-manufaturada/processos', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(
+            "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao"
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching processos fabricacao:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar processos: ' + error.message });
+    }
+});
+
+// 7. POST /api/peca-manufaturada/material-processo - Salva processos do produto buscando IdMaterial pelo codmatFabricante
+app.post('/api/peca-manufaturada/material-processo', async (req, res) => {
+    try {
+        const { processos, codmatFabricante, idMatriz, usuarioCriacao, replace } = req.body;
+        if (!processos || !Array.isArray(processos) || processos.length === 0) {
+            return res.status(400).json({ success: false, message: 'Nenhum processo informado.' });
+        }
+
+        // Modo manutenção: apaga registros existentes antes de reinserir
+        if (replace && codmatFabricante) {
+            await pool.execute(
+                'DELETE FROM material_processo WHERE codmatFabricante = ?',
+                [codmatFabricante]
+            );
+        }
+
+        // Busca IdMaterial na tabela material pelo codmatFabricante
+        let idMaterial = 0;
+        if (codmatFabricante) {
+            const [matRows] = await pool.execute(
+                "SELECT IdMaterial FROM material WHERE CodMatFabricante = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') LIMIT 1",
+                [codmatFabricante]
+            );
+            if (matRows.length > 0) {
+                idMaterial = matRows[0].IdMaterial;
+            } else {
+                console.warn(`[material-processo] CodMatFabricante '${codmatFabricante}' não encontrado na tabela material.`);
+            }
+        }
+
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const nowFormat = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const insertedIds = [];
+        for (const p of processos) {
+            const [result] = await pool.execute(
+                `INSERT INTO material_processo (IdMaterial, IdProcesso, SequenciaExecucao, TempoEstimadoMin, TempoPadraoMin, Ativo, Observacao, DataCriacao, UsuarioCriacao, codmatFabricante, IdMatriz)
+                 VALUES (?, ?, ?, ?, ?, 'A', ?, ?, ?, ?, ?)`,
+                [
+                    idMaterial,
+                    p.IdProcesso,
+                    p.SequenciaExecucao,
+                    p.TempoEstimadoMin != null ? p.TempoEstimadoMin : null,
+                    p.TempoPadraoMin != null ? p.TempoPadraoMin : null,
+                    p.Observacao || null,
+                    nowFormat,
+                    usuarioCriacao || 'Sistema',
+                    codmatFabricante || '',
+                    idMatriz || null
+                ]
+            );
+            insertedIds.push(result.insertId);
+        }
+        res.json({ success: true, message: `${insertedIds.length} processo(s) salvo(s) com sucesso.`, ids: insertedIds, idMaterial });
+    } catch (error) {
+        console.error('Error saving material_processo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao salvar processos: ' + error.message });
+    }
+});
+
+// 8. GET /api/peca-manufaturada/processos-existentes/:codmatFabricante
+app.get('/api/peca-manufaturada/processos-existentes/:codmatFabricante', async (req, res) => {
+    try {
+        const { codmatFabricante } = req.params;
+        const [rows] = await pool.execute(
+            `SELECT
+                mp.IdProcesso,
+                mp.SequenciaExecucao,
+                mp.TempoPadraoMin,
+                mp.Ativo,
+                mp.Observacao,
+                mp.DataCriacao,
+                mp.UsuarioCriacao,
+                COALESCE(pf.ProcessoFabricacao, CONCAT('Processo #', mp.IdProcesso)) AS NomeProcesso
+             FROM material_processo mp
+             LEFT JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
+             WHERE mp.codmatFabricante = ?
+             ORDER BY mp.SequenciaExecucao ASC`,
+            [codmatFabricante]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching processos existentes:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar processos: ' + error.message });
+    }
+});
+
 // --- CRUD: Projetos ---
 // LIST (Read All) 
 app.get('/api/projeto', async (req, res) => {

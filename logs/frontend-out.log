@@ -2612,3 +2612,30 @@
 16/06/2026 14:15:28:   dev-dist/workbox-5a5d9309.js
 16/06/2026 14:17:10: [2m14:17:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
 16/06/2026 14:33:04: [2m14:33:04[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+22/06/2026 09:29:30: [ViteWrapper] Iniciando Vite em: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend
+22/06/2026 09:29:33: 
+22/06/2026 09:29:33:   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m465[22m[2m[0m ms[22m
+22/06/2026 09:29:33: 
+22/06/2026 09:29:33:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+22/06/2026 09:29:33:   [32m➜[39m  [1mNetwork[22m: [36mhttp://169.254.191.204:[1m5173[22m/[39m
+22/06/2026 09:29:33:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.8:[1m5173[22m/[39m
+22/06/2026 09:30:18: 
+22/06/2026 09:30:18: PWA v1.2.0
+22/06/2026 09:30:18: mode      generateSW
+22/06/2026 09:30:18: precache  2 entries (0.12 KiB)
+22/06/2026 09:30:18: files generated
+22/06/2026 09:30:18:   dev-dist/sw.js
+22/06/2026 09:30:18:   dev-dist/workbox-5a5d9309.js
+22/06/2026 10:00:54: [2m10:00:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 10:21:40: [2m10:21:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 11:45:13: [2m11:45:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 11:45:38: [2m11:45:38[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 11:51:53: [2m11:51:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/ProcessoFabricacaoModal.tsx[22m
+22/06/2026 11:55:59: [2m11:55:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/ProcessoFabricacaoModal.tsx[22m
+22/06/2026 13:50:24: [2m13:50:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/ProcessoFabricacaoModal.tsx[22m
+22/06/2026 15:04:53: [2m15:04:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 15:29:13: [2m15:29:13[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 15:37:18: [2m15:37:18[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 15:43:21: [2m15:43:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/ProcessoFabricacaoModal.tsx[22m
+22/06/2026 15:44:41: [2m15:44:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m
+22/06/2026 15:46:36: [2m15:46:36[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontaPecaManufaturada.tsx, /src/index.css[22m

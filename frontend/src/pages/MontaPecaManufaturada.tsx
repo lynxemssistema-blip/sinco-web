@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Package, Layers, Plus, Trash2, ArrowRight, X, Eraser } from 'lucide-react';
+import { Search, Loader2, Package, Layers, Plus, Trash2, ArrowRight, X, Eraser, Settings, Wrench } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import ProcessoFabricacaoModal from '../components/ProcessoFabricacaoModal';
 
 const API_BASE = '/api/peca-manufaturada';
 
 export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usuario?: string }) {
+    const { user } = useAuth();
+    const [processoModalDesenho, setProcessoModalDesenho] = useState<any | null>(null);
+    const [processoMaintenanceDesenho, setProcessoMaintenanceDesenho] = useState<any | null>(null);
+    const [checkingProducto, setCheckingProducto] = useState(false);
+    const [processosExistentes, setProcessosExistentes] = useState<any[]>([]);
+    const [loadingProcessos, setLoadingProcessos] = useState(false);
+    const [isExistingProduct, setIsExistingProduct] = useState(false);
     const [desenhos, setDesenhos] = useState<any[]>([]);
     const [pecas, setPecas] = useState<any[]>([]);
     const [composicao, setComposicao] = useState<any[]>([]);
@@ -106,6 +115,74 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
         setPesqComposicaoCod('');
         setPesqComposicaoDesc('');
         fetchComposicao(desenho.IdMaterial);
+        // Sempre mostra painel de processos (Grid 2 ou após modal)
+        setIsExistingProduct(true);
+        fetchProcessosExistentes(desenho.CodMatFabricante);
+    };
+
+    const fetchProcessosExistentes = async (codmatFabricante: string) => {
+        setLoadingProcessos(true);
+        try {
+            const res = await fetch(`${API_BASE}/processos-existentes/${encodeURIComponent(codmatFabricante)}`);
+            const json = await res.json();
+            if (json.success) setProcessosExistentes(json.data);
+        } catch (e) { console.error(e); }
+        finally { setLoadingProcessos(false); }
+    };
+
+    // Abre modal de processos ao clicar em Desenho (Grid 1)
+    // Se já for produto manufaturado (tem composição), vai direto ao Grid 3
+    const handleDesenhoClick = async (desenho: any) => {
+        setCheckingProducto(true);
+        try {
+            const res = await fetch(`${API_BASE}/composicao/${desenho.IdMaterial}`);
+            const json = await res.json();
+            const jaEhProduto = json.success && json.data && json.data.length > 0;
+            if (jaEhProduto) {
+                // Já é peça manufaturada: vai direto ao Grid 3
+                setIsExistingProduct(true);
+                setSelectedDesenho(desenho);
+                setActiveTab('composicao');
+                setPesqComposicaoCod('');
+                setPesqComposicaoDesc('');
+                setComposicao(json.data);
+                fetchProcessosExistentes(desenho.CodMatFabricante);
+            } else {
+                // Novo: abre modal de processos
+                setIsExistingProduct(false);
+                setProcessosExistentes([]);
+                setProcessoModalDesenho(desenho);
+            }
+        } catch {
+            setIsExistingProduct(false);
+            setProcessoModalDesenho(desenho);
+        } finally {
+            setCheckingProducto(false);
+        }
+    };
+
+    const handleProcessoModalConfirm = (desenho: any) => {
+        setProcessoModalDesenho(null);
+        handleSelectDesenho(desenho);
+    };
+
+    const handleProcessoModalCancel = () => {
+        setProcessoModalDesenho(null);
+    };
+
+    // Manutenção de processos (abre sem mudar o produto selecionado)
+    const handleManutencaoProcessos = () => {
+        if (selectedDesenho) setProcessoMaintenanceDesenho(selectedDesenho);
+    };
+
+    const handleMaintenanceConfirm = () => {
+        setProcessoMaintenanceDesenho(null);
+        // Recarrega processos após manutenção
+        if (selectedDesenho) fetchProcessosExistentes(selectedDesenho.CodMatFabricante);
+    };
+
+    const handleMaintenanceCancel = () => {
+        setProcessoMaintenanceDesenho(null);
     };
 
     // Filtro local para composição (já que trazemos todos os itens da receita)
@@ -163,26 +240,30 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
 
     return (
         <div className="h-full flex flex-col min-h-0 bg-gray-50 rounded-xl overflow-hidden shadow-sm border border-gray-200">
-            {/* Header */}
-            <div className="flex items-center justify-between p-2 px-4 bg-white border-b border-gray-200 shrink-0">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#32423D] flex items-center justify-center text-[#E0E800]">
-                        <Layers size={16} />
-                    </div>
-                    <div>
-                        <h2 className="text-base font-bold text-[#32423D] leading-tight">Monta Peça Manufaturada</h2>
-                        <p className="text-[10px] text-gray-500 leading-tight">Composição e Receita de Peças</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
+            {/* Modal de Processos de Fabricação */}
+            {processoModalDesenho && (
+                <ProcessoFabricacaoModal
+                    desenho={processoModalDesenho}
+                    onConfirm={handleProcessoModalConfirm}
+                    onCancel={handleProcessoModalCancel}
+                />
+            )}
+            {/* Modal de Manutenção de Processos (aberto a partir do Grid 3) */}
+            {processoMaintenanceDesenho && (
+                <ProcessoFabricacaoModal
+                    desenho={processoMaintenanceDesenho}
+                    onConfirm={handleMaintenanceConfirm}
+                    onCancel={handleMaintenanceCancel}
+                    processosIniciais={processosExistentes}
+                />
+            )}
+            {/* Main Content — 3 columns side by side */}
             <div className="flex-1 flex min-h-0">
-                {/* LEFT PANEL: Desenhos */}
-                <div className="w-1/3 min-w-[300px] border-r border-gray-200 bg-white flex flex-col h-full">
+                {/* COLUMN 1: Desenhos */}
+                <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col h-full min-w-0">
                     <div className="p-3 border-b border-gray-100 bg-gray-50/50">
                         <h3 className="text-sm font-bold text-gray-700 mb-2 uppercase flex items-center gap-2">
-                            <Package size={16} /> Peças Manufaturadas (Desenhos)
+                            <Package size={16} /> Produtos (Desenhos)
                         </h3>
                         <div className="flex gap-1 mb-1">
                             <div className="relative w-1/3">
@@ -245,7 +326,7 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                     {desenhos.map(d => (
                                         <tr 
                                             key={d.IdMaterial} 
-                                            onClick={() => handleSelectDesenho(d)}
+                                            onClick={() => handleDesenhoClick(d)}
                                             className={`cursor-pointer hover:bg-gray-50 transition-colors ${selectedDesenho?.IdMaterial === d.IdMaterial ? 'bg-[#E0E800]/10 border-l-2 border-[#32423D]' : 'border-l-2 border-transparent'}`}
                                         >
                                             <td className="p-1.5 px-2 font-mono text-[#32423D] font-bold">{d.CodMatFabricante}</td>
@@ -258,17 +339,14 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: Peças Manufaturadas & Composition */}
-                <div className="flex-1 flex flex-col min-w-0 bg-gray-50 border-l border-gray-200">
-                    
-                    {/* TOP RIGHT PANEL: Peças Manufaturadas */}
-                    <div className="h-1/2 border-b border-gray-200 bg-white flex flex-col">
-                        <div className="p-2 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                            <h3 className="text-sm font-bold text-gray-700 uppercase flex items-center gap-2">
-                                <Package size={16} /> Peças Manufaturadas
+                {/* COLUMN 2: Peças Manufaturadas */}
+                <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col h-full min-w-0">
+                        <div className="p-3 border-b border-gray-100 bg-gray-50/50">
+                            <h3 className="text-sm font-bold text-gray-700 mb-2 uppercase flex items-center gap-2">
+                                <Package size={16} /> Produtos
                             </h3>
                             <div className="flex gap-1">
-                                <div className="relative w-32">
+                                <div className="relative w-1/3">
                                     <input
                                         type="text"
                                         placeholder="Cód. Material..."
@@ -281,7 +359,7 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                         <button onClick={() => setPesqPecaCod('')} className="absolute right-1 top-1.5 text-gray-400 hover:text-gray-600"><X size={12} /></button>
                                     )}
                                 </div>
-                                <div className="relative w-48">
+                                <div className="relative flex-1">
                                     <input
                                         type="text"
                                         placeholder="Descrição..."
@@ -326,18 +404,28 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                 </table>
                             )}
                         </div>
-                    </div>
+                </div>
 
-                    {/* BOTTOM RIGHT PANEL: Composition Details */}
-                    <div className="h-1/2 flex flex-col relative bg-gray-50">
+                {/* COLUMN 3: Composição / Catálogo */}
+                <div className="w-1/3 flex flex-col h-full min-w-0 bg-gray-50">
                     {selectedDesenho ? (
                         <>
                             {/* Header for selected item */}
-                            <div className="p-2 px-4 bg-white border-b border-gray-200 shrink-0 flex items-center justify-between">
-                                <div>
-                                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Peça Selecionada</div>
-                                    <div className="text-sm font-bold text-[#32423D] leading-tight">{selectedDesenho.CodMatFabricante}</div>
-                                    <div className="text-[11px] text-gray-600 leading-tight">{selectedDesenho.DescResumo}</div>
+                            <div className="p-2 px-4 bg-white border-b border-gray-200 shrink-0">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                        <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Produto Selecionado</div>
+                                        <div className="text-sm font-bold text-[#32423D] leading-tight">{selectedDesenho.CodMatFabricante}</div>
+                                        <div className="text-[11px] text-gray-600 leading-tight">{selectedDesenho.DescResumo}</div>
+                                    </div>
+                                    <button
+                                        onClick={handleManutencaoProcessos}
+                                        title="Manutenção de Processos de Fabricação"
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 border border-amber-300 text-amber-700 rounded-lg text-[11px] font-bold hover:bg-amber-100 transition-colors shrink-0 mt-1"
+                                    >
+                                        <Wrench size={12} />
+                                        Processos
+                                    </button>
                                 </div>
                             </div>
 
@@ -538,6 +626,56 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                     </div>
                                 )}
                             </div>
+
+                            {/* PAINEL INFERIOR: Processos Existentes (só para produto já manufaturado) */}
+                            {isExistingProduct && (
+                                <div className="shrink-0 border-t-2 border-amber-300 bg-amber-50/40 flex flex-col" style={{height: '200px'}}>
+                                    <div className="flex items-center justify-between px-3 py-1.5 border-b border-amber-200 shrink-0">
+                                        <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
+                                            Processos de Fabricação ({processosExistentes.length})
+                                        </span>
+                                        {loadingProcessos && <Loader2 size={12} className="animate-spin text-amber-600" />}
+                                    </div>
+                                    <div className="flex-1 overflow-auto">
+                                        {processosExistentes.length === 0 && !loadingProcessos ? (
+                                            <div className="p-3 text-center text-[11px] text-amber-600">Nenhum processo cadastrado para este produto.</div>
+                                        ) : (
+                                            <table className="w-full text-[10px]">
+                                                <thead className="sticky top-0 bg-amber-100 text-amber-800 text-[9px] uppercase">
+                                                    <tr>
+                                                        <th className="p-1 px-2 font-bold text-center w-8">Seq.</th>
+                                                        <th className="p-1 px-2 font-bold">Processo</th>
+                                                        <th className="p-1 px-2 font-bold text-center">Tempo(min)</th>
+                                                        <th className="p-1 px-2 font-bold text-center w-8">Ativo</th>
+                                                        <th className="p-1 px-2 font-bold">Observação</th>
+                                                        <th className="p-1 px-2 font-bold">Criação</th>
+                                                        <th className="p-1 px-2 font-bold">Usuário</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-amber-100">
+                                                    {processosExistentes.map((p, i) => (
+                                                        <tr key={i} className="hover:bg-amber-50">
+                                                            <td className="p-1 px-2 text-center">
+                                                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-600 text-white text-[9px] font-bold">{p.SequenciaExecucao}</span>
+                                                            </td>
+                                                            <td className="p-1 px-2 font-semibold text-[#32423D]">{p.NomeProcesso}</td>
+                                                            <td className="p-1 px-2 text-center">{p.TempoPadraoMin ?? '—'}</td>
+                                                            <td className="p-1 px-2 text-center">
+                                                                <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${p.Ativo === 'A' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                                                                    {p.Ativo === 'A' ? 'Ativo' : 'Inativo'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="p-1 px-2 text-gray-500 truncate max-w-[80px]" title={p.Observacao}>{p.Observacao || '—'}</td>
+                                                            <td className="p-1 px-2 text-gray-400">{p.DataCriacao ? (() => { const d = new Date(p.DataCriacao); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; })() : '—'}</td>
+                                                            <td className="p-1 px-2 text-gray-500">{p.UsuarioCriacao}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-4">
@@ -545,7 +683,6 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                             <p className="text-sm font-medium">Selecione um desenho ou uma peça manufaturada nas listas acima.</p>
                         </div>
                     )}
-                    </div>
                 </div>
             </div>
         </div>
