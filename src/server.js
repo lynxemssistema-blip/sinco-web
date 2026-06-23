@@ -4331,6 +4331,7 @@ app.get('/api/peca-manufaturada/processos-existentes/:codmatFabricante', async (
             `SELECT
                 mp.IdProcesso,
                 mp.SequenciaExecucao,
+                mp.TempoEstimadoMin,
                 mp.TempoPadraoMin,
                 mp.Ativo,
                 mp.Observacao,

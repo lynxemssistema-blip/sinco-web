@@ -261,9 +261,9 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
             <div className="flex-1 flex min-h-0">
                 {/* COLUMN 1: Desenhos */}
                 <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col h-full min-w-0">
-                    <div className="p-3 border-b border-gray-100 bg-gray-50/50">
-                        <h3 className="text-sm font-bold text-gray-700 mb-2 uppercase flex items-center gap-2">
-                            <Package size={16} /> Produtos (Desenhos)
+                    <div className="p-3 border-b border-blue-100 bg-blue-50/70">
+                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center gap-2">
+                            <Package size={16} className="text-blue-500" /> Produtos (Desenhos)
                         </h3>
                         <div className="flex gap-1 mb-1">
                             <div className="relative w-1/3">
@@ -341,9 +341,9 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
 
                 {/* COLUMN 2: Peças Manufaturadas */}
                 <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col h-full min-w-0">
-                        <div className="p-3 border-b border-gray-100 bg-gray-50/50">
-                            <h3 className="text-sm font-bold text-gray-700 mb-2 uppercase flex items-center gap-2">
-                                <Package size={16} /> Produtos
+                        <div className="p-3 border-b border-teal-100 bg-teal-50/70">
+                            <h3 className="text-sm font-bold text-teal-800 mb-2 uppercase flex items-center gap-2">
+                                <Package size={16} className="text-teal-500" /> Produtos
                             </h3>
                             <div className="flex gap-1">
                                 <div className="relative w-1/3">
@@ -411,10 +411,10 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                     {selectedDesenho ? (
                         <>
                             {/* Header for selected item */}
-                            <div className="p-2 px-4 bg-white border-b border-gray-200 shrink-0">
+                            <div className="p-2 px-4 bg-amber-50 border-b border-amber-200 shrink-0">
                                 <div className="flex items-start justify-between gap-2">
                                     <div>
-                                        <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Produto Selecionado</div>
+                                        <div className="text-[10px] text-amber-700 uppercase font-bold tracking-wider">Produto Selecionado</div>
                                         <div className="text-sm font-bold text-[#32423D] leading-tight">{selectedDesenho.CodMatFabricante}</div>
                                         <div className="text-[11px] text-gray-600 leading-tight">{selectedDesenho.DescResumo}</div>
                                     </div>
@@ -509,30 +509,28 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                                     <table className="w-full text-left text-[11px]">
                                                         <thead className="bg-gray-100 text-gray-600 text-[10px] uppercase sticky top-0">
                                                             <tr>
+                                                                <th className="p-1.5 px-1 font-bold text-center w-7"></th>
                                                                 <th className="p-1.5 px-2 font-bold">Código Insumo</th>
                                                                 <th className="p-1.5 px-2 font-bold">Descrição</th>
-                                                                <th className="p-1.5 px-2 font-bold text-center">Estoque</th>
-                                                                <th className="p-1.5 px-2 font-bold text-center">Qtde (Receita)</th>
-                                                                <th className="p-1.5 px-2 font-bold text-center">Ação</th>
+                                                                <th className="p-1.5 px-2 font-bold text-center w-10">Qtde</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-gray-100">
                                                             {composicaoFiltrada.map(c => (
-                                                                <tr key={c.IdMontaPeca} className="hover:bg-gray-50">
-                                                                <td className="p-1.5 px-2 font-mono font-bold">{c.CodMatFabricante}</td>
-                                                                <td className="p-1.5 px-2 text-gray-600">{c.DescDetal}</td>
-                                                                <td className="p-1.5 px-2 text-center">{c.txtItemEstoque || '-'}</td>
-                                                                <td className="p-1.5 px-2 text-center font-bold text-[#32423D]">{c.PecaQtde || 1}</td>
-                                                                <td className="p-1.5 px-2 text-center">
-                                                                    <button 
-                                                                        onClick={() => handleRemoveMaterial(c.IdMontaPeca)}
-                                                                        className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
-                                                                        title="Remover da composição"
-                                                                    >
-                                                                        <Trash2 size={14} />
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
+                                                                <tr key={c.IdMontaPeca} className="hover:bg-red-50/30 group">
+                                                                    <td className="p-1 px-1 text-center">
+                                                                        <button
+                                                                            onClick={() => handleRemoveMaterial(c.IdMontaPeca)}
+                                                                            className="p-1 text-red-300 hover:text-red-600 hover:bg-red-100 rounded transition-colors"
+                                                                            title="Remover da composição"
+                                                                        >
+                                                                            <Trash2 size={13} />
+                                                                        </button>
+                                                                    </td>
+                                                                    <td className="p-1.5 px-2 font-mono font-bold text-[#32423D] truncate max-w-[80px]" title={c.CodMatFabricante}>{c.CodMatFabricante}</td>
+                                                                    <td className="p-1.5 px-2 text-gray-600 truncate max-w-[100px]" title={c.DescDetal}>{c.DescDetal}</td>
+                                                                    <td className="p-1.5 px-2 text-center font-bold text-[#32423D]">{c.PecaQtde || 1}</td>
+                                                                </tr>
                                                             ))}
                                                         </tbody>
                                                     </table>
@@ -645,7 +643,8 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                                     <tr>
                                                         <th className="p-1 px-2 font-bold text-center w-8">Seq.</th>
                                                         <th className="p-1 px-2 font-bold">Processo</th>
-                                                        <th className="p-1 px-2 font-bold text-center">Tempo(min)</th>
+                                                        <th className="p-1 px-2 font-bold text-center">Est.(min)</th>
+                                                        <th className="p-1 px-2 font-bold text-center">Padrão(min)</th>
                                                         <th className="p-1 px-2 font-bold text-center w-8">Ativo</th>
                                                         <th className="p-1 px-2 font-bold">Observação</th>
                                                         <th className="p-1 px-2 font-bold">Criação</th>
@@ -659,6 +658,7 @@ export default function MontaPecaManufaturadaPage({ usuario = 'Sistema' }: { usu
                                                                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-600 text-white text-[9px] font-bold">{p.SequenciaExecucao}</span>
                                                             </td>
                                                             <td className="p-1 px-2 font-semibold text-[#32423D]">{p.NomeProcesso}</td>
+                                                            <td className="p-1 px-2 text-center">{p.TempoEstimadoMin ?? '—'}</td>
                                                             <td className="p-1 px-2 text-center">{p.TempoPadraoMin ?? '—'}</td>
                                                             <td className="p-1 px-2 text-center">
                                                                 <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${p.Ativo === 'A' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
