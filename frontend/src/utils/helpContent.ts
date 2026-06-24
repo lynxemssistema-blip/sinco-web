@@ -20,13 +20,13 @@ export const helpContents: Record<string, HelpContent> = {
         icon: '🏢'
     },
     'group_1781618991422': {
-        title: 'Monta Peça Manufaturada',
-        description: 'Para criar uma peça manufaturada selecione um desenho (lado esquerdo). Depois de selecionado, busque os itens que farão parte desta nova peça no catálogo e adicione à receita.',
+        title: 'Peça Manufaturada',
+        description: 'O objetivo desta tela é exibir uma peça manufaturada (Produto), os itens que compõem esta peça e seus processos de fabricação (Recursos). Selecione o produto pelo código do fabricante para visualizar sua composição atual e a seqüência de recursos produtivos vinculados.',
         icon: '📦'
     },
     'monta-peca-manufaturada': {
-        title: 'Monta Peça Manufaturada',
-        description: 'Para criar uma peça manufaturada selecione um desenho (lado esquerdo). Depois de selecionado, busque os itens que farão parte desta nova peça no catálogo e adicione à receita.',
+        title: 'Peça Manufaturada',
+        description: 'O objetivo desta tela é exibir uma peça manufaturada (Produto), os itens que compõem esta peça e seus processos de fabricação (Recursos). Selecione o produto pelo código do fabricante para visualizar sua composição atual e a seqüência de recursos produtivos vinculados.',
         icon: '📦'
     },
     'unidades-medida': {

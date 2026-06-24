@@ -6512,3 +6512,204 @@
 22/06/2026 09:30:11: Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
 22/06/2026 09:30:11:   npx update-browserslist-db@latest
 22/06/2026 09:30:11:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+22/06/2026 18:35:36: [2m18:35:36[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\components\ProcessoFabricacaoModal.tsx: Unterminated JSX contents. (407:14)
+22/06/2026 18:35:36: 
+22/06/2026 18:35:36: [0m [90m 405 |[31m                 [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m 406 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36: [31m[1m>[22m[31m[90m 407 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m     |[31m               [31m[1m^[22m[31m
+22/06/2026 18:35:36:  [90m 408 |[31m     )[33m;[31m
+22/06/2026 18:35:36:  [90m 409 |[31m }
+22/06/2026 18:35:36:  [90m 410 |[31m[0m[39m
+22/06/2026 18:35:36:   Plugin: [35mvite:react-babel[39m
+22/06/2026 18:35:36:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/components/ProcessoFabricacaoModal.tsx[39m:407:14
+22/06/2026 18:35:36: [33m  405 |                  </div>
+22/06/2026 18:35:36:   406 |              </div>
+22/06/2026 18:35:36:   407 |          </div>
+22/06/2026 18:35:36:       |                ^
+22/06/2026 18:35:36:   408 |      );
+22/06/2026 18:35:36:   409 |  }[39m
+22/06/2026 18:35:36:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxReadToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4448:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4774:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9977:11)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.nextToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5782:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5692:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.eat (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5696:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.expect (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6898:15)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseClosingElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4680:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4695:37)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseReturnStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13132:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12788:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+22/06/2026 18:35:36: [2m18:35:36[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\components\ProcessoFabricacaoModal.tsx: Unterminated JSX contents. (407:14)
+22/06/2026 18:35:36: 
+22/06/2026 18:35:36: [0m [90m 405 |[31m                 [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m 406 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36: [31m[1m>[22m[31m[90m 407 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m     |[31m               [31m[1m^[22m[31m
+22/06/2026 18:35:36:  [90m 408 |[31m     )[33m;[31m
+22/06/2026 18:35:36:  [90m 409 |[31m }
+22/06/2026 18:35:36:  [90m 410 |[31m[0m[39m
+22/06/2026 18:35:36:   Plugin: [35mvite:react-babel[39m
+22/06/2026 18:35:36:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/components/ProcessoFabricacaoModal.tsx[39m:407:14
+22/06/2026 18:35:36: [33m  405 |                  </div>
+22/06/2026 18:35:36:   406 |              </div>
+22/06/2026 18:35:36:   407 |          </div>
+22/06/2026 18:35:36:       |                ^
+22/06/2026 18:35:36:   408 |      );
+22/06/2026 18:35:36:   409 |  }[39m
+22/06/2026 18:35:36:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxReadToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4448:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4774:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9977:11)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.nextToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5782:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5692:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.eat (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5696:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.expect (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6898:15)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseClosingElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4680:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4695:37)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseReturnStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13132:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12788:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)
+22/06/2026 18:35:36: [2m18:35:36[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\src\components\ProcessoFabricacaoModal.tsx: Unterminated JSX contents. (407:14)
+22/06/2026 18:35:36: 
+22/06/2026 18:35:36: [0m [90m 405 |[31m                 [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m 406 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36: [31m[1m>[22m[31m[90m 407 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+22/06/2026 18:35:36:  [90m     |[31m               [31m[1m^[22m[31m
+22/06/2026 18:35:36:  [90m 408 |[31m     )[33m;[31m
+22/06/2026 18:35:36:  [90m 409 |[31m }
+22/06/2026 18:35:36:  [90m 410 |[31m[0m[39m
+22/06/2026 18:35:36:   Plugin: [35mvite:react-babel[39m
+22/06/2026 18:35:36:   File: [36mC:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/components/ProcessoFabricacaoModal.tsx[39m:407:14
+22/06/2026 18:35:36: [33m  405 |                  </div>
+22/06/2026 18:35:36:   406 |              </div>
+22/06/2026 18:35:36:   407 |          </div>
+22/06/2026 18:35:36:       |                ^
+22/06/2026 18:35:36:   408 |      );
+22/06/2026 18:35:36:   409 |  }[39m
+22/06/2026 18:35:36:       at constructor (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.raise (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxReadToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4448:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4774:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.getTokenFromCode (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9977:11)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.nextToken (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5782:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5692:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.eat (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:5696:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.expect (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6898:15)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseClosingElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4680:10)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4695:37)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElementAt (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4698:32)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.jsxParseElement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4749:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4759:19)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.tryParse (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:6907:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9765:18)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12416:12)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10790:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12483:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11665:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11321:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprAtom (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:4764:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprSubscripts (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11071:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseUpdate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11056:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:11036:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnary (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9827:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10889:61)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExprOps (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10894:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeConditional (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10871:23)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10821:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseMaybeAssign (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9776:20)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpressionBase (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10774:23)
+22/06/2026 18:35:36:       at C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:39
+22/06/2026 18:35:36:       at TypeScriptParserMixin.allowInAnd (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12411:16)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseExpression (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:10770:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseReturnStatement (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:13132:28)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12788:21)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementContent (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:9508:18)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementLike (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+22/06/2026 18:35:36:       at TypeScriptParserMixin.parseStatementListItem (C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend\node_modules\@babel\parser\lib\index.js:12737:17)

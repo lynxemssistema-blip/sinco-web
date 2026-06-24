@@ -4153,11 +4153,13 @@ app.get('/api/peca-manufaturada/pecas', async (req, res) => {
 app.get('/api/peca-manufaturada/composicao/:idMaterialPeca', async (req, res) => {
     try {
         const { idMaterialPeca } = req.params;
-        const sql = `SELECT IdMontaPeca, IdMaterial, IdMaterialpeca, CodMatFabricante, DescDetal, PecaQtde, txtItemEstoque 
-                     FROM viewmontapeca1 
-                     WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-                       AND idmaterialpeca = ?
-                     ORDER BY CodMatFabricante`;
+        const sql = `SELECT mp.IdMontaPeca, mp.IdMaterial, mp.IdMaterialpeca, mp.CodMatFabricante, mp.DescDetal, mp.PecaQtde, mp.txtItemEstoque,
+                            m.EnderecoArquivo
+                     FROM viewmontapeca1 mp
+                     LEFT JOIN material m ON m.IdMaterial = mp.IdMaterial
+                     WHERE (mp.d_e_l_e_t_e IS NULL OR mp.d_e_l_e_t_e = '') 
+                       AND mp.idmaterialpeca = ?
+                     ORDER BY mp.CodMatFabricante`;
         const [rows] = await pool.execute(sql, [idMaterialPeca]);
         res.json({ success: true, data: rows });
     } catch (error) {

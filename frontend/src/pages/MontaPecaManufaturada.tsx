@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, Loader2, Trash2, Plus, Clock, X, Save, Edit2, RefreshCw, Package } from 'lucide-react';
+import { Search, Loader2, Trash2, Plus, Clock, X, Save, Edit2, RefreshCw, Package, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const API = '/api/peca-manufaturada';
@@ -38,6 +38,18 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [editSq,setEditSq]=useState<number|null>(null);
   const [saving,setSaving]=useState(false);
   const [lastAutoSeq,setLastAutoSeq]=useState<number>(0);
+
+  const abrirPdf = async (caminho: string) => {
+    if (!caminho || caminho.trim() === '') { alert('Endereço do arquivo não encontrado para este item.'); return; }
+    try {
+      const url = new URL(`${window.location.origin}/api/controle-expedicao/abrir-arquivo`);
+      url.searchParams.append('caminho', caminho);
+      url.searchParams.append('tipo', 'pdf');
+      const res = await fetch(url.toString(), { headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` } });
+      const data = await res.json();
+      if (!data.success) alert(data.message || 'Erro ao abrir PDF.');
+    } catch { alert('Erro de comunicação ao abrir PDF.'); }
+  };
 
   useEffect(()=>{ fetch(`${API}/processos`).then(r=>r.json()).then(j=>{ if(j.success) setTipos(j.data); }); },[]);
 
@@ -191,17 +203,30 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
           </div>
           {/* Piece details */}
           {piece&&(
-            <div className="flex items-start gap-3 flex-wrap border-l border-gray-200 pl-3">
-              <div><div className={labelCls}>Descrição</div><div className={`${fieldCls} font-semibold max-w-[180px] truncate`} title={piece.DescResumo}>{piece.DescResumo||'—'}</div></div>
-              <div><div className={labelCls}>Espessura</div><div className={fieldCls}>{piece.Espessura!=null?piece.Espessura:'—'}</div></div>
-              <div><div className={labelCls}>Área Pint.</div><div className={fieldCls}>{piece.AreaPintura!=null?piece.AreaPintura:'—'}</div></div>
-              <div><div className={labelCls}>Peso</div><div className={fieldCls}>{piece.Peso!=null?piece.Peso:'—'}</div></div>
-              <div><div className={labelCls}>Unid.</div><div className={fieldCls}>{piece.Unidade||'—'}</div></div>
-              <div><div className={labelCls}>Alt.</div><div className={fieldCls}>{piece.Altura!=null?piece.Altura:'—'}</div></div>
-              <div><div className={labelCls}>Larg.</div><div className={fieldCls}>{piece.Largura!=null?piece.Largura:'—'}</div></div>
-              <div><div className={labelCls}>Prof.</div><div className={fieldCls}>{piece.Profundidade!=null?piece.Profundidade:'—'}</div></div>
+            <div className="flex flex-col gap-1 border-l border-gray-200 pl-3">
+              {/* Linha 1: Descrição + Espessura + Material SW + PDF */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-1"><span className={labelCls}>Desc.:</span><span className={`${fieldCls} font-semibold max-w-[220px] truncate`} title={piece.DescResumo}>{piece.DescResumo||'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Esp.:</span><span className={fieldCls}>{piece.Espessura!=null?piece.Espessura:'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Mat. SW:</span><span className={`${fieldCls} max-w-[120px] truncate`} title={piece.MaterialSW||''}>{piece.MaterialSW||'—'}</span></div>
+                {piece.EnderecoArquivo&&(
+                  <button onClick={()=>abrirPdf(piece.EnderecoArquivo)} className="flex items-center gap-1 px-1.5 py-0.5 text-red-600 hover:bg-red-50 rounded border border-red-200 text-[9px] font-bold" title="Abrir Desenho PDF">
+                    <FileText size={11}/> PDF
+                  </button>
+                )}
+              </div>
+              {/* Linha 2: Dimensões + Peso */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-1"><span className={labelCls}>Área Pint.:</span><span className={fieldCls}>{piece.AreaPintura!=null?piece.AreaPintura:'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Peso:</span><span className={fieldCls}>{piece.Peso!=null?piece.Peso:'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Unid.:</span><span className={fieldCls}>{piece.Unidade||'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Alt.:</span><span className={fieldCls}>{piece.Altura!=null?piece.Altura:'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Larg.:</span><span className={fieldCls}>{piece.Largura!=null?piece.Largura:'—'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Prof.:</span><span className={fieldCls}>{piece.Profundidade!=null?piece.Profundidade:'—'}</span></div>
+              </div>
             </div>
           )}
+
         </div>
       </div>
 
@@ -223,12 +248,15 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             :compFiltrada.length===0?(<div className="p-4 text-center text-[10px] text-gray-400">Nenhum insumo</div>):(
               <table className="w-full text-left">
                 <thead className="bg-gray-50 sticky top-0">
-                  <tr><th className="p-1 px-1 w-7"></th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase">Código</th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase">Descrição</th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase text-center">Qtde</th></tr>
+                  <tr><th className="p-1 px-1 w-14"></th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase">Código</th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase">Descrição</th><th className="p-1 px-2 text-[9px] font-bold text-gray-500 uppercase text-center">Qtde</th></tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {compFiltrada.map(c=>(
                     <tr key={c.IdMontaPeca} className="hover:bg-red-50/30 group">
-                      <td className="p-1 px-1 text-center"><button onClick={()=>removeComp(c.IdMontaPeca)} className="p-0.5 text-red-300 hover:text-red-600 rounded"><Trash2 size={11}/></button></td>
+                      <td className="p-1 px-1 text-center">
+                        <button onClick={()=>removeComp(c.IdMontaPeca)} className="p-0.5 text-red-300 hover:text-red-600 rounded" title="Excluir"><Trash2 size={11}/></button>
+                        <button onClick={()=>abrirPdf(c.EnderecoArquivo||'')} className="p-0.5 text-red-400 hover:text-red-600 rounded ml-0.5" title="Abrir Desenho PDF"><FileText size={11}/></button>
+                      </td>
                       <td className="p-1 px-2 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[70px]" title={c.CodMatFabricante}>{c.CodMatFabricante}</td>
                       <td className="p-1 px-2 text-[10px] text-gray-600 truncate max-w-[90px]" title={c.DescDetal}>{c.DescDetal}</td>
                       <td className="p-1 px-2 text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</td>

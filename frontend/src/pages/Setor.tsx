@@ -332,11 +332,11 @@ export default function SetorPage() {
                         <table className="w-full">
                             <thead className="bg-[#567469] text-white">
                                 <tr className="border-b border-white/20">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Setor</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Fábrica</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Data Liberada</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Criado Por</th>
-                                    <th className="px-4 py-3 text-right text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
+                                    <th className="px-3 py-1.5 text-left text-[9px] font-semibold text-white uppercase tracking-wider">Setor</th>
+                                    <th className="px-3 py-1.5 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Fábrica</th>
+                                    <th className="px-3 py-1.5 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Data Liberada</th>
+                                    <th className="px-3 py-1.5 text-left text-[9px] font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Criado Por</th>
+                                    <th className="px-3 py-1.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -364,38 +364,38 @@ export default function SetorPage() {
                                             transition={{ delay: idx * 0.03 }}
                                             className="hover:bg-gray-50/50 transition-colors"
                                         >
-                                            <td className="px-4 py-3">
-                                                <p className="font-medium text-[#32423D] text-sm">{setor.Setor}</p>
+                                            <td className="px-3 py-1">
+                                                <p className="font-medium text-[#32423D] text-[11px]">{setor.Setor}</p>
                                             </td>
-                                            <td className="px-4 py-3 text-center hidden md:table-cell">
-                                                <span className={`px-2 py-1 rounded text-xs font-medium ${setor.Fabrica === 'SIM' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                            <td className="px-3 py-1 text-center hidden md:table-cell">
+                                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${setor.Fabrica === 'SIM' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                                                     {setor.Fabrica}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-center hidden md:table-cell">
-                                                <span className={`px-2 py-1 rounded text-xs font-medium ${setor.DataLiberada === 'SIM' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}`}>
+                                            <td className="px-3 py-1 text-center hidden md:table-cell">
+                                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${setor.DataLiberada === 'SIM' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}`}>
                                                     {setor.DataLiberada}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
-                                                <p>{setor.CriadoPor || '-'}</p>
-                                                <p className="text-xs text-gray-400">{setor.DataCriacao || ''}</p>
+                                            <td className="px-3 py-1 text-[11px] text-gray-600 hidden lg:table-cell">
+                                                <p className="font-medium">{setor.CriadoPor || '-'}</p>
+                                                <p className="text-[10px] text-gray-400">{setor.DataCriacao || ''}</p>
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center justify-end gap-1">
+                                            <td className="px-3 py-1">
+                                                <div className="flex items-center justify-end gap-0.5">
                                                     <button
                                                         onClick={() => handleEdit(setor)}
-                                                        className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+                                                        className="p-1 rounded text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
                                                         title="Editar"
                                                     >
-                                                        <Edit2 size={16} />
+                                                        <Edit2 size={13} />
                                                     </button>
                                                     <button
                                                         onClick={() => setor.idSetor && handleDelete(setor.idSetor)}
-                                                        className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                                        className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                                                         title="Excluir"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={13} />
                                                     </button>
                                                 </div>
                                             </td>
