@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Database, Save, AlertTriangle, ShieldCheck, RefreshCcw, Server, Users, Plus, GitCompare, ArrowRight, CheckCircle, Code, LogOut, XCircle, Search, X } from 'lucide-react';
+import { Database, Save, AlertTriangle, ShieldCheck, RefreshCcw, Server, Users, Plus, GitCompare, ArrowRight, CheckCircle, Code, LogOut, XCircle, Search, X, ActivitySquare, Trash2, Monitor } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 
 interface SuperadminPageProps {
@@ -11,7 +11,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     const { addToast } = useToast();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'config' | 'tenants' | 'schema' | 'users'>(defaultTab);
+    const [activeTab, setActiveTab] = useState<'config' | 'tenants' | 'schema' | 'users' | 'audit'>(defaultTab);
 
     // Auth State
     const [username, setUsername] = useState('');
@@ -46,6 +46,11 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
     // Users State
     const [users, setUsers] = useState<any[]>([]);
 
+    // Login Audit State
+    const [auditLogs, setAuditLogs] = useState<any[]>([]);
+    const [loadingAudit, setLoadingAudit] = useState(false);
+    const [auditHoras, setAuditHoras] = useState(24);
+
     useEffect(() => {
         const sincoUserRaw = localStorage.getItem('sinco_user');
         const sincoToken   = localStorage.getItem('sinco_token');
@@ -77,6 +82,37 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
             checkAuth(superToken);
         }
     }, []);
+
+    const fetchAuditLogs = async (horas = auditHoras) => {
+        const token = localStorage.getItem('superadmin_token');
+        if (!token) return;
+        setLoadingAudit(true);
+        try {
+            const res = await fetch(`/api/admin/login-audit?horas=${horas}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) setAuditLogs(data.data);
+        } catch { addToast({ type: 'error', message: 'Erro ao buscar registros de acesso' }); }
+        finally { setLoadingAudit(false); }
+    };
+
+    const handleCleanAudit = async () => {
+        if (!confirm('Remover todos os registros com mais de 24 horas?')) return;
+        const token = localStorage.getItem('superadmin_token');
+        if (!token) return;
+        try {
+            const res = await fetch('/api/admin/login-audit', {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                addToast({ type: 'success', message: data.message });
+                fetchAuditLogs();
+            }
+        } catch { addToast({ type: 'error', message: 'Erro ao limpar registros' }); }
+    };
 
 
     const checkAuth = async (token: string) => {
@@ -519,6 +555,9 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                 <button onClick={() => setActiveTab('config')} className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'config' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
                     <div className="flex items-center justify-center gap-2"><Database size={16} /> ConfigLocal (Fallback)</div>
                 </button>
+                <button onClick={() => { setActiveTab('audit'); fetchAuditLogs(); }} className={`flex-1 min-w-[130px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'audit' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <div className="flex items-center justify-center gap-2"><Monitor size={16} /> Acessos ao Sistema</div>
+                </button>
             </div>
 
             {activeTab === 'tenants' && (
@@ -836,6 +875,109 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
                         <div className="mt-6 flex justify-end gap-3">
                             <button onClick={handleTestConnection} disabled={loading} className="px-6 py-2 border rounded hover:bg-gray-50">Testar</button>
                             <button onClick={handleSaveConfig} disabled={loading} className="px-6 py-2 bg-[#32423D] text-white rounded hover:bg-[#32423D]/80">Salvar</button>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                activeTab === 'audit' && (
+                    <div className="space-y-4 animate-fade-in">
+                        {/* Header */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                    <Monitor size={18} className="text-blue-600" />
+                                    <h3 className="font-semibold text-gray-800">Acessos ao Sistema</h3>
+                                    <span className="text-xs text-gray-400 ml-1">— apenas informativo, registros &gt;24h podem ser excluídos</span>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <select
+                                        value={auditHoras}
+                                        onChange={e => { const h = Number(e.target.value); setAuditHoras(h); fetchAuditLogs(h); }}
+                                        className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                    >
+                                        <option value={1}>Última 1h</option>
+                                        <option value={6}>Últimas 6h</option>
+                                        <option value={12}>Últimas 12h</option>
+                                        <option value={24}>Últimas 24h</option>
+                                        <option value={48}>Últimas 48h</option>
+                                        <option value={168}>Últimos 7 dias</option>
+                                    </select>
+                                    <button
+                                        onClick={() => fetchAuditLogs()}
+                                        disabled={loadingAudit}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                                    >
+                                        <RefreshCcw size={13} className={loadingAudit ? 'animate-spin' : ''} /> Atualizar
+                                    </button>
+                                    <button
+                                        onClick={handleCleanAudit}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                                    >
+                                        <Trash2 size={13} /> Limpar &gt;24h
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tabela */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            {loadingAudit ? (
+                                <div className="p-12 flex items-center justify-center gap-3 text-gray-400">
+                                    <RefreshCcw size={20} className="animate-spin" />
+                                    <span className="text-sm">Carregando registros...</span>
+                                </div>
+                            ) : auditLogs.length === 0 ? (
+                                <div className="p-12 flex flex-col items-center gap-3 text-gray-400">
+                                    <Monitor size={36} strokeWidth={1.5} />
+                                    <p className="text-sm">Nenhum acesso registrado no período</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-auto">
+                                    <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs text-gray-500 font-medium">
+                                        {auditLogs.length} registro(s) encontrado(s)
+                                    </div>
+                                    <table className="w-full">
+                                        <thead className="bg-[#567469] text-white">
+                                            <tr>
+                                                <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Data / Hora</th>
+                                                <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Usuário</th>
+                                                <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Empresa</th>
+                                                <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Banco</th>
+                                                <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">IP</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {auditLogs.map((log: any) => (
+                                                <motion.tr
+                                                    key={log.id}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="hover:bg-blue-50/30 transition-colors"
+                                                >
+                                                    <td className="px-3 py-1.5">
+                                                        <span className="text-[11px] text-gray-700 font-mono whitespace-nowrap">
+                                                            {new Date(log.data_acesso).toLocaleString('pt-BR')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 py-1.5">
+                                                        <span className="text-[11px] font-semibold text-[#32423D]">{log.login}</span>
+                                                    </td>
+                                                    <td className="px-3 py-1.5">
+                                                        <span className="text-[11px] text-gray-600">{log.client_name || '—'}</span>
+                                                    </td>
+                                                    <td className="px-3 py-1.5">
+                                                        <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{log.db_name || '—'}</span>
+                                                    </td>
+                                                    <td className="px-3 py-1.5">
+                                                        <span className="text-[10px] text-gray-400 font-mono">{log.ip_address || '—'}</span>
+                                                    </td>
+                                                </motion.tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )

@@ -2018,6 +2018,34 @@ async function isUserSuperadmin(login) {
     }
 }
 
+// Helper: Registrar acesso de usuário no banco central (auditoria)
+async function recordLoginAudit(login, dbName, clientName, ip) {
+    let conn;
+    try {
+        conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+        // Garante que a tabela existe
+        await conn.execute(`
+            CREATE TABLE IF NOT EXISTS login_audit (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                login VARCHAR(100) NOT NULL,
+                db_name VARCHAR(100),
+                client_name VARCHAR(150),
+                ip_address VARCHAR(50),
+                data_acesso DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_data (data_acesso)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+        await conn.execute(
+            'INSERT INTO login_audit (login, db_name, client_name, ip_address, data_acesso) VALUES (?, ?, ?, ?, NOW())',
+            [login, dbName || null, clientName || null, ip || null]
+        );
+    } catch (err) {
+        console.warn('[AUDIT] Erro ao registrar login:', err.message);
+    } finally {
+        if (conn) await conn.end();
+    }
+}
+
 // Helper: Authenticate against central DB and return tenant DB config
 async function authenticateCentralUser(login, password) {
     let connection;
@@ -2098,6 +2126,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     tenantId: centralAuth?.tenantConfig?.id
                 }, JWT_SECRET, { expiresIn: '12h' });
 
+                recordLoginAudit(login, banco, banco, req.ip).catch(() => {});
                 return res.json({
                     success: true,
                     token,
@@ -2152,13 +2181,13 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
+                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, req.ip).catch(() => {});
                         return res.json({
                             success: true,
                             token,
                             user: {
                                 id: user.idUsuario,
                                 login: login,
-                                // Superadmin: exibe o próprio login como nome (não NomeCompleto da tabela local)
                                 nome: centralAuth.isSuperadmin ? login : user.NomeCompleto,
                                 role,
                                 setor: user.Setor,
@@ -2180,6 +2209,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
+                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, req.ip).catch(() => {});
                         return res.json({
                             success: true,
                             token,
@@ -2209,6 +2239,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                         tenantId: 1
                     }, JWT_SECRET, { expiresIn: '12h' });
 
+                    recordLoginAudit(login, 'N/A', 'Global System', req.ip).catch(() => {});
                     return res.json({
                         success: true,
                         token,
@@ -2253,6 +2284,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 tenantId: 1
             }, JWT_SECRET, { expiresIn: '12h' });
 
+            recordLoginAudit(login, 'lynxlocal', 'LYNX (LYNXLOCAL)', req.ip).catch(() => {});
             return res.json({
                 success: true,
                 token,
@@ -2523,6 +2555,52 @@ app.put('/api/admin/databases/:id/toggle', authenticateAdmin, async (req, res) =
     } catch (error) {
         console.error('Error toggling database:', error);
         res.status(500).json({ success: false, message: 'Erro ao alterar status do banco: ' + error.message });
+    }
+});
+
+// ── LOGIN AUDIT ────────────────────────────────────────────────────────────────
+// GET /api/admin/login-audit — Lista acessos das últimas 24h (padrão) ou período customizado
+app.get('/api/admin/login-audit', authenticateAdmin, async (req, res) => {
+    let conn;
+    try {
+        conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+        await conn.execute(`
+            CREATE TABLE IF NOT EXISTS login_audit (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                login VARCHAR(100) NOT NULL,
+                db_name VARCHAR(100),
+                client_name VARCHAR(150),
+                ip_address VARCHAR(50),
+                data_acesso DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_data (data_acesso)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+        const horas = parseInt(req.query.horas) || 24;
+        const [rows] = await conn.execute(
+            'SELECT * FROM login_audit WHERE data_acesso >= DATE_SUB(NOW(), INTERVAL ? HOUR) ORDER BY data_acesso DESC LIMIT 500',
+            [horas]
+        );
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    } finally {
+        if (conn) await conn.end();
+    }
+});
+
+// DELETE /api/admin/login-audit — Remove registros com mais de 24h
+app.delete('/api/admin/login-audit', authenticateAdmin, async (req, res) => {
+    let conn;
+    try {
+        conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+        const [result] = await conn.execute(
+            'DELETE FROM login_audit WHERE data_acesso < DATE_SUB(NOW(), INTERVAL 24 HOUR)'
+        );
+        res.json({ success: true, deleted: result.affectedRows, message: `${result.affectedRows} registro(s) removido(s)` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    } finally {
+        if (conn) await conn.end();
     }
 });
 
