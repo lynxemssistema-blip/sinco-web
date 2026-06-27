@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2, AlertTriangle, Loader2, Search, X, Box, FileText, Layers, FileCode } from 'lucide-react';
+import { Trash2, AlertTriangle, Loader2, Search, X, Box, FileText, Layers, FileCode, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
@@ -170,69 +170,52 @@ export default function ApontamentosParciaisPage() {
     });
 
     return (
-        <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden bg-gray-50 p-6 h-full flex flex-col min-h-0">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 shrink-0 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
-                        <AlertTriangle size={24} />
+        <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden bg-gray-50 p-3 h-full flex flex-col min-h-0 gap-2">
+            {/* Barra de filtros compacta */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+                {/* Ícone + título inline */}
+                <div className="flex items-center gap-1.5 mr-2">
+                    <AlertTriangle size={14} className="text-amber-500 shrink-0" />
+                    <span className="text-xs font-bold text-gray-600 whitespace-nowrap">Apontamentos Parciais</span>
+                </div>
+
+                <div className="w-px h-5 bg-gray-200 shrink-0" />
+
+                {/* Filtros de texto */}
+                <div className="flex flex-wrap items-center gap-1 bg-gray-50 border border-gray-300 rounded-md px-2 py-1 focus-within:border-amber-400">
+                    <Search size={13} className="text-gray-400 shrink-0" />
+                    <div className="relative flex items-center">
+                        <input type="text" placeholder="O.S." value={fOS} onChange={e => setFOS(e.target.value)} className="pr-5 w-14 bg-transparent text-xs outline-none font-bold text-gray-700" />
+                        {fOS && <button onClick={() => setFOS('')} className="absolute right-0.5 text-slate-400 hover:text-red-500 bg-transparent border-none"><X size={11} /></button>}
                     </div>
-                    <div>
-                        
-                        <p className="text-sm text-gray-500 font-medium">Controle de peças apontadas parcialmente</p>
+                    <div className="relative flex items-center border-l border-gray-200 pl-1.5">
+                        <input type="text" placeholder="Projeto" value={fProj} onChange={e => setFProj(e.target.value)} className="pr-5 w-20 bg-transparent text-xs outline-none" />
+                        {fProj && <button onClick={() => setFProj('')} className="absolute right-0.5 text-slate-400 hover:text-red-500 bg-transparent border-none"><X size={11} /></button>}
+                    </div>
+                    <div className="relative flex items-center border-l border-gray-200 pl-1.5">
+                        <input type="text" placeholder="Tag" value={fTag} onChange={e => setFTag(e.target.value)} className="pr-5 w-16 bg-transparent text-xs outline-none" />
+                        {fTag && <button onClick={() => setFTag('')} className="absolute right-0.5 text-slate-400 hover:text-red-500 bg-transparent border-none"><X size={11} /></button>}
+                    </div>
+                    <div className="relative flex items-center border-l border-gray-200 pl-1.5">
+                        <input type="text" placeholder="Plano" value={fPC} onChange={e => setFPC(e.target.value)} className="pr-5 w-16 bg-transparent text-xs outline-none" />
+                        {fPC && <button onClick={() => setFPC('')} className="absolute right-0.5 text-slate-400 hover:text-red-500 bg-transparent border-none"><X size={11} /></button>}
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 items-center">
-                    <div className="flex flex-wrap items-center gap-1.5 bg-gray-50 border border-gray-300 rounded-lg px-2 py-1.5 shadow-sm focus-within:border-amber-400">
-                        <Search size={14} className="text-gray-400" />
-                        <div className="relative flex items-center">
-    <input type="text" placeholder="O.S." value={fOS} onChange={e=>setFOS(e.target.value)} className="pr-6 w-16 bg-transparent text-xs outline-none font-bold text-gray-700" />
-    {fOS && (
-        <button onClick={() => setFOS('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
-                        <div className="relative flex items-center">
-    <input type="text" placeholder="Projeto" value={fProj} onChange={e=>setFProj(e.target.value)} className="pr-6 w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
-    {fProj && (
-        <button onClick={() => setFProj('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
-                        <div className="relative flex items-center">
-    <input type="text" placeholder="Tag" value={fTag} onChange={e=>setFTag(e.target.value)} className="pr-6 w-20 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
-    {fTag && (
-        <button onClick={() => setFTag('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
-                        <div className="relative flex items-center">
-    <input type="text" placeholder="Plano Corte" value={fPC} onChange={e=>setFPC(e.target.value)} className="pr-6 w-24 bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5" />
-    {fPC && (
-        <button onClick={() => setFPC('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
-            <X size={14} />
-        </button>
-    )}
-</div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-300 rounded-lg px-2 py-1.5 shadow-sm focus-within:border-amber-400">
-                        <input type="date" value={dataInicial} onChange={e=>setDataInicial(e.target.value)} className="w-[105px] bg-transparent text-xs outline-none text-gray-500" title="Data Inicial" />
-                        <span className="text-gray-400 text-xs">até</span>
-                        <input type="date" value={dataFinal} onChange={e=>setDataFinal(e.target.value)} className="w-[105px] bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5 text-gray-500" title="Data Final" />
-                        
-                        {(fOS || fProj || fTag || fPC || dataInicial || dataFinal) && (
-                            <button onClick={limparFiltros} className="p-0.5 text-gray-400 hover:text-red-500 transition-colors border-l border-gray-200 pl-1.5" title="Limpar Filtros"><X size={14}/></button>
-                        )}
-                    </div>
-
-                    <button onClick={fetchParciais} className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold shadow-sm transition-colors text-sm h-full self-stretch flex items-center">
-                        Atualizar
-                    </button>
+                {/* Filtro de datas: Dt. Apontamento */}
+                <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-300 rounded-md px-2 py-1 focus-within:border-amber-400">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap">Dt. Apontamento</span>
+                    <input type="date" value={dataInicial} onChange={e => setDataInicial(e.target.value)} className="w-[105px] bg-transparent text-xs outline-none text-gray-500" />
+                    <span className="text-gray-400 text-xs">até</span>
+                    <input type="date" value={dataFinal} onChange={e => setDataFinal(e.target.value)} className="w-[105px] bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5 text-gray-500" />
+                    {(fOS || fProj || fTag || fPC || dataInicial || dataFinal) && (
+                        <button onClick={limparFiltros} className="p-0.5 text-gray-400 hover:text-red-500 transition-colors border-l border-gray-200 pl-1.5" title="Limpar Filtros"><X size={13}/></button>
+                    )}
                 </div>
+
+                <button onClick={fetchParciais} className="ml-auto px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-md font-bold shadow-sm transition-colors text-xs flex items-center gap-1.5">
+                    <RefreshCw size={12} /> Atualizar
+                </button>
             </div>
 
             <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-xl shadow-sm border border-gray-200">

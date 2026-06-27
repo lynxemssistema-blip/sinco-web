@@ -385,50 +385,49 @@ export default function ConfiguracaoPage() {
         const isEditing = editingItem?.item.id === item.id;
 
         return (
-            <div key={item.id} className="mb-2">
-                <div className="flex items-center gap-2 bg-white p-2 border rounded-lg hover:shadow-sm">
+            <div key={item.id} className="mb-0.5">
+                <div className="flex items-center gap-1.5 bg-white px-1.5 py-1 border border-gray-100 rounded hover:shadow-sm hover:border-gray-200 transition-all">
                     {/* Controls */}
-                    <div className="flex flex-col gap-0.5">
-                        <button onClick={() => handleMove(path, 'up')} className="p-0.5 hover:bg-gray-100 rounded text-gray-500"><ChevronUp size={12} /></button>
-                        <button onClick={() => handleMove(path, 'down')} className="p-0.5 hover:bg-gray-100 rounded text-gray-500"><ChevronDown size={12} /></button>
+                    <div className="flex flex-col gap-0">
+                        <button onClick={() => handleMove(path, 'up')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronUp size={11} /></button>
+                        <button onClick={() => handleMove(path, 'down')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronDown size={11} /></button>
                     </div>
 
                     {/* Indentation Controls */}
-                    <div className="flex flex-col gap-0.5 border-r pr-2 mr-2 border-gray-100">
-                        <button onClick={() => handleIndent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-500 disabled:opacity-30" disabled={path[path.length - 1] === 0}><ChevronRight size={12} /></button>
-                        <button onClick={() => handleOutdent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-500 disabled:opacity-30" disabled={path.length === 1}><ChevronLeft size={12} /></button>
+                    <div className="flex flex-col gap-0 border-r pr-1.5 mr-1 border-gray-100">
+                        <button onClick={() => handleIndent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path[path.length - 1] === 0}><ChevronRight size={11} /></button>
+                        <button onClick={() => handleOutdent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path.length === 1}><ChevronLeft size={11} /></button>
                     </div>
 
                     {isEditing ? (
-                        <div className="flex items-center gap-2 flex-1 animate-fade-in">
-                            <button onClick={() => setShowIconPicker(true)} className="p-2 border rounded hover:bg-gray-50 bg-gray-50 min-w-[40px] flex items-center justify-center">
-                                <Icon size={18} />
+                        <div className="flex items-center gap-1.5 flex-1 animate-fade-in">
+                            <button onClick={() => setShowIconPicker(true)} className="p-1 border rounded hover:bg-gray-50 bg-gray-50 min-w-[28px] flex items-center justify-center">
+                                <Icon size={14} />
                             </button>
                             <input
-                                className="flex-1 border rounded px-2 py-1.5 text-sm bg-white focus:ring-2 focus:ring-[#E0E800] outline-none"
+                                className="flex-1 border rounded px-2 py-1 text-xs bg-white focus:ring-1 focus:ring-[#E0E800] outline-none"
                                 value={item.label}
                                 onChange={(e) => setMenuItems(updateItem(menuItems, item.id, { label: e.target.value }))}
                                 autoFocus
                             />
-                            <button onClick={() => setEditingItem(null)} className="p-1.5 text-green-600 bg-green-50 rounded hover:bg-green-100"><CheckCircle size={16} /></button>
+                            <button onClick={() => setEditingItem(null)} className="p-1 text-green-600 bg-green-50 rounded hover:bg-green-100"><CheckCircle size={13} /></button>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-3 flex-1 overflow-hidden">
-                            <div className="p-1.5 bg-gray-50 rounded text-gray-500">
-                                <Icon size={18} />
+                        <div className="flex items-center gap-2 flex-1 overflow-hidden">
+                            <div className="p-1 bg-gray-50 rounded text-gray-400 shrink-0">
+                                <Icon size={13} />
                             </div>
-                            <span className="font-medium text-gray-700 flex-1 truncate">{item.label}</span>
+                            <span className="text-xs font-medium text-gray-700 flex-1 truncate">{item.label}</span>
 
-                            <button onClick={() => setEditingItem({ item })} className="p-1.5 text-[#32423D] hover:bg-[#E0E800]/10 rounded transition-colors"><Edit2 size={16} /></button>
-                            {/* Only show delete for created groups or allow deleting anything? Allow anything, user can restore default. */}
-                            <button onClick={() => setMenuItems(deleteItem(menuItems, item.id))} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"><Trash2 size={16} /></button>
+                            <button onClick={() => setEditingItem({ item })} className="p-1 text-[#32423D] hover:bg-[#E0E800]/10 rounded transition-colors"><Edit2 size={13} /></button>
+                            <button onClick={() => setMenuItems(deleteItem(menuItems, item.id))} className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"><Trash2 size={13} /></button>
                         </div>
                     )}
                 </div>
 
                 {/* Children */}
                 {item.children && item.children.length > 0 && (
-                    <div className="pl-8 border-l border-gray-200 ml-4 mt-2">
+                    <div className="pl-6 border-l border-gray-200 ml-3 mt-0.5">
                         {item.children.map((child, idx) => renderEditorItem(child, [...path, idx]))}
                     </div>
                 )}
@@ -849,8 +848,8 @@ export default function ConfiguracaoPage() {
                         </div>
                     </div>
 
-                    <div className="p-6">
-                        <div className="bg-gray-50/50 p-3 sm:p-4 rounded-lg border border-gray-200 min-h-[300px] sm:min-h-[400px]">
+                    <div className="p-3 sm:p-4">
+                        <div className="bg-gray-50/50 p-2 sm:p-3 rounded-lg border border-gray-200 min-h-[200px] sm:min-h-[300px]">
                             {menuItems.map((item, idx) => renderEditorItem(item, [idx]))}
                             {menuItems.length === 0 && <p className="text-gray-400 text-center italic py-10">O menu está vazio. Restaure o padrão.</p>}
                         </div>

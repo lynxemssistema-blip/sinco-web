@@ -4330,6 +4330,122 @@ app.delete('/api/peca-manufaturada/composicao/:idMontaPeca', async (req, res) =>
     }
 });
 
+// 5b. POST /api/peca-manufaturada/composicao-lote - Criar peça manufaturada em lote
+app.post('/api/peca-manufaturada/composicao-lote', async (req, res) => {
+    try {
+        const { dezenho, materiais, usuario } = req.body;
+        if (!dezenho || !dezenho.IdMaterial) {
+            return res.status(400).json({ success: false, message: 'Desenho (IdMaterial) é obrigatório.' });
+        }
+        if (!materiais || !Array.isArray(materiais) || materiais.length === 0) {
+            return res.status(400).json({ success: false, message: 'Nenhum material selecionado.' });
+        }
+
+        // IdMatriz extraido diretamente do JWT (banco ativo do tenant)
+        const idMatriz = req.tenantUser?.idMatriz || null;
+        const tenantPool = req.tenantDbPool || pool;
+
+        // Garante coluna IdMatriz na tabela (auto-patch no banco correto)
+        try { await tenantPool.execute('ALTER TABLE `montapeca` ADD COLUMN `IdMatriz` INT NULL'); } catch(e){}
+
+        // Busca CodMatFabricante já existentes para este desenho (evita duplicidade)
+        const [existentes] = await tenantPool.execute(
+            `SELECT CodMatFabricante FROM montapeca WHERE IdMaterialPeca = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+            [dezenho.IdMaterial]
+        );
+        const codsExistentes = new Set(existentes.map(r => r.CodMatFabricante));
+
+        let inseridos = 0;
+        let ignorados = 0;
+        for (const mat of materiais) {
+            const cod = mat.CodMatFabricante || '';
+            if (codsExistentes.has(cod)) { ignorados++; continue; }
+            await tenantPool.execute(
+                `INSERT INTO montapeca
+                 (TipoPeca, IdMaterial, PecaQtde, IdMaterialPeca, IdEmpresa, D_E_L_E_T_E,
+                  Peso, Valor, UsuarioD_E_L_E_T_E, DataD_E_L_E_T_E, CodMatFabricante,
+                  IdMatriz, UsuarioCriacao, DataCriacao)
+                 VALUES (?, ?, 1, ?, ?, '', ?, ?, '', '', ?, ?, ?, NOW())`,
+                [
+                    mat.FamiliaMat || 0,
+                    mat.IdMaterial,
+                    dezenho.IdMaterial,
+                    mat.IdEmpresa || 0,
+                    mat.Peso || 0,
+                    mat.Valor || 0,
+                    cod,
+                    idMatriz,
+                    usuario || 'Sistema'
+                ]
+            );
+            codsExistentes.add(cod);
+            inseridos++;
+        }
+
+        // Marca desenho como PecaManufat = 'S'
+        await tenantPool.execute(
+            `UPDATE material SET PecaManufat = 'S' WHERE IdMaterial = ?`,
+            [dezenho.IdMaterial]
+        );
+
+        res.json({ success: true, message: `${inseridos} material(is) adicionado(s). ${ignorados} ignorado(s) (duplicado).`, inseridos, ignorados });
+    } catch (error) {
+        console.error('Error composicao-lote:', error);
+        res.status(500).json({ success: false, message: 'Erro ao gravar composição em lote: ' + error.message });
+    }
+});
+
+// 5c. GET /api/peca-manufaturada/desenhos-criar - Desenhos com colunas completas para modo criação
+app.get('/api/peca-manufaturada/desenhos-criar', async (req, res) => {
+    try {
+        const { q } = req.query;
+        // Exclui itens que já são peças manufaturadas (PecaManufat = 'S')
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW, EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor
+                   FROM material
+                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+                     AND EnderecoArquivo IS NOT NULL AND EnderecoArquivo <> ''
+                     AND (PecaManufat IS NULL OR PecaManufat <> 'S')`;
+        const params = [];
+        if (q) {
+            sql += ` AND (CodMatFabricante LIKE ? OR DescResumo LIKE ?)`;
+            params.push(`%${q}%`, `%${q}%`);
+        }
+        sql += ` ORDER BY CodMatFabricante LIMIT 200`;
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 5d. GET /api/peca-manufaturada/materiais-criar - Materiais brutos com colunas completas, excluindo já compostos do desenho
+app.get('/api/peca-manufaturada/materiais-criar', async (req, res) => {
+    try {
+        const { q, idDesenho } = req.query;
+        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW, EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal
+                   FROM material
+                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+                     AND (EnderecoArquivo IS NULL OR EnderecoArquivo = '')`;
+        const params = [];
+        if (idDesenho) {
+            sql += ` AND IdMaterial NOT IN (
+                SELECT IdMaterial FROM montapeca
+                WHERE IdMaterialPeca = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
+            )`;
+            params.push(idDesenho);
+        }
+        if (q) {
+            sql += ` AND (CodMatFabricante LIKE ? OR DescResumo LIKE ? OR DescDetal LIKE ?)`;
+            params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+        }
+        sql += ` ORDER BY CodMatFabricante LIMIT 300`;
+        const [rows] = await pool.execute(sql, params);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // 6. GET /api/peca-manufaturada/processos - Lista processos de fabricação
 app.get('/api/peca-manufaturada/processos', async (req, res) => {
     try {

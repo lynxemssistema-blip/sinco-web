@@ -26,6 +26,13 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [lastInteractedId, setLastInteractedId] = useState<string | null>(null);
     const [sidebarSearch, setSidebarSearch] = useState('');
     const [showPageTooltip, setShowPageTooltip] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Resolve o help content para a página ativa
     const pageHelp = helpContents[activePageId] || helpContents['default'];
@@ -285,12 +292,15 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     );
 
     return (
-        <div className="h-screen overflow-hidden bg-background transition-colors duration-500 flex font-sans">
-            {/* Desktop Sidebar (Glassmorphism) */}
-            <aside className={cn(
-                "hidden md:flex bg-card border-r border-border fixed inset-y-0 left-0 z-50 shadow-lg flex-col transition-all duration-400 ease-in-out h-full",
-                isSidebarCollapsed ? "w-20" : "w-72"
-            )}>
+        <div className="h-screen bg-background transition-colors duration-500 font-sans grid" style={{ gridTemplateColumns: isDesktop ? (isSidebarCollapsed ? '5rem 1fr' : '18rem 1fr') : '1fr' }}>
+            {/* Desktop Sidebar */}
+            <aside 
+                className={cn(
+                    "bg-card border-r border-border z-50 shadow-lg flex-col transition-all duration-400 ease-in-out h-screen sticky top-0 overflow-hidden",
+                    isSidebarCollapsed ? "w-20" : "w-72"
+                )}
+                style={{ display: isDesktop ? 'flex' : 'none' }}
+            >
                 {SidebarContent({ scrollRef: sidebarScrollRef, isCollapsed: isSidebarCollapsed })}
             </aside>
 
@@ -338,14 +348,15 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
             </AnimatePresence>
 
             {/* Main Content Area */}
-            <main className={cn(
-                "pt-16 md:pt-0 h-full flex-1 flex flex-col min-h-0 transition-all duration-400 ease-in-out bg-background relative z-30 overflow-hidden",
-                isSidebarCollapsed ? "md:ml-20" : "md:ml-72"
-            )}>
+            <main 
+                className="pt-16 md:pt-0 h-screen flex flex-col min-h-0 transition-all duration-400 ease-in-out bg-background relative overflow-hidden"
+            >
                 {/* Floating Decorative Blur */}
                 <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[30%] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="p-3 md:p-4 w-full flex-1 flex flex-col min-h-0 max-w-full mx-auto relative z-10 overflow-y-auto overflow-x-hidden">
+                <div 
+                    className="p-3 md:p-4 w-full flex-1 flex flex-col min-h-0 max-w-full relative z-10 overflow-y-auto overflow-x-hidden"
+                >
                     {/* Header Desktop (Breadcrumb/Title) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 shrink-0">
                         <div className="flex items-start gap-3">

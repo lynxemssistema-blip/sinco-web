@@ -966,6 +966,25 @@ export default function ApontamentoProducaoPage() {
                 </div>
             ) : (
                 <>
+            {/* Toolbar sempre visível: toggle filtro + botões de ação */}
+            <div className="flex items-center gap-2 shrink-0">
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all border ${
+                        showFilters
+                            ? 'text-gray-600 bg-white hover:bg-gray-50 border-gray-200'
+                            : 'text-[#32423D] bg-[#E0E800]/40 hover:bg-[#E0E800]/60 border-[#c8cf00]'
+                    }`}
+                    title={showFilters ? 'Ocultar filtros de pesquisa' : 'Mostrar filtros de pesquisa'}
+                >
+                    <Filter size={13} />
+                    {!showFilters && hasActiveFilters && (
+                        <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+                    )}
+                    <span>{showFilters ? 'Ocultar Filtro' : 'Mostrar Filtro'}</span>
+                </button>
+            </div>
+
             {/* Filters Panel */}
             <AnimatePresence>
                 {showFilters && (
