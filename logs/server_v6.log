@@ -1,0 +1,429 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (148ms)
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/config/menu
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/plano-corte/lista
+[TenantMiddleware] No token provided for /plano-corte/lista
+[API] 401 (6ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=true
+[API]    QUERY: {"exibirConcluidos":"true"}
+[TenantMiddleware] No token provided for /plano-corte/lista?exibirConcluidos=true
+[API] 401 (4ms)
+
+[API] GET /api/producao-plano-corte/lista
+[TenantMiddleware] No token provided for /producao-plano-corte/lista
+[API] 401 (2ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[TenantMiddleware] No token provided for /producao-plano-corte/lista?exibirTodos=true
+[API] 401 (3ms)
+
+[API] GET /api/plano-corte/itens/1
+[TenantMiddleware] No token provided for /plano-corte/itens/1
+[API] 401 (2ms)
+
+[API] GET /api/producao-plano-corte/itens/1?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[TenantMiddleware] No token provided for /producao-plano-corte/itens/1?exibirTodos=true
+[API] 401 (1ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (2006ms) - Rows/Affected: 1
+[API] 304 (2036ms)
+[API] 304 (1877ms)
+[API] 200 (1842ms)
+[DB] [lynxlocal] 🟢 OK (1855ms) - Rows/Affected: 5
+[API] 304 (1862ms)
+[DB] [lynxlocal] 🟢 OK (2147ms) - Rows/Affected: 1
+[API] 304 (2402ms)
+[DB] [lynxlocal] 🟢 OK (1834ms) - Rows/Affected: 2
+[API] 304 (1838ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 5
+[API] 304 (24ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[API] 304 (55ms)
+[API] 304 (50ms)
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 304 (51ms)
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 2
+[API] 304 (54ms)
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 5
+[API] 304 (27ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] 🟢 OK (51ms) - Rows/Affected: 2
+[API] 304 (54ms)
+[DB] [lynxlocal] 🟢 OK (54ms) - Rows/Affected: 5
+[API] 304 (57ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (67ms) - Rows/Affected: 2
+[API] 304 (70ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (44ms) - Rows/Affected: 1
+[API] 304 (48ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (126ms) - Rows/Affected: 1
+[API] 304 (129ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (143ms) - Rows/Affected: 1
+[API] 304 (146ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+[API] 304 (24ms)
+[DB] [lynxlocal] 🟢 OK (181ms) - Rows/Affected: 1
+[API] 304 (185ms)
+
+[API] GET /api/acabamento
+
+[DB] 🟡 EXEC: SELECT IDAcabamento, DescAcabamento, Status, IdEmpresa, DataCriacao, CriadoPor FROM acabamento WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' ORDER BY IDAcabamento DESC
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 7
+[API] 304 (97ms)
+
+[API] GET /api/acabamento
+
+[DB] 🟡 EXEC: SELECT IDAcabamento, DescAcabamento, Status, IdEmpresa, DataCriacao, CriadoPor FROM acabamento WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' ORDER BY IDAcabamento DESC
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 7
+[API] 304 (26ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+[API] 304 (54ms)
+[API] 304 (52ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 5
+[API] 304 (25ms)
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 2
+[API] 304 (24ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+[API] 304 (27ms)
+[API] 304 (25ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 5
+[API] 304 (25ms)
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 2
+[API] 304 (25ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (37ms) - Rows/Affected: 2
+[API] 304 (39ms)
+[DB] [lynxlocal] 🟢 OK (42ms) - Rows/Affected: 5
+[API] 304 (44ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 5
+[API] 304 (23ms)
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 2
+[API] 304 (27ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (32ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (26ms)
+
+[API] POST /api/plano-corte/2/liberar
+[PlanoCorte/Liberar] Erro ao ler diretório G:\MEU DRIVE\04-ARQUIVOS SOLIDWORKS\PHA8439402-01.SLDPRT: ENOENT: no such file or directory, scandir 'G:\MEU DRIVE\04-ARQUIVOS SOLIDWORKS\PHA8439402-01.SLDPRT'
+[API] 200 (792ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 200 (82ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (25ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (1515ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[API] 200 (109ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (155ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (32ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (155ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[API] 304 (56ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[DB] [lynxlocal] 🟢 OK (60ms) - Rows/Affected: 2
+[API] 304 (65ms)
+[DB] [lynxlocal] 🟢 OK (145ms) - Rows/Affected: 5
+[API] 304 (148ms)
+[API] 200 (160ms)
+[API] 304 (123ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 2
+[API] 304 (49ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+[API] 304 (24ms)
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 5
+[API] 304 (45ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 2
+[API] 304 (25ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 5
+[API] 304 (24ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 2
+[API] 304 (25ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] 🟢 OK (26ms) - Rows/Affected: 5
+[API] 304 (28ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=true
+[API]    QUERY: {"exibirConcluidos":"true"}
+[API] 200 (53ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+[API] 304 (49ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=true
+[API]    QUERY: {"exibirConcluidos":"true"}
+[API] 304 (26ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (28ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (27ms)
+
+[API] GET /api/plano-corte/itens/1?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (1317ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (1003ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (27ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[PlanoCorte/Itens] Erro: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(REPLACE(COALESCE(EnderecoArquivoItemOrdemServico,''), '##', '\\')) AS EnderecoA' at line 19
+[API] 500 (39ms)
+
+[API] POST /api/login
+[API]    BODY: {"username":"superadmin","password":"superadmin"}
+[API] 400 (73ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"superadmin","senha":"superadmin"}
+[AUTH] Attempting central login for user: superadmin
+[AUTH] Falling back to local DB auth
+
+[DB] 🟡 EXEC: SELECT * FROM usuario WHERE Login = ? AND Senha = ?
+[DB]    PARAMS: ["superadmin","superadmin"]
+[DB] [DEFAULT] 🟢 OK (153ms) - Rows/Affected: 0
+[API] 401 (1978ms)

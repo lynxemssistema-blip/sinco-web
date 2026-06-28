@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const API = '/api/peca-manufaturada';
 
 interface Proc { seq:number; IdProcesso:number; nome:string; estMin:number|null; padMin:number|null; obs:string; }
-interface MatRow { IdMaterial:number; CodMatFabricante:string; DescResumo:string; Espessura:string|null; MaterialSW:string|null; EnderecoArquivo:string|null; TxtTipoDesenho:string|null; FamiliaMat:any; IdEmpresa:any; Peso:any; Valor:any; DescDetal?:string; }
+interface MatRow { IdMaterial:number; CodMatFabricante:string; DescResumo:string; Espessura:string|null; MaterialSW:string|null; EnderecoArquivo:string|null; TxtTipoDesenho:string|null; FamiliaMat:any; IdEmpresa:any; Peso:any; Valor:any; DescDetal?:string; PecaManufat?:string; }
 
 const authHdr = () => ({ 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` });
 
@@ -56,6 +56,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [loadingM2, setLoadingM2] = useState(false);
   const [filtroM2, setFiltroM2] = useState('');
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
+  const [quantidades, setQuantidades] = useState<Record<number, number>>({});
   const [savingLote, setSavingLote] = useState(false);
 
 
@@ -84,14 +85,14 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     }finally{ setLoadingD(false); }
   },[]);
 
-  const entrarModocriar = ()=>{ setModocriar(true); setDezenhoSel(null); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); fetchDesenhos(); };
-  const sairModocriar  = ()=>{ setModocriar(false); setDezenhoSel(null); setDesenhos([]); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); };
+  const entrarModocriar = ()=>{ setModocriar(true); setDezenhoSel(null); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); setQuantidades({}); fetchDesenhos(); };
+  const sairModocriar  = ()=>{ setModocriar(false); setDezenhoSel(null); setDesenhos([]); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); setQuantidades({}); };
 
   useEffect(()=>{ if(!modocriar) return; const t=setTimeout(()=>fetchDesenhos(filtroD),300); return()=>clearTimeout(t); },[filtroD,modocriar,fetchDesenhos]);
 
   // Carrega materiais Grid 2 ao selecionar desenho
   const fetchMateriais2 = useCallback(async(idDesenho:number, q='')=>{
-    setLoadingM2(true); setSelecionados(new Set());
+    setLoadingM2(true); setSelecionados(new Set()); setQuantidades({});
     try{
       let url = `${API}/materiais-criar?idDesenho=${idDesenho}`;
       if(q) url += `&q=${encodeURIComponent(q)}`;
@@ -107,14 +108,24 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     return()=>clearTimeout(t);
   },[dezenhoSel, filtroM2, fetchMateriais2]);
 
-  const toggleSel = (id:number)=>{ setSelecionados(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; }); };
-  const toggleTodos = ()=>{ setSelecionados(prev=>prev.size===materiais2.length ? new Set() : new Set(materiais2.map(m=>m.IdMaterial))); };
+  const toggleSel = (id:number)=>{ 
+    const m = materiais2.find(x => x.IdMaterial === id);
+    if (m && dezenhoSel && m.CodMatFabricante === dezenhoSel.CodMatFabricante) {
+      alert("O material selecionado é o mesmo da peça principal. Uma peça não pode ser composta por si mesma.");
+      return;
+    }
+    setSelecionados(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; }); 
+  };
+  const toggleTodos = ()=>{ 
+    const validos = materiais2.filter(m => !(dezenhoSel && m.CodMatFabricante === dezenhoSel.CodMatFabricante));
+    setSelecionados(prev=>prev.size===validos.length ? new Set() : new Set(validos.map(m=>m.IdMaterial))); 
+  };
 
   const handleSaveLote = async()=>{
     if(!dezenhoSel || selecionados.size===0) return;
     setSavingLote(true);
     try{
-      const matsSel = materiais2.filter(m=>selecionados.has(m.IdMaterial));
+      const matsSel = materiais2.filter(m=>selecionados.has(m.IdMaterial)).map(m=>({...m, PecaQtde: quantidades[m.IdMaterial] !== undefined ? quantidades[m.IdMaterial] : 1}));
       const r = await fetch(`${API}/composicao-lote`, {
         method:'POST', headers:{...authHdr(),'Content-Type':'application/json'},
         body: JSON.stringify({ dezenho:{ IdMaterial:dezenhoSel.IdMaterial, CodMatFabricante:dezenhoSel.CodMatFabricante }, materiais:matsSel, usuario:uCriacao, idMatriz })
@@ -307,9 +318,9 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             <div className="flex flex-col gap-1 border-l border-gray-200 pl-3">
               {/* Linha 1: Descrição + Espessura + Material SW + PDF */}
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-1"><span className={labelCls}>Desc.:</span><span className={`${fieldCls} font-semibold max-w-[220px] truncate`} title={piece.DescResumo}>{piece.DescResumo||'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Esp.:</span><span className={fieldCls}>{piece.Espessura!=null?piece.Espessura:'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Mat. SW:</span><span className={`${fieldCls} max-w-[120px] truncate`} title={piece.MaterialSW||''}>{piece.MaterialSW||'â€”'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Desc.:</span><span className={`${fieldCls} font-semibold max-w-[220px] truncate`} title={piece.DescResumo}>{piece.DescResumo||'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Esp.:</span><span className={fieldCls}>{piece.Espessura!=null?piece.Espessura:'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Mat. SW:</span><span className={`${fieldCls} max-w-[120px] truncate`} title={piece.MaterialSW||''}>{piece.MaterialSW||'-'}</span></div>
                 {piece.EnderecoArquivo&&(
                   <button onClick={()=>abrirPdf(piece.EnderecoArquivo)} className="flex items-center gap-1 px-1.5 py-0.5 text-red-600 hover:bg-red-50 rounded border border-red-200 text-[9px] font-bold" title="Abrir Desenho PDF">
                     <FileText size={11}/> PDF
@@ -318,12 +329,12 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               </div>
               {/* Linha 2: Dimensões + Peso */}
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-1"><span className={labelCls}>Ãrea Pint.:</span><span className={fieldCls}>{piece.AreaPintura!=null?piece.AreaPintura:'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Peso:</span><span className={fieldCls}>{piece.Peso!=null?piece.Peso:'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Unid.:</span><span className={fieldCls}>{piece.Unidade||'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Alt.:</span><span className={fieldCls}>{piece.Altura!=null?piece.Altura:'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Larg.:</span><span className={fieldCls}>{piece.Largura!=null?piece.Largura:'â€”'}</span></div>
-                <div className="flex items-center gap-1"><span className={labelCls}>Prof.:</span><span className={fieldCls}>{piece.Profundidade!=null?piece.Profundidade:'â€”'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Ãrea Pint.:</span><span className={fieldCls}>{piece.AreaPintura!=null?piece.AreaPintura:'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Peso:</span><span className={fieldCls}>{piece.Peso!=null?piece.Peso:'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Unid.:</span><span className={fieldCls}>{piece.Unidade||'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Alt.:</span><span className={fieldCls}>{piece.Altura!=null?piece.Altura:'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Larg.:</span><span className={fieldCls}>{piece.Largura!=null?piece.Largura:'-'}</span></div>
+                <div className="flex items-center gap-1"><span className={labelCls}>Prof.:</span><span className={fieldCls}>{piece.Profundidade!=null?piece.Profundidade:'-'}</span></div>
               </div>
             </div>
           )}
@@ -378,6 +389,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                       <th className={colsCls}>Esp.</th>
                       <th className={colsCls}>Mat.SW</th>
                       <th className={colsCls}>Tipo</th>
+                        <th className={colsCls}>Manufat.</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -387,10 +399,11 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                         className={`cursor-pointer hover:bg-emerald-50/60 ${dezenhoSel?.IdMaterial===d.IdMaterial?'bg-emerald-100 ring-1 ring-inset ring-emerald-400':''}`}>
                         <td className={`${cellCls} text-gray-400 font-mono`}>{d.IdMaterial}</td>
                         <td className={`${cellCls} font-bold text-[#32423D] max-w-[80px]`} title={d.CodMatFabricante}>{d.CodMatFabricante}</td>
-                        <td className={`${cellCls} text-gray-600 max-w-[100px]`} title={d.DescResumo}>{d.DescResumo||'â€”'}</td>
-                        <td className={cellCls}>{d.Espessura||'â€”'}</td>
-                        <td className={`${cellCls} max-w-[80px]`} title={d.MaterialSW||''}>{d.MaterialSW||'â€”'}</td>
-                        <td className={`${cellCls} max-w-[70px]`} title={d.TxtTipoDesenho||''}>{d.TxtTipoDesenho||'â€”'}</td>
+                        <td className={`${cellCls} text-gray-600 max-w-[100px]`} title={d.DescResumo}>{d.DescResumo||'-'}</td>
+                        <td className={cellCls}>{d.Espessura||'-'}</td>
+                        <td className={`${cellCls} max-w-[80px]`} title={d.MaterialSW||''}>{d.MaterialSW||'-'}</td>
+                        <td className={`${cellCls} max-w-[70px]`} title={d.TxtTipoDesenho||''}>{d.TxtTipoDesenho||'-'}</td>
+                          <td className={`${cellCls} text-center font-bold`} title={d.PecaManufat||''}>{d.PecaManufat||'-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -423,7 +436,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
         <div className="w-2/3 flex flex-col min-h-0 bg-white">
 
           {modocriar ? (<>
-            {/* Header Grid 2 â€” Materiais para ComposiÃ§Ã£o */}
+            {/* Header Grid 2 - Materiais para ComposiÃ§Ã£o */}
             <div className="px-3 py-2 bg-indigo-50 border-b border-indigo-200 shrink-0 flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wide">Materiais para Composição</span>
               {dezenhoSel && <span className="text-[9px] text-indigo-500 font-mono">Desenho: {dezenhoSel.CodMatFabricante}</span>}
@@ -465,6 +478,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                       <th className={colsCls}>Esp.</th>
                       <th className={colsCls}>Mat.SW</th>
                       <th className={colsCls}>Tipo</th>
+                      <th className={`\${colsCls} text-center w-16`}>QTD.</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -476,10 +490,21 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                         </td>
                         <td className={`${cellCls} text-gray-400 font-mono`}>{m.IdMaterial}</td>
                         <td className={`${cellCls} font-bold text-[#32423D] max-w-[90px]`} title={m.CodMatFabricante}>{m.CodMatFabricante}</td>
-                        <td className={`${cellCls} text-gray-600 max-w-[120px]`} title={m.DescResumo||m.DescDetal||''}>{m.DescResumo||m.DescDetal||'â€”'}</td>
-                        <td className={cellCls}>{m.Espessura||'â€”'}</td>
-                        <td className={`${cellCls} max-w-[80px]`} title={m.MaterialSW||''}>{m.MaterialSW||'â€”'}</td>
-                        <td className={`${cellCls} max-w-[70px]`} title={m.TxtTipoDesenho||''}>{m.TxtTipoDesenho||'â€”'}</td>
+                        <td className={`${cellCls} text-gray-600 max-w-[120px]`} title={m.DescResumo||m.DescDetal||''}>{m.DescResumo||m.DescDetal||'-'}</td>
+                        <td className={cellCls}>{m.Espessura||'-'}</td>
+                        <td className={`${cellCls} max-w-[80px]`} title={m.MaterialSW||''}>{m.MaterialSW||'-'}</td>
+                        <td className={`${cellCls} max-w-[70px]`} title={m.TxtTipoDesenho||''}>{m.TxtTipoDesenho||'-'}</td>
+                        <td className="p-1 px-2" onClick={e=>e.stopPropagation()}>
+                          {selecionados.has(m.IdMaterial) ? (
+                            <input type="number" min="0" step="0.01" 
+                              value={quantidades[m.IdMaterial] !== undefined ? quantidades[m.IdMaterial] : 1}
+                              onChange={(e) => setQuantidades(q => ({...q, [m.IdMaterial]: e.target.value === '' ? 0 : Number(e.target.value)}))}
+                              className="w-16 px-1 py-0.5 text-[10px] border border-emerald-300 rounded focus:outline-none focus:border-emerald-600 bg-white"
+                            />
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -488,7 +513,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             </div>
           </>) : (<>
 
-            {/* Header do Grid 2 â€” modo normal */}
+            {/* Header do Grid 2 - modo normal */}
             <div className="px-3 py-2 bg-teal-50/70 border-b border-teal-100 shrink-0 flex items-center gap-2">
               <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wide">Processos de Fabricação</span>
               <span className="text-[9px] text-teal-600">{staging.length} processo(s)</span>
@@ -518,7 +543,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                         <td className="p-1 px-2 text-[10px] font-semibold text-gray-800">{s.nome}</td>
                         <td className="p-1 px-2 text-[10px] text-center text-gray-600">{fmtMin(s.estMin)}</td>
                         <td className="p-1 px-2 text-[10px] text-center text-gray-600">{fmtMin(s.padMin)}</td>
-                        <td className="p-1 px-2 text-[10px] text-gray-500 truncate max-w-[120px]" title={s.obs||''}>{s.obs||'â€”'}</td>
+                        <td className="p-1 px-2 text-[10px] text-gray-500 truncate max-w-[120px]" title={s.obs||''}>{s.obs||'-'}</td>
                         <td className="p-1 px-1 text-right whitespace-nowrap">
                           <button onClick={()=>editProc(s)} className="p-0.5 text-blue-400 hover:text-blue-600 mr-1" title="Editar"><Edit2 size={10}/></button>
                           <button onClick={()=>delProc(s.seq)} className="p-0.5 text-red-300 hover:text-red-600" title="Excluir"><Trash2 size={10}/></button>
@@ -538,7 +563,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                   <select value={selId} onChange={e=>setSelId(e.target.value?Number(e.target.value):'')}
                     disabled={editSq!==null}
                     className={`px-1.5 py-0.5 text-[10px] border rounded focus:outline-none bg-white ${editSq!==null?'border-gray-100 text-gray-400':'border-gray-300 focus:border-[#32423D]'}`}>
-                    <option value="">â€” Selecione â€”</option>
+                    <option value="">- Selecione -</option>
                     {tipos.filter(t=>editSq!==null||!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao))
                       .map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
                   </select>

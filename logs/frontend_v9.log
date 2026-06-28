@@ -1,0 +1,36 @@
+
+> frontend@0.0.0 dev
+> vite --host 0.0.0.0
+
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m1674[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.11:[1m5173[22m/[39m
+[2m16:25:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m16:25:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m16:26:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m16:26:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+
+PWA v1.2.0
+mode      generateSW
+precache  2 entries (0.12 KiB)
+files generated
+  dev-dist/sw.js
+  dev-dist/workbox-5a5d9309.js
+[2m16:36:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m16:36:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m16:37:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m16:44:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m16:44:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m17:09:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m17:09:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontagemPlanoCorte.tsx, /src/index.css[22m
+[2m17:09:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m18:41:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontagemPlanoCorte.tsx, /src/index.css[22m
+[2m18:41:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m18:41:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m18:41:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m18:45:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m18:45:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+
+C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend>

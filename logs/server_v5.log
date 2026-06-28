@@ -1,0 +1,45 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (54ms)
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config/menu
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)

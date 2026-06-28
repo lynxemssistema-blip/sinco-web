@@ -355,7 +355,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                 <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[30%] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
                 <div 
-                    className="p-3 md:p-4 w-full flex-1 flex flex-col min-h-0 max-w-full relative z-10 overflow-y-auto overflow-x-hidden"
+                    className="p-3 md:p-4 w-full flex-1 flex flex-col min-h-0 max-w-full relative overflow-y-auto overflow-x-hidden"
                 >
                     {/* Header Desktop (Breadcrumb/Title) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 shrink-0">

@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Search, Filter, X, Loader, TagIcon, Scissors, Wrench, 
-    Flame, Paintbrush, HardHat, AlertTriangle, CalendarDays, ArrowRight
-} from 'lucide-react';
+import { Search, X, Loader, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -14,7 +11,7 @@ interface GlobalTag {
     Projeto: string | null;
     ProjetoDescricao: string | null;
     ProjetoFinalizado: string | null;
-    [key: string]: any;
+    [key: string]: Record<string, unknown>;
 }
 
 const SECTORS = [
@@ -42,6 +39,7 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
     const [fDataRealFim, setFDataRealFim] = useState('');
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true);
         fetch(`${API_BASE}/visao-geral/tags-globais`)
             .then(r => r.json())
@@ -75,65 +73,14 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
     const fmt = (d: string) => {
         if (!d) return '';
         if (d.includes('-')) {
-            const [y,m,day] = d.split('-');
+            const [,m,day] = d.split('-');
             return `${day.slice(0,2)}/${m}`;
         }
         if (d.includes('/')) return d.slice(0,5);
         return d;
     };
 
-    const hasOverlappingDates = (
-        tag: GlobalTag, sectorFields: string[], 
-        filterIni: string, filterFim: string
-    ) => {
-        if (!filterIni && !filterFim) return true;
-        const fIni = filterIni ? new Date(filterIni + 'T00:00:00').getTime() : 0;
-        const fFim = filterFim ? new Date(filterFim + 'T23:59:59').getTime() : Infinity;
-
-        // Se tem data informada no filtro, pelo menos UM setor deve cruzar com o periodo
-        for (const s of SECTORS) {
-            // Só verifica o setor se não houver filtro de setor específico, ou se bater com o filtro
-            if (fSetor && fSetor !== s.k) continue;
-
-            const dIniVal = tag[(`PlanejadoInicio${s.k}` as keyof GlobalTag)] as string;
-            const dFimVal = tag[(`PlanejadoFinal${s.k}` as keyof GlobalTag)] as string;
-
-            if (dIniVal || dFimVal) {
-                const tIni = dIniVal ? new Date(brToIso(dIniVal) + 'T00:00:00').getTime() : 0;
-                const tFim = dFimVal ? new Date(brToIso(dFimVal) + 'T23:59:59').getTime() : Infinity;
-                if (Math.max(tIni, fIni) <= Math.min(tFim, fFim)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-    const hasOverlappingRealDates = (
-        tag: GlobalTag, 
-        filterIni: string, filterFim: string
-    ) => {
-        if (!filterIni && !filterFim) return true;
-        const fIni = filterIni ? new Date(filterIni + 'T00:00:00').getTime() : 0;
-        const fFim = filterFim ? new Date(filterFim + 'T23:59:59').getTime() : Infinity;
-
-        for (const s of SECTORS) {
-            if (fSetor && fSetor !== s.k) continue;
-            const dIniVal = tag[(`RealizadoInicio${s.k}` as keyof GlobalTag)] as string;
-            const dFimVal = tag[(`RealizadoFinal${s.k}` as keyof GlobalTag)] as string;
-
-            if (dIniVal || dFimVal) {
-                const tIni = dIniVal ? new Date(brToIso(dIniVal) + 'T00:00:00').getTime() : 0;
-                const tFim = dFimVal ? new Date(brToIso(dFimVal) + 'T23:59:59').getTime() : Infinity;
-                if (Math.max(tIni, fIni) <= Math.min(tFim, fFim)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-
+    
     const filtered = useMemo(() => {
         return tags.filter(t => {
             if (fProjeto && !(t.Projeto?.toLowerCase().includes(fProjeto.toLowerCase()) || t.ProjetoDescricao?.toLowerCase().includes(fProjeto.toLowerCase()))) return false;

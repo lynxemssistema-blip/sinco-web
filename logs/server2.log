@@ -1,0 +1,346 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (26ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (79ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (55ms)
+[DB] [lynxlocal] 🟢 OK (154ms) - Rows/Affected: 1
+[API] 304 (161ms)
+[DB] [lynxlocal] 🟢 OK (151ms) - Rows/Affected: 1
+[API] 304 (158ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (29ms)
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (27ms)
+[DB] [lynxlocal] 🟢 OK (44ms) - Rows/Affected: 1
+[API] 304 (49ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","planoCorteFiltroDC":"chaparia","maxRegistros":500}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (44ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","chaparia",500]
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config save error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (74ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","planoCorteFiltroDC":"chaparia","maxRegistros":500}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","chaparia",500]
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config save error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (45ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","planoCorteFiltroDC":"chaparia","maxRegistros":500}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (572ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]","chaparia",500]
+[DB] 🔴 ERROR: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+Config save error: Error: Unknown column 'PlanoCorteFiltroDC' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6571:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ?, PlanoCorteFiltroDC = ?, MaxRegistros = ? WHERE id = 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'PlanoCorteFiltroDC' in 'field list'"
+}
+[API] 500 (602ms)

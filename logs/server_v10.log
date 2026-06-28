@@ -1,0 +1,130 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (51ms)
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (121ms) - Rows/Affected: 1
+[API] 304 (217ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (36ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (66ms) - Rows/Affected: 1
+[API] 304 (73ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (37ms) - Rows/Affected: 1
+[API] 304 (47ms)
+[DB] [lynxlocal] 🟢 OK (169ms) - Rows/Affected: 1
+[API] 304 (195ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 200 (62ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (31ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+[API] 304 (49ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (27ms) - Rows/Affected: 1
+[API] 304 (30ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+[API] 304 (47ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (68ms) - Rows/Affected: 1
+[API] 304 (72ms)
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (26ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (45ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (26ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (61ms)
+
+[API] POST /api/system/open-folder
+[API]    BODY: {"path":"G:\\MEU DRIVE\\03-PLANO DE CORTE\\PC_00002"}
+[SYSTEM] Request to open folder: G:\MEU DRIVE\03-PLANO DE CORTE\PC_00002 
+[API] 200 (396ms)

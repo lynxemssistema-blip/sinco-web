@@ -1,0 +1,285 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (29ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (64ms) - Rows/Affected: 1
+[API] 304 (117ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (33ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (62ms) - Rows/Affected: 1
+[API] 304 (66ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (81ms) - Rows/Affected: 1
+[API] 304 (87ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+[API] 304 (48ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (40ms) - Rows/Affected: 1
+[API] 304 (43ms)
+[DB] [lynxlocal] 🟢 OK (1886ms) - Rows/Affected: 1
+[API] 304 (1891ms)
+[DB] [lynxlocal] 🟢 OK (2083ms) - Rows/Affected: 1
+[API] 304 (2087ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 1
+[API] 304 (47ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (50ms) - Rows/Affected: 1
+[API] 304 (54ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (31ms) - Rows/Affected: 1
+[API] 304 (35ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 1
+[API] 304 (27ms)
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 1
+[API] 304 (46ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 304 (50ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+[API] 304 (24ms)
+[DB] [lynxlocal] 🟢 OK (100ms) - Rows/Affected: 1
+[API] 304 (102ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+[API] 304 (23ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=10
+[API]    QUERY: {"modo":"pendentes","limit":"10"}
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=10
+[API]    QUERY: {"modo":"pendentes","limit":"10"}
+[API] 200 (31ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 1
+[API] 304 (29ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (24ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (24ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\"]"}
+
+[DB] 🟡 EXEC: SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema' AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis')
+[DB] [lynxlocal] 🟢 OK (44ms) - Rows/Affected: 2
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"montagem\"]"]
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 1
+[API] 200 (136ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (21ms) - Rows/Affected: 1
+[API] 200 (24ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+[API] 200 (30ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+[API] 304 (170ms)
+
+[API] GET /api/pesquisar-desenho
+[API] 200 (278ms)
+
+[API] GET /api/pesquisar-desenho
+[API] 304 (117ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+[API] 200 (32ms)
+
+[API] GET /api/ordemservico/projetos
+
+[DB] 🟡 EXEC: SELECT DISTINCT Projeto as value, Projeto as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Projeto IS NOT NULL AND Projeto != '' ORDER BY Projeto
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 2
+[API] 200 (55ms)
+
+[API] GET /api/ordemservico/tags
+
+[DB] 🟡 EXEC: SELECT DISTINCT Tag as value, Tag as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Tag IS NOT NULL AND Tag != '' ORDER BY Tag
+
+[API] GET /api/ordemservico/projetos-clonagem
+
+[DB] 🟡 EXEC: SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [lynxlocal] 🟢 OK (51ms) - Rows/Affected: 3
+[API] 200 (55ms)
+
+[API] GET /api/ordemservico/projetos
+
+[DB] 🟡 EXEC: SELECT DISTINCT Projeto as value, Projeto as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Projeto IS NOT NULL AND Projeto != '' ORDER BY Projeto
+[DB] [lynxlocal] 🟢 OK (26ms) - Rows/Affected: 2
+[API] 304 (28ms)
+[DB] [lynxlocal] 🟢 OK (156ms) - Rows/Affected: 12
+[API] 200 (159ms)
+[DB] [lynxlocal] 🟢 OK (142ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+[DB] [lynxlocal] 🟢 OK (149ms) - Rows/Affected: 1
+[API] 304 (151ms)
+[DB] [lynxlocal] 🟢 OK (83ms) - Rows/Affected: 3
+[API] 200 (232ms)
+
+[API] GET /api/ordemservico/tags
+
+[DB] 🟡 EXEC: SELECT DISTINCT Tag as value, Tag as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Tag IS NOT NULL AND Tag != '' ORDER BY Tag
+[DB] [lynxlocal] 🟢 OK (50ms) - Rows/Affected: 3
+[API] 304 (52ms)
+
+[API] GET /api/ordemservico/projetos-clonagem
+
+[DB] 🟡 EXEC: SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (27ms) - Rows/Affected: 1
+[API] 304 (29ms)
+[DB] [lynxlocal] 🟢 OK (47ms) - Rows/Affected: 12
+[API] 304 (50ms)
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 3
+[API] 304 (51ms)
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+[DB] [lynxlocal] 🟢 OK (28ms) - Rows/Affected: 3
+[API] 304 (53ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+[API] 304 (1657ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=concluidos&limit=300
+[API]    QUERY: {"modo":"concluidos","limit":"300"}
+[API] 200 (533ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=300
+[API]    QUERY: {"modo":"pendentes","limit":"300"}
+[API] 304 (50ms)

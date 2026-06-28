@@ -1,0 +1,77 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=500
+[API]    QUERY: {"modo":"pendentes","limit":"500"}
+[DB] [lynxlocal] 🟢 OK (918ms) - Rows/Affected: 1
+[API] 304 (1041ms)
+[DB] [lynxlocal] 🟢 OK (673ms) - Rows/Affected: 1
+[API] 304 (686ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (665ms) - Rows/Affected: 1
+[API] 304 (673ms)
+[API] 200 (250ms)
+[DB] [lynxlocal] 🟢 OK (61ms) - Rows/Affected: 1
+[API] 304 (66ms)
+[DB] [lynxlocal] 🟢 OK (72ms) - Rows/Affected: 1
+[API] 304 (76ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (34ms) - Rows/Affected: 1
+[API] 304 (42ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (28ms) - Rows/Affected: 1
+[API] 304 (32ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (27ms)
+[DB] [lynxlocal] 🟢 OK (59ms) - Rows/Affected: 1
+[API] 304 (64ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=500
+[API]    QUERY: {"modo":"pendentes","limit":"500"}
+[API] 304 (56ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes&limit=500
+[API]    QUERY: {"modo":"pendentes","limit":"500"}
+[API] 304 (28ms)

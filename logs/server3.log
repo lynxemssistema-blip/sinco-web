@@ -1,0 +1,117 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (31ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (130ms) - Rows/Affected: 1
+[API] 200 (173ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (36ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (72ms) - Rows/Affected: 1
+[API] 304 (78ms)
+[DB] [lynxlocal] 🟢 OK (155ms) - Rows/Affected: 1
+[API] 304 (159ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (33ms) - Rows/Affected: 1
+[API] 304 (38ms)
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (27ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (26ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (26ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (29ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (1752ms) - Rows/Affected: 1
+[API] 304 (1760ms)
+[DB] [lynxlocal] 🟢 OK (1735ms) - Rows/Affected: 1
+[API] 304 (1740ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (46ms) - Rows/Affected: 1
+[API] 304 (52ms)
+[DB] [lynxlocal] 🟢 OK (1815ms) - Rows/Affected: 1
+[API] 304 (1818ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (44ms) - Rows/Affected: 1
+[API] 304 (47ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (26ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, PlanoCorteFiltroDC, MaxRegistros FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (26ms)

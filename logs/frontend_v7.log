@@ -1,0 +1,24 @@
+
+> frontend@0.0.0 dev
+> vite --host 0.0.0.0
+
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m1600[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.11:[1m5173[22m/[39m
+[2m14:48:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m14:48:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m14:48:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m14:48:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+
+PWA v1.2.0
+mode      generateSW
+precache  2 entries (0.12 KiB)
+files generated
+  dev-dist/sw.js
+  dev-dist/workbox-5a5d9309.js
+[2m14:48:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/ProducaoPlanoCorte.tsx, /src/index.css[22m
+[2m16:06:37[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MontagemPlanoCorte.tsx, /src/index.css[22m
+
+C:\SincoWeb\SINCO-WEB\SINCO-WEB\frontend>

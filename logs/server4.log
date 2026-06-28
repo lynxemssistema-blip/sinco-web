@@ -1,0 +1,685 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (29ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (77ms) - Rows/Affected: 1
+[API] 200 (148ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (54ms) - Rows/Affected: 1
+[API] 304 (68ms)
+[DB] [lynxlocal] 🟢 OK (137ms) - Rows/Affected: 1
+[API] 304 (142ms)
+[DB] [lynxlocal] 🟢 OK (136ms) - Rows/Affected: 1
+[API] 304 (140ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (58ms) - Rows/Affected: 1
+[API] 304 (61ms)
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+[API] 304 (48ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 304 (52ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (26ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\"]"}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (46ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"montagem\"]"]
+[DB] [lynxlocal] 🟢 OK (46ms) - Rows/Affected: 1
+[API] 200 (98ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 200 (25ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=chaparia
+[API]    QUERY: {"tipoFiltro":"chaparia"}
+[PlanoCorte] tipoFiltro ativo: chaparia
+[API] 200 (60ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=chaparia
+[API]    QUERY: {"tipoFiltro":"chaparia"}
+[PlanoCorte] tipoFiltro ativo: chaparia
+[API] 304 (28ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (134ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (3ms)
+
+[API] GET /api/admin/databases
+
+[API] GET /api/admin/users
+
+[API] GET /api/matriz
+[API] 304 (139ms)
+[API] 304 (169ms)
+
+[API] GET /api/matriz
+[API] 304 (285ms)
+[API] 304 (26ms)
+
+[API] GET /api/admin/users
+
+[API] GET /api/admin/databases
+[API] 304 (124ms)
+[API] 304 (113ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"alfatec2"}
+[API] 200 (20ms)
+
+[API] GET /api/config
+
+[DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+[DB] [DEFAULT] 🟢 OK - Rows: 1
+[DB] Additional Pool initialized for: alfatec2
+[Tenant] Lazy-loaded pool for: alfatec2
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (787ms)
+[DB] [alfatec2] 🟢 OK (828ms) - Rows/Affected: 1
+[API] 200 (831ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [alfatec2] 🟢 OK (27ms) - Rows/Affected: 1
+[API] 304 (32ms)
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+Config error: Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[API] 500 (1155ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+Config error: Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[API] 500 (46ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+Config error: Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[API] 500 (34ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (26ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+Config error: Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6530:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[API] 500 (24ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6992:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (25ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]"}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'id' in 'field list'
+Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6547:39
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+Config save error: Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6547:39
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+[API] 500 (27ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"solda\",\"pintura\",\"montagem\"]"}
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'id' in 'field list'
+Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6547:39
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+Config save error: Error: Unknown column 'id' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6547:39
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT id FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'id' in 'field list'"
+}
+[API] 500 (26ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (2ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (1ms)
+
+[API] GET /api/admin/databases
+
+[API] GET /api/admin/users
+
+[API] GET /api/matriz
+[API] 304 (25ms)
+
+[API] GET /api/matriz
+[API] 304 (26ms)
+[API] 304 (145ms)
+[API] 304 (170ms)
+
+[API] GET /api/admin/users
+
+[API] GET /api/admin/databases
+[API] 304 (124ms)
+[API] 304 (122ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"lynxlocal"}
+[API] 200 (4ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (52ms) - Rows/Affected: 1
+[API] 200 (55ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 1
+[API] 200 (53ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (25ms)
+[DB] [lynxlocal] 🟢 OK (126ms) - Rows/Affected: 1
+[API] 200 (153ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+[API] 304 (49ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (24ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (26ms)

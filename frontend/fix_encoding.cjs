@@ -1,0 +1,11 @@
+const fs = require('fs');
+const p = 'c:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/MontaPecaManufaturada.tsx';
+let c = fs.readFileSync(p, 'utf8');
+c = c.replace(/â€”/g, '-');
+c = c.replace(/Gestǜo/g, 'Gestão');
+c = c.replace(/Relatrios/g, 'Relatórios');
+c = c.replace(/Produǜo/g, 'Produção');
+c = c.replace(/Visǜo/g, 'Visão');
+c = c.replace(/fǭbrica/g, 'fábrica');
+fs.writeFileSync(p, c);
+console.log('Fixed encoding issues in MontaPecaManufaturada.tsx');

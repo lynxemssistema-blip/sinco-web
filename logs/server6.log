@@ -1,0 +1,700 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (31ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (73ms) - Rows/Affected: 1
+[API] 304 (146ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (33ms) - Rows/Affected: 1
+[API] 304 (43ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (60ms) - Rows/Affected: 1
+[API] 304 (65ms)
+[DB] [lynxlocal] 🟢 OK (152ms) - Rows/Affected: 1
+[API] 304 (157ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (53ms) - Rows/Affected: 1
+[API] 304 (56ms)
+[API] 200 (104ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (4ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (3ms)
+
+[API] GET /api/admin/databases
+[API] 304 (128ms)
+
+[API] GET /api/admin/users
+
+[API] GET /api/matriz
+[API] 304 (34ms)
+[API] 304 (131ms)
+
+[API] GET /api/admin/databases
+[API] 304 (132ms)
+
+[API] GET /api/matriz
+[API] 304 (25ms)
+
+[API] GET /api/admin/users
+[API] 304 (117ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"alfatec2"}
+[API] 200 (11ms)
+
+[API] GET /api/config
+
+[DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+[DB] [DEFAULT] 🟢 OK - Rows: 1
+[DB] Additional Pool initialized for: alfatec2
+[Tenant] Lazy-loaded pool for: alfatec2
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 200 (992ms)
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (773ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [alfatec2] 🟢 OK (800ms) - Rows/Affected: 1
+[API] 200 (802ms)
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 304 (29ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [alfatec2] 🟢 OK (44ms) - Rows/Affected: 1
+[API] 304 (47ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[API] 200 (1121ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[API] 304 (997ms)
+
+[API] GET /api/ordemservico/projetos
+
+[DB] 🟡 EXEC: SELECT DISTINCT Projeto as value, Projeto as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Projeto IS NOT NULL AND Projeto != '' ORDER BY Projeto
+
+[API] GET /api/ordemservico/tags
+
+[DB] 🟡 EXEC: SELECT DISTINCT Tag as value, Tag as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Tag IS NOT NULL AND Tag != '' ORDER BY Tag
+
+[API] GET /api/ordemservico/projetos-clonagem
+
+[DB] 🟡 EXEC: SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [alfatec2] 🟢 OK (86ms) - Rows/Affected: 749
+[DB] [alfatec2] 🟢 OK (84ms) - Rows/Affected: 898
+[API] 200 (98ms)
+[API] 200 (94ms)
+[DB] [alfatec2] 🟢 OK (99ms) - Rows/Affected: 1058
+[API] 200 (112ms)
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 304 (122ms)
+[DB] [alfatec2] 🟢 OK (140ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+
+[API] GET /api/ordemservico/projetos
+
+[DB] 🟡 EXEC: SELECT DISTINCT Projeto as value, Projeto as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Projeto IS NOT NULL AND Projeto != '' ORDER BY Projeto
+[DB] [alfatec2] 🟢 OK (96ms) - Rows/Affected: 50
+[API] 200 (247ms)
+[DB] [alfatec2] 🟢 OK (70ms) - Rows/Affected: 749
+[API] 304 (74ms)
+
+[API] GET /api/ordemservico/projetos-clonagem
+
+[DB] 🟡 EXEC: SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY Projeto
+
+[API] GET /api/ordemservico/tags
+
+[DB] 🟡 EXEC: SELECT DISTINCT Tag as value, Tag as label FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Tag IS NOT NULL AND Tag != '' ORDER BY Tag
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 304 (27ms)
+[DB] [alfatec2] 🟢 OK (72ms) - Rows/Affected: 898
+[API] 304 (76ms)
+[DB] [alfatec2] 🟢 OK (72ms) - Rows/Affected: 1058
+[API] 304 (75ms)
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [alfatec2] 🟢 OK (22ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+[DB] [alfatec2] 🟢 OK (29ms) - Rows/Affected: 50
+[API] 304 (56ms)
+
+[API] GET /api/ordemservico?page=1&limit=50&filter=liberados
+[API]    QUERY: {"page":"1","limit":"50","filter":"liberados"}
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')
+[DB] [alfatec2] 🟢 OK (23ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: SELECT IdOrdemServico, Projeto, Tag, DescTag, Descricao, Estatus, DataPrevisao, DataCriacao, CriadoPor, Liberado_Engenharia, Data_Liberacao_Engenharia, QtdeTotalItens, QtdeItensExecutados, PercentualItens, QtdeTotalPecas, QtdePecasExecutadas, PercentualPecas, PesoTotal, AreaPinturaTotal, OrdemServicoFinalizado, DataFinalizado, IdProjeto, IdTag, DescEmpresa, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, PlanejadoInicioENGENHARIA, PlanejadoFinalENGENHARIA, RealizadoInicioENGENHARIA, RealizadoFinalENGENHARIA, PlanejadoInicioACABAMENTO, PlanejadoFinalACABAMENTO, RealizadoInicioACABAMENTO, RealizadoFinalACABAMENTO, EnderecoOrdemServico, NumeroOPOmie FROM ordemservico WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND Liberado_Engenharia = 'S' AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C') ORDER BY IdOrdemServico DESC LIMIT ? OFFSET ?
+[DB]    PARAMS: [50,0]
+[DB] [alfatec2] 🟢 OK (46ms) - Rows/Affected: 50
+[API] 304 (74ms)
+
+[API] GET /api/ordemservico/5162/itens
+
+[DB] 🟡 EXEC: SELECT IdOrdemServicoItem, IdOrdemServico, DescResumo, DescDetal, Fator, QtdeTotal, Peso, AreaPintura, Acabamento, Unidade, Espessura, Altura, Largura, CodMatFabricante, MaterialSW, EnderecoArquivo, ProdutoPrincipal, OrdemServicoItemFinalizado as Finalizado, txtCorte, sttxtCorte, CortePercentual, txtDobra, sttxtDobra, DobraPercentual, txtSolda, sttxtSolda, SoldaPercentual, txtPintura, sttxtPintura, PinturaPercentual, TxtMontagem, sttxtMontagem, MontagemPercentual FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY IdOrdemServicoItem
+[DB]    PARAMS: ["5162"]
+[DB] [alfatec2] 🟢 OK (56ms) - Rows/Affected: 26
+[API] 200 (64ms)
+
+[API] GET /api/visao-geral/projetos?liberados=1
+[API]    QUERY: {"liberados":"1"}
+
+[DB] 🟡 EXEC: SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* ── Tags / Peças nativos da tabela Projetos ── */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags, COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas, /* ── RNC ── */ COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND r.Estatus = 'PENDENCIA'), 0) AS TotalRnc, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')), 0) AS qtdernc, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND (r.Estatus = 'PENDENCIA' OR r.Estatus IS NULL OR r.Estatus = '')), 0) AS qtderncPendente, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND (r.Estatus LIKE '%FIN%' OR r.Estatus = 'FINALIZADA')), 0) AS qtderncFinalizada, /* ── Novas req ── */ COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas, /* ── Setor Corte ── */ COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalCorte, COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecCorte, /* ── Setor Dobra ── */ COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalDobra, COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecDobra, /* ── Setor Solda ── */ COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalSolda, COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecSolda, /* ── Setor Pintura ── */ COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalPintura, COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecPintura, /* ── Setor Montagem ── */ COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalMontagem, COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecMontagem FROM projetos p LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '') WHERE COALESCE(p.D_E_L_E_T_E,'') = '' AND COALESCE(p.liberado,'') != '' GROUP BY p.IdProjeto ORDER BY p.IdProjeto DESC LIMIT 300
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [alfatec2] 🟢 OK (51ms) - Rows/Affected: 54
+[API] 200 (58ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [alfatec2] 🟢 OK (23ms) - Rows/Affected: 54
+[API] 304 (25ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [alfatec2] 🟢 OK (49ms) - Rows/Affected: 8
+[API] 200 (52ms)
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [alfatec2] 🟢 OK (22ms) - Rows/Affected: 8
+[API] 304 (24ms)
+[DB] [alfatec2] 🟢 OK (928ms) - Rows/Affected: 300
+[Visão Geral Produção] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (950ms)
+
+[API] GET /api/visao-geral/projetos?liberados=1
+[API]    QUERY: {"liberados":"1"}
+
+[DB] 🟡 EXEC: SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* ── Tags / Peças nativos da tabela Projetos ── */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags, COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas, /* ── RNC ── */ COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND r.Estatus = 'PENDENCIA'), 0) AS TotalRnc, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*')), 0) AS qtdernc, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND (r.Estatus = 'PENDENCIA' OR r.Estatus IS NULL OR r.Estatus = '')), 0) AS qtderncPendente, COALESCE((SELECT COUNT(*) FROM ordemservicoitempendencia r WHERE r.IdProjeto = p.IdProjeto AND (r.D_E_L_E_T_E IS NULL OR r.D_E_L_E_T_E <> '*') AND (r.Estatus LIKE '%FIN%' OR r.Estatus = 'FINALIZADA')), 0) AS qtderncFinalizada, /* ── Novas req ── */ COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas, /* ── Setor Corte ── */ COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalCorte, COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecCorte, /* ── Setor Dobra ── */ COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalDobra, COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecDobra, /* ── Setor Solda ── */ COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalSolda, COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecSolda, /* ── Setor Pintura ── */ COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalPintura, COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecPintura, /* ── Setor Montagem ── */ COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) AS TotalMontagem, COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS ExecMontagem FROM projetos p LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '') WHERE COALESCE(p.D_E_L_E_T_E,'') = '' AND COALESCE(p.liberado,'') != '' GROUP BY p.IdProjeto ORDER BY p.IdProjeto DESC LIMIT 300
+[DB] [alfatec2] 🟢 OK (73ms) - Rows/Affected: 300
+[Visão Geral Produção] Query executada para tenant: undefined. Rows found: 300
+[API] 304 (82ms)
+
+[API] GET /api/visao-geral/tags/920
+
+[DB] 🟡 EXEC: SELECT IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag, QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS, QtdeTotalPecas, qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia, PlanejadoInicioCorte, PlanejadoFinalCorte, RealizadoInicioCorte, RealizadoFinalCorte, CorteTotalExecutado, CorteTotalExecutar, CortePercentual, PlanejadoInicioDobra, PlanejadoFinalDobra, RealizadoInicioDobra, RealizadoFinalDobra, DobraTotalExecutado, DobraTotalExecutar, DobraPercentual, PlanejadoInicioSolda, PlanejadoFinalSolda, RealizadoInicioSolda, RealizadoFinalSolda, SoldaTotalExecutado, SoldaTotalExecutar, SoldaPercentual, PlanejadoInicioPintura, PlanejadoFinalPintura, RealizadoInicioPintura, RealizadoFinalPintura, PinturaTotalExecutado, PinturaTotalExecutar, PinturaPercentual, PlanejadoInicioMontagem, PlanejadoFinalMontagem, RealizadoInicioMontagem, RealizadoFinalMontagem, MontagemTotalExecutado, MontagemTotalExecutar, MontagemPercentual FROM tags WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY IdTag ASC
+[DB]    PARAMS: ["920"]
+[DB] [alfatec2] 🟢 OK (52ms) - Rows/Affected: 3
+[API] 200 (58ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+[API] 200 (1360ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 304 (29ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (26ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+Error: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:6531:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'"
+}
+[Config GET] Banco com estrutura legada, usando defaults: Unknown column 'RestringirApontamentoSemSaldoAnterior' in 'field list'
+[API] 304 (26ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:94:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7030:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:60:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:59:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (25ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (2ms)
+
+[API] GET /api/admin/check-auth
+[API] 304 (2ms)
+
+[API] GET /api/admin/databases
+
+[API] GET /api/admin/users
+
+[API] GET /api/matriz
+[API] 304 (131ms)
+
+[API] GET /api/matriz
+[API] 304 (158ms)
+[API] 304 (164ms)
+[API] 304 (25ms)
+
+[API] GET /api/admin/users
+
+[API] GET /api/admin/databases
+[API] 304 (136ms)
+[API] 304 (136ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"lynxlocal"}
+[API] 200 (6ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (53ms) - Rows/Affected: 1
+[API] 200 (57ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 1
+[API] 200 (52ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 1
+[API] 304 (27ms)
+[DB] [lynxlocal] 🟢 OK (129ms) - Rows/Affected: 1
+[API] 200 (134ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+[API] 200 (53ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 1
+[API] 304 (52ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (25ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (24ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 304 (24ms)
+
+[API] PUT /api/config
+[API]    BODY: {"restringirApontamento":"Não","processosVisiveis":"[\"corte\",\"dobra\",\"montagem\"]"}
+
+[DB] 🟡 EXEC: SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema' AND COLUMN_NAME IN ('RestringirApontamentoSemSaldoAnterior','ProcessosVisiveis')
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 2
+
+[DB] 🟡 EXEC: SELECT id FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 1
+
+[DB] 🟡 EXEC: UPDATE configuracaosistema SET RestringirApontamentoSemSaldoAnterior = ?, ProcessosVisiveis = ? WHERE id = 1
+[DB]    PARAMS: ["Não","[\"corte\",\"dobra\",\"montagem\"]"]
+[DB] [lynxlocal] 🟢 OK (43ms) - Rows/Affected: 1
+[API] 200 (141ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 1
+[API] 200 (25ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+[API] 200 (38ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (28ms)
+[DB] [lynxlocal] 🟢 OK (130ms) - Rows/Affected: 1
+[API] 304 (132ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 304 (51ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 1
+[API] 304 (27ms)

@@ -1,0 +1,1641 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /lynx-logo.png
+[API] 304 (210ms)
+
+[API] GET /vite.svg
+[API] 304 (9ms)
+
+[API] GET /sw.js
+[API] 200 (50ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 200 (11ms)
+
+[API] GET /index.html
+[API] 200 (7ms)
+
+[API] GET /assets/index-Dt7-_qh9.js
+[API] 200 (191ms)
+
+[API] GET /assets/index-D7umoQuE.css
+[API] 200 (19ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (680ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"SINCO","senha":"sinco123"}
+[AUTH] Attempting central login for user: SINCO
+[AUTH] Falling back to local DB auth
+[API] 401 (495ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (209ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (624ms)
+
+[API] GET /lynx-logo.png
+[API] 304 (20ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[TenantMiddleware] No token provided for /config?limit=500
+[API] 401 (5ms)
+
+[API] GET /sw.js
+[API] 304 (6ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (5ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (232ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"sinco","senha":"sinco123"}
+[AUTH] Attempting central login for user: sinco
+[AUTH] Falling back to local DB auth
+[API] 401 (420ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"SINCO","senha":"admin"}
+[AUTH] Attempting central login for user: SINCO
+[AUTH] Falling back to local DB auth
+[API] 401 (166ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"SINCO","senha":"admin"}
+[AUTH] Attempting central login for user: SINCO
+[AUTH] Falling back to local DB auth
+[API] 401 (196ms)
+
+[API] GET /lynx-logo.png
+[API] 304 (8ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[TenantMiddleware] No token provided for /config?limit=500
+[API] 401 (4ms)
+
+[API] GET /sw.js
+[API] 304 (3ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (2ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"sinco"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (347ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"sinco"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (472ms)
+
+[API] GET /api/projects
+[TenantMiddleware] No token provided for /projects
+[API] 401 (5ms)
+
+[API] GET /favicon.ico
+[API] 200 (54ms)
+
+[API] GET /sw.js
+[API] 304 (3ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (2ms)
+
+[API] GET /lynx-logo.png
+[API] 304 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[TenantMiddleware] No token provided for /config?limit=500
+[API] 401 (2ms)
+
+[API] GET /sw.js
+[API] 304 (4ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (2ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (181ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"123456"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (168ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (444ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (1764ms)
+
+[API] GET /lynx-logo.png
+[API] 304 (22ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[TenantMiddleware] No token provided for /config?limit=500
+[API] 401 (4ms)
+
+[API] GET /sw.js
+[API] 304 (5ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (2ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (219ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (268ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (246ms)
+
+[API] POST /api/login
+[API]    BODY: {"login":"admin","senha":"admin"}
+[AUTH] Attempting central login for user: admin
+[AUTH] Falling back to local DB auth
+[API] 401 (164ms)
+
+[API] GET /lynx-logo.png
+[API] 304 (12ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[TenantMiddleware] No token provided for /config?limit=500
+[API] 401 (3ms)
+
+[API] GET /sw.js
+[API] 304 (5ms)
+
+[API] GET /workbox-8c29f6e4.js
+[API] 304 (4ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (199ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (6ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] POST /api/admin/login
+[API]    BODY: {"username":"superadmin","password":"SincoMaster2026!"}
+[ADMIN AUTH] Raw Body: { username: 'superadmin', password: 'SincoMaster2026!' }
+[ADMIN AUTH] Check: 'superadmin' (len=10) vs 'superadmin'
+[ADMIN AUTH] Password Len: 16
+[ADMIN AUTH] Database Success: superadmin
+[API] 200 (557ms)
+
+[API] GET /api/admin/databases?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (138ms)
+[API] 304 (121ms)
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (24ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"lynxlocal"}
+[API] 200 (6ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (182ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (54ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (53ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+[API] 304 (148ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (63ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (28ms)
+
+[API] PATCH /api/acompanhamento/projeto/15/observacao
+[API]    BODY: {"observacao":null}
+[API] 404 (9ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (54ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (29ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (29ms)
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (28ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (30ms)
+[API] 304 (53ms)
+[API] 304 (134ms)
+[API] 304 (159ms)
+[API] 304 (157ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (74ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (30ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&limit=10
+[API]    QUERY: {"finalizados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 1
+[API] 304 (57ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (87ms)
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (30ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (992ms | rows:5): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (1059ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (189ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (603ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 304 (744ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (50ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (145ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (179ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (203ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[API] 304 (215ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (50ms)
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/espessuras?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/materiais?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (112ms)
+[API] 304 (135ms)
+[API] 304 (156ms)
+
+[API] GET /api/apontamento/corte?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (139ms)
+
+[API] GET /api/config/espessuras?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (31ms)
+[API] 304 (30ms)
+[API] 304 (57ms)
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (61ms)
+[API] 304 (70ms)
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+[API] 304 (24ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1342ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1353ms | rows:40): SELECT idMaterialSw, MaterialSw FROM materialsw ORDER BY MaterialSw ASC
+[API] 304 (1361ms)
+[API] 304 (1388ms)
+
+[API] GET /api/config/materiais?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (49ms)
+[API] 304 (93ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/espessuras?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1916ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[API] 304 (1923ms)
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (1740ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1748ms | rows:6): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[API] 304 (1750ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1978ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 304 (1982ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1760ms | rows:12): SELECT Setor FROM setor WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY Setor
+[API] 304 (1763ms)
+[DB] [lynxlocal] ⚠️  SLOW QUERY (2306ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 304 (2377ms)
+
+[API] GET /api/config/materiais?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/apontamento/corte?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/espessuras?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (48ms)
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] 🔴 ERROR: Table 'lynxlocal.espessura' doesn't exist
+Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+Error fetching espessuras: Error: Table 'lynxlocal.espessura' doesn't exist
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7684:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_NO_SUCH_TABLE',
+  errno: 1146,
+  sql: 'SELECT idEspessura, Espessura FROM espessura ORDER BY Espessura ASC',
+  sqlState: '42S02',
+  sqlMessage: "Table 'lynxlocal.espessura' doesn't exist"
+}
+[API] 500 (28ms)
+[API] 304 (46ms)
+[API] 304 (46ms)
+[API] 304 (79ms)
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/materiais?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (46ms)
+[API] 304 (27ms)
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (96ms)
+[API] 304 (45ms)
+
+[API] GET /api/config/usuarios?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/setores?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+[API] 304 (85ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (48ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (61ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (25ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 304 (84ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (117ms)
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (65ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+[API] 304 (51ms)
+[API] 304 (50ms)
+[API] 304 (48ms)
+[API] 304 (76ms)
+[API] 304 (76ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (30ms)
+[API] 200 (39ms)
+[API] 200 (45ms)
+[API] 200 (28ms)
+[API] 200 (32ms)
+
+[API] GET /api/acompanhamento/projeto/15/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/13/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/14/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/11/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/8/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/10/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+[API] 304 (27ms)
+[API] 304 (27ms)
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projeto/9/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/7/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (28ms)
+
+[API] GET /api/acompanhamento/projeto/5/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/3/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/4/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projeto/1/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (25ms)
+[API] 304 (26ms)
+[API] 304 (26ms)
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projeto/2/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (34ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (7ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (2ms)
+
+[API] GET /api/admin/databases?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/admin/users?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (1283ms)
+
+[API] GET /api/admin/users?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (1351ms)
+[API] 304 (1438ms)
+[API] 304 (130ms)
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (26ms)
+
+[API] GET /api/admin/databases?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (120ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"alfatec2"}
+[API] 200 (6ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[DB] 🔵 EXEC (DEFAULT): SELECT * FROM conexoes_bancos WHERE db_name = ? AND ativo = 1
+[DB] [DEFAULT] 🟢 OK - Rows: 1
+[DB] Additional Pool initialized for: alfatec2
+[Tenant] Lazy-loaded pool for: alfatec2
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (570ms | rows:24): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 200 (743ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (519ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 200 (523ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (49ms)
+[API] 304 (25ms)
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (638ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 200 (84ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (27ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (2770ms | rows:300): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (2788ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (110ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-14&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-14","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (107ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (197ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 304 (102ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 304 (102ms)
+
+[API] GET /api/acompanhamento/projeto/941/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (60ms)
+
+[API] GET /api/acompanhamento/projeto/941/tags?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+
+[API] PATCH /api/acompanhamento/projeto/960/observacao
+[API]    BODY: {"observacao":null}
+[API] 404 (24ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (3404ms | rows:300): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 304 (3464ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (3583ms | rows:300): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (3677ms)
+
+[API] GET /api/acompanhamento/projetos?dataFinalDe=2026-03-14&dataFinalAte=2026-03-30&finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"dataFinalDe":"2026-03-14","dataFinalAte":"2026-03-30","finalizados":"1","liberados":"1","limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (3132ms | rows:300): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (3154ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (1510ms)
+[DB] [alfatec2] ⚠️  SLOW QUERY (1534ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[API] 304 (1538ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (1876ms | rows:24): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[API] 304 (25ms)
+[DB] [alfatec2] ⚠️  SLOW QUERY (1283ms | rows:2): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (1288ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (29ms)
+[DB] [alfatec2] ⚠️  SLOW QUERY (512ms | rows:1): SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis, MaxRegistros FROM configuracaosistema LIMIT 1
+[API] 304 (2420ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (45ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[DB] [alfatec2] ⚠️  SLOW QUERY (2558ms | rows:300): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, p.Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* Ã¢â€â‚¬Ã¢â€â‚¬ Tags / PeÃƒÂ§as nativos da tabela Projetos Ã¢â€â‚¬Ã¢â€â‚¬ */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, C
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 200 (2581ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (52ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (48ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (64ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (27ms)
+[DB] 🔴 ERROR: Unknown column 'MenuStructure' in 'field list'
+Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+Menu fetch error: Error: Unknown column 'MenuStructure' in 'field list'
+    at PromisePool.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at Object.execute (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\config\db.js:90:31)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\server.js:7370:35
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\route.js:117:3)
+    at handle (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:295:15
+    at processParams (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:582:12)
+    at next (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:291:5)
+    at C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:72:13
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at tenantMiddleware (C:\SincoWeb\SINCO-WEB\SINCO-WEB\src\middleware\tenant.js:71:30)
+    at Layer.handleRequest (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\SincoWeb\SINCO-WEB\SINCO-WEB\node_modules\router\index.js:342:13) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: 'SELECT MenuStructure FROM configuracaosistema LIMIT 1',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'MenuStructure' in 'field list'"
+}
+[API] 500 (129ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (53ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 2
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 300
+[API] 304 (124ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (8ms)
+
+[API] GET /api/admin/check-auth?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (3ms)
+
+[API] GET /api/admin/databases?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/admin/users?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (1510ms)
+
+[API] GET /api/matriz?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (1533ms)
+[API] 304 (25ms)
+[API] 304 (1614ms)
+
+[API] GET /api/admin/users?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/admin/databases?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (124ms)
+[API] 304 (116ms)
+
+[API] POST /api/admin/impersonate
+[API]    BODY: {"dbName":"lynxlocal"}
+[API] 200 (14ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (180ms)
+
+[API] GET /api/config?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (59ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+
+[API] GET /api/config/menu?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 200 (51ms)
+
+[API] GET /api/dashboard/stats?limit=10
+[API]    QUERY: {"limit":"10"}
+[API] 304 (29ms)
+[API] 200 (164ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 200 (58ms)
+
+[API] GET /api/acompanhamento/projetos?limit=10
+[API]    QUERY: {"limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 5
+[API] 304 (26ms)
+
+[API] GET /api/acompanhamento/projetos?finalizados=1&liberados=1&limit=10
+[API]    QUERY: {"finalizados":"1","liberados":"1","limit":"10"}
+[VisÃƒÂ£o Geral ProduÃƒÂ§ÃƒÂ£o] Query executada para tenant: undefined. Rows found: 13
+[API] 200 (89ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (50ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/acompanhamento/projetos?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (3ms)
+
+[API] GET /api/config?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config/menu?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)
+
+[API] GET /api/dashboard/stats?limit=500
+[API]    QUERY: {"limit":"500"}
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (2ms)

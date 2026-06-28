@@ -46,6 +46,7 @@ export const defaultMenuItems: MenuItem[] = [
         ]
     },
     { id: 'projetos', icon: 'FolderKanban', label: 'Projetos', href: '/projetos' },
+    { id: 'peca-manufaturada', icon: 'Settings', label: 'Peça Manufaturada', href: '/peca-manufaturada' },
     { id: 'relatorios', icon: 'FileText', label: 'Relatórios', href: '/relatorios' },
     {
         id: 'romaneio',

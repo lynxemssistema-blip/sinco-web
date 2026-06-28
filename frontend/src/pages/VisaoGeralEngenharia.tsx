@@ -1,4 +1,3 @@
-import { usePersistentState } from '../hooks/usePersistentState';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppConfig } from '../contexts/AppConfigContext';
 import { Search, Loader, Edit3, Save, X, CalendarDays, Maximize2, Minimize2, ChevronDown, ChevronRight, Flag, Filter } from 'lucide-react';
@@ -185,7 +184,7 @@ export default function VisaoGeralEngenharia() {
             })).json();
             if (res.success) setTags(res.data);
             else setError(res.message);
-        } catch (e: any) {
+        } catch {
             setError('Erro de rede.');
         } finally {
             setLoading(false);
@@ -266,7 +265,7 @@ export default function VisaoGeralEngenharia() {
                 setBatchForm({ pi: '', pf: '', ri: '', rf: '', sector: 'Engenharia' });
                 setSelectedIds(new Set());
             } else alert(r.message);
-        } catch (e) {
+        } catch {
             alert('Erro de rede.');
         } finally {
             setBatchSaving(false);
@@ -279,7 +278,7 @@ export default function VisaoGeralEngenharia() {
         // Optimistic update
         setTags(prev => prev.map(t => t.IdTag === idTag ? { ...t, [`${field}${sector}`]: brDate } : t));
 
-        const payload: any = {
+        const payload: Record<string, unknown> = {
             idTags: [idTag],
             setor: sector,
             usuario: getUser()
@@ -297,7 +296,7 @@ export default function VisaoGeralEngenharia() {
                 // Revert or show error if needed, for now just log
                 console.error('Failed inline update:', r.message);
             }
-        } catch (e) {
+        } catch {
             console.error('Network error on inline update', e);
         }
     };
@@ -323,7 +322,7 @@ export default function VisaoGeralEngenharia() {
             } else {
                 alert(r.message);
             }
-        } catch (err) {
+        } catch {
             alert('Erro de rede.');
         } finally {
             e.target.value = '';
@@ -341,12 +340,12 @@ export default function VisaoGeralEngenharia() {
             } else {
                 alert(r.message);
             }
-        } catch (err) {
+        } catch {
             alert('Erro de rede.');
         }
     };
 
-    const isFilled = (val: any) => val && String(val).trim() !== '';
+    const isFilled = (val: Record<string, unknown>) => val && String(val).trim() !== '';
 
     // Calculate Summary Grid logic based on filtered items
     const brToIsoDate = (br: string): Date | null => {
@@ -385,10 +384,10 @@ export default function VisaoGeralEngenharia() {
         const buildSect = (sect: SectorType) => {
             let pIni = 0; let pFim = 0; let rIni = 0; let rFim = 0;
             filteredTags.forEach(t => {
-                if (isFilled((t as any)[`PlanejadoInicio${sect}`])) pIni++;
-                if (isFilled((t as any)[`PlanejadoFinal${sect}`])) pFim++;
-                if (isFilled((t as any)[`RealizadoInicio${sect}`])) rIni++;
-                if (isFilled((t as any)[`RealizadoFinal${sect}`])) rFim++;
+                if (isFilled((t as Record<string, unknown>)[`PlanejadoInicio${sect}`])) pIni++;
+                if (isFilled((t as Record<string, unknown>)[`PlanejadoFinal${sect}`])) pFim++;
+                if (isFilled((t as Record<string, unknown>)[`RealizadoInicio${sect}`])) rIni++;
+                if (isFilled((t as Record<string, unknown>)[`RealizadoFinal${sect}`])) rFim++;
             });
             return { pIni, pFim, rIni, rFim, t: filteredTags.length };
         };
@@ -723,7 +722,7 @@ export default function VisaoGeralEngenharia() {
                             // Calcula min/max de datas por setor para a linha-resumo
                             const calcRange = (field: string) => {
                                 const vals = projetoTagsFiltered
-                                    .map(x => (x as any)[field])
+                                    .map(x => (x as Record<string, unknown>)[field])
                                     .filter(Boolean)
                                     .map((v: string) => {
                                         const p = v.split('/');
@@ -799,10 +798,10 @@ export default function VisaoGeralEngenharia() {
 
                                         {/* Dynamic Sector Columns Body */}
                                         {Array.from(activeSectors).map(s => {
-                                            const pi = (t as any)[`PlanejadoInicio${s}`];
-                                            const pf = (t as any)[`PlanejadoFinal${s}`];
-                                            const ri = (t as any)[`RealizadoInicio${s}`];
-                                            const rf = (t as any)[`RealizadoFinal${s}`];
+                                            const pi = (t as Record<string, unknown>)[`PlanejadoInicio${s}`];
+                                            const pf = (t as Record<string, unknown>)[`PlanejadoFinal${s}`];
+                                            const ri = (t as Record<string, unknown>)[`RealizadoInicio${s}`];
+                                            const rf = (t as Record<string, unknown>)[`RealizadoFinal${s}`];
                                             return (
                                                 <React.Fragment key={`${t.IdTag}-${s}`}>
                                                     {/* Plan. Início - azul */}

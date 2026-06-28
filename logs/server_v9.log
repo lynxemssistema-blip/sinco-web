@@ -1,0 +1,273 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (60ms)
+
+[API] GET /api/config
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (5ms)
+
+[API] GET /api/config/menu
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/dashboard/stats
+[Tenant] Middleware JWT Error Details: {
+  name: 'TokenExpiredError',
+  message: 'jwt expired',
+  tokenHeader: 'eyJhbGciOiJIUzI1NiIs...'
+}
+[API] 401 (4ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (232ms) - Rows/Affected: 1
+[API] 304 (336ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (47ms) - Rows/Affected: 1
+[API] 304 (57ms)
+[DB] [lynxlocal] 🟢 OK (142ms) - Rows/Affected: 1
+[API] 304 (152ms)
+[DB] [lynxlocal] 🟢 OK (131ms) - Rows/Affected: 1
+[API] 304 (138ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (27ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[API] 304 (65ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[API] 200 (58ms)
+[DB] [lynxlocal] 🟢 OK (57ms) - Rows/Affected: 5
+[API] 304 (61ms)
+[DB] [lynxlocal] 🟢 OK (58ms) - Rows/Affected: 2
+[API] 304 (61ms)
+
+[API] GET /api/plano-corte/itens-disponiveis?tipoFiltro=corte
+[API]    QUERY: {"tipoFiltro":"corte"}
+[PlanoCorte] tipoFiltro ativo: corte
+[API] 304 (54ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=false
+[API]    QUERY: {"exibirConcluidos":"false"}
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (24ms) - Rows/Affected: 5
+[API] 304 (26ms)
+[API] 304 (55ms)
+[DB] [lynxlocal] 🟢 OK (49ms) - Rows/Affected: 2
+[API] 304 (51ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 5
+[API] 304 (48ms)
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 2
+[API] 304 (26ms)
+
+[API] GET /api/config/usuarios
+
+[DB] 🟡 EXEC: SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+
+[API] GET /api/config/tipostarefa
+
+[DB] 🟡 EXEC: SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] 🟢 OK (22ms) - Rows/Affected: 2
+[API] 304 (24ms)
+[DB] [lynxlocal] 🟢 OK (45ms) - Rows/Affected: 5
+[API] 304 (48ms)
+
+[API] GET /api/plano-corte/lista?exibirConcluidos=true
+[API]    QUERY: {"exibirConcluidos":"true"}
+[API] 200 (79ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[API] 304 (85ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[API] 304 (28ms)
+
+[API] GET /api/plano-corte/itens/3?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[API] 304 (28ms)
+
+[API] GET /api/plano-corte/itens/2?aglutinado=true
+[API]    QUERY: {"aglutinado":"true"}
+[API] 304 (48ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 200 (61ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (27ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=true
+[API]    QUERY: {"exibirTodos":"true"}
+[API] 200 (54ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 200 (28ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[DB] [lynxlocal] 🟢 OK (683ms) - Rows/Affected: 1
+[API] 304 (749ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (572ms) - Rows/Affected: 1
+[API] 304 (581ms)
+[DB] [lynxlocal] 🟢 OK (30ms) - Rows/Affected: 1
+[API] 304 (33ms)
+[DB] [lynxlocal] 🟢 OK (589ms) - Rows/Affected: 1
+[API] 304 (593ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (26ms)
+[API] 304 (495ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (25ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (63ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[DB] [lynxlocal] 🟢 OK (539ms) - Rows/Affected: 1
+[API] 304 (598ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[API] 304 (117ms)
+[DB] [lynxlocal] 🟢 OK (26ms) - Rows/Affected: 1
+[API] 304 (28ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (50ms)
+[DB] [lynxlocal] 🟢 OK (479ms) - Rows/Affected: 1
+[API] 304 (486ms)
+[DB] [lynxlocal] 🟢 OK (511ms) - Rows/Affected: 1
+[API] 304 (517ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (42ms) - Rows/Affected: 1
+[API] 304 (46ms)
+
+[API] GET /api/producao-plano-corte/itens/2?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (49ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (1116ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (1056ms)
+
+[API] GET /api/producao-plano-corte/lista?exibirTodos=false
+[API]    QUERY: {"exibirTodos":"false"}
+[API] 304 (230ms)

@@ -11,869 +11,869 @@ const API_BASE = '/api';
 
 // Padrão de PermitirRealizadoSemPlanejamento depende do banco ativo
 const getDefaultPermitirRealizado = (): string => {
-    const bancosLivres = ['lynxlocal', 'amceletrica'];
-    try {
-        const userData = JSON.parse(localStorage.getItem('sinco_user') || '{}');
-        const dbName = (userData.dbName || '').toLowerCase();
-        const isLivre = bancosLivres.some(b => dbName.includes(b));
-        return isLivre ? 'Sim' : 'Não';
-    } catch { return 'Não'; }
+ const bancosLivres = ['lynxlocal', 'amceletrica'];
+ try {
+ const userData = JSON.parse(localStorage.getItem('sinco_user') || '{}');
+ const dbName = (userData.dbName || '').toLowerCase();
+ const isLivre = bancosLivres.some(b => dbName.includes(b));
+ return isLivre ? 'Sim' : 'Não';
+ } catch { return 'Não'; }
 };
 
 export default function ConfiguracaoPage() {
-    const { addToast } = useToast();
-    const { refetchConfig } = useAppConfig();
-    const { user: globalUser, token } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [login, setLogin] = useState('');
-    const [senha, setSenha] = useState('');
-    const [activeTab, setActiveTab] = useState<'regras' | 'menu'>('regras');
-
-    // Config Regras
-    const [restringirApontamento, setRestringirApontamento] = useState('Não');
-    const [mostrarPowerBuild, setMostrarPowerBuild] = useState('Não');
-    const [permitirRealizadoSemPlanejamento, setPermitirRealizadoSemPlanejamento] = useState(getDefaultPermitirRealizado); // padrão: depende do banco
-    const DEFAULT_PROCESSOS_VISIVEIS = ['corte', 'dobra', 'solda', 'pintura', 'montagem', 'medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
-    const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(DEFAULT_PROCESSOS_VISIVEIS);
-    const [nomesProcessosEngenharia, setNomesProcessosEngenharia] = useState<Record<string, string>>({
-        medicao: 'Medição',
-        isometrico: 'Isométrico',
-        engenharia: 'Engenharia',
-        aprovacao: 'Aprovação',
-        acabamento: 'Acabamento',
-        expedicao: 'Expedição'
-    });
-    const [planoCorteFiltroDC, setPlanoCorteFiltroDC] = useState<'corte' | 'chaparia'>('corte');
-    const [maxRegistros, setMaxRegistros] = useState<number>(500);
-    const [maxRegistrosCustom, setMaxRegistrosCustom] = useState<string>('');
-
-    // Config Menu
-    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-    const [editingItem, setEditingItem] = useState<{ item: MenuItem } | null>(null);
-    const [showIconPicker, setShowIconPicker] = useState(false);
-
-    // Superadmin DB Selection
-    const [showDbSelection, setShowDbSelection] = useState(false);
-    const [availableDbs, setAvailableDbs] = useState<any[]>([]);
-    const [loadingDbs, setLoadingDbs] = useState(false);
-
-    useEffect(() => {
-        // Se o usuário global já for 'admin' (Tipo A) ou superadmin, desbloqueia automaticamente
-        if (globalUser && (globalUser.role === 'admin' || globalUser.isSuperadmin)) {
-            setIsAdmin(true);
-            fetchConfig();
-            fetchMenu();
-            return;
-        }
-
-        const storedAdmin = localStorage.getItem('adminUser');
-        if (storedAdmin) {
-            try {
-                const parsed = JSON.parse(storedAdmin);
-                if (parsed.role === 'admin' || parsed.isSuperadmin) {
-                    setIsAdmin(true);
-                    fetchConfig();
-                    fetchMenu();
-                    return;
-                }
-            } catch (e) {}
-        }
-    }, [globalUser]);
-
-    const fetchConfig = () => {
-        fetch(`${API_BASE}/config?t=${Date.now()}`, { headers: token ? { 'Authorization': `Bearer ${token}` } : {} })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    setRestringirApontamento(data.config.RestringirApontamentoSemSaldoAnterior || 'Não');
-                    // Padrão depende do banco: lynxlocal/amceletrica=Desbloqueado, outros=Bloqueado
-                    setPermitirRealizadoSemPlanejamento(data.config.PermitirRealizadoSemPlanejamento ?? getDefaultPermitirRealizado());
-                    if (data.config.ProcessosVisiveis) {
-                        try {
-                            const parsed = JSON.parse(data.config.ProcessosVisiveis);
-                            // Sempre mescla setores de engenharia — garante visibilidade em TODOS os bancos,
-                            // inclusive legados que salvaram apenas os setores de produção.
-                            const engSetores = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
-                            const withDefaults = Array.from(new Set([...parsed, ...engSetores.filter(s => !parsed.includes(s))]));
-                            setProcessosVisiveis(withDefaults.length === 0 ? DEFAULT_PROCESSOS_VISIVEIS : withDefaults);
-                        } catch (e) {
-                            console.error('Erro ao parsear processos visíveis', e);
-                            setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
-                        }
-                    } else {
-                        // Banco sem ProcessosVisiveis: usar default completo
-                        setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
-                    }
-                }
-            })
-            .catch(() => addToast({ type: 'error', title: 'Erro', message: 'Erro ao carregar configurações' }));
-
-        // Preferências situacionais: lê do localStorage
-        const filtroSalvo = localStorage.getItem('sinco_planoCorteFiltroDC') as 'corte' | 'chaparia' | null;
-        if (filtroSalvo === 'chaparia') setPlanoCorteFiltroDC('chaparia');
-        else setPlanoCorteFiltroDC('corte');
-
-        const maxSalvo = parseInt(localStorage.getItem('sinco_maxRegistros') || '500') || 500;
-        setMaxRegistros(maxSalvo);
-        const presets = [100, 300, 500, 1000, 5000];
-        setMaxRegistrosCustom(presets.includes(maxSalvo) ? '' : String(maxSalvo));
-
-        const powerBuildSalvo = localStorage.getItem('sinco_mostrarPowerBuild') || 'Não';
-        setMostrarPowerBuild(powerBuildSalvo);
-
-        const localNomes = localStorage.getItem('sinco_nomesProcessosEngenharia');
-        if (localNomes) {
-            try { 
-                setNomesProcessosEngenharia(prev => ({ ...prev, ...JSON.parse(localNomes) })); 
-            } catch(e) {}
-        }
-    };
-
-    const fetchMenu = () => {
-        fetch(`${API_BASE}/config/menu?t=${Date.now()}`, { headers: token ? { 'Authorization': `Bearer ${token}` } : {} })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const savedMenu: MenuItem[] = sortMenuRecursive(data.menu || defaultMenuItems);
-                    setMenuItems(savedMenu);
-                }
-            })
-            .catch(() => addToast({ type: 'error', title: 'Erro', message: 'Erro ao carregar menu' }));
-    };
-
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Superadmin Check - Relaxed to allow DB password validation
-        if (login === 'superadmin') {
-            try {
-                const res = await fetch(`${API_BASE}/admin/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: login, password: senha })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    localStorage.setItem('superadmin_token', data.token);
-                    // Fetch DBs
-                    fetchDatabases(data.token);
-                    setShowDbSelection(true);
-                    return;
-                } else {
-                    addToast({ type: 'error', title: 'Erro', message: data.message });
-                    return;
-                }
-            } catch (err) {
-                addToast({ type: 'error', title: 'Erro', message: 'Erro ao conectar como Superadmin' });
-                return;
-            }
-        }
-
-        try {
-            const res = await fetch(`${API_BASE}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ login, senha })
-            });
-            const data = await res.json();
-            
-            // Restringir acesso para usuários tipo A (Admin)
-            if (data.success && data.user.role === 'admin') {
-                setIsAdmin(true);
-                localStorage.setItem('adminUser', JSON.stringify(data.user));
-
-                fetchConfig();
-                fetchMenu();
-                addToast({ type: 'success', title: 'Bem-vindo', message: 'Login realizado com sucesso' });
-            } else {
-                addToast({ type: 'error', title: 'Acesso Negado', message: 'Apenas usuários do tipo Admin podem acessar e modificar as configurações.' });
-            }
-        } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão' });
-        }
-    };
-
-    const fetchDatabases = async (token: string) => {
-        setLoadingDbs(true);
-        try {
-            const res = await fetch(`${API_BASE}/admin/databases`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setAvailableDbs(data.data);
-            }
-        } catch (error) {
-            console.error(error);
-            addToast({ type: 'error', message: 'Erro ao buscar bancos de dados' });
-        } finally {
-            setLoadingDbs(false);
-        }
-    };
-
-    const handleSelectDb = (db: any) => {
-        // Store selection
-        const userData = {
-            id: 1, // Dummy ID for superadmin context? Or keep original?
-            nome: 'Superadmin',
-            role: 'admin',
-            isSuperadmin: true,
-            dbName: db.db_name,
-            clientName: db.nome_cliente,
-            originalLogin: 'superadmin' // Store for comparison later
-        };
-
-        localStorage.setItem('sinco_user', JSON.stringify(userData));
-        localStorage.setItem('adminUser', JSON.stringify(userData)); // For this page's check
-        localStorage.setItem('original_superadmin', 'true'); // Flag for retrieval
-
-        setIsAdmin(true);
-        setShowDbSelection(false);
-
-        // Trigger fetch interceptor update (it reads from localStorage on every request)
-        // Verify by reloading or just proceeding.
-        // Reload is safer to clear any cached data in other components
-        window.location.reload();
-    };
-
-    const handleSaveRegras = async () => {
-        // 1. Salva preferências no localStorage (sempre, como fallback robusto)
-        saveLocalPrefs({ 
-            planoCorteFiltroDC, 
-            maxRegistros,
-            processosVisiveis,
-            restringirApontamento,
-            mostrarPowerBuild,
-            nomesProcessosEngenharia
-        });
-        // Persiste também no localStorage como chave individual (lida pelo VisaoGeralEngenharia)
-        localStorage.setItem('sinco_permitirRealizadoSemPlanejamento', permitirRealizadoSemPlanejamento);
-
-        // 2. Tenta salvar na API (banco de dados)
-        try {
-            const res = await fetch(`${API_BASE}/config`, {
-                method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({
-                    restringirApontamento,
-                    processosVisiveis: JSON.stringify(processosVisiveis),
-                    maxRegistros,
-                    permitirRealizadoSemPlanejamento
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                // Atualiza contexto global para as outras telas
-                refetchConfig();
-                addToast({ type: 'success', title: 'Sucesso', message: 'Configurações salvas!' });
-            } else {
-                addToast({ type: 'error', title: 'Erro', message: data.message || 'Erro ao salvar regras' });
-            }
-        } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro ao salvar regras' });
-        }
-    };
-
-    const handleSaveMenu = async () => {
-        try {
-            await fetch(`${API_BASE}/config/menu`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({ menu: menuItems })
-            });
-            addToast({ type: 'success', title: 'Sucesso', message: 'Estrutura do menu salva!' });
-            window.dispatchEvent(new CustomEvent('sinco_menu_updated'));
-        } catch (err) {
-            addToast({ type: 'error', title: 'Erro', message: 'Erro ao salvar menu' });
-        }
-    };
-
-    // --- MENU LOGIC ---
-
-    const updateItem = (items: MenuItem[], id: string, changes: Partial<MenuItem>): MenuItem[] => {
-        return items.map(item => {
-            if (item.id === id) return { ...item, ...changes };
-            if (item.children) return { ...item, children: updateItem(item.children, id, changes) };
-            return item;
-        });
-    };
-
-    const deleteItem = (items: MenuItem[], id: string): MenuItem[] => {
-        return items.filter(item => item.id !== id).map(item => {
-            if (item.children) return { ...item, children: deleteItem(item.children, id) };
-            return item;
-        });
-    };
-
-    const handleMove = (path: number[], direction: 'up' | 'down') => {
-        const newMenu = [...menuItems];
-        let currentLevel = newMenu;
-
-        for (let i = 0; i < path.length - 1; i++) {
-            currentLevel = currentLevel[path[i]].children!;
-        }
-
-        const index = path[path.length - 1];
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
-        if (targetIndex >= 0 && targetIndex < currentLevel.length) {
-            [currentLevel[index], currentLevel[targetIndex]] = [currentLevel[targetIndex], currentLevel[index]];
-            setMenuItems(newMenu);
-        }
-    };
-
-    const handleIndent = (path: number[]) => {
-        const index = path[path.length - 1];
-        if (index === 0) return;
-
-        const newMenu = [...menuItems];
-        let currentLevel = newMenu;
-        for (let i = 0; i < path.length - 1; i++) {
-            currentLevel = currentLevel[path[i]].children!;
-        }
-
-        const item = currentLevel[index];
-        const prevItem = currentLevel[index - 1];
-
-        currentLevel.splice(index, 1);
-        if (!prevItem.children) prevItem.children = [];
-        prevItem.children.push(item);
-
-        setMenuItems(newMenu);
-    };
-
-    const handleOutdent = (path: number[]) => {
-        if (path.length <= 1) return;
-
-        const newMenu = [...menuItems];
-        let parentLevel = newMenu;
-        for (let i = 0; i < path.length - 2; i++) {
-            parentLevel = parentLevel[path[i]].children!;
-        }
-
-        const parentIndex = path[path.length - 2];
-        const currentIndex = path[path.length - 1];
-        const parentItem = parentLevel[parentIndex];
-
-        const item = parentItem.children![currentIndex];
-        parentItem.children!.splice(currentIndex, 1);
-
-        parentLevel.splice(parentIndex + 1, 0, item);
-
-        setMenuItems(newMenu);
-    };
-
-    const handleAddGroup = () => {
-        const newGroup: MenuItem = {
-            id: `group_${Date.now()}`,
-            label: 'Novo Grupo',
-            icon: 'Folder',
-            children: []
-        };
-        setMenuItems([newGroup, ...menuItems]);
-    };
-
-    const renderEditorItem = (item: MenuItem, path: number[]) => {
-        const Icon = iconMap[item.icon] || Menu;
-        const isEditing = editingItem?.item.id === item.id;
-
-        return (
-            <div key={item.id} className="mb-0.5">
-                <div className="flex items-center gap-1.5 bg-white px-1.5 py-1 border border-gray-100 rounded hover:shadow-sm hover:border-gray-200 transition-all">
-                    {/* Controls */}
-                    <div className="flex flex-col gap-0">
-                        <button onClick={() => handleMove(path, 'up')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronUp size={11} /></button>
-                        <button onClick={() => handleMove(path, 'down')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronDown size={11} /></button>
-                    </div>
-
-                    {/* Indentation Controls */}
-                    <div className="flex flex-col gap-0 border-r pr-1.5 mr-1 border-gray-100">
-                        <button onClick={() => handleIndent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path[path.length - 1] === 0}><ChevronRight size={11} /></button>
-                        <button onClick={() => handleOutdent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path.length === 1}><ChevronLeft size={11} /></button>
-                    </div>
-
-                    {isEditing ? (
-                        <div className="flex items-center gap-1.5 flex-1 animate-fade-in">
-                            <button onClick={() => setShowIconPicker(true)} className="p-1 border rounded hover:bg-gray-50 bg-gray-50 min-w-[28px] flex items-center justify-center">
-                                <Icon size={14} />
-                            </button>
-                            <input
-                                className="flex-1 border rounded px-2 py-1 text-xs bg-white focus:ring-1 focus:ring-[#E0E800] outline-none"
-                                value={item.label}
-                                onChange={(e) => setMenuItems(updateItem(menuItems, item.id, { label: e.target.value }))}
-                                autoFocus
-                            />
-                            <button onClick={() => setEditingItem(null)} className="p-1 text-green-600 bg-green-50 rounded hover:bg-green-100"><CheckCircle size={13} /></button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 flex-1 overflow-hidden">
-                            <div className="p-1 bg-gray-50 rounded text-gray-400 shrink-0">
-                                <Icon size={13} />
-                            </div>
-                            <span className="text-xs font-medium text-gray-700 flex-1 truncate">{item.label}</span>
-
-                            <button onClick={() => setEditingItem({ item })} className="p-1 text-[#32423D] hover:bg-[#E0E800]/10 rounded transition-colors"><Edit2 size={13} /></button>
-                            <button onClick={() => setMenuItems(deleteItem(menuItems, item.id))} className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"><Trash2 size={13} /></button>
-                        </div>
-                    )}
-                </div>
-
-                {/* Children */}
-                {item.children && item.children.length > 0 && (
-                    <div className="pl-6 border-l border-gray-200 ml-3 mt-0.5">
-                        {item.children.map((child, idx) => renderEditorItem(child, [...path, idx]))}
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    if (!isAdmin) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-4 mt-20 animate-fade-in">
-                {showDbSelection ? (
-                    <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 w-full max-w-4xl animate-scale-in">
-                        <div className="flex flex-col items-center mb-8">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-[#32423D] mb-4">
-                                <Database size={32} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-800">Selecione o Banco de Dados</h2>
-                            <p className="text-sm text-gray-500 text-center mt-1">Ambiente Superadmin - Escolha onde deseja trabalhar</p>
-                        </div>
-
-                        {loadingDbs ? (
-                            <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#32423D]"></div></div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar p-2">
-                                {availableDbs.map(db => (
-                                    <button
-                                        key={db.id}
-                                        onClick={() => handleSelectDb(db)}
-                                        className="flex flex-col items-start p-5 border rounded-xl hover:border-[#32423D] hover:bg-[#E0E800]/10 transition-all group text-left relative overflow-hidden"
-                                    >
-                                        <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <ArrowRight className="text-[#32423D]" size={20} />
-                                        </div>
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                                                <Server size={20} className="text-gray-600 group-hover:text-[#32423D]/70" />
-                                            </div>
-                                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${db.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                {db.ativo ? 'ATIVO' : 'INATIVO'}
-                                            </span>
-                                        </div>
-                                        <h3 className="font-bold text-gray-800 group-hover:text-[#32423D]/70">{db.nome_cliente}</h3>
-                                        <p className="text-xs text-gray-500 mt-1 font-mono">{db.db_name}</p>
-                                        <p className="text-xs text-gray-400 mt-0.5">{db.db_host}</p>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="mt-8 flex justify-center">
-                            <button onClick={() => setShowDbSelection(false)} className="text-gray-400 hover:text-gray-600 text-sm">Cancelar / Voltar</button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 w-full max-w-md">
-                        <div className="flex flex-col items-center mb-6">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4">
-                                <Lock size={32} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-800">Acesso Restrito</h2>
-                            <p className="text-sm text-gray-500 text-center mt-1">Área de Configuração do Sistema</p>
-                        </div>
-
-                        <form onSubmit={handleLogin} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Login</label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                    <input
-                                        type="text"
-                                        value={login}
-                                        onChange={e => setLogin(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
-                                        placeholder="Usuário Admin"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                    <input
-                                        type="password"
-                                        value={senha}
-                                        onChange={e => setSenha(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
-                                        placeholder="••••••"
-                                    />
-                                </div>
-                            </div>
-
-                            <button type="submit" className="w-full bg-[#32423D] text-[#E0E800] py-3 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
-                                Acessar Configurações
-                            </button>
-                        </form>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    return (
-        <div className="p-3 sm:p-6 w-full max-w-[1920px] mx-auto animate-fade-in pb-20">
-            {showIconPicker && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowIconPicker(false)}>
-                    <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-4 pb-2 border-b">
-                            <h3 className="font-bold text-lg text-gray-800">Selecione um Ícone</h3>
-                            <button onClick={() => setShowIconPicker(false)} className="text-gray-500 hover:text-gray-700"><X /></button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto grid grid-cols-5 sm:grid-cols-6 gap-2 custom-scrollbar">
-                            {Object.keys(iconMap).map(name => {
-                                const Icon = iconMap[name];
-                                return (
-                                    <button
-                                        key={name}
-                                        onClick={() => {
-                                            if (editingItem) {
-                                                setMenuItems(updateItem(menuItems, editingItem.item.id, { icon: name }));
-                                                setShowIconPicker(false);
-                                            }
-                                        }}
-                                        className="flex flex-col items-center justify-center p-3 hover:bg-[#E0E800]/20 rounded-lg gap-2 transition-colors border border-transparent hover:border-[#E0E800]"
-                                    >
-                                        <Icon size={24} className="text-gray-700" />
-                                        <span className="text-[10px] text-gray-500 truncate w-full text-center">{name}</span>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#32423D] rounded-lg">
-                        <Settings2 size={22} className="text-[#E0E800]" />
-                    </div>
-                    <div>
-                        <p className="text-gray-500 text-sm">Gerencie o sistema</p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => { localStorage.removeItem('adminUser'); setIsAdmin(false); }}
-                    className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-end sm:self-auto"
-                >
-                    Sair
-                </button>
-            </div>
-
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
-                <button
-                    onClick={() => setActiveTab('regras')}
-                    className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                    <span className="hidden sm:inline">Regras de Negócio</span>
-                    <span className="sm:hidden">Regras</span>
-                </button>
-                <button
-                    onClick={() => setActiveTab('menu')}
-                    className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                    <span className="hidden sm:inline">Menu do Sistema</span>
-                    <span className="sm:hidden">Menu</span>
-                </button>
-            </div>
-
-            {activeTab === 'regras' ? (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
-                    <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
-                            <Shield size={18} className="text-[#32423D]" />
-                            Regras de Produção
-                        </h2>
-                    </div>
-                    <div className="p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-3">
-                            <div>
-                                <h3 className="font-medium text-gray-900">Restringir sem saldo anterior</h3>
-                                <p className="text-sm text-gray-500 mt-1 max-w-xl">
-                                    Impede o apontamento se não houver saldo no setor anterior.
-                                </p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                                <input type="checkbox" className="sr-only peer" checked={restringirApontamento === 'Sim'} onChange={(e) => setRestringirApontamento(e.target.checked ? 'Sim' : 'Não')} />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
-                            </label>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 gap-3">
-                            <div>
-                                <h3 className="font-medium text-gray-900">Visualizar módulo Power Build</h3>
-                                <p className="text-sm text-gray-500 mt-1 max-w-xl">
-                                    Habilita a exibição da seção lateral do sistema referente ao Power Build.
-                                </p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                                <input type="checkbox" className="sr-only peer" checked={mostrarPowerBuild === 'Sim'} onChange={(e) => setMostrarPowerBuild(e.target.checked ? 'Sim' : 'Não')} />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
-                            </label>
-                        </div>
-                        {/* NOVO: Permitir Realizado sem Planejamento */}
-                        <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 border-l-4 border-l-blue-300">
-                            <div>
-                                <h3 className="font-medium text-gray-900 flex items-center gap-2">
-                                    Permitir Realizado sem Planejamento
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                        permitirRealizadoSemPlanejamento === 'Sim'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-red-100 text-red-700'
-                                    }`}>
-                                        {permitirRealizadoSemPlanejamento === 'Sim' ? 'DESBLOQUEADO' : 'BLOQUEADO'}
-                                    </span>
-                                </h3>
-                                <p className="text-sm text-gray-500 mt-1 max-w-xl">
-                                    Controla se datas de <strong>Realizado</strong> podem ser registradas na tela
-                                    <strong> Visão Geral Engenharia</strong> sem que as datas de{' '}
-                                    <strong>Planejamento</strong> estejam preenchidas para aquele setor.
-                                    <span className="ml-1 text-blue-600">
-                                        {permitirRealizadoSemPlanejamento === 'Sim'
-                                            ? '(Ativo — Realizado livre)'  
-                                            : '(Restrito — Planejamento obrigatório)'}
-                                    </span>
-                                </p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
-                                <input
-                                    type="checkbox"
-                                    className="sr-only peer"
-                                    checked={permitirRealizadoSemPlanejamento === 'Sim'}
-                                    onChange={(e) => setPermitirRealizadoSemPlanejamento(e.target.checked ? 'Sim' : 'Não')}
-                                />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
-                            </label>
-                        </div>
-                        <div className="mt-6 flex justify-end">
-                            <button onClick={handleSaveRegras} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
-                                <Save size={18} /> Salvar Regras
-                            </button>
-                        </div>
-
-                        <div className="mt-8 border-t border-gray-100 pt-6">
-                            <h3 className="font-medium text-gray-900 mb-4">Setores/Processos Visíveis</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                {['corte', 'dobra', 'solda', 'pintura', 'montagem'].map(proc => {
-                                    const isVisible = processosVisiveis.includes(proc);
-                                    return (
-                                        <div key={proc}
-                                            className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${isVisible ? 'bg-white border-gray-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-60'}`}
-                                            onClick={() => {
-                                                if (isVisible) {
-                                                    setProcessosVisiveis(processosVisiveis.filter(p => p !== proc));
-                                                } else {
-                                                    setProcessosVisiveis([...processosVisiveis, proc]);
-                                                }
-                                            }}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
-                                                    {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
-                                                </div>
-                                                <span className="capitalize font-medium text-gray-700">{proc}</span>
-                                            </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
-                                                {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <p className="text-xs text-gray-400 mt-2">
-                                Desmarque os setores que sua fábrica não utiliza. Eles serão ocultados das telas de Apontamento e OS.
-                            </p>
-                        </div>
-
-                        {/* NOVO BLOCO: Setores/Processos Visíveis (ENGENHARIA) */}
-                        <div className="mt-8 border-t border-gray-100 pt-6">
-                            <h3 className="font-medium text-gray-900 mb-4">Setores Visíveis e Rótulos (Engenharia)</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'].map(proc => {
-                                    const isVisible = processosVisiveis.includes(proc);
-                                    return (
-                                        <div key={proc} className={`flex flex-col p-3 border rounded-lg transition-all ${isVisible ? 'bg-white border-gray-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-70'}`}>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div 
-                                                    className="flex items-center gap-2 cursor-pointer flex-1"
-                                                    onClick={() => {
-                                                        if (isVisible) {
-                                                            setProcessosVisiveis(processosVisiveis.filter(p => p !== proc));
-                                                        } else {
-                                                            setProcessosVisiveis([...processosVisiveis, proc]);
-                                                        }
-                                                    }}
-                                                >
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
-                                                        {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
-                                                    </div>
-                                                    <span className="capitalize font-medium text-gray-700 text-sm">{proc === 'medicao' ? 'medição' : proc === 'aprovacao' ? 'aprovação' : proc === 'isometrico' ? 'isométrico' : proc === 'expedicao' ? 'expedição' : proc}</span>
-                                                </div>
-                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
-                                                    {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
-                                                </div>
-                                            </div>
-                                            <div className="mt-1">
-                                                <label className="text-[10px] text-gray-500 font-medium ml-1">Rótulo Personalizado</label>
-                                                <input
-                                                    type="text"
-                                                    className="w-full border rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-[#E0E800]"
-                                                    value={nomesProcessosEngenharia[proc] || ''}
-                                                    onChange={e => setNomesProcessosEngenharia(prev => ({ ...prev, [proc]: e.target.value }))}
-                                                    placeholder="Nome na grade"
-                                                    disabled={!isVisible}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <p className="text-xs text-gray-400 mt-2">
-                                Além de ocultar as colunas na tela Visão Geral Engenharia, você pode renomear os cabeçalhos das colunas preenchendo os campos acima.
-                            </p>
-                        </div>
-
-                        <div className="mt-8 border-t border-gray-100 pt-6">
-                            <h3 className="font-medium text-gray-900 mb-3">Filtro Padrão — Plano de Corte</h3>
-                            <p className="text-sm text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <button
-                                    onClick={() => setPlanoCorteFiltroDC('corte')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
-                                        planoCorteFiltroDC === 'corte'
-                                            ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
-                                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
-                                    }`}
-                                >
-                                    Setor Corte
-                                    <span className="text-[10px] opacity-70 font-mono">(TxtCorte = 1)</span>
-                                </button>
-                                <button
-                                    onClick={() => setPlanoCorteFiltroDC('chaparia')}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
-                                        planoCorteFiltroDC === 'chaparia'
-                                            ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
-                                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
-                                    }`}
-                                >
-                                    Desenho Chaparia
-                                    <span className="text-[10px] opacity-70 font-mono">(TxtTipoDesenho = CHAPARIA)</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* ===== LIMITE DE REGISTROS ===== */}
-                        <div className="mt-8 border-t border-gray-100 pt-6">
-                            <div className="flex items-center gap-2 mb-1">
-                                <List size={18} className="text-[#32423D]" />
-                                <h3 className="font-medium text-gray-900">Limite de Registros por Listagem</h3>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-4">
-                                Número máximo de registros retornados em todas as consultas do sistema.
-                                Valor atual: <span className="font-bold text-[#32423D]">{maxRegistros}</span> registros.
-                            </p>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {[100, 300, 500, 1000, 5000].map(val => (
-                                    <button
-                                        key={val}
-                                        onClick={() => { setMaxRegistros(val); setMaxRegistrosCustom(''); }}
-                                        className={`px-5 py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
-                                            maxRegistros === val && maxRegistrosCustom === ''
-                                                ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
-                                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
-                                        }`}
-                                    >
-                                        {val.toLocaleString('pt-BR')}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                                <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="99999"
-                                    placeholder="Ex: 2000"
-                                    value={maxRegistrosCustom}
-                                    onChange={e => {
-                                        const v = e.target.value;
-                                        setMaxRegistrosCustom(v);
-                                        const n = parseInt(v);
-                                        if (!isNaN(n) && n > 0) setMaxRegistros(n);
-                                    }}
-                                    className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#E0E800] focus:border-transparent outline-none"
-                                />
-                            </div>
-                            <p className="text-xs text-gray-400 mt-2">
-                                Este limite é aplicado globalmente em todos os SELECTs do app. Um valor muito alto pode impactar a performance.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
-                    <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
-                            <Menu size={18} className="text-[#32423D]" />
-                            Editor de Menu
-                        </h2>
-                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                            <button 
-                                onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
-                                className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-sm font-bold transition-colors border border-blue-100"
-                            >
-                                <List size={16} /> Ordenar A-Z
-                            </button>
-                            <button onClick={handleAddGroup} className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-sm font-bold transition-colors">
-                                <FolderPlus size={16} /> Novo Grupo
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="p-3 sm:p-4">
-                        <div className="bg-gray-50/50 p-2 sm:p-3 rounded-lg border border-gray-200 min-h-[200px] sm:min-h-[300px]">
-                            {menuItems.map((item, idx) => renderEditorItem(item, [idx]))}
-                            {menuItems.length === 0 && <p className="text-gray-400 text-center italic py-10">O menu está vazio. Restaure o padrão.</p>}
-                        </div>
-
-                        <div className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-100">
-                            <button onClick={() => setMenuItems(defaultMenuItems)} className="px-4 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors text-center">
-                                Restaurar Padrão
-                            </button>
-                            <button onClick={handleSaveMenu} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-6 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
-                                <Save size={18} /> Salvar Menu
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+ const { addToast } = useToast();
+ const { refetchConfig } = useAppConfig();
+ const { user: globalUser, token } = useAuth();
+ const [isAdmin, setIsAdmin] = useState(false);
+ const [login, setLogin] = useState('');
+ const [senha, setSenha] = useState('');
+ const [activeTab, setActiveTab] = useState<'regras' | 'menu'>('regras');
+
+ // Config Regras
+ const [restringirApontamento, setRestringirApontamento] = useState('Não');
+ const [mostrarPowerBuild, setMostrarPowerBuild] = useState('Não');
+ const [permitirRealizadoSemPlanejamento, setPermitirRealizadoSemPlanejamento] = useState(getDefaultPermitirRealizado); // padrão: depende do banco
+ const DEFAULT_PROCESSOS_VISIVEIS = ['corte', 'dobra', 'solda', 'pintura', 'montagem', 'medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+ const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(DEFAULT_PROCESSOS_VISIVEIS);
+ const [nomesProcessosEngenharia, setNomesProcessosEngenharia] = useState<Record<string, string>>({
+ medicao: 'Medição',
+ isometrico: 'Isométrico',
+ engenharia: 'Engenharia',
+ aprovacao: 'Aprovação',
+ acabamento: 'Acabamento',
+ expedicao: 'Expedição'
+ });
+ const [planoCorteFiltroDC, setPlanoCorteFiltroDC] = useState<'corte' | 'chaparia'>('corte');
+ const [maxRegistros, setMaxRegistros] = useState<number>(500);
+ const [maxRegistrosCustom, setMaxRegistrosCustom] = useState<string>('');
+
+ // Config Menu
+ const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+ const [editingItem, setEditingItem] = useState<{ item: MenuItem } | null>(null);
+ const [showIconPicker, setShowIconPicker] = useState(false);
+
+ // Superadmin DB Selection
+ const [showDbSelection, setShowDbSelection] = useState(false);
+ const [availableDbs, setAvailableDbs] = useState<Record<string, unknown>[]>([]);
+ const [loadingDbs, setLoadingDbs] = useState(false);
+
+ useEffect(() => {
+ // Se o usuário global já for 'admin' (Tipo A) ou superadmin, desbloqueia automaticamente
+ if (globalUser && (globalUser.role === 'admin' || globalUser.isSuperadmin)) {
+ setIsAdmin(true);
+ fetchConfig();
+ fetchMenu();
+ return;
+ }
+
+ const storedAdmin = localStorage.getItem('adminUser');
+ if (storedAdmin) {
+ try {
+ const parsed = JSON.parse(storedAdmin);
+ if (parsed.role === 'admin' || parsed.isSuperadmin) {
+ setIsAdmin(true);
+ fetchConfig();
+ fetchMenu();
+ return;
+ }
+ } catch { /* ignore */ }
+ }
+ }, [globalUser]);
+
+ const fetchConfig = () => {
+ fetch(`${API_BASE}/config?t=${Date.now()}`, { headers: token ? { 'Authorization': `Bearer ${token}` } : {} })
+ .then(res => res.json())
+ .then(data => {
+ if (data.success) {
+ setRestringirApontamento(data.config.RestringirApontamentoSemSaldoAnterior || 'Não');
+ // Padrão depende do banco: lynxlocal/amceletrica=Desbloqueado, outros=Bloqueado
+ setPermitirRealizadoSemPlanejamento(data.config.PermitirRealizadoSemPlanejamento ?? getDefaultPermitirRealizado());
+ if (data.config.ProcessosVisiveis) {
+ try {
+ const parsed = JSON.parse(data.config.ProcessosVisiveis);
+ // Sempre mescla setores de engenharia — garante visibilidade em TODOS os bancos,
+ // inclusive legados que salvaram apenas os setores de produção.
+ const engSetores = ['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
+ const withDefaults = Array.from(new Set([...parsed, ...engSetores.filter(s => !parsed.includes(s))]));
+ setProcessosVisiveis(withDefaults.length === 0 ? DEFAULT_PROCESSOS_VISIVEIS : withDefaults);
+ } catch (e) {
+ console.error('Erro ao parsear processos visíveis', e);
+ setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
+ }
+ } else {
+ // Banco sem ProcessosVisiveis: usar default completo
+ setProcessosVisiveis(DEFAULT_PROCESSOS_VISIVEIS);
+ }
+ }
+ })
+ .catch(() => addToast({ type: 'error', title: 'Erro', message: 'Erro ao carregar configurações' }));
+
+ // Preferências situacionais: lê do localStorage
+ const filtroSalvo = localStorage.getItem('sinco_planoCorteFiltroDC') as 'corte' | 'chaparia' | null;
+ if (filtroSalvo === 'chaparia') setPlanoCorteFiltroDC('chaparia');
+ else setPlanoCorteFiltroDC('corte');
+
+ const maxSalvo = parseInt(localStorage.getItem('sinco_maxRegistros') || '500') || 500;
+ setMaxRegistros(maxSalvo);
+ const presets = [100, 300, 500, 1000, 5000];
+ setMaxRegistrosCustom(presets.includes(maxSalvo) ? '' : String(maxSalvo));
+
+ const powerBuildSalvo = localStorage.getItem('sinco_mostrarPowerBuild') || 'Não';
+ setMostrarPowerBuild(powerBuildSalvo);
+
+ const localNomes = localStorage.getItem('sinco_nomesProcessosEngenharia');
+ if (localNomes) {
+ try { 
+ setNomesProcessosEngenharia(prev => ({ ...prev, ...JSON.parse(localNomes) })); 
+ } catch { /* ignore */ }
+ }
+ };
+
+ const fetchMenu = () => {
+ fetch(`${API_BASE}/config/menu?t=${Date.now()}`, { headers: token ? { 'Authorization': `Bearer ${token}` } : {} })
+ .then(res => res.json())
+ .then(data => {
+ if (data.success) {
+ const savedMenu: MenuItem[] = sortMenuRecursive(data.menu || defaultMenuItems);
+ setMenuItems(savedMenu);
+ }
+ })
+ .catch(() => addToast({ type: 'error', title: 'Erro', message: 'Erro ao carregar menu' }));
+ };
+
+ const handleLogin = async (e: React.FormEvent) => {
+ e.preventDefault();
+
+ // Superadmin Check - Relaxed to allow DB password validation
+ if (login === 'superadmin') {
+ try {
+ const res = await fetch(`${API_BASE}/admin/login`, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ username: login, password: senha })
+ });
+ const data = await res.json();
+
+ if (data.success) {
+ localStorage.setItem('superadmin_token', data.token);
+ // Fetch DBs
+ fetchDatabases(data.token);
+ setShowDbSelection(true);
+ return;
+ } else {
+ addToast({ type: 'error', title: 'Erro', message: data.message });
+ return;
+ }
+ } catch {
+ addToast({ type: 'error', title: 'Erro', message: 'Erro ao conectar como Superadmin' });
+ return;
+ }
+ }
+
+ try {
+ const res = await fetch(`${API_BASE}/login`, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ login, senha })
+ });
+ const data = await res.json();
+ 
+ // Restringir acesso para usuários tipo A (Admin)
+ if (data.success && data.user.role === 'admin') {
+ setIsAdmin(true);
+ localStorage.setItem('adminUser', JSON.stringify(data.user));
+
+ fetchConfig();
+ fetchMenu();
+ addToast({ type: 'success', title: 'Bem-vindo', message: 'Login realizado com sucesso' });
+ } else {
+ addToast({ type: 'error', title: 'Acesso Negado', message: 'Apenas usuários do tipo Admin podem acessar e modificar as configurações.' });
+ }
+ } catch {
+ addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão' });
+ }
+ };
+
+ const fetchDatabases = async (token: string) => {
+ setLoadingDbs(true);
+ try {
+ const res = await fetch(`${API_BASE}/admin/databases`, {
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+ const data = await res.json();
+ if (data.success) {
+ setAvailableDbs(data.data);
+ }
+ } catch (error) {
+ console.error(error);
+ addToast({ type: 'error', message: 'Erro ao buscar bancos de dados' });
+ } finally {
+ setLoadingDbs(false);
+ }
+ };
+
+ const handleSelectDb = (db: Record<string, unknown>) => {
+ // Store selection
+ const userData = {
+ id: 1, // Dummy ID for superadmin context? Or keep original?
+ nome: 'Superadmin',
+ role: 'admin',
+ isSuperadmin: true,
+ dbName: db.db_name,
+ clientName: db.nome_cliente,
+ originalLogin: 'superadmin' // Store for comparison later
+ };
+
+ localStorage.setItem('sinco_user', JSON.stringify(userData));
+ localStorage.setItem('adminUser', JSON.stringify(userData)); // For this page's check
+ localStorage.setItem('original_superadmin', 'true'); // Flag for retrieval
+
+ setIsAdmin(true);
+ setShowDbSelection(false);
+
+ // Trigger fetch interceptor update (it reads from localStorage on every request)
+ // Verify by reloading or just proceeding.
+ // Reload is safer to clear any cached data in other components
+ window.location.reload();
+ };
+
+ const handleSaveRegras = async () => {
+ // 1. Salva preferências no localStorage (sempre, como fallback robusto)
+ saveLocalPrefs({ 
+ planoCorteFiltroDC, 
+ maxRegistros,
+ processosVisiveis,
+ restringirApontamento,
+ mostrarPowerBuild,
+ nomesProcessosEngenharia
+ });
+ // Persiste também no localStorage como chave individual (lida pelo VisaoGeralEngenharia)
+ localStorage.setItem('sinco_permitirRealizadoSemPlanejamento', permitirRealizadoSemPlanejamento);
+
+ // 2. Tenta salvar na API (banco de dados)
+ try {
+ const res = await fetch(`${API_BASE}/config`, {
+ method: 'PUT',
+ headers: { 
+ 'Content-Type': 'application/json',
+ ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+ },
+ body: JSON.stringify({
+ restringirApontamento,
+ processosVisiveis: JSON.stringify(processosVisiveis),
+ maxRegistros,
+ permitirRealizadoSemPlanejamento
+ })
+ });
+ const data = await res.json();
+ if (data.success) {
+ // Atualiza contexto global para as outras telas
+ refetchConfig();
+ addToast({ type: 'success', title: 'Sucesso', message: 'Configurações salvas!' });
+ } else {
+ addToast({ type: 'error', title: 'Erro', message: data.message || 'Erro ao salvar regras' });
+ }
+ } catch {
+ addToast({ type: 'error', title: 'Erro', message: 'Erro ao salvar regras' });
+ }
+ };
+
+ const handleSaveMenu = async () => {
+ try {
+ await fetch(`${API_BASE}/config/menu`, {
+ method: 'POST',
+ headers: { 
+ 'Content-Type': 'application/json',
+ ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+ },
+ body: JSON.stringify({ menu: menuItems })
+ });
+ addToast({ type: 'success', title: 'Sucesso', message: 'Estrutura do menu salva!' });
+ window.dispatchEvent(new CustomEvent('sinco_menu_updated'));
+ } catch {
+ addToast({ type: 'error', title: 'Erro', message: 'Erro ao salvar menu' });
+ }
+ };
+
+ // --- MENU LOGIC ---
+
+ const updateItem = (items: MenuItem[], id: string, changes: Partial<MenuItem>): MenuItem[] => {
+ return items.map(item => {
+ if (item.id === id) return { ...item, ...changes };
+ if (item.children) return { ...item, children: updateItem(item.children, id, changes) };
+ return item;
+ });
+ };
+
+ const deleteItem = (items: MenuItem[], id: string): MenuItem[] => {
+ return items.filter(item => item.id !== id).map(item => {
+ if (item.children) return { ...item, children: deleteItem(item.children, id) };
+ return item;
+ });
+ };
+
+ const handleMove = (path: number[], direction: 'up' | 'down') => {
+ const newMenu = [...menuItems];
+ let currentLevel = newMenu;
+
+ for (let i = 0; i < path.length - 1; i++) {
+ currentLevel = currentLevel[path[i]].children!;
+ }
+
+ const index = path[path.length - 1];
+ const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+ if (targetIndex >= 0 && targetIndex < currentLevel.length) {
+ [currentLevel[index], currentLevel[targetIndex]] = [currentLevel[targetIndex], currentLevel[index]];
+ setMenuItems(newMenu);
+ }
+ };
+
+ const handleIndent = (path: number[]) => {
+ const index = path[path.length - 1];
+ if (index === 0) return;
+
+ const newMenu = [...menuItems];
+ let currentLevel = newMenu;
+ for (let i = 0; i < path.length - 1; i++) {
+ currentLevel = currentLevel[path[i]].children!;
+ }
+
+ const item = currentLevel[index];
+ const prevItem = currentLevel[index - 1];
+
+ currentLevel.splice(index, 1);
+ if (!prevItem.children) prevItem.children = [];
+ prevItem.children.push(item);
+
+ setMenuItems(newMenu);
+ };
+
+ const handleOutdent = (path: number[]) => {
+ if (path.length <= 1) return;
+
+ const newMenu = [...menuItems];
+ let parentLevel = newMenu;
+ for (let i = 0; i < path.length - 2; i++) {
+ parentLevel = parentLevel[path[i]].children!;
+ }
+
+ const parentIndex = path[path.length - 2];
+ const currentIndex = path[path.length - 1];
+ const parentItem = parentLevel[parentIndex];
+
+ const item = parentItem.children![currentIndex];
+ parentItem.children!.splice(currentIndex, 1);
+
+ parentLevel.splice(parentIndex + 1, 0, item);
+
+ setMenuItems(newMenu);
+ };
+
+ const handleAddGroup = () => {
+ const newGroup: MenuItem = {
+ id: `group_${Date.now()}`,
+ label: 'Novo Grupo',
+ icon: 'Folder',
+ children: []
+ };
+ setMenuItems([newGroup, ...menuItems]);
+ };
+
+ const renderEditorItem = (item: MenuItem, path: number[]) => {
+ const Icon = iconMap[item.icon] || Menu;
+ const isEditing = editingItem?.item.id === item.id;
+
+ return (
+ <div key={item.id} className="mb-0.5">
+ <div className="flex items-center gap-1.5 bg-white px-1.5 py-1 border border-gray-100 rounded hover:shadow-sm hover:border-gray-200 transition-all">
+ {/* Controls */}
+ <div className="flex flex-col gap-0">
+ <button onClick={() => handleMove(path, 'up')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronUp size={11} /></button>
+ <button onClick={() => handleMove(path, 'down')} className="p-0.5 hover:bg-gray-100 rounded text-gray-400"><ChevronDown size={11} /></button>
+ </div>
+
+ {/* Indentation Controls */}
+ <div className="flex flex-col gap-0 border-r pr-1.5 mr-1 border-gray-100">
+ <button onClick={() => handleIndent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path[path.length - 1] === 0}><ChevronRight size={11} /></button>
+ <button onClick={() => handleOutdent(path)} className="p-0.5 hover:bg-gray-100 rounded text-gray-400 disabled:opacity-30" disabled={path.length === 1}><ChevronLeft size={11} /></button>
+ </div>
+
+ {isEditing ? (
+ <div className="flex items-center gap-1.5 flex-1 animate-fade-in">
+ <button onClick={() => setShowIconPicker(true)} className="p-1 border rounded hover:bg-gray-50 bg-gray-50 min-w-[28px] flex items-center justify-center">
+ <Icon size={14} />
+ </button>
+ <input
+ className="flex-1 border rounded px-2 py-1 text-xs bg-white focus:ring-1 focus:ring-[#E0E800] outline-none"
+ value={item.label}
+ onChange={(e) => setMenuItems(updateItem(menuItems, item.id, { label: e.target.value }))}
+ autoFocus
+ />
+ <button onClick={() => setEditingItem(null)} className="p-1 text-green-600 bg-green-50 rounded hover:bg-green-100"><CheckCircle size={13} /></button>
+ </div>
+ ) : (
+ <div className="flex items-center gap-2 flex-1 overflow-hidden">
+ <div className="p-1 bg-gray-50 rounded text-gray-400 shrink-0">
+ <Icon size={13} />
+ </div>
+ <span className="text-xs font-medium text-gray-700 flex-1 truncate">{item.label}</span>
+
+ <button onClick={() => setEditingItem({ item })} className="p-1 text-[#32423D] hover:bg-[#E0E800]/10 rounded transition-colors"><Edit2 size={13} /></button>
+ <button onClick={() => setMenuItems(deleteItem(menuItems, item.id))} className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"><Trash2 size={13} /></button>
+ </div>
+ )}
+ </div>
+
+ {/* Children */}
+ {item.children && item.children.length > 0 && (
+ <div className="pl-6 border-l border-gray-200 ml-3 mt-0.5">
+ {item.children.map((child, idx) => renderEditorItem(child, [...path, idx]))}
+ </div>
+ )}
+ </div>
+ );
+ };
+
+ if (!isAdmin) {
+ return (
+ <div className="flex flex-col items-center justify-center h-full p-4 mt-20 animate-fade-in">
+ {showDbSelection ? (
+ <div className="bg-white p-8 rounded-md shadow-lg border border-gray-100 w-full max-w-4xl animate-scale-in">
+ <div className="flex flex-col items-center mb-8">
+ <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-[#32423D] mb-4">
+ <Database size={32} />
+ </div>
+ <h2 className="text-2xl font-bold text-gray-800">Selecione o Banco de Dados</h2>
+ <p className="text-sm text-gray-500 text-center mt-1">Ambiente Superadmin - Escolha onde deseja trabalhar</p>
+ </div>
+
+ {loadingDbs ? (
+ <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#32423D]"></div></div>
+ ) : (
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar p-2">
+ {availableDbs.map(db => (
+ <button
+ key={db.id}
+ onClick={() => handleSelectDb(db)}
+ className="flex flex-col items-start p-5 border rounded-md hover:border-[#32423D] hover:bg-[#E0E800]/10 transition-all group text-left relative overflow-hidden"
+ >
+ <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+ <ArrowRight className="text-[#32423D]" size={20} />
+ </div>
+ <div className="flex items-center gap-3 mb-3">
+ <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+ <Server size={20} className="text-gray-600 group-hover:text-[#32423D]/70" />
+ </div>
+ <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${db.ativo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+ {db.ativo ? 'ATIVO' : 'INATIVO'}
+ </span>
+ </div>
+ <h3 className="font-bold text-gray-800 group-hover:text-[#32423D]/70">{db.nome_cliente}</h3>
+ <p className="text-xs text-gray-500 mt-1 font-mono">{db.db_name}</p>
+ <p className="text-xs text-gray-400 mt-0.5">{db.db_host}</p>
+ </button>
+ ))}
+ </div>
+ )}
+
+ <div className="mt-8 flex justify-center">
+ <button onClick={() => setShowDbSelection(false)} className="text-gray-400 hover:text-gray-600 text-sm">Cancelar / Voltar</button>
+ </div>
+ </div>
+ ) : (
+ <div className="bg-white p-8 rounded-md shadow-lg border border-gray-100 w-full max-w-md">
+ <div className="flex flex-col items-center mb-6">
+ <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-4">
+ <Lock size={32} />
+ </div>
+ <h2 className="text-2xl font-bold text-gray-800">Acesso Restrito</h2>
+ <p className="text-sm text-gray-500 text-center mt-1">Área de Configuração do Sistema</p>
+ </div>
+
+ <form onSubmit={handleLogin} className="space-y-5">
+ <div>
+ <label className="block text-sm font-medium text-gray-700 mb-1">Login</label>
+ <div className="relative">
+ <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <input
+ type="text"
+ value={login}
+ onChange={e => setLogin(e.target.value)}
+ className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
+ placeholder="Usuário Admin"
+ />
+ </div>
+ </div>
+ <div>
+ <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+ <div className="relative">
+ <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <input
+ type="password"
+ value={senha}
+ onChange={e => setSenha(e.target.value)}
+ className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
+ placeholder="••••••"
+ />
+ </div>
+ </div>
+
+ <button type="submit" className="w-full bg-[#32423D] text-[#E0E800] py-3 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
+ Acessar Configurações
+ </button>
+ </form>
+ </div>
+ )}
+ </div>
+ );
+ }
+
+ return (
+ <div className="p-3 sm:p-6 w-full max-w-[1920px] mx-auto animate-fade-in pb-20">
+ {showIconPicker && (
+ <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4" onClick={() => setShowIconPicker(false)}>
+ <div className="bg-white p-6 rounded-md shadow-xl w-full max-w-lg h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+ <div className="flex justify-between items-center mb-4 pb-2 border-b">
+ <h3 className="font-bold text-lg text-gray-800">Selecione um Ícone</h3>
+ <button onClick={() => setShowIconPicker(false)} className="text-gray-500 hover:text-gray-700"><X /></button>
+ </div>
+ <div className="flex-1 overflow-y-auto grid grid-cols-5 sm:grid-cols-6 gap-2 custom-scrollbar">
+ {Object.keys(iconMap).map(name => {
+ const Icon = iconMap[name];
+ return (
+ <button
+ key={name}
+ onClick={() => {
+ if (editingItem) {
+ setMenuItems(updateItem(menuItems, editingItem.item.id, { icon: name }));
+ setShowIconPicker(false);
+ }
+ }}
+ className="flex flex-col items-center justify-center p-3 hover:bg-[#E0E800]/20 rounded-lg gap-2 transition-colors border border-transparent hover:border-[#E0E800]"
+ >
+ <Icon size={24} className="text-gray-700" />
+ <span className="text-[10px] text-gray-500 truncate w-full text-center">{name}</span>
+ </button>
+ )
+ })}
+ </div>
+ </div>
+ </div>
+ )}
+
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+ <div className="flex items-center gap-3">
+ <div className="p-2 bg-[#32423D] rounded-lg">
+ <Settings2 size={22} className="text-[#E0E800]" />
+ </div>
+ <div>
+ <p className="text-gray-500 text-sm">Gerencie o sistema</p>
+ </div>
+ </div>
+ <button
+ onClick={() => { localStorage.removeItem('adminUser'); setIsAdmin(false); }}
+ className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-end sm:self-auto"
+ >
+ Sair
+ </button>
+ </div>
+
+ <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
+ <button
+ onClick={() => setActiveTab('regras')}
+ className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+ >
+ <span className="hidden sm:inline">Regras de Negócio</span>
+ <span className="sm:hidden">Regras</span>
+ </button>
+ <button
+ onClick={() => setActiveTab('menu')}
+ className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+ >
+ <span className="hidden sm:inline">Menu do Sistema</span>
+ <span className="sm:hidden">Menu</span>
+ </button>
+ </div>
+
+ {activeTab === 'regras' ? (
+ <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+ <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+ <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+ <Shield size={18} className="text-[#32423D]" />
+ Regras de Produção
+ </h2>
+ </div>
+ <div className="p-4 sm:p-6">
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-3">
+ <div>
+ <h3 className="font-medium text-gray-900">Restringir sem saldo anterior</h3>
+ <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ Impede o apontamento se não houver saldo no setor anterior.
+ </p>
+ </div>
+ <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+ <input type="checkbox" className="sr-only peer" checked={restringirApontamento === 'Sim'} onChange={(e) => setRestringirApontamento(e.target.checked ? 'Sim' : 'Não')} />
+ <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
+ </label>
+ </div>
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 gap-3">
+ <div>
+ <h3 className="font-medium text-gray-900">Visualizar módulo Power Build</h3>
+ <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ Habilita a exibição da seção lateral do sistema referente ao Power Build.
+ </p>
+ </div>
+ <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+ <input type="checkbox" className="sr-only peer" checked={mostrarPowerBuild === 'Sim'} onChange={(e) => setMostrarPowerBuild(e.target.checked ? 'Sim' : 'Não')} />
+ <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
+ </label>
+ </div>
+ {/* NOVO: Permitir Realizado sem Planejamento */}
+ <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 border-l-4 border-l-blue-300">
+ <div>
+ <h3 className="font-medium text-gray-900 flex items-center gap-2">
+ Permitir Realizado sem Planejamento
+ <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+ permitirRealizadoSemPlanejamento === 'Sim'
+ ? 'bg-green-100 text-green-700'
+ : 'bg-red-100 text-red-700'
+ }`}>
+ {permitirRealizadoSemPlanejamento === 'Sim' ? 'DESBLOQUEADO' : 'BLOQUEADO'}
+ </span>
+ </h3>
+ <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ Controla se datas de <strong>Realizado</strong> podem ser registradas na tela
+ <strong> Visão Geral Engenharia</strong> sem que as datas de{' '}
+ <strong>Planejamento</strong> estejam preenchidas para aquele setor.
+ <span className="ml-1 text-blue-600">
+ {permitirRealizadoSemPlanejamento === 'Sim'
+ ? '(Ativo — Realizado livre)' 
+ : '(Restrito — Planejamento obrigatório)'}
+ </span>
+ </p>
+ </div>
+ <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
+ <input
+ type="checkbox"
+ className="sr-only peer"
+ checked={permitirRealizadoSemPlanejamento === 'Sim'}
+ onChange={(e) => setPermitirRealizadoSemPlanejamento(e.target.checked ? 'Sim' : 'Não')}
+ />
+ <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
+ </label>
+ </div>
+ <div className="mt-6 flex justify-end">
+ <button onClick={handleSaveRegras} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
+ <Save size={18} /> Salvar Regras
+ </button>
+ </div>
+
+ <div className="mt-8 border-t border-gray-100 pt-6">
+ <h3 className="font-medium text-gray-900 mb-4">Setores/Processos Visíveis</h3>
+ <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+ {['corte', 'dobra', 'solda', 'pintura', 'montagem'].map(proc => {
+ const isVisible = processosVisiveis.includes(proc);
+ return (
+ <div key={proc}
+ className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${isVisible ? 'bg-white border-gray-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-60'}`}
+ onClick={() => {
+ if (isVisible) {
+ setProcessosVisiveis(processosVisiveis.filter(p => p !== proc));
+ } else {
+ setProcessosVisiveis([...processosVisiveis, proc]);
+ }
+ }}
+ >
+ <div className="flex items-center gap-3">
+ <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
+ {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+ </div>
+ <span className="capitalize font-medium text-gray-700">{proc}</span>
+ </div>
+ <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
+ {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
+ </div>
+ </div>
+ );
+ })}
+ </div>
+ <p className="text-xs text-gray-400 mt-2">
+ Desmarque os setores que sua fábrica não utiliza. Eles serão ocultados das telas de Apontamento e OS.
+ </p>
+ </div>
+
+ {/* NOVO BLOCO: Setores/Processos Visíveis (ENGENHARIA) */}
+ <div className="mt-8 border-t border-gray-100 pt-6">
+ <h3 className="font-medium text-gray-900 mb-4">Setores Visíveis e Rótulos (Engenharia)</h3>
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+ {['medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'].map(proc => {
+ const isVisible = processosVisiveis.includes(proc);
+ return (
+ <div key={proc} className={`flex flex-col p-3 border rounded-lg transition-all ${isVisible ? 'bg-white border-gray-200 shadow-sm' : 'bg-gray-50 border-gray-100 opacity-70'}`}>
+ <div className="flex items-center justify-between mb-2">
+ <div 
+ className="flex items-center gap-2 cursor-pointer flex-1"
+ onClick={() => {
+ if (isVisible) {
+ setProcessosVisiveis(processosVisiveis.filter(p => p !== proc));
+ } else {
+ setProcessosVisiveis([...processosVisiveis, proc]);
+ }
+ }}
+ >
+ <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
+ {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+ </div>
+ <span className="capitalize font-medium text-gray-700 text-sm">{proc === 'medicao' ? 'medição' : proc === 'aprovacao' ? 'aprovação' : proc === 'isometrico' ? 'isométrico' : proc === 'expedicao' ? 'expedição' : proc}</span>
+ </div>
+ <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
+ {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
+ </div>
+ </div>
+ <div className="mt-1">
+ <label className="text-[10px] text-gray-500 font-medium ml-1">Rótulo Personalizado</label>
+ <input
+ type="text"
+ className="w-full border rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-[#E0E800]"
+ value={nomesProcessosEngenharia[proc] || ''}
+ onChange={e => setNomesProcessosEngenharia(prev => ({ ...prev, [proc]: e.target.value }))}
+ placeholder="Nome na grade"
+ disabled={!isVisible}
+ />
+ </div>
+ </div>
+ );
+ })}
+ </div>
+ <p className="text-xs text-gray-400 mt-2">
+ Além de ocultar as colunas na tela Visão Geral Engenharia, você pode renomear os cabeçalhos das colunas preenchendo os campos acima.
+ </p>
+ </div>
+
+ <div className="mt-8 border-t border-gray-100 pt-6">
+ <h3 className="font-medium text-gray-900 mb-3">Filtro Padrão — Plano de Corte</h3>
+ <p className="text-sm text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
+ <div className="flex flex-col sm:flex-row gap-3">
+ <button
+ onClick={() => setPlanoCorteFiltroDC('corte')}
+ className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+ planoCorteFiltroDC === 'corte'
+ ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+ : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+ }`}
+ >
+ Setor Corte
+ <span className="text-[10px] opacity-70 font-mono">(TxtCorte = 1)</span>
+ </button>
+ <button
+ onClick={() => setPlanoCorteFiltroDC('chaparia')}
+ className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+ planoCorteFiltroDC === 'chaparia'
+ ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+ : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+ }`}
+ >
+ Desenho Chaparia
+ <span className="text-[10px] opacity-70 font-mono">(TxtTipoDesenho = CHAPARIA)</span>
+ </button>
+ </div>
+ </div>
+
+ {/* ===== LIMITE DE REGISTROS ===== */}
+ <div className="mt-8 border-t border-gray-100 pt-6">
+ <div className="flex items-center gap-2 mb-1">
+ <List size={18} className="text-[#32423D]" />
+ <h3 className="font-medium text-gray-900">Limite de Registros por Listagem</h3>
+ </div>
+ <p className="text-sm text-gray-500 mb-4">
+ Número máximo de registros retornados em todas as consultas do sistema.
+ Valor atual: <span className="font-bold text-[#32423D]">{maxRegistros}</span> registros.
+ </p>
+ <div className="flex flex-wrap gap-2 mb-4">
+ {[100, 300, 500, 1000, 5000].map(val => (
+ <button
+ key={val}
+ onClick={() => { setMaxRegistros(val); setMaxRegistrosCustom(''); }}
+ className={`px-5 py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+ maxRegistros === val && maxRegistrosCustom === ''
+ ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
+ : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+ }`}
+ >
+ {val.toLocaleString('pt-BR')}
+ </button>
+ ))}
+ </div>
+ <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+ <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
+ <input
+ type="number"
+ min="1"
+ max="99999"
+ placeholder="Ex: 2000"
+ value={maxRegistrosCustom}
+ onChange={e => {
+ const v = e.target.value;
+ setMaxRegistrosCustom(v);
+ const n = parseInt(v);
+ if (!isNaN(n) && n > 0) setMaxRegistros(n);
+ }}
+ className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#E0E800] focus:border-transparent outline-none"
+ />
+ </div>
+ <p className="text-xs text-gray-400 mt-2">
+ Este limite é aplicado globalmente em todos os SELECTs do app. Um valor muito alto pode impactar a performance.
+ </p>
+ </div>
+ </div>
+ </div>
+ ) : (
+ <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+ <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+ <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+ <Menu size={18} className="text-[#32423D]" />
+ Editor de Menu
+ </h2>
+ <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+ <button 
+ onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
+ className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-sm font-bold transition-colors border border-blue-100"
+ >
+ <List size={16} /> Ordenar A-Z
+ </button>
+ <button onClick={handleAddGroup} className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-sm font-bold transition-colors">
+ <FolderPlus size={16} /> Novo Grupo
+ </button>
+ </div>
+ </div>
+
+ <div className="p-3 sm:p-4">
+ <div className="bg-gray-50/50 p-2 sm:p-3 rounded-lg border border-gray-200 min-h-[200px] sm:min-h-[300px]">
+ {menuItems.map((item, idx) => renderEditorItem(item, [idx]))}
+ {menuItems.length === 0 && <p className="text-gray-400 text-center italic py-10">O menu está vazio. Restaure o padrão.</p>}
+ </div>
+
+ <div className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-100">
+ <button onClick={() => setMenuItems(defaultMenuItems)} className="px-4 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors text-center">
+ Restaurar Padrão
+ </button>
+ <button onClick={handleSaveMenu} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-6 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
+ <Save size={18} /> Salvar Menu
+ </button>
+ </div>
+ </div>
+ </div>
+ )}
+ </div>
+ );
 }
 
 const sortMenuRecursive = (items: MenuItem[]): MenuItem[] => {
-    return [...items]
-        .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
-        .map(item => ({
-            ...item,
-            children: item.children ? sortMenuRecursive(item.children) : undefined
-        }));
+ return [...items]
+ .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+ .map(item => ({
+ ...item,
+ children: item.children ? sortMenuRecursive(item.children) : undefined
+ }));
 };

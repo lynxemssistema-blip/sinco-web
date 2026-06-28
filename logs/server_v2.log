@@ -1,0 +1,5 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database

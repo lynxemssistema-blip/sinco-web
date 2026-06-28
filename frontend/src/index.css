@@ -60,7 +60,7 @@
   --input: #E2E8F0;
   --ring: #32423D;
 
-  --radius: 0.5rem; /* Clean subtle radius */
+  --radius: 0.25rem; /* Industrial sharp radius (4px) */
 }
 
 .dark {
@@ -207,7 +207,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  @apply bg-secondary/90 text-white backdrop-blur-md;
+  @apply bg-secondary text-white;
 }
 
 /* ===================================================

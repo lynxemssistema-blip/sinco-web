@@ -1,0 +1,23 @@
+[Tenant] Middleware JWT Error Details: {
+  name: 'JsonWebTokenError',
+  message: 'jwt malformed',
+  tokenHeader: 'test...'
+}
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1141ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1123ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1460ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (855ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1094ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1408ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (876ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1294ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1430ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1398ms | rows:6): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1435ms | rows:7): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* -- Tags / Pecas nativos da tabela Projetos -- */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, COALESCE(p.Q
+[DB] [lynxlocal] ⚠️  SLOW QUERY (479ms | rows:2): SELECT IdTipoTarefa, TipoTarefa FROM tipotarefa WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY TipoTarefa
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1387ms | rows:18): SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'configuracaosistema'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1219ms | rows:1): SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] ⚠️  SLOW QUERY (916ms | rows:6): SELECT IdUsuario, NomeCompleto FROM usuario WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY NomeCompleto
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1124ms | rows:7): SELECT p.IdProjeto, p.Projeto, p.DescProjeto, p.DataPrevisao, p.DataCriacao, TRIM(p.Finalizado) as Finalizado, p.liberado, p.StatusProj, p.DescStatus, /* -- Tags / Pecas nativos da tabela Projetos -- */ COUNT(t.IdTag) AS QtdeTags, COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas, COALESCE(p.Q
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1460ms | rows:1): SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] ⚠️  SLOW QUERY (1035ms | rows:0): SELECT IdOrdemServicoItemPendencia AS IdRnc, IdProjeto, Projeto, IdTag, Tag, DescricaoPendencia, SetorResponsavel, UsuarioResponsavel, TipoTarefa, DataCriacao, Estatus, DataExecucao, DataAcertoProjeto AS DataFinalizacao, SetorResponsavelFinalizacao, FinalizadoPorUsuarioSetor AS UsuarioResponsavelFin

@@ -1,0 +1,79 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[DB] Default Pool initialized with host: lynxlocal.mysql.uhserver.com, database: lynxlocal
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Server running on port 3000 and listening on all interfaces(0.0.0.0)
+Connected to MySQL database
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (27ms)
+
+[API] GET /api/health
+[TenantMiddleware] No token provided for /health
+[API] 401 (3ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (216ms) - Rows/Affected: 1
+[API] 304 (335ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (33ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (50ms) - Rows/Affected: 1
+[API] 304 (54ms)
+
+[API] GET /api/dashboard/stats
+
+[DB] 🟡 EXEC: SELECT COUNT(*) as total FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*'
+[DB] [lynxlocal] 🟢 OK (35ms) - Rows/Affected: 1
+[API] 304 (39ms)
+[DB] [lynxlocal] 🟢 OK (141ms) - Rows/Affected: 1
+[API] 304 (149ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (48ms) - Rows/Affected: 1
+[API] 304 (51ms)
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (25ms) - Rows/Affected: 1
+[API] 304 (29ms)
+
+[API] GET /api/config
+
+[DB] 🟡 EXEC: SELECT RestringirApontamentoSemSaldoAnterior, ProcessosVisiveis FROM configuracaosistema LIMIT 1
+
+[API] GET /api/config/menu
+
+[DB] 🟡 EXEC: SELECT MenuStructure FROM configuracaosistema LIMIT 1
+[DB] [lynxlocal] 🟢 OK (23ms) - Rows/Affected: 1
+[API] 304 (27ms)
+[DB] [lynxlocal] 🟢 OK (68ms) - Rows/Affected: 1
+[API] 304 (71ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+[API] 200 (100ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=concluidos
+[API]    QUERY: {"modo":"concluidos"}
+[API] 200 (83ms)
+
+[API] GET /api/teste-final-montagem/itens?modo=pendentes
+[API]    QUERY: {"modo":"pendentes"}
+[API] 304 (28ms)

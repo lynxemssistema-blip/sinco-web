@@ -472,6 +472,8 @@ function AppContent() {
       case 'visualizacao-aglutinacao':
       case 'powerbuild-agglutination':
         return <PowerBuildAgglutinationPage onNavigate={handleNavigate} />;
+      case 'peça-manufaturada':
+      case 'peca-manufaturada':
       case 'group_1781618991422':
       case 'monta-peca-manufaturada':
         return <MontaPecaManufaturadaPage usuario={user?.nomeCompleto || user?.login} />;
