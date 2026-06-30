@@ -9,6 +9,7 @@ const pool = require('./config/db');
 const tenantMiddleware = require('./middleware/tenant');
 const matrizRoutes = require('./routes/matrizRoutes');
 const blocksetRoutes = require('./routes/blocksetRoutes');
+const pecaManufaturadaRoutes = require('./routes/pecaManufaturada');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const multer = require('multer');
 const fs = require('fs');
@@ -118,6 +119,10 @@ app.use('/api/matriz', matrizRoutes);
 
 // BlockSet Routes
 app.use('/api/blockset', blocksetRoutes);
+
+// Peça Manufaturada Routes (modularizado)
+app.locals.pool = pool;
+app.use('/api/peca-manufaturada', pecaManufaturadaRoutes);
 
 // ReposiÃƒÂ§ÃƒÂ£o Routes
 app.get('/api/reposicao/itens', async (req, res) => {
@@ -3993,13 +3998,26 @@ app.delete('/api/acabamento/:id', async (req, res) => {
 
 // --- CRUD: Material ---
 
+// Helper: garante coluna com cache em memória — evita ALTER TABLE duplicado a cada request
+const _colCache = new Map();
+const ensureColumn = async (db, table, col, colDef) => {
+    const key = `${table}.${col}`;
+    if (_colCache.has(key)) return;
+    const [cols] = await db.execute(`SHOW COLUMNS FROM \`${table}\` LIKE '${col}'`);
+    if (cols.length === 0) await db.execute(`ALTER TABLE \`${table}\` ADD COLUMN \`${col}\` ${colDef}`);
+    _colCache.set(key, true);
+};
+
 // LIST (Read All) with JOINs
 app.get('/api/material', async (req, res) => {
     try {
-        // Auto-patch missing columns for older tenants
-        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `ImagemProduto` LONGTEXT NULL'); } catch(e){}
-        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `acabamento` VARCHAR(150) NULL'); } catch(e){}
-        try { await pool.execute('ALTER TABLE `material` ADD COLUMN `D_E_L_E_T_E` VARCHAR(1) NULL'); } catch(e){}
+        const db = req.tenantDbPool || pool;
+        // Garante colunas opcionais — roda somente se a coluna ainda não existir
+        await Promise.allSettled([
+            ensureColumn(db, 'material', 'ImagemProduto', 'LONGTEXT NULL'),
+            ensureColumn(db, 'material', 'acabamento', 'VARCHAR(150) NULL'),
+            ensureColumn(db, 'material', 'D_E_L_E_T_E', 'VARCHAR(1) NULL'),
+        ]);
 
         const [rows] = await pool.execute(`
             SELECT 
@@ -4168,268 +4186,14 @@ app.delete('/api/material/:id', async (req, res) => {
     }
 });
 
-// --- PEÇA MANUFATURADA (Monta Peça) ---
-// 1. GET /api/peca-manufaturada/desenhos - Desenhos (peças finais)
-app.get('/api/peca-manufaturada/desenhos', async (req, res) => {
-    try {
-        const { codigo, descricao } = req.query;
-        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
-                   FROM material 
-                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-                     AND EnderecoArquivo <> ''`;
-        const params = [];
+// --- PEÇA MANUFATURADA --- Rotas migradas para src/routes/pecaManufaturada.js ---
+// Registradas via: app.use('/api/peca-manufaturada', pecaManufaturadaRoutes) no topo deste arquivo.
 
-        if (codigo) {
-            sql += ` AND CodMatFabricante LIKE ?`;
-            params.push(`%${codigo}%`);
-        }
-        if (descricao) {
-            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
-            params.push(`%${descricao}%`, `%${descricao}%`);
-        }
 
-        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
 
-        const [rows] = await pool.execute(sql, params);
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching desenhos:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar desenhos: ' + error.message });
-    }
-});
+// --- PEÇA MANUFATURADA --- Rotas migradas para src/routes/pecaManufaturada.js ---
+// app.use('/api/peca-manufaturada', pecaManufaturadaRoutes) -- registrado no topo.
 
-// 1.5 GET /api/peca-manufaturada/pecas - Peças manufaturadas (PecaManufat = 'S')
-app.get('/api/peca-manufaturada/pecas', async (req, res) => {
-    try {
-        const { codigo, descricao } = req.query;
-        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, TxtTipoDesenho
-                   FROM material 
-                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-                     AND PecaManufat = 'S'`;
-        const params = [];
-
-        if (codigo) {
-            sql += ` AND CodMatFabricante LIKE ?`;
-            params.push(`%${codigo}%`);
-        }
-        if (descricao) {
-            sql += ` AND (DescResumo LIKE ? OR TxtTipoDesenho LIKE ?)`;
-            params.push(`%${descricao}%`, `%${descricao}%`);
-        }
-
-        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
-
-        const [rows] = await pool.execute(sql, params);
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching pecas manufaturadas:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar peças manufaturadas: ' + error.message });
-    }
-});
-
-// 2. GET /api/peca-manufaturada/composicao/:idMaterialPeca - Composição atual
-app.get('/api/peca-manufaturada/composicao/:idMaterialPeca', async (req, res) => {
-    try {
-        const { idMaterialPeca } = req.params;
-        const sql = `SELECT mp.IdMontaPeca, mp.IdMaterial, mp.IdMaterialpeca, mp.CodMatFabricante, mp.DescDetal, mp.PecaQtde, mp.txtItemEstoque,
-                            m.EnderecoArquivo
-                     FROM viewmontapeca1 mp
-                     LEFT JOIN material m ON m.IdMaterial = mp.IdMaterial
-                     WHERE (mp.d_e_l_e_t_e IS NULL OR mp.d_e_l_e_t_e = '') 
-                       AND mp.idmaterialpeca = ?
-                     ORDER BY mp.CodMatFabricante`;
-        const [rows] = await pool.execute(sql, [idMaterialPeca]);
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching composicao:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar composição: ' + error.message });
-    }
-});
-
-// 3. GET /api/peca-manufaturada/materiais - Matérias-primas
-app.get('/api/peca-manufaturada/materiais', async (req, res) => {
-    try {
-        const { codigo, descricao } = req.query;
-        let sql = `SELECT IdMaterial, CodMatFabricante, DescDetal, FamiliaMat AS Familia, Peso, Valor, Qtde, IdEmpresa
-                   FROM material 
-                   WHERE (d_e_l_e_t_e IS NULL OR d_e_l_e_t_e = '') 
-                     AND (EnderecoArquivo IS NULL OR EnderecoArquivo = '')`;
-        const params = [];
-
-        if (codigo) {
-            sql += ` AND CodMatFabricante LIKE ?`;
-            params.push(`%${codigo}%`);
-        }
-        if (descricao) {
-            sql += ` AND (DescDetal LIKE ? OR NumeroRP LIKE ?)`;
-            params.push(`%${descricao}%`, `%${descricao}%`);
-        }
-
-        sql += ` ORDER BY CodMatFabricante LIMIT 100`;
-
-        const [rows] = await pool.execute(sql, params);
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching materiais brutos:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar materiais brutos: ' + error.message });
-    }
-});
-
-// 4. POST /api/peca-manufaturada/composicao - Adicionar insumo
-app.post('/api/peca-manufaturada/composicao', async (req, res) => {
-    try {
-        const { idMaterialPeca, idMaterial, quantidade, usuario } = req.body;
-        
-        // Obter dados do material para copiar peso/valor/empresa, conforme VB
-        const [matRows] = await pool.execute(`SELECT FamiliaMat, Peso, Valor, IdEmpresa, CodMatFabricante FROM material WHERE IdMaterial = ?`, [idMaterial]);
-        if (matRows.length === 0) return res.status(404).json({ success: false, message: 'Material base não encontrado.' });
-        
-        const mat = matRows[0];
-        const qtde = quantidade || 1; // Default 1
-
-        const sql = `INSERT INTO montapeca 
-            (TipoPeca, IdMaterial, PecaQtde, IdMaterialPeca, IdEmpresa, D_E_L_E_T_E, Peso, Valor, UsuarioD_E_L_E_T_E, DataD_E_L_E_T_E, CodMatFabricante, UsuarioCriacao, DataCriacao)
-            VALUES (?, ?, ?, ?, ?, '', ?, ?, '', '', ?, ?, NOW())`;
-            
-        await pool.execute(sql, [
-            mat.FamiliaMat || 0,
-            idMaterial,
-            qtde,
-            idMaterialPeca,
-            mat.IdEmpresa || 0,
-            mat.Peso || 0,
-            mat.Valor || 0,
-            mat.CodMatFabricante || '',
-            usuario || 'Sistema'
-        ]);
-
-        // Atualiza a flag do material pai para indicar que agora é uma Peça Manufaturada
-        await pool.execute(`UPDATE material SET PecaManufat = 'S' WHERE IdMaterial = ?`, [idMaterialPeca]);
-        
-        res.json({ success: true, message: 'Material adicionado à composição com sucesso.' });
-    } catch (error) {
-        console.error('Error adding to composicao:', error);
-        res.status(500).json({ success: false, message: 'Erro ao adicionar na composição: ' + error.message });
-    }
-});
-
-// 5. DELETE /api/peca-manufaturada/composicao/:idMontaPeca - Remover insumo
-app.delete('/api/peca-manufaturada/composicao/:idMontaPeca', async (req, res) => {
-    try {
-        const { idMontaPeca } = req.params;
-        const { usuario } = req.body;
-        
-        await pool.execute(
-            `UPDATE montapeca SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = NOW(), UsuarioD_E_L_E_T_E = ? WHERE idmontapeca = ?`,
-            [usuario || 'Sistema', idMontaPeca]
-        );
-        res.json({ success: true, message: 'Material removido da composição.' });
-    } catch (error) {
-        console.error('Error deleting from composicao:', error);
-        res.status(500).json({ success: false, message: 'Erro ao remover da composição: ' + error.message });
-    }
-});
-
-// 6. GET /api/peca-manufaturada/processos - Lista processos de fabricação
-app.get('/api/peca-manufaturada/processos', async (req, res) => {
-    try {
-        const [rows] = await pool.execute(
-            "SELECT IdProcessoFabricacao, ProcessoFabricacao, CodigoProcessoFabricacao FROM processofabricacao WHERE (D_E_L_E_T_E = '' OR D_E_L_E_T_E IS NULL) ORDER BY ProcessoFabricacao"
-        );
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching processos fabricacao:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar processos: ' + error.message });
-    }
-});
-
-// 7. POST /api/peca-manufaturada/material-processo - Salva processos do produto buscando IdMaterial pelo codmatFabricante
-app.post('/api/peca-manufaturada/material-processo', async (req, res) => {
-    try {
-        const { processos, codmatFabricante, idMatriz, usuarioCriacao, replace } = req.body;
-        if (!processos || !Array.isArray(processos) || processos.length === 0) {
-            return res.status(400).json({ success: false, message: 'Nenhum processo informado.' });
-        }
-
-        // Modo manutenção: apaga registros existentes antes de reinserir
-        if (replace && codmatFabricante) {
-            await pool.execute(
-                'DELETE FROM material_processo WHERE codmatFabricante = ?',
-                [codmatFabricante]
-            );
-        }
-
-        // Busca IdMaterial na tabela material pelo codmatFabricante
-        let idMaterial = 0;
-        if (codmatFabricante) {
-            const [matRows] = await pool.execute(
-                "SELECT IdMaterial FROM material WHERE CodMatFabricante = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') LIMIT 1",
-                [codmatFabricante]
-            );
-            if (matRows.length > 0) {
-                idMaterial = matRows[0].IdMaterial;
-            } else {
-                console.warn(`[material-processo] CodMatFabricante '${codmatFabricante}' não encontrado na tabela material.`);
-            }
-        }
-
-        const now = new Date();
-        const pad = (n) => String(n).padStart(2, '0');
-        const nowFormat = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        const insertedIds = [];
-        for (const p of processos) {
-            const [result] = await pool.execute(
-                `INSERT INTO material_processo (IdMaterial, IdProcesso, SequenciaExecucao, TempoEstimadoMin, TempoPadraoMin, Ativo, Observacao, DataCriacao, UsuarioCriacao, codmatFabricante, IdMatriz)
-                 VALUES (?, ?, ?, ?, ?, 'A', ?, ?, ?, ?, ?)`,
-                [
-                    idMaterial,
-                    p.IdProcesso,
-                    p.SequenciaExecucao,
-                    p.TempoEstimadoMin != null ? p.TempoEstimadoMin : null,
-                    p.TempoPadraoMin != null ? p.TempoPadraoMin : null,
-                    p.Observacao || null,
-                    nowFormat,
-                    usuarioCriacao || 'Sistema',
-                    codmatFabricante || '',
-                    idMatriz || null
-                ]
-            );
-            insertedIds.push(result.insertId);
-        }
-        res.json({ success: true, message: `${insertedIds.length} processo(s) salvo(s) com sucesso.`, ids: insertedIds, idMaterial });
-    } catch (error) {
-        console.error('Error saving material_processo:', error);
-        res.status(500).json({ success: false, message: 'Erro ao salvar processos: ' + error.message });
-    }
-});
-
-// 8. GET /api/peca-manufaturada/processos-existentes/:codmatFabricante
-app.get('/api/peca-manufaturada/processos-existentes/:codmatFabricante', async (req, res) => {
-    try {
-        const { codmatFabricante } = req.params;
-        const [rows] = await pool.execute(
-            `SELECT
-                mp.IdProcesso,
-                mp.SequenciaExecucao,
-                mp.TempoEstimadoMin,
-                mp.TempoPadraoMin,
-                mp.Ativo,
-                mp.Observacao,
-                mp.DataCriacao,
-                mp.UsuarioCriacao,
-                COALESCE(pf.ProcessoFabricacao, CONCAT('Processo #', mp.IdProcesso)) AS NomeProcesso
-             FROM material_processo mp
-             LEFT JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
-             WHERE mp.codmatFabricante = ?
-             ORDER BY mp.SequenciaExecucao ASC`,
-            [codmatFabricante]
-        );
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        console.error('Error fetching processos existentes:', error);
-        res.status(500).json({ success: false, message: 'Erro ao buscar processos: ' + error.message });
-    }
-});
 
 // --- CRUD: Projetos ---
 // LIST (Read All) 
@@ -5441,6 +5205,24 @@ const storageIsometrico = multer.diskStorage({
     }
 });
 const uploadIso = multer({ storage: storageIsometrico });
+
+// Upload configurations for CNH
+const storageCNH = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const cnhDir = 'C:\\fotosfuncionarios';
+        if (!fs.existsSync(cnhDir)) {
+            fs.mkdirSync(cnhDir, { recursive: true });
+        }
+        cb(null, cnhDir)
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'cnh-' + uniqueSuffix + ext)
+    }
+});
+const uploadCNH = multer({ storage: storageCNH });
+
 
 // POST upload isometrico
 app.post('/api/visao-geral-engenharia/tags/:idTag/isometrico', uploadIso.single('isometricoPdf'), async (req, res) => {
@@ -10665,14 +10447,14 @@ app.delete('/api/usuario/:id', tenantMiddleware, async (req, res) => {
             "UPDATE usuario SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = 'Sistema' WHERE idUsuario = ?",
             [now, req.params.id]
         );
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio excluÃ¯Â¿Â½do' });
+        res.json({ success: true, message: 'Usuário excluído' });
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ success: false, message: 'Erro ao excluir usuÃ¯Â¿Â½rio' });
+        res.status(500).json({ success: false, message: 'Erro ao excluir usuário' });
     }
 });
 
-// --- RNC / PENDÃ¯Â¿Â½NCIA ROMANEIO ---
+// --- RNC / PENDÊNCIA ROMANEIO ---
 
 // GET /api/rnc/sectors - List all sectors from dedicated table
 app.get('/api/rnc/sectors', tenantMiddleware, async (req, res) => {
@@ -10769,15 +10551,25 @@ app.get('/api/motoristas', tenantMiddleware, async (req, res) => {
     }
 });
 
+
+// POST /api/motoristas/upload-cnh - Fazer upload da imagem da CNH
+app.post('/api/motoristas/upload-cnh', tenantMiddleware, uploadCNH.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
+    }
+    const fileUrl = '/fotosfuncionarios/' + req.file.filename;
+    res.json({ success: true, url: fileUrl });
+});
+
 // POST /api/motoristas - Criar novo motorista
 app.post('/api/motoristas', tenantMiddleware, async (req, res) => {
-    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    const { Motorista, CNH, Categoria, Telefone, DataVencimentoCNH, ImagemCNH } = req.body;
     const now = new Date();
     const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     try {
         await req.tenantDbPool.execute(
             "INSERT INTO motorista (Motorista, CNH, Categoria, Telefone, DataCadastro) VALUES (?, ?, ?, ?, ?)",
-            [Motorista, CNH || '', Categoria || '', Telefone || '', nowFormat]
+            [Motorista, CNH || '', Categoria || '', Telefone || '', DataVencimentoCNH || null, nowFormat]
         );
         res.json({ success: true, message: 'Motorista criado com sucesso' });
     } catch (error) {
@@ -10789,11 +10581,11 @@ app.post('/api/motoristas', tenantMiddleware, async (req, res) => {
 // PUT /api/motoristas/:id - Atualizar motorista
 app.put('/api/motoristas/:id', tenantMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    const { Motorista, CNH, Categoria, Telefone, DataVencimentoCNH, ImagemCNH } = req.body;
     try {
         await req.tenantDbPool.execute(
-            "UPDATE motorista SET Motorista = ?, CNH = ?, Categoria = ?, Telefone = ? WHERE IdMotorista = ?",
-            [Motorista, CNH || '', Categoria || '', Telefone || '', id]
+            "UPDATE motorista SET Motorista = ?, CNH = ?, Categoria = ?, Telefone = ?, DataVencimentoCNH = ?, ImagemCNH = ? WHERE IdMotorista = ?",
+              [Motorista, CNH || '', Categoria || '', Telefone || '', DataVencimentoCNH || null, ImagemCNH || null, id]
         );
         res.json({ success: true, message: 'Motorista atualizado com sucesso' });
     } catch (error) {
@@ -14351,6 +14143,7 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
 // Static: landing page assets (root)
 app.use(express.static(path.join(__dirname, '../')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/fotosfuncionarios', express.static('C:\\fotosfuncionarios'));
 app.use('/css', express.static(path.join(__dirname, '../public/css')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 // Static: React app assets (assets/, etc.)

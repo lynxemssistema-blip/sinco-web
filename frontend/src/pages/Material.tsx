@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  Plus, Search, Edit2, Trash2, X, Package, Save, Filter,
- Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon, Globe
+ Loader2, RefreshCw, Camera, Image as ImageIcon, Link as LinkIcon, Globe, FileText, Download
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -73,6 +73,8 @@ export default function MaterialPage() {
  const [saving, setSaving] = useState(false);
  const [error, setError] = useState<string | null>(null);
  const [showUrlInput, setShowUrlInput] = useState(false);
+ const [arquivos, setArquivos] = useState<any[]>([]);
+ const [loadingArquivos, setLoadingArquivos] = useState(false);
 
  // Options for dropdowns
  const [familiaOptions, setFamiliaOptions] = useState<Option[]>([]);
@@ -95,7 +97,7 @@ export default function MaterialPage() {
  if (famJson.success) setFamiliaOptions(famJson.data);
  if (fornJson.success) setFornecedorOptions(fornJson.data);
  if (unidJson.success) setUnidadeOptions(unidJson.data);
- } catch {
+ } catch (err) {
  console.error('Error fetching options:', err);
  }
  };
@@ -112,7 +114,7 @@ export default function MaterialPage() {
  } else {
  setError(json.message || 'Erro ao carregar dados');
  }
- } catch {
+ } catch (err) {
  setError('Erro de conexão com o servidor.');
  console.error('Fetch error:', err);
  } finally {
@@ -179,7 +181,7 @@ export default function MaterialPage() {
  } else {
  setError(json.message || 'Erro ao salvar');
  }
- } catch {
+ } catch (err) {
  setError('Erro ao salvar. Verifique a conexão.');
  console.error('Save error:', err);
  } finally {
@@ -187,7 +189,27 @@ export default function MaterialPage() {
  }
  };
 
- const handleEdit = async (id: number) => {
+ 
+  const handleOpenPDF = async (idMaterial: number) => {
+    try {
+      const res = await fetch(`${API_BASE}/materiais/${idMaterial}/arquivos`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` }
+      });
+      const json = await res.json();
+      if (json.success && json.data && json.data.length > 0) {
+        // Open the most recently uploaded PDF
+        const file = json.data[0];
+        window.open(`${API_BASE}/materiais/arquivos/${file.idArquivo}/download?token=${localStorage.getItem('sinco_token')}`, '_blank');
+      } else {
+        alert('Este material não possui arquivos PDF anexados.');
+      }
+    } catch (error) {
+      console.error('Error opening PDF:', error);
+      alert('Erro ao buscar o arquivo.');
+    }
+  };
+
+  const handleEdit = async (id: number) => {
  try {
  const res = await fetch(`${API_BASE}/material/${id}`);
  const json = await res.json();
@@ -196,7 +218,7 @@ export default function MaterialPage() {
  setIsEditing(true);
  setShowForm(true);
  }
- } catch {
+ } catch (err) {
  console.error('Fetch error:', err);
  }
  };
@@ -216,7 +238,7 @@ export default function MaterialPage() {
  } else {
  setError(json.message || 'Erro ao excluir');
  }
- } catch {
+ } catch (err) {
  setError('Erro ao excluir. Verifique a conexão.');
  }
  };
@@ -225,7 +247,73 @@ export default function MaterialPage() {
  setFormData(emptyForm);
  setIsEditing(false);
  setShowForm(false);
+ setArquivos([]);
  };
+
+  const fetchArquivos = async (idMaterial: number) => {
+    setLoadingArquivos(true);
+    try {
+      const res = await fetch(`${API_BASE}/materiais/${idMaterial}/arquivos`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` }
+      });
+      const json = await res.json();
+      if (json.success) setArquivos(json.data);
+    } catch (error) {
+      console.error('Error fetching arquivos:', error);
+    } finally {
+      setLoadingArquivos(false);
+    }
+  };
+
+  const handleUploadArquivo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !formData.IdMaterial) return;
+    
+    const uploadFormData = new FormData();
+    uploadFormData.append('arquivo', files[0]);
+
+    setLoadingArquivos(true);
+    try {
+      const res = await fetch(`${API_BASE}/materiais/${formData.IdMaterial}/arquivos`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` },
+        body: uploadFormData
+      });
+      const json = await res.json();
+      if (json.success) {
+        fetchArquivos(formData.IdMaterial);
+      } else {
+        alert(json.message || 'Erro ao enviar arquivo');
+      }
+    } catch (error) {
+      console.error('Error uploading arquivo:', error);
+      alert('Erro de conexão ao enviar arquivo');
+    } finally {
+      setLoadingArquivos(false);
+    }
+  };
+
+  const handleDeleteArquivo = async (idArquivo: number) => {
+    if (!confirm('Deseja realmente excluir este arquivo?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/materiais/arquivos/${idArquivo}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        if (formData.IdMaterial) fetchArquivos(formData.IdMaterial);
+      } else {
+        alert(json.message || 'Erro ao excluir');
+      }
+    } catch (error) {
+      console.error('Error deleting arquivo:', error);
+    }
+  };
+
+  const handleDownloadArquivo = (idArquivo: number) => {
+    window.open(`${API_BASE}/materiais/arquivos/${idArquivo}/download?token=${localStorage.getItem('sinco_token')}`, '_blank');
+  };
 
  return (
  <div className="space-y-6 h-full flex flex-col min-h-0">
@@ -415,9 +503,41 @@ export default function MaterialPage() {
          }} className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 text-[#32423D]" title="Pesquisar WEB">
            <Globe size={14} />
          </button>
+         <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Anexar PDF">
+           <input type="file" accept="application/pdf" onChange={handleUploadArquivo} className="hidden" />
+           <FileText size={14} />
+         </label>
        </div>
        {showUrlInput && (
          <input type="text" value={formData.ImagemProduto || ''} onChange={(e) => setFormData(prev => ({ ...prev, ImagemProduto: e.target.value }))} placeholder="URL da imagem (https://...)" className={inputOptional + " py-1 text-xs"} />
+       )}
+       {/* Lista de Arquivos */}
+       {formData.IdMaterial && (
+         <div className="mt-2 border-t border-gray-100 pt-2">
+           <span className="text-xs font-semibold text-gray-700 block mb-1">Arquivos Anexados ({arquivos.length}):</span>
+           {loadingArquivos && <Loader2 className="animate-spin text-[#32423D] mb-2" size={14} />}
+           <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
+             {arquivos.map((arq) => (
+               <div key={arq.idArquivo} className="flex items-center justify-between p-1.5 bg-gray-50 border border-gray-100 rounded text-[10px]">
+                 <div className="flex items-center gap-1.5 overflow-hidden">
+                   <FileText size={12} className="text-blue-500 shrink-0" />
+                   <span className="truncate" title={arq.NomeArquivo}>{arq.NomeArquivo}</span>
+                 </div>
+                 <div className="flex items-center gap-1 shrink-0 ml-2">
+                   <button type="button" onClick={() => handleDownloadArquivo(arq.idArquivo)} className="p-1 hover:bg-gray-200 rounded text-gray-600" title="Baixar/Visualizar">
+                     <Download size={12} />
+                   </button>
+                   <button type="button" onClick={() => handleDeleteArquivo(arq.idArquivo)} className="p-1 hover:bg-red-100 rounded text-red-500" title="Excluir">
+                     <Trash2 size={12} />
+                   </button>
+                 </div>
+               </div>
+             ))}
+             {arquivos.length === 0 && !loadingArquivos && (
+               <div className="text-[10px] text-gray-400 italic">Nenhum arquivo anexado.</div>
+             )}
+           </div>
+         </div>
        )}
      </div>
    </div>
@@ -674,7 +794,14 @@ export default function MaterialPage() {
  title="Editar"
  >
  <Edit2 size={14} />
- </button>
+   </button>
+   <button
+   onClick={() => material.IdMaterial && handleOpenPDF(material.IdMaterial)}
+   className="p-2 rounded-lg text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+   title="Abrir PDF"
+   >
+   <FileText size={14} />
+   </button>
  <button
  onClick={() => material.IdMaterial && handleDelete(material.IdMaterial)}
  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"

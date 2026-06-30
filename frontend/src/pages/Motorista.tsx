@@ -94,8 +94,10 @@ export default function MotoristaPage() {
              const json = await res.json();
              if (json.success && json.url) {
                  setFormData(prev => ({ ...prev, ImagemCNH: json.url }));
+                 // Clear any previous error
+                 setError(null);
              } else {
-                 setError('Falha ao fazer upload da imagem.');
+                 setError(json.message || 'Falha ao fazer upload da imagem.');
              }
          } catch (error) {
              setError('Erro de conexão ao fazer upload da imagem.');

@@ -23,7 +23,6 @@ COPY workbox-*.js ./
 COPY *.png ./
 COPY *.svg ./
 COPY login_inicial.html ./login_inicial.html
-COPY .env ./.env
 
 # Expor porta
 EXPOSE 3000

@@ -14,7 +14,7 @@ const authHdr = () => ({ 'Authorization': `Bearer ${localStorage.getItem('sinco_
 
 
 export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario?:string}) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const idMatriz = (user as any)?.idMatriz||null;
   const uCriacao = (user as any)?.nome||usuario;
   const dropRef = useRef<HTMLDivElement>(null);
@@ -76,7 +76,20 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     } catch { alert('Erro de comunicação ao abrir PDF.'); }
   };
 
-  useEffect(()=>{ fetch(`${API}/processos`).then(r=>r.json()).then(j=>{ if(j.success) setTipos(j.data); }); },[]);
+  useEffect(() => {
+    if (!token) return;
+    fetch('/api/recursos', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(j => {
+        if (j.success) {
+          const mapped = j.data.map((d: any) => ({
+            ...d,
+            ProcessoFabricacao: d.processofabricacao
+          }));
+          setTipos(mapped);
+        }
+      });
+  }, [token]);
 
   // Carrega desenhos ao entrar no modo criar
   const fetchDesenhos = useCallback(async(q='')=>{
@@ -634,8 +647,21 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                 <div className="flex gap-2 items-end flex-wrap">
                   <div className="flex flex-col flex-1 min-w-[140px]">
                     <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Recurso</span>
-                    <select value={selId} onChange={e=>setSelId(e.target.value?Number(e.target.value):'')}
-                      disabled={editSq!==null}
+                      <select value={selId} onChange={e => {
+                        const val = e.target.value ? Number(e.target.value) : '';
+                        setSelId(val);
+                        if (val !== '') {
+                          const proc = tipos.find(t => t.IdProcessoFabricacao === val);
+                          if (proc) {
+                            setEstMinStr(proc.Setup != null ? String(proc.Setup) : '');
+                            setPadMinStr(proc.TempoPadrao != null ? String(proc.TempoPadrao) : '');
+                          }
+                        } else {
+                          setEstMinStr('');
+                          setPadMinStr('');
+                        }
+                      }}
+                        disabled={editSq!==null}
                       className={`px-1.5 py-0.5 text-[10px] border rounded focus:outline-none bg-white ${editSq!==null?'border-gray-100 text-gray-400':'border-gray-300 focus:border-[#32423D]'}`}>
                       <option value="">- Selecione -</option>
                       {tipos.filter(t=>editSq!==null||!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao))

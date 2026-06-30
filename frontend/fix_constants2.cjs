@@ -1,4 +1,6 @@
-import type { MenuItem } from './iconMap';
+const fs = require('fs');
+
+const code = `import type { MenuItem } from './iconMap';
 
 export const defaultMenuItems: MenuItem[] = [
     { id: 'acabamento', icon: 'Paintbrush', label: 'Acabamento', href: '/acabamento' },
@@ -69,3 +71,7 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'visao-geral-engenharia', icon: 'Network', label: 'Visão Engenharia', href: '/visao-geral-engenharia' },
     { id: 'visao-geral-producao', icon: 'BarChart3', label: 'Visão Geral Produção', href: '/visao-geral-producao' },
 ];
+`;
+
+fs.writeFileSync('C:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/utils/constants.ts', code);
+console.log('constants.ts fully rewritten');

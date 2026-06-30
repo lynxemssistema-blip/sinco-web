@@ -12,6 +12,7 @@ const blocksetRoutes = require('./routes/blocksetRoutes');
 const pecaManufaturadaRoutes = require('./routes/pecaManufaturada');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const multer = require('multer');
+const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 const { exec } = require('child_process');
@@ -10469,6 +10470,91 @@ app.get('/api/rnc/sectors', tenantMiddleware, async (req, res) => {
     }
 });
 
+
+// --- RECURSOS (PROCESSOS DE FABRICACAO) CRUD ---
+
+// Helper function to auto-create missing fields in processofabricacao
+const ensureProcessoFieldsAndRetry = async (pool, query, params) => {
+    try {
+        return await pool.execute(query, params);
+    } catch (error) {
+        if (error.code === 'ER_BAD_FIELD_ERROR' && (error.message.includes('Setup') || error.message.includes('TempoPadrao'))) {
+            console.log('Missing fields in processofabricacao detected, attempting to create Setup and TempoPadrao...');
+            try { await pool.execute('ALTER TABLE processofabricacao ADD COLUMN Setup DECIMAL(10,2) NULL'); } catch(e) {}
+            try { await pool.execute('ALTER TABLE processofabricacao ADD COLUMN TempoPadrao DECIMAL(10,2) NULL'); } catch(e) {}
+            console.log('Retrying the original query...');
+            return await pool.execute(query, params);
+        }
+        throw error;
+    }
+};
+
+
+// GET /api/recursos - Listar todos os recursos
+app.get('/api/recursos', tenantMiddleware, async (req, res) => {
+    try {
+        const query = "SELECT IdProcessoFabricacao, processofabricacao, CodigoProcessoFabricacao, DataLiberada, Fabrica, Setup, TempoPadrao, DataCriacao, CriadoPor FROM processofabricacao WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY processofabricacao ASC";
+        const [rows] = await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, []);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching recursos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar recursos' });
+    }
+});
+
+// POST /api/recursos - Criar novo recurso
+app.post('/api/recursos', tenantMiddleware, async (req, res) => {
+    const { processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao } = req.body;
+    const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const idMatriz = req.tenantUser?.tenantId || null;
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    try {
+        const query = "INSERT INTO processofabricacao (processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao, CriadoPor, DataCriacao, IdMatriz) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, usuario, nowFormat, idMatriz];
+        await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
+        res.json({ success: true, message: 'Recurso criado com sucesso' });
+    } catch (error) {
+        console.error('Error creating recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar recurso' });
+    }
+});
+
+// PUT /api/recursos/:id - Atualizar recurso
+app.put('/api/recursos/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao } = req.body;
+    try {
+        const query = "UPDATE processofabricacao SET processofabricacao = ?, CodigoProcessoFabricacao = ?, Fabrica = ?, DataLiberada = ?, Setup = ?, TempoPadrao = ? WHERE IdProcessoFabricacao = ?";
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, id];
+        await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
+        res.json({ success: true, message: 'Recurso atualizado com sucesso' });
+    } catch (error) {
+        console.error('Error updating recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar recurso' });
+    }
+});
+
+// DELETE /api/recursos/:id - Excluir recurso
+app.delete('/api/recursos/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE processofabricacao SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdProcessoFabricacao = ?",
+            [nowFormat, usuario, id]
+        );
+        res.json({ success: true, message: 'Recurso excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir recurso' });
+    }
+});
+
 // --- SETORES CRUD ---
 
 // GET /api/setores - Listar todos os setores (usado na tela de Manutenção)
@@ -14873,5 +14959,106 @@ app.post('/api/manutencao/update-endereco-arquivo', async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     } finally {
         if (conn) await conn.end();
+    }
+});
+
+
+// --- MATERIAIS ARQUIVOS (PDF) CRUD ---
+
+const ensureMaterialArquivosTable = async (pool) => {
+    try {
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS material_arquivos (
+                idArquivo INT AUTO_INCREMENT PRIMARY KEY,
+                IdMaterial INT NOT NULL,
+                NomeArquivo VARCHAR(255) NOT NULL,
+                TipoArquivo VARCHAR(100) NOT NULL,
+                Tamanho INT NOT NULL,
+                Dados LONGBLOB NOT NULL,
+                DataCriacao DATETIME NOT NULL,
+                CriadoPor VARCHAR(100)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+    } catch (error) {
+        console.error('Error creating material_arquivos table:', error);
+    }
+};
+
+// GET /api/materiais/:id/arquivos - Listar arquivos do material (sem os dados blob)
+app.get('/api/materiais/:id/arquivos', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT idArquivo, IdMaterial, NomeArquivo, TipoArquivo, Tamanho, DataCriacao, CriadoPor FROM material_arquivos WHERE IdMaterial = ? ORDER BY DataCriacao DESC",
+            [id]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching material arquivos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar arquivos do material' });
+    }
+});
+
+// POST /api/materiais/:id/arquivos - Fazer upload de um arquivo
+app.post('/api/materiais/:id/arquivos', tenantMiddleware, uploadMemory.single('arquivo'), async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+    if (!file) return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
+
+    const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        await req.tenantDbPool.execute(
+            "INSERT INTO material_arquivos (IdMaterial, NomeArquivo, TipoArquivo, Tamanho, Dados, DataCriacao, CriadoPor) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [id, file.originalname, file.mimetype, file.size, file.buffer, nowFormat, usuario]
+        );
+        res.json({ success: true, message: 'Arquivo salvo com sucesso' });
+    } catch (error) {
+        console.error('Error uploading material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao salvar arquivo' });
+    }
+});
+
+// GET /api/materiais/arquivos/:idArquivo/download - Baixar/Visualizar o arquivo
+app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (req, res) => {
+    const { idArquivo } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Arquivo não encontrado' });
+        }
+
+        const file = rows[0];
+        res.setHeader('Content-Disposition', `inline; filename="${file.NomeArquivo}"`);
+        res.setHeader('Content-Type', file.TipoArquivo);
+        res.send(file.Dados);
+    } catch (error) {
+        console.error('Error downloading material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao baixar arquivo' });
+    }
+});
+
+// DELETE /api/materiais/arquivos/:idArquivo - Excluir arquivo
+app.delete('/api/materiais/arquivos/:idArquivo', tenantMiddleware, async (req, res) => {
+    const { idArquivo } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        await req.tenantDbPool.execute(
+            "DELETE FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+        res.json({ success: true, message: 'Arquivo excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir arquivo' });
     }
 });

@@ -32,6 +32,7 @@ export default function ConfiguracaoPage() {
  // Config Regras
  const [restringirApontamento, setRestringirApontamento] = useState('Não');
  const [mostrarPowerBuild, setMostrarPowerBuild] = useState('Não');
+  const [enderecoSalvarCNHMotorista, setEnderecoSalvarCNHMotorista] = useState('');
  const [permitirRealizadoSemPlanejamento, setPermitirRealizadoSemPlanejamento] = useState(getDefaultPermitirRealizado); // padrão: depende do banco
  const DEFAULT_PROCESSOS_VISIVEIS = ['corte', 'dobra', 'solda', 'pintura', 'montagem', 'medicao', 'isometrico', 'engenharia', 'aprovacao', 'acabamento', 'expedicao'];
  const [processosVisiveis, setProcessosVisiveis] = useState<string[]>(DEFAULT_PROCESSOS_VISIVEIS);
@@ -86,6 +87,7 @@ export default function ConfiguracaoPage() {
  .then(data => {
  if (data.success) {
  setRestringirApontamento(data.config.RestringirApontamentoSemSaldoAnterior || 'Não');
+          setEnderecoSalvarCNHMotorista(data.config.EnderecoSalvarCNHMotorista || '');
  // Padrão depende do banco: lynxlocal/amceletrica=Desbloqueado, outros=Bloqueado
  setPermitirRealizadoSemPlanejamento(data.config.PermitirRealizadoSemPlanejamento ?? getDefaultPermitirRealizado());
  if (data.config.ProcessosVisiveis) {
@@ -662,6 +664,24 @@ export default function ConfiguracaoPage() {
  />
  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#E0E800]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#32423D]"></div>
  </label>
+ </div>
+ {/* NOVO: Endereço Salvar CNH Motorista */}
+ <div className="flex flex-col p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 border-l-4 border-l-green-400">
+   <div>
+     <h3 className="font-medium text-gray-900">Endereço para salvar CNH do Motorista</h3>
+     <p className="text-xs text-gray-500 mt-1 max-w-xl mb-3">
+       Defina o caminho na rede ou no servidor onde as fotos das CNHs serão armazenadas (ex: <code>C:\\fotosfuncionarios</code> ou <code>Z:\\RH\\CNH</code>).
+     </p>
+   </div>
+   <div className="w-full">
+     <input
+       type="text"
+       value={enderecoSalvarCNHMotorista}
+       onChange={(e) => setEnderecoSalvarCNHMotorista(e.target.value)}
+       className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all text-sm"
+       placeholder="Ex: C:\\fotosfuncionarios"
+     />
+   </div>
  </div>
  <div className="mt-6 flex justify-end">
  <button onClick={handleSaveRegras} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-2 py-1 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">

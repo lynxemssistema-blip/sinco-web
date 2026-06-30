@@ -17,6 +17,7 @@ import MaterialPage from './pages/Material';
 import ProjetoPage from './pages/Projeto';
 import TipoProdutoPage from './pages/TipoProduto';
 import SetorPage from './pages/Setor';
+import RecursoFabricacaoPage from './pages/RecursoFabricacao';
 import MotoristaPage from './pages/Motorista';
 import OrdemServicoPage from './pages/OrdemServico';
 import ApontamentoProducaoPage from './pages/ApontamentoProducao';
@@ -208,6 +209,15 @@ function AppContent() {
              savedMenu = savedMenu.filter(item => item.id !== 'power-build');
           }
 
+          
+          // Force add 'recursos-fabricacao' if missing
+          if (!savedMenu.find(item => item.id === 'recursos-fabricacao')) {
+            const rfItem = defaultMenuItems.find(item => item.id === 'recursos-fabricacao');
+            if (rfItem) {
+              savedMenu.push(rfItem);
+            }
+          }
+
           // Force add 'pesquisar-desenho' if missing
           if (!savedMenu.find(item => item.id === 'pesquisar-desenho')) {
             const pdItem = defaultMenuItems.find(item => item.id === 'pesquisar-desenho');
@@ -373,8 +383,26 @@ function AppContent() {
     logout();
   };
 
+  
+  
   const renderPage = () => {
-    switch (activePageId) {
+    let resolvedId = activePageId;
+    const dynamicItem = findItemById(menuItems, activePageId);
+    if (dynamicItem) {
+      const staticMatch = 
+        (dynamicItem.href ? findItemByHref(defaultMenuItems, dynamicItem.href) : null) || 
+        defaultMenuItems.find(i => i.label === dynamicItem.label);
+        
+      if (staticMatch) {
+        resolvedId = staticMatch.id;
+      } else if (dynamicItem.label && dynamicItem.label.toLowerCase().includes('recurso')) {
+        resolvedId = 'recursos-fabricacao';
+      }
+    }
+
+    switch (resolvedId) {
+
+
       case 'dashboard':
         return <DashboardPage onNavigate={handleNavigate} />;
       case 'camera':
@@ -393,6 +421,8 @@ function AppContent() {
         return <MaterialPage />;
       case 'projetos':
         return <ProjetoPage />;
+      case 'recursos-fabricacao':
+        return <RecursoFabricacaoPage />;
       case 'tipos-produto':
         return <TipoProdutoPage />;
       case 'setor':
