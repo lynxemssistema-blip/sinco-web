@@ -464,6 +464,7 @@ export default function MotoristaPage() {
  <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider">Motorista</th>
  <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">CNH</th>
  <th className="px-2 py-0.5 text-center text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Categoria</th>
+ <th className="px-2 py-0.5 text-center text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Venc. CNH</th>
  <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Telefone</th>
  <th className="px-2 py-0.5 text-center text-xs font-semibold text-white uppercase tracking-wider w-16">Foto</th>
  <th className="px-2 py-0.5 text-right text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
@@ -505,6 +506,35 @@ export default function MotoristaPage() {
  <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600">
  {motorista.Categoria || '-'}
  </span>
+ </td>
+ <td className="px-2 py-0.5 text-center hidden md:table-cell">
+ {motorista.DataVencimentoCNH ? (
+ (() => {
+ const dataVenc = new Date(motorista.DataVencimentoCNH);
+ const diffTime = dataVenc.getTime() - new Date().getTime();
+ const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+ const isExpired = diffDays < 0;
+ const isExpiring = diffDays >= 0 && diffDays <= 30;
+ const formatada = dataVenc.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+ 
+ if (isExpired || isExpiring) {
+ return (
+ <div className="group relative inline-block cursor-help">
+ <span className={`px-2 py-1 rounded text-xs font-bold border \${isExpired ? 'bg-red-100 text-red-600 border-red-200' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
+ {formatada}
+ </span>
+ <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+ {isExpired ? 'CNH Vencida!' : 'CNH vencendo em ' + diffDays + ' dia(s)!'}
+ <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+ </div>
+ </div>
+ );
+ }
+ return <span className="text-gray-600">{formatada}</span>;
+ })()
+ ) : (
+ <span className="text-gray-300">-</span>
+ )}
  </td>
  <td className="px-2 py-0.5 text-xs text-gray-600 hidden md:table-cell">
  {motorista.Telefone || '-'}
