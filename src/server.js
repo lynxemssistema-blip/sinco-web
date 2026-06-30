@@ -5209,7 +5209,7 @@ const uploadIso = multer({ storage: storageIsometrico });
 // Upload configurations for CNH
 const storageCNH = multer.diskStorage({
     destination: function (req, file, cb) {
-        const cnhDir = path.join(__dirname, '../public/uploads/cnh');
+        const cnhDir = 'C:\\fotosfuncionarios';
         if (!fs.existsSync(cnhDir)) {
             fs.mkdirSync(cnhDir, { recursive: true });
         }
@@ -10557,7 +10557,7 @@ app.post('/api/motoristas/upload-cnh', tenantMiddleware, uploadCNH.single('file'
     if (!req.file) {
         return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
     }
-    const fileUrl = '/uploads/cnh/' + req.file.filename;
+    const fileUrl = '/fotosfuncionarios/' + req.file.filename;
     res.json({ success: true, url: fileUrl });
 });
 
@@ -14143,6 +14143,7 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
 // Static: landing page assets (root)
 app.use(express.static(path.join(__dirname, '../')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/fotosfuncionarios', express.static('C:\\fotosfuncionarios'));
 app.use('/css', express.static(path.join(__dirname, '../public/css')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 // Static: React app assets (assets/, etc.)

@@ -606,7 +606,7 @@ const exec = Number((tag as Record<string, unknown>)[`${s.key}TotalExecutado`]) 
 // ─── DETAIL VIEW (Project → Tags) ────────────────────────────────────────────
 
 function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: ProjetoAcomp; onVoltar: () => void; setoresVisiveis: typeof SETORES }) {
- const [, setTags] = useState<TagDetalhe[]>([]);
+ const [tags, setTags] = useState<TagDetalhe[]>([]);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState<string | null>(null);
  const [viewMode, setViewMode] = useState<'lista' | 'gantt'>('gantt');

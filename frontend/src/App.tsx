@@ -83,7 +83,7 @@ function AppContent() {
           // FORCE override href for Peça Manufaturada regardless of what the DB says
           const fixPecaHref = (items: MenuItem[]) => {
             items.forEach(item => {
-              if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada') {
+              if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada' || item.id === 'group_1781618991422' || item.id === 'peça-manufaturada') {
                  item.href = '/peca-manufaturada';
               }
               if (item.children) fixPecaHref(item.children);

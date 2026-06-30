@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, Loader2, Trash2, Plus, Clock, X, Save, Edit2, RefreshCw, Package, FileText, PlusCircle, ChevronLeft } from 'lucide-react';
+import { Search, Loader2, Trash2, Plus, Clock, X, Save, Edit2, RefreshCw, Package, FileText, PlusCircle, ChevronLeft, Wrench } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const API = '/api/peca-manufaturada';
@@ -25,6 +25,10 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [showDrop, setShowDrop] = useState(false);
   const [loadingS, setLoadingS] = useState(false);
   const [piece, setPiece] = useState<any>(null);
+  const [expandedItem, setExpandedItem] = useState<any>(null);
+  const [subComp, setSubComp] = useState<any[]>([]);
+  const [subStaging, setSubStaging] = useState<Proc[]>([]);
+  const [loadingSub, setLoadingSub] = useState(false);
 
   const [comp, setComp] = useState<any[]>([]);
   const [loadingC, setLoadingC] = useState(false);
@@ -85,7 +89,19 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     }finally{ setLoadingD(false); }
   },[]);
 
-  const entrarModocriar = ()=>{ setModocriar(true); setDezenhoSel(null); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); setQuantidades({}); fetchDesenhos(); };
+  const entrarModocriar = ()=>{ 
+    setModocriar(true); 
+    setFiltroD(searchCode||''); 
+    setMateriais2([]); 
+    setSelecionados(new Set()); 
+    setQuantidades({}); 
+    if (piece) {
+      setDezenhoSel(piece);
+    } else {
+      setDezenhoSel(null); 
+    }
+    fetchDesenhos(searchCode||''); 
+  };
   const sairModocriar  = ()=>{ setModocriar(false); setDezenhoSel(null); setDesenhos([]); setFiltroD(''); setMateriais2([]); setSelecionados(new Set()); setQuantidades({}); };
 
   useEffect(()=>{ if(!modocriar) return; const t=setTimeout(()=>fetchDesenhos(filtroD),300); return()=>clearTimeout(t); },[filtroD,modocriar,fetchDesenhos]);
@@ -133,7 +149,10 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
       const j = await r.json();
       if(j.success){
         alert(`✅ ${j.message}`);
-        fetchMateriais2(dezenhoSel.IdMaterial, filtroM2);
+        if (piece && piece.IdMaterial === dezenhoSel.IdMaterial) {
+          fetchComp(piece.IdMaterial);
+        }
+        sairModocriar();
       } else { alert('Erro: '+j.message); }
     }finally{ setSavingLote(false); }
   };
@@ -146,6 +165,31 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     document.addEventListener('mousedown',h);
     return ()=>document.removeEventListener('mousedown',h);
   },[]);
+
+  const handleExpand = async (c: any) => {
+    if (expandedItem?.IdMontaPeca === c.IdMontaPeca) {
+      setExpandedItem(null); setSubComp([]); setSubStaging([]); return;
+    }
+    setExpandedItem(c);
+    setLoadingSub(true);
+    try {
+      const rComp = await fetch(`${API}/composicao/${c.IdMaterial}`);
+      const jComp = await rComp.json();
+      if (jComp.success) setSubComp(jComp.data);
+
+      const rProc = await fetch(`${API}/processos-existentes/${encodeURIComponent(c.CodMatFabricante)}`);
+      const jProc = await rProc.json();
+      if (jProc.success) {
+        const mapped = jProc.data.map((p:any)=>({
+          seq:p.SequenciaExecucao, IdProcesso:p.IdProcesso, nome:p.NomeProcesso,
+          estMin: p.TempoEstimadoMin!=null?Number(p.TempoEstimadoMin):null,
+          padMin: p.TempoPadraoMin!=null?Number(p.TempoPadraoMin):null,
+          obs:p.Observacao||''
+        }));
+        setSubStaging(mapped);
+      }
+    } finally { setLoadingSub(false); }
+  };
 
   const doSearch = useCallback(async(cod:string)=>{
     if(!cod.trim()){ setResults([]); setShowDrop(false); return; }
@@ -185,6 +229,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   };
 
   const selectPiece = async(p:any)=>{
+    setExpandedItem(null);
     setShowDrop(false);
     setSearchCode(p.CodMatFabricante);
     // load full material details
@@ -282,7 +327,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               {loadingS ? <Loader2 size={13} className="animate-spin text-gray-400 shrink-0"/> : <Search size={13} className="text-gray-400 shrink-0"/>}
               <input value={searchCode} onChange={e=>setSearchCode(e.target.value)} onFocus={()=>results.length&&setShowDrop(true)}
                 placeholder="Pesquisar CodMatFabricante..." className="flex-1 text-[11px] outline-none bg-transparent"/>
-              {searchCode&&<button onClick={()=>{setSearchCode('');setResults([]);setShowDrop(false);setPiece(null);setComp([]);setProcs([]);setStaging([]);}} className="text-gray-400 hover:text-gray-600"><X size={12}/></button>}
+              {searchCode&&<button onClick={()=>{setSearchCode('');setResults([]);setShowDrop(false);setPiece(null);setComp([]);setProcs([]);setStaging([]);setExpandedItem(null);}} className="text-gray-400 hover:text-gray-600"><X size={12}/></button>}
             </div>
             {showDrop&&results.length>0&&(
               <div className="absolute top-full left-0 z-50 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
@@ -297,18 +342,18 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
           </div>
           )}
 
-          {/* Botão Criar */}
+          {/* Botão de Manutenção/Criar */}
           {!modocriar && (
             <button onClick={entrarModocriar}
-              className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 text-white text-[11px] font-bold rounded-lg hover:bg-emerald-700 shadow-sm">
-              <PlusCircle size={13}/> Criar Peça Manufaturada
+              className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 text-white text-[11px] font-bold rounded-lg hover:bg-emerald-700 shadow-sm ml-2">
+              <Wrench size={13}/> Manutenção de Peça Manufaturada
             </button>
           )}
 
-          {/* Botão Voltar (modo criar) */}
+          {/* Botão Voltar */}
           {modocriar && (
             <button onClick={sairModocriar}
-              className="flex items-center gap-1 px-2 py-1 text-[11px] text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+              className="flex items-center gap-1 px-2 py-1 text-[11px] text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 ml-2">
               <ChevronLeft size={13}/> Voltar
             </button>
           )}
@@ -416,15 +461,31 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {compFiltrada.map(c=>(
-                    <tr key={c.IdMontaPeca} className="hover:bg-red-50/30 group">
-                      <td className="p-1 px-1 text-center">
-                        <button onClick={()=>removeComp(c.IdMontaPeca)} className="p-0.5 text-red-300 hover:text-red-600 rounded" title="Excluir"><Trash2 size={11}/></button>
-                        <button onClick={()=>abrirPdf(c.EnderecoArquivo||'')} className="p-0.5 text-red-400 hover:text-red-600 rounded ml-0.5" title="Abrir Desenho PDF"><FileText size={11}/></button>
-                      </td>
-                      <td className="p-1 px-2 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[70px]" title={c.CodMatFabricante}>{c.CodMatFabricante}</td>
-                      <td className="p-1 px-2 text-[10px] text-gray-600 truncate max-w-[90px]" title={c.DescDetal}>{c.DescDetal}</td>
-                      <td className="p-1 px-2 text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</td>
-                    </tr>
+                    <React.Fragment key={c.IdMontaPeca}>
+                      <tr className={`hover:bg-red-50/30 group ${expandedItem?.IdMontaPeca === c.IdMontaPeca ? 'bg-blue-50/50' : ''}`}>
+                        <td className="p-1 px-1 text-center whitespace-nowrap">
+                          <button onClick={()=>removeComp(c.IdMontaPeca)} className="p-0.5 text-red-300 hover:text-red-600 rounded" title="Excluir"><Trash2 size={11}/></button>
+                          {c.EnderecoArquivo && <button onClick={()=>abrirPdf(c.EnderecoArquivo)} className="p-0.5 text-red-400 hover:text-red-600 rounded ml-0.5" title="Abrir Desenho PDF"><FileText size={11}/></button>}
+                          {c.PecaManufat === 'S' && <button onClick={()=>handleExpand(c)} className={`p-0.5 rounded ml-0.5 ${expandedItem?.IdMontaPeca === c.IdMontaPeca ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-500 hover:text-blue-700'}`} title="Exibir recursos e composição deste item"><Wrench size={11}/></button>}
+                        </td>
+                        <td className="p-1 px-2 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[70px]" title={c.CodMatFabricante}>{c.CodMatFabricante}</td>
+                        <td className="p-1 px-2 text-[10px] text-gray-600 truncate max-w-[90px]" title={c.DescDetal}>{c.DescDetal}</td>
+                        <td className="p-1 px-2 text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</td>
+                      </tr>
+                      {expandedItem?.IdMontaPeca === c.IdMontaPeca && subComp.map(sc => (
+                        <tr key={`sub-${sc.IdMontaPeca}`} className="bg-blue-50/30 hover:bg-blue-100/50">
+                           <td className="p-1 px-1 text-center whitespace-nowrap">
+                              {sc.EnderecoArquivo && <button onClick={()=>abrirPdf(sc.EnderecoArquivo)} className="p-0.5 text-red-400 hover:text-red-600 rounded ml-0.5" title="Abrir Desenho PDF"><FileText size={11}/></button>}
+                           </td>
+                           <td className="p-1 px-2 text-[10px] font-mono text-blue-800 pl-4 truncate max-w-[70px]" title={sc.CodMatFabricante}>↳ {sc.CodMatFabricante}</td>
+                           <td className="p-1 px-2 text-[10px] text-gray-500 truncate max-w-[90px]" title={sc.DescDetal}>{sc.DescDetal}</td>
+                           <td className="p-1 px-2 text-[10px] font-bold text-center text-blue-800">{sc.PecaQtde||1}</td>
+                        </tr>
+                      ))}
+                      {expandedItem?.IdMontaPeca === c.IdMontaPeca && loadingSub && (
+                        <tr><td colSpan={4} className="text-center p-2 text-[10px] text-gray-400"><Loader2 size={12} className="animate-spin inline mr-1"/> Carregando sub-itens...</td></tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
@@ -514,17 +575,21 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
           </>) : (<>
 
             {/* Header do Grid 2 - modo normal */}
-            <div className="px-2 py-1 bg-teal-50/70 border-b border-teal-100 shrink-0 flex items-center gap-2">
-              <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wide">Processos de Fabricação</span>
-              <span className="text-[9px] text-teal-600">{staging.length} processo(s)</span>
-              {piece&&<button onClick={()=>fetchProcs(piece.CodMatFabricante)} className="p-0.5 text-teal-500 hover:text-teal-700" title="Atualizar"><RefreshCw size={11}/></button>}
+            <div className={`px-2 py-1 border-b shrink-0 flex items-center gap-2 ${expandedItem ? 'bg-blue-50/70 border-blue-100' : 'bg-teal-50/70 border-teal-100'}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-wide ${expandedItem ? 'text-blue-800' : 'text-teal-800'}`}>
+                Processos de Fabricação {expandedItem && `(Sub-peça: ${expandedItem.CodMatFabricante})`}
+              </span>
+              <span className={`text-[9px] ${expandedItem ? 'text-blue-600' : 'text-teal-600'}`}>
+                {(expandedItem ? subStaging : staging).length} processo(s)
+              </span>
+              {!expandedItem && piece && <button onClick={()=>fetchProcs(piece.CodMatFabricante)} className="p-0.5 text-teal-500 hover:text-teal-700" title="Atualizar"><RefreshCw size={11}/></button>}
             </div>
 
             {/* TOP: Lista de processos */}
             <div className="flex-1 overflow-auto border-b border-gray-200">
-              {loadingP?(<div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={15}/></div>)
+              {(expandedItem ? loadingSub : loadingP)?(<div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={15}/></div>)
               :!piece?(<div className="p-4 text-center text-[10px] text-gray-400">Selecione uma peça</div>)
-              :staging.length===0?(<div className="p-4 text-center text-[10px] text-gray-400">Nenhum processo cadastrado</div>):(
+              :(expandedItem ? subStaging : staging).length===0?(<div className="p-4 text-center text-[10px] text-gray-400">Nenhum processo cadastrado</div>):(
                 <table className="w-full text-left">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
@@ -537,7 +602,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {staging.map(s=>(
+                    {(expandedItem ? subStaging : staging).map(s=>(
                       <tr key={s.seq} className={`hover:bg-teal-50/30 ${editSq===s.seq?'bg-blue-50':''}`}>
                         <td className="p-1 px-2"><span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-teal-600 text-white text-[9px] font-bold">{s.seq}</span></td>
                         <td className="p-1 px-2 text-[10px] font-semibold text-gray-800">{s.nome}</td>
@@ -545,8 +610,12 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                         <td className="p-1 px-2 text-[10px] text-center text-gray-600">{fmtMin(s.padMin)}</td>
                         <td className="p-1 px-2 text-[10px] text-gray-500 truncate max-w-[120px]" title={s.obs||''}>{s.obs||'-'}</td>
                         <td className="p-1 px-1 text-right whitespace-nowrap">
-                          <button onClick={()=>editProc(s)} className="p-0.5 text-blue-400 hover:text-blue-600 mr-1" title="Editar"><Edit2 size={10}/></button>
-                          <button onClick={()=>delProc(s.seq)} className="p-0.5 text-red-300 hover:text-red-600" title="Excluir"><Trash2 size={10}/></button>
+                          {!expandedItem && (
+                            <>
+                              <button onClick={()=>editProc(s)} className="p-0.5 text-blue-400 hover:text-blue-600 mr-1" title="Editar"><Edit2 size={10}/></button>
+                              <button onClick={()=>delProc(s.seq)} className="p-0.5 text-red-300 hover:text-red-600" title="Excluir"><Trash2 size={10}/></button>
+                            </>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -556,53 +625,59 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             </div>
 
             {/* BOTTOM: Form de manutenção */}
-            <div className="px-2 py-1 bg-amber-50/60 border-t border-amber-100 shrink-0">
-              <div className="flex gap-2 items-end flex-wrap">
-                <div className="flex flex-col flex-1 min-w-[140px]">
-                  <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Recurso</span>
-                  <select value={selId} onChange={e=>setSelId(e.target.value?Number(e.target.value):'')}
-                    disabled={editSq!==null}
-                    className={`px-1.5 py-0.5 text-[10px] border rounded focus:outline-none bg-white ${editSq!==null?'border-gray-100 text-gray-400':'border-gray-300 focus:border-[#32423D]'}`}>
-                    <option value="">- Selecione -</option>
-                    {tipos.filter(t=>editSq!==null||!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao))
-                      .map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
-                  </select>
-                </div>
-                <div className="flex flex-col items-center shrink-0">
-                  <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Seq.</span>
-                  <input type="number" min="1" step="1" value={seq} onChange={e=>setSeq(e.target.value)}
-                    placeholder={String(nextSeq())}
-                    className="w-14 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-300 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 rounded px-2 py-0.5">
-                  <Clock size={10} className="text-[#32423D]"/>
-                  <span className="text-[9px] font-bold text-gray-600">Setup</span>
-                  <input type="number" min="0" value={estMinStr} onChange={e=>setEstMinStr(e.target.value)}
-                    placeholder="0" className="w-12 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-200 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
-                  <span className="text-[8px] text-gray-400">min</span>
-                  <div className="w-px h-3 bg-gray-200"/>
-                  <span className="text-[9px] font-bold text-gray-600">Padrão<span className="text-red-500">*</span></span>
-                  <input type="number" min="0" value={padMinStr} onChange={e=>setPadMinStr(e.target.value)}
-                    placeholder="0" className="w-12 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-200 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
-                  <span className="text-[8px] text-gray-400">min</span>
-                </div>
-                <div className="flex-1 min-w-[100px]">
-                  <input value={ob} onChange={e=>setOb(e.target.value)} placeholder="Observação..."
-                    className="w-full px-2 py-0.5 text-[10px] border border-gray-200 rounded focus:outline-none focus:border-[#32423D]"/>
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <button onClick={handleAdd} disabled={!selId}
-                    className="flex items-center gap-1 px-2 py-0.5 bg-[#32423D] text-white text-[10px] font-bold rounded hover:bg-[#25322e] disabled:opacity-40">
-                    <Plus size={11}/>{editSq!==null?'Atualizar':'Adicionar'}
-                  </button>
-                  <button onClick={handleSave} disabled={saving||!piece||staging.length===0}
-                    className="flex items-center gap-1 px-2 py-0.5 bg-[#32423D] text-white text-[10px] font-bold rounded hover:bg-[#25322e] disabled:opacity-40 disabled:cursor-not-allowed">
-                    {saving?<Loader2 size={10} className="animate-spin"/>:<Save size={10}/>} Salvar
-                  </button>
-                  {editSq!==null&&<button onClick={clearForm} className="px-2 py-0.5 text-[10px] text-gray-500 border border-gray-200 rounded hover:bg-gray-50 bg-white">Cancelar</button>}
+            {expandedItem ? (
+              <div className="px-2 py-3 bg-blue-50 border-t border-blue-100 shrink-0 text-center text-blue-600 text-[10px] font-semibold">
+                 Exibindo recursos da sub-peça {expandedItem.CodMatFabricante}. Para editá-la, pesquise-a no campo Produto.
+              </div>
+            ) : (
+              <div className="px-2 py-1 bg-amber-50/60 border-t border-amber-100 shrink-0">
+                <div className="flex gap-2 items-end flex-wrap">
+                  <div className="flex flex-col flex-1 min-w-[140px]">
+                    <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Recurso</span>
+                    <select value={selId} onChange={e=>setSelId(e.target.value?Number(e.target.value):'')}
+                      disabled={editSq!==null}
+                      className={`px-1.5 py-0.5 text-[10px] border rounded focus:outline-none bg-white ${editSq!==null?'border-gray-100 text-gray-400':'border-gray-300 focus:border-[#32423D]'}`}>
+                      <option value="">- Selecione -</option>
+                      {tipos.filter(t=>editSq!==null||!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao))
+                        .map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col items-center shrink-0">
+                    <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Seq.</span>
+                    <input type="number" min="1" step="1" value={seq} onChange={e=>setSeq(e.target.value)}
+                      placeholder={String(nextSeq())}
+                      className="w-14 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-300 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 rounded px-2 py-0.5">
+                    <Clock size={10} className="text-[#32423D]"/>
+                    <span className="text-[9px] font-bold text-gray-600">Setup</span>
+                    <input type="number" min="0" value={estMinStr} onChange={e=>setEstMinStr(e.target.value)}
+                      placeholder="0" className="w-12 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-200 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
+                    <span className="text-[8px] text-gray-400">min</span>
+                    <div className="w-px h-3 bg-gray-200"/>
+                    <span className="text-[9px] font-bold text-gray-600">Padrão<span className="text-red-500">*</span></span>
+                    <input type="number" min="0" value={padMinStr} onChange={e=>setPadMinStr(e.target.value)}
+                      placeholder="0" className="w-12 px-1 py-0.5 text-center text-[10px] font-mono border border-gray-200 rounded focus:outline-none focus:border-[#32423D] placeholder:text-gray-300"/>
+                    <span className="text-[8px] text-gray-400">min</span>
+                  </div>
+                  <div className="flex-1 min-w-[100px]">
+                    <input value={ob} onChange={e=>setOb(e.target.value)} placeholder="Observação..."
+                      className="w-full px-2 py-0.5 text-[10px] border border-gray-200 rounded focus:outline-none focus:border-[#32423D]"/>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={handleAdd} disabled={!selId}
+                      className="flex items-center gap-1 px-2 py-0.5 bg-[#32423D] text-white text-[10px] font-bold rounded hover:bg-[#25322e] disabled:opacity-40">
+                      <Plus size={11}/>{editSq!==null?'Atualizar':'Adicionar'}
+                    </button>
+                    <button onClick={handleSave} disabled={saving||!piece||staging.length===0}
+                      className="flex items-center gap-1 px-2 py-0.5 bg-[#32423D] text-white text-[10px] font-bold rounded hover:bg-[#25322e] disabled:opacity-40 disabled:cursor-not-allowed">
+                      {saving?<Loader2 size={10} className="animate-spin"/>:<Save size={10}/>} Salvar
+                    </button>
+                    {editSq!==null&&<button onClick={clearForm} className="px-2 py-0.5 text-[10px] text-gray-500 border border-gray-200 rounded hover:bg-gray-50 bg-white">Cancelar</button>}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </>)}
 
         </div>

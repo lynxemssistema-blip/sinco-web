@@ -63,7 +63,10 @@ export default function MaterialPage() {
  const [showFilters, setShowFilters] = useState(true);
  const [formData, setFormData] = useState<Material>(emptyForm);
  const [isEditing, setIsEditing] = useState(false);
- const [searchTerm, setSearchTerm] = useState('');
+ const [searchCodigo, setSearchCodigo] = useState('');
+ const [searchDesc, setSearchDesc] = useState('');
+ const [searchFamilia, setSearchFamilia] = useState('');
+ const [searchFornecedor, setSearchFornecedor] = useState('');
  const [showForm, setShowForm] = useState(false);
  // const [showMontaPecaModal, setShowMontaPecaModal] = useState(false);
  const [loading, setLoading] = useState(true);
@@ -122,12 +125,14 @@ export default function MaterialPage() {
  fetchOptions();
  }, []);
 
- const filteredMateriais = materiais.filter(m =>
- m.CodMatFabricante?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- m.DescResumo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- m.DescFamilia?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- m.Fornecedor?.toLowerCase().includes(searchTerm.toLowerCase())
- );
+ const filteredMateriais = materiais.filter(m => {
+     const matchCodigo = !searchCodigo || m.CodMatFabricante?.toLowerCase().includes(searchCodigo.toLowerCase());
+     const matchDesc = !searchDesc || 
+         (m.DescResumo?.toLowerCase().includes(searchDesc.toLowerCase()) || m.DescDetal?.toLowerCase().includes(searchDesc.toLowerCase()));
+     const matchFamilia = !searchFamilia || m.DescFamilia?.toLowerCase().includes(searchFamilia.toLowerCase());
+     const matchFornecedor = !searchFornecedor || m.Fornecedor?.toLowerCase().includes(searchFornecedor.toLowerCase());
+     return matchCodigo && matchDesc && matchFamilia && matchFornecedor;
+ });
 
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
  const name = e.target.name;
@@ -264,37 +269,61 @@ export default function MaterialPage() {
  )}
 
  {/* Search Bar */}
- <div className="flex justify-between items-center bg-white p-2 border border-gray-200 rounded-md shadow-sm mb-4">
- {showFilters ? (
- <div className="relative max-w-md flex-1 flex items-center gap-2">
- <div className="relative flex-1">
- <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
- <input
- type="text"
- placeholder="Buscar por código, descrição, família ou fornecedor..."
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all"
- />
- </div>
- {searchTerm && (
- <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors" title="Limpar pesquisa">
- <X size={15} />
- </button>
- )}
- </div>
- ) : (
- <span className="text-[10px] uppercase font-bold text-gray-400 ml-2">Filtros Ocultos</span>
- )}
- 
- <button 
- onClick={() => {
- setShowFilters(!showFilters);
- }} 
- className="text-[10px] ml-auto flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
- >
- <Filter size={14} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
- </button>
+ <div className="flex flex-col gap-2 bg-white p-3 border border-gray-200 rounded-md shadow-sm mb-4">
+    <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+        <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2 m-0">
+            <Search size={12} /> Dados para Pesquisa
+        </h3>
+        <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+        >
+            <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+        </button>
+    </div>
+    {showFilters && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
+            <div>
+                <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Código:</label>
+                <div className="relative">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input type="text" placeholder="Pesquisar código..." value={searchCodigo} onChange={(e) => setSearchCodigo(e.target.value)} className="w-full pl-7 pr-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Descrição:</label>
+                <div className="relative">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input type="text" placeholder="Pesquisar descrição..." value={searchDesc} onChange={(e) => setSearchDesc(e.target.value)} className="w-full pl-7 pr-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Família:</label>
+                <div className="relative">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input type="text" placeholder="Pesquisar família..." value={searchFamilia} onChange={(e) => setSearchFamilia(e.target.value)} className="w-full pl-7 pr-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm" />
+                </div>
+            </div>
+            <div>
+                <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Fornecedor:</label>
+                <div className="relative">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input type="text" placeholder="Pesquisar fornecedor..." value={searchFornecedor} onChange={(e) => setSearchFornecedor(e.target.value)} className="w-full pl-7 pr-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm" />
+                </div>
+            </div>
+        </div>
+    )}
+    {showFilters && (searchCodigo || searchDesc || searchFamilia || searchFornecedor) && (
+        <div className="flex justify-end mt-1">
+            <button
+                onClick={() => { setSearchCodigo(''); setSearchDesc(''); setSearchFamilia(''); setSearchFornecedor(''); }}
+                className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
+            >
+                <X size={11} /> Limpar Filtros
+            </button>
+        </div>
+    )}
  </div>
 
  {/* Form Modal */}
@@ -342,23 +371,30 @@ export default function MaterialPage() {
 
  {/* Image Upload Action Area */}
    <div className="flex flex-row items-center gap-4 mb-4">
-     <div className="w-16 h-16 rounded bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden relative group shrink-0">
-       {formData.ImagemProduto ? (
-         <>
-           <img src={formData.ImagemProduto} alt="Preview" className="w-full h-full object-cover" />
-           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-             <button type="button" onClick={() => setFormData(prev => ({ ...prev, ImagemProduto: '' }))} className="p-1 bg-white/20 rounded-full hover:bg-white/40 text-white transition-colors" title="Remover imagem">
-               <Trash2 size={14} />
-             </button>
-           </div>
-         </>
-       ) : (
-         <div className="flex flex-col items-center justify-center text-gray-400">
-           <Package size={20} strokeWidth={1.5} />
-         </div>
-       )}
-     </div>
-     <div className="flex-1 flex flex-col gap-2">
+     <div className="w-16 h-16 rounded bg-gray-100 border border-gray-200 flex items-center justify-center relative group shrink-0">
+        {formData.ImagemProduto ? (
+          <>
+            <div className="w-full h-full rounded overflow-hidden relative">
+              <img src={formData.ImagemProduto} alt="Preview" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button type="button" onClick={() => setFormData(prev => ({ ...prev, ImagemProduto: '' }))} className="p-1 bg-white/20 rounded-full hover:bg-white/40 text-white transition-colors" title="Remover imagem">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Expanded Image on Hover */}
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] hidden group-hover:flex pointer-events-none bg-white p-3 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-gray-200 animate-in zoom-in-95 duration-200">
+               <img src={formData.ImagemProduto} alt="Zoom" className="w-auto h-auto max-w-[80vw] max-h-[80vh] object-contain rounded" />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-gray-400">
+            <Package size={20} strokeWidth={1.5} />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 flex flex-col gap-2">
        <div className="flex flex-row gap-2 items-center">
          <span className="text-xs font-semibold text-gray-700 mr-2">Imagem:</span>
          <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Câmera">
@@ -564,12 +600,12 @@ export default function MaterialPage() {
  <thead className="bg-[#567469] text-white bg-[#567469] text-white">
  <tr className=" border-b border-white/20">
  
- <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider w-16">Img</th>
- <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Código</th>
- <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Descrição</th>
- <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Família</th>
- <th className="px-3 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Fornecedor</th>
- <th className="px-3 py-3 text-right text-xs font-semibold text-white uppercase tracking-wider w-24">Ações</th>
+ <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white uppercase tracking-wider w-16">Img</th>
+ <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white uppercase tracking-wider">Código</th>
+ <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white uppercase tracking-wider">Descrição</th>
+ <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white uppercase tracking-wider">Família</th>
+ <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white uppercase tracking-wider">Fornecedor</th>
+ <th className="px-2 py-1.5 text-right text-[10px] font-semibold text-white uppercase tracking-wider w-24">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
@@ -598,7 +634,7 @@ export default function MaterialPage() {
  className="hover:bg-gray-50/50 transition-colors"
  >
  
- <td className="px-3 py-3">
+ <td className="px-2 py-1.5">
  <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
  {material.ImagemProduto ? (
  <img
@@ -611,26 +647,26 @@ export default function MaterialPage() {
  )}
  </div>
  </td>
- <td className="px-3 py-3">
+ <td className="px-2 py-1.5">
  <div className="flex items-center gap-2">
  <div className="w-8 h-8 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">
  <Package size={14} />
  </div>
- <span className="text-xs font-medium text-gray-900 truncate max-w-[150px]">
+ <span className="text-[11px] font-medium text-gray-900 truncate max-w-[150px]">
  {material.CodMatFabricante || '-'}
  </span>
  </div>
  </td>
- <td className="px-3 py-3 text-xs text-gray-600 truncate max-w-[200px]">
+ <td className="px-2 py-1.5 text-[11px] text-gray-600 truncate max-w-[200px]">
  {material.DescResumo || material.DescDetal?.substring(0, 50) || '-'}
  </td>
- <td className="px-3 py-3 text-xs text-gray-600">
+ <td className="px-2 py-1.5 text-[11px] text-gray-600">
  {material.DescFamilia || '-'}
  </td>
- <td className="px-3 py-3 text-xs text-gray-600 truncate max-w-[150px]">
+ <td className="px-2 py-1.5 text-[11px] text-gray-600 truncate max-w-[150px]">
  {material.Fornecedor || '-'}
  </td>
- <td className="px-3 py-3">
+ <td className="px-2 py-1.5">
  <div className="flex items-center justify-end gap-1">
  <button
  onClick={() => material.IdMaterial && handleEdit(material.IdMaterial)}

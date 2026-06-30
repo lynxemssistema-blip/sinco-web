@@ -314,14 +314,9 @@ export default function FamiliaPage() {
  className="hover:bg-gray-50/50 transition-colors"
  >
  <td className="px-2 py-0.5">
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">
- <FolderTree size={15} />
- </div>
  <span className="text-xs font-medium text-gray-700">
  {familia.DescFamilia || '-'}
  </span>
- </div>
  </td>
  <td className="px-2 py-0.5">
  <div className="flex items-center justify-end gap-1">

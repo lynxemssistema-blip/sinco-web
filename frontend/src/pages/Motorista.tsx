@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  Plus, Search, Edit2, Trash2, X, Save,
- Loader2, RefreshCw, Filter, User
+ Loader2, RefreshCw, Filter, User, Camera, Image as ImageIcon
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -13,11 +13,11 @@ interface Motorista {
  DataCadastro?: string;
  CNH: string;
  Categoria: string;
- Telefone: string;
+ Telefone: string; DataVencimentoCNH?: string; ImagemCNH?: string;
  UsuarioD_E_L_E_T_E?: string; // Optional field for who deleted it, not strictly needed for UI list
 }
 
-const emptyForm: Motorista = {
+const emptyForm: Motorista = { DataVencimentoCNH: '', ImagemCNH: '',
  Motorista: '',
  CNH: '',
  Categoria: '',
@@ -28,13 +28,13 @@ export default function MotoristaPage() {
  const [motoristas, setMotoristas] = useState<Motorista[]>([]);
  const [formData, setFormData] = useState<Motorista>(emptyForm);
  const [isEditing, setIsEditing] = useState(false);
- const [searchNome, setSearchNome] = useState('');
+ const [searchNome, setSearchNome] = useState(''); const [searchVencimentoInicio, setSearchVencimentoInicio] = useState(''); const [searchVencimentoFim, setSearchVencimentoFim] = useState('');
  const [showFilters, setShowFilters] = useState(false);
  const [showForm, setShowForm] = useState(false);
  const [loading, setLoading] = useState(true);
  const [saving, setSaving] = useState(false);
  const [error, setError] = useState<string | null>(null);
-
+ const [zoomLevel, setZoomLevel] = useState(1);
  // Fetch data from API
  const fetchMotoristas = async () => {
  setLoading(true);
@@ -60,13 +60,55 @@ export default function MotoristaPage() {
  }, []);
 
  const filteredMotoristas = motoristas.filter(m => {
- return !searchNome || m.Motorista?.toLowerCase().includes(searchNome.toLowerCase());
+     let matchNome = !searchNome || m.Motorista?.toLowerCase().includes(searchNome.toLowerCase());
+     let matchData = true;
+     if (searchVencimentoInicio && m.DataVencimentoCNH) {
+         matchData = matchData && m.DataVencimentoCNH >= searchVencimentoInicio;
+     }
+     if (searchVencimentoFim && m.DataVencimentoCNH) {
+         matchData = matchData && m.DataVencimentoCNH <= searchVencimentoFim;
+     }
+     if ((searchVencimentoInicio || searchVencimentoFim) && !m.DataVencimentoCNH) {
+         matchData = false;
+     }
+     return matchNome && matchData;
  });
 
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
  const name = e.target.name;
     const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  setFormData(prev => ({ ...prev, [name]: value }));
+ };
+
+ const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+     if (e.target.files && e.target.files[0]) {
+         const file = e.target.files[0];
+         const formPayload = new FormData();
+         formPayload.append('file', file);
+         try {
+             const res = await fetch(`${API_BASE}/motoristas/upload-cnh`, {
+                 method: 'POST',
+                 headers: { 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` },
+                 body: formPayload
+             });
+             const json = await res.json();
+             if (json.success && json.url) {
+                 setFormData(prev => ({ ...prev, ImagemCNH: json.url }));
+             } else {
+                 setError('Falha ao fazer upload da imagem.');
+             }
+         } catch (error) {
+             setError('Erro de conexão ao fazer upload da imagem.');
+         }
+     }
+ };
+
+ const handleWheel = (e: React.WheelEvent) => {
+ if (e.deltaY < 0) {
+ setZoomLevel(prev => Math.min(prev + 0.25, 4));
+ } else {
+ setZoomLevel(prev => Math.max(prev - 0.25, 0.5));
+ }
  };
 
  const inputBaseClass = "w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
@@ -188,7 +230,7 @@ export default function MotoristaPage() {
  </div>
  {showFilters && (
  <div className="px-4 pb-3 pt-2">
- <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
  <div>
  <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Nome do Motorista:</label>
  <div className="relative">
@@ -202,11 +244,33 @@ export default function MotoristaPage() {
  />
  </div>
  </div>
+ <div>
+ <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Vencimento CNH (Início):</label>
+ <input
+ type="date"
+ value={searchVencimentoInicio}
+ onChange={(e) => setSearchVencimentoInicio(e.target.value)}
+ className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm"
+ />
  </div>
- {searchNome && (
+ <div>
+ <label className="block text-[10px] font-semibold text-gray-500 mb-0.5 uppercase tracking-wide">Vencimento CNH (Fim):</label>
+ <input
+ type="date"
+ value={searchVencimentoFim}
+ onChange={(e) => setSearchVencimentoFim(e.target.value)}
+ className="w-full px-2 py-1.5 border border-gray-300 bg-white text-xs focus:outline-none focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D]/20 rounded-sm"
+ />
+ </div>
+ </div>
+ {(searchNome || searchVencimentoInicio || searchVencimentoFim) && (
  <div className="flex justify-end mt-2">
  <button
- onClick={() => setSearchNome('')}
+ onClick={() => {
+ setSearchNome('');
+ setSearchVencimentoInicio('');
+ setSearchVencimentoFim('');
+ }}
  className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
  >
  <X size={11} /> Limpar Filtro
@@ -296,6 +360,7 @@ export default function MotoristaPage() {
  </div>
  </div>
 
+ <div className="grid grid-cols-2 gap-4">
  <div>
  <label className="block text-xs font-medium text-gray-600 mb-1">
  Telefone
@@ -308,6 +373,57 @@ export default function MotoristaPage() {
  className={inputOptional}
  placeholder="(XX) XXXXX-XXXX"
  />
+ </div>
+ <div>
+ <label className="block text-xs font-medium text-gray-600 mb-1">
+ Data de Venc. CNH
+ </label>
+ <input
+ type="date"
+ name="DataVencimentoCNH"
+ value={formData.DataVencimentoCNH || ''}
+ onChange={handleInputChange}
+ className={inputOptional}
+ />
+ </div>
+ </div>
+
+ <div>
+ <label className="block text-xs font-medium text-gray-600 mb-1">
+ Imagem CNH
+ </label>
+ <div className="mt-1 flex justify-center px-4 py-3 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors bg-gray-50/50">
+ <div className="space-y-1 text-center w-full">
+ {formData.ImagemCNH ? (
+ <div className="relative inline-block group/img" onMouseLeave={() => setZoomLevel(1)}>
+ <img src={formData.ImagemCNH} alt="CNH" className="mx-auto h-16 w-auto rounded object-cover shadow-sm cursor-zoom-in" />
+ 
+ {/* Fullscreen Lightbox View on Hover */}
+ <div className="fixed inset-0 z-[100] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 pointer-events-none group-hover/img:pointer-events-auto bg-black/40 backdrop-blur-sm" onWheel={handleWheel}>
+ <img src={formData.ImagemCNH} alt="CNH Ampliada" className="max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl rounded-lg transition-transform duration-75" style={{ transform: `scale(${zoomLevel})` }} />
+ </div>
+
+ <button
+ type="button"
+ onClick={() => setFormData(prev => ({ ...prev, ImagemCNH: '' }))}
+ className="absolute -top-2 -right-2 p-1 bg-white rounded-full text-red-500 hover:text-red-700 shadow-md border border-gray-100 z-50 opacity-0 group-hover/img:opacity-100 transition-opacity"
+ >
+ <X size={14} />
+ </button>
+ </div>
+ ) : (
+ <ImageIcon className="mx-auto h-10 w-10 text-gray-400" />
+ )}
+ <div className="flex justify-center text-sm text-gray-600 mt-2">
+ <label htmlFor="cnh-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none px-2 py-1 flex items-center gap-2 border border-gray-200 hover:bg-gray-50">
+ <Camera size={14} />
+ <span>Upload foto da CNH</span>
+ <input id="cnh-upload" name="cnh-upload" type="file" accept="image/*" className="sr-only" onChange={handleImageUpload} />
+ </label>
+ </div>
+ <p className="text-xs text-gray-500">PNG, JPG, GIF até 10MB</p>
+ </div>
+ </div>
  </div>
  </div>
 
@@ -349,13 +465,14 @@ export default function MotoristaPage() {
  <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">CNH</th>
  <th className="px-2 py-0.5 text-center text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Categoria</th>
  <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">Telefone</th>
+ <th className="px-2 py-0.5 text-center text-xs font-semibold text-white uppercase tracking-wider w-16">Foto</th>
  <th className="px-2 py-0.5 text-right text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
  {filteredMotoristas.length === 0 ? (
  <tr>
- <td colSpan={5} className="px-4 py-12 text-center">
+ <td colSpan={6} className="px-4 py-12 text-center">
  <div className="flex flex-col items-center gap-3 text-gray-400">
  <User size={40} strokeWidth={1.5} />
  <p className="text-xs">Nenhum motorista encontrado</p>
@@ -391,6 +508,20 @@ export default function MotoristaPage() {
  </td>
  <td className="px-2 py-0.5 text-xs text-gray-600 hidden md:table-cell">
  {motorista.Telefone || '-'}
+ </td>
+ <td className="px-2 py-0.5 text-center overflow-visible">
+ {motorista.ImagemCNH ? (
+ <div className="relative inline-block group/img" onMouseLeave={() => setZoomLevel(1)}>
+ <img src={motorista.ImagemCNH} alt="CNH" className="mx-auto w-8 h-8 rounded-full object-cover border border-gray-200 cursor-zoom-in shadow-sm relative" />
+ 
+ {/* Fullscreen Lightbox View on Hover */}
+ <div className="fixed inset-0 z-[100] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 pointer-events-none group-hover/img:pointer-events-auto bg-black/40 backdrop-blur-sm" onWheel={handleWheel}>
+ <img src={motorista.ImagemCNH} alt="CNH Ampliada" className="max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl rounded-lg transition-transform duration-75" style={{ transform: `scale(${zoomLevel})` }} />
+ </div>
+ </div>
+ ) : (
+ <span className="text-gray-300">-</span>
+ )}
  </td>
  <td className="px-2 py-0.5">
  <div className="flex items-center justify-end gap-1">

@@ -289,14 +289,7 @@ export default function ListaReposicaoPage() {
  </button>
  )}
 </div>
- <div className="relative flex items-center w-full">
- <input type="text" placeholder="Setor Reposição" value={filSetorReposicao} onChange={e => setFilSetorReposicao(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
- {filSetorReposicao && (
- <button onClick={() => setFilSetorReposicao('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
- <X size={14} />
- </button>
- )}
-</div>
+
  <div className="relative flex items-center w-full">
  <input type="text" placeholder="Desc. Resumo" value={filDescResumo} onChange={e => setFilDescResumo(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
  {filDescResumo && (
@@ -305,14 +298,7 @@ export default function ListaReposicaoPage() {
  </button>
  )}
 </div>
- <div className="relative flex items-center w-full">
- <input type="text" placeholder="Desc. Detalhe" value={filDescDetal} onChange={e => setFilDescDetal(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
- {filDescDetal && (
- <button onClick={() => setFilDescDetal('')} className="absolute right-1.5 text-slate-400 hover:text-red-500 transition-colors bg-transparent border-none" title="Limpar">
- <X size={14} />
- </button>
- )}
-</div>
+
  <div className="relative flex items-center w-full">
  <input type="text" placeholder="Cód. Mat. Fabr." value={filCodMat} onChange={e => setFilCodMat(e.target.value)} className="pr-6 w-full text-xs px-2 py-1.5 border border-slate-300 rounded focus:outline-none focus:border-orange-500 bg-slate-50" />
  {filCodMat && (
@@ -393,10 +379,8 @@ export default function ListaReposicaoPage() {
  
  
  <td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServico}</td>
-<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServicoItem}</td>
-<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServico}</td>
-<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServicoItem}</td>
-<td className="px-2 py-1 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
+ <td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServicoItem}</td>
+ <td className="px-2 py-1 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
  <td className="px-2 py-1 font-bold text-slate-700">{item.Projeto}</td>
  <td className="px-2 py-1 font-bold text-[#32423D]">{item.Tag}</td>
  <td className="px-2 py-1 text-center font-bold text-slate-800">{item.QtdeTotal}</td>

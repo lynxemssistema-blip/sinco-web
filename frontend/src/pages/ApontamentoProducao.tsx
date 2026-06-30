@@ -513,7 +513,6 @@ export default function ApontamentoProducaoPage() {
  setModalOpen(true);
  setLoadingDetails(true);
  setQtdeApontar('');
- setTipoApontamento('Total');
  setConfirmingMapa(false);
 
  try {

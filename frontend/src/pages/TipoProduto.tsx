@@ -251,12 +251,7 @@ export default function TipoProdutoPage() {
  >
  
  <td className="px-2 py-0.5">
- <div className="flex items-center gap-3">
- <div className="w-8 h-8 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">
- <Boxes size={14} />
- </div>
  <span className="text-xs font-medium text-gray-900">{item.TipoProduto}</span>
- </div>
  </td>
  <td className="px-2 py-0.5 text-xs text-gray-600">{item.Unidade || '-'}</td>
  <td className="px-2 py-0.5 text-xs text-gray-600 truncate max-w-[300px]">{item.Descricao || '-'}</td>
