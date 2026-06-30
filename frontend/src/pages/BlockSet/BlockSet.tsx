@@ -93,19 +93,19 @@ const BlockSet: React.FC = () => {
  
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
  <div className="bg-[#1F2937] p-4 rounded-lg border border-gray-700">
- <p className="text-sm text-gray-400 mb-1">Projeto / Tag</p>
+ <p className="text-xs text-gray-400 mb-1">Projeto / Tag</p>
  <p className="font-medium text-white">{planilha.NomeProjeto} / {planilha.NomeTag}</p>
  </div>
  <div className="bg-[#1F2937] p-4 rounded-lg border border-gray-700">
- <p className="text-sm text-gray-400 mb-1">Arquivo Original</p>
+ <p className="text-xs text-gray-400 mb-1">Arquivo Original</p>
  <p className="font-medium text-white truncate" title={planilha.NomeArquivo}>{planilha.NomeArquivo}</p>
  </div>
  <div className="bg-[#1F2937] p-4 rounded-lg border border-gray-700">
- <p className="text-sm text-gray-400 mb-1">Data de Importação</p>
+ <p className="text-xs text-gray-400 mb-1">Data de Importação</p>
  <p className="font-medium text-white">{new Date(planilha.DataImportacao).toLocaleString('pt-BR')}</p>
  </div>
  <div className="bg-[#1F2937] p-4 rounded-lg border border-gray-700">
- <p className="text-sm text-gray-400 mb-1">Revisão</p>
+ <p className="text-xs text-gray-400 mb-1">Revisão</p>
  <p className="font-medium text-blue-400">Rev {planilha.Revisao}</p>
  </div>
  </div>
@@ -136,13 +136,13 @@ const BlockSet: React.FC = () => {
  ) : (
  dados.map((row, idx) => (
  <tr key={row.IdDadosBlockSet} className={`hover:bg-[#1F2937]/50 transition-colors ${idx % 2 === 0 ? 'bg-[#111827]' : 'bg-[#151E2D]'}`}>
- <td className="py-3 px-6 whitespace-nowrap text-sm">{row.Cubicle || '-'}</td>
- <td className="py-3 px-6 whitespace-nowrap text-sm text-gray-400">{row.Cubicle_type || '-'}</td>
- <td className="py-3 px-6 whitespace-nowrap text-sm font-medium text-cyan-400">{row.FU || '-'}</td>
- <td className="py-3 px-6 text-sm font-mono text-blue-300">{row.Part_reference || '-'}</td>
- <td className="py-3 px-6 text-sm">{row.Part_description || '-'}</td>
- <td className="py-3 px-6 whitespace-nowrap text-sm font-semibold">{row.Part_total_qty || 0}</td>
- <td className="py-3 px-6 whitespace-nowrap text-sm text-gray-400">{row.Mass_per_part_kg || 0}</td>
+ <td className="py-3 px-6 whitespace-nowrap text-xs">{row.Cubicle || '-'}</td>
+ <td className="py-3 px-6 whitespace-nowrap text-xs text-gray-400">{row.Cubicle_type || '-'}</td>
+ <td className="py-3 px-6 whitespace-nowrap text-xs font-medium text-cyan-400">{row.FU || '-'}</td>
+ <td className="py-3 px-6 text-xs font-mono text-blue-300">{row.Part_reference || '-'}</td>
+ <td className="py-3 px-6 text-xs">{row.Part_description || '-'}</td>
+ <td className="py-3 px-6 whitespace-nowrap text-xs font-semibold">{row.Part_total_qty || 0}</td>
+ <td className="py-3 px-6 whitespace-nowrap text-xs text-gray-400">{row.Mass_per_part_kg || 0}</td>
  </tr>
  ))
  )}
@@ -150,7 +150,7 @@ const BlockSet: React.FC = () => {
  </table>
  </div>
  <div className="p-4 border-t border-gray-800 bg-[#151E2D] flex justify-between items-center">
- <span className="text-sm text-gray-400">Total de itens processados: <strong className="text-white">{dados.length}</strong></span>
+ <span className="text-xs text-gray-400">Total de itens processados: <strong className="text-white">{dados.length}</strong></span>
  </div>
  </div>
  </div>

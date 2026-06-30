@@ -183,7 +183,7 @@ const PowerBuildAgglutination: React.FC<PowerBuildAgglutinationProps> = ({ onNav
  </div>
  <div>
  <h1 className="text-2xl font-black text-gray-800 tracking-tight">Resumo de Fabricação por Referência P</h1>
- <p className="text-sm text-gray-500 font-medium mt-0.5">
+ <p className="text-xs text-gray-500 font-medium mt-0.5">
  Planilha: <strong className="text-gray-700">{contextInfo.planilha || 'Nenhuma selecionada'}</strong>
  </p>
  </div>
@@ -192,7 +192,7 @@ const PowerBuildAgglutination: React.FC<PowerBuildAgglutinationProps> = ({ onNav
  <button 
  onClick={handleExportExcel}
  disabled={pivotData.length === 0}
- className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 shadow-sm ${
+ className={`px-2 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-2 shadow-sm ${
  pivotData.length > 0 
  ? 'bg-green-600 hover:bg-green-700 text-white border-green-700' 
  : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
@@ -246,7 +246,7 @@ const PowerBuildAgglutination: React.FC<PowerBuildAgglutinationProps> = ({ onNav
  {pivotData.map((row, idx) => (
  <tr key={idx} className="hover:bg-indigo-50/30 transition-colors">
  <td className="py-3 px-6 border-r border-gray-100 bg-gray-50/50">
- <span className="font-bold text-gray-800 text-sm">{row.Part_Reference}</span>
+ <span className="font-bold text-gray-800 text-xs">{row.Part_Reference}</span>
  </td>
  
  {Array.from({ length: maxRev + 1 }).map((_, i) => {
@@ -264,7 +264,7 @@ const PowerBuildAgglutination: React.FC<PowerBuildAgglutinationProps> = ({ onNav
  })}
  
  <td className="py-3 px-6 bg-indigo-50/30">
- <span className={`font-bold text-sm ${row.deltaTotal > 0 ? 'text-indigo-600' : 'text-gray-400'}`}>
+ <span className={`font-bold text-xs ${row.deltaTotal > 0 ? 'text-indigo-600' : 'text-gray-400'}`}>
  {row.deltaTotal}
  </span>
  </td>
@@ -277,7 +277,7 @@ const PowerBuildAgglutination: React.FC<PowerBuildAgglutinationProps> = ({ onNav
  
  {/* Footer Info */}
  {pivotData.length > 0 && (
- <div className="flex items-center justify-between text-sm text-gray-500 px-2 mt-4 shrink-0">
+ <div className="flex items-center justify-between text-xs text-gray-500 px-2 mt-4 shrink-0">
  <span>Total de Referências: <strong className="text-gray-800">{pivotData.length}</strong></span>
  <span>Revisão Máxima Encontrada: <strong className="text-gray-800">Rev {maxRev}</strong></span>
  </div>

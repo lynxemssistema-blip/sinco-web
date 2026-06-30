@@ -152,7 +152,7 @@ export default function UsuarioPage() {
  </div>
  <div>
  
- <p className="text-gray-500 text-sm">Gerenciamento de acesso ao sistema</p>
+ <p className="text-gray-500 text-xs">Gerenciamento de acesso ao sistema</p>
  </div>
  </div>
 
@@ -176,7 +176,7 @@ export default function UsuarioPage() {
  </div>
  <button
  onClick={() => handleOpenModal()}
- className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2.5 rounded-md font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20"
+ className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-2 py-1.5 rounded-md font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20"
  >
  <Plus size={20} />
  <span className="hidden sm:inline">Novo Usuário</span>
@@ -203,7 +203,7 @@ export default function UsuarioPage() {
  <td colSpan={5} className="py-8 text-center text-gray-500">
  <div className="flex flex-col items-center gap-2">
  <Loader2 className="animate-spin text-[#32423D]" size={24} />
- <p className="text-sm">Carregando usuários...</p>
+ <p className="text-xs">Carregando usuários...</p>
  </div>
  </td>
  </tr>
@@ -224,7 +224,7 @@ export default function UsuarioPage() {
  <span className="font-medium text-gray-800">{usuario.NomeCompleto}</span>
  </div>
  </td>
- <td className="py-4 px-6 text-gray-600 font-mono text-sm">{usuario.Login}</td>
+ <td className="py-4 px-6 text-gray-600 font-mono text-xs">{usuario.Login}</td>
  <td className="py-4 px-6">
  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${usuario.TipoUsuario === 'A' || usuario.TipoUsuario === 'Admin'
  ? 'bg-purple-100 text-purple-700'
@@ -251,14 +251,14 @@ export default function UsuarioPage() {
  className="p-2 text-[#32423D] hover:bg-[#E0E800]/10 rounded-lg transition-colors"
  title="Editar"
  >
- <Edit2 size={18} />
+ <Edit2 size={15} />
  </button>
  <button
  onClick={() => usuario.idUsuario && handleDelete(usuario.idUsuario)}
  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
  title="Excluir"
  >
- <Trash2 size={18} />
+ <Trash2 size={15} />
  </button>
  </div>
  </td>
@@ -274,7 +274,7 @@ export default function UsuarioPage() {
  {showModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 animate-fade-in">
  <div className="bg-white rounded-md shadow-2xl w-full max-w-lg overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
- <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+ <div className="px-2 py-1 border-b border-gray-100 flex items-center justify-between bg-gray-50">
  <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
  {editingUsuario ? <Edit2 size={20} className="text-[#32423D]" /> : <Plus size={20} className="text-[#32423D]" />}
  {editingUsuario ? 'Editar Usuário' : 'Novo Usuário'}
@@ -286,9 +286,9 @@ export default function UsuarioPage() {
 
  <form onSubmit={handleSubmit} className="p-6 space-y-4">
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Nome Completo</label>
  <div className="relative">
- <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="text"
  required
@@ -302,9 +302,9 @@ export default function UsuarioPage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Login</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Login</label>
  <div className="relative">
- <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="text"
  required
@@ -316,9 +316,9 @@ export default function UsuarioPage() {
  </div>
  </div>
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Acesso</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Tipo de Acesso</label>
  <div className="relative">
- <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <select
  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all appearance-none bg-white"
  value={formData.TipoUsuario}
@@ -332,11 +332,11 @@ export default function UsuarioPage() {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">
+ <label className="block text-xs font-medium text-gray-700 mb-1">
  {editingUsuario ? 'Nova Senha (opcional)' : 'Senha'}
  </label>
  <div className="relative">
- <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="password"
  required={!editingUsuario}
@@ -352,7 +352,7 @@ export default function UsuarioPage() {
  <button
  type="button"
  onClick={() => setShowModal(false)}
- className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+ className="px-2 py-1 text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors"
  >
  Cancelar
  </button>

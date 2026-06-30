@@ -195,21 +195,21 @@ export default function CameraPage() {
  onClick={clearImage}
  className="flex items-center gap-2 px-4 py-1.5 rounded-lg font-bold border border-border hover:bg-muted transition-colors"
  >
- <Trash2 size={18} className="text-destructive" />
+ <Trash2 size={15} className="text-destructive" />
  Descartar
  </button>
  <button
  onClick={downloadImage}
  className="flex items-center gap-2 px-4 py-1.5 rounded-lg font-bold bg-primary text-primary-foreground hover:brightness-110 shadow-lg transition-colors"
  >
- <Download size={18} />
+ <Download size={15} />
  Baixar Imagem
  </button>
  <button
  onClick={() => setMode('menu')}
  className="flex items-center gap-2 px-4 py-1.5 rounded-lg font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
  >
- <RefreshCw size={18} />
+ <RefreshCw size={15} />
  Nova Foto
  </button>
  </div>
@@ -217,8 +217,8 @@ export default function CameraPage() {
  )}
 
  {/* Info Footer */}
- <div className="bg-[#E0E800]/20 text-blue-800 p-4 rounded-lg flex items-start gap-3 text-sm">
- <Smartphone className="shrink-0 mt-0.5" size={16} />
+ <div className="bg-[#E0E800]/20 text-blue-800 p-4 rounded-lg flex items-start gap-3 text-xs">
+ <Smartphone className="shrink-0 mt-0.5" size={14} />
  <p>
  <strong>Dica Pro:</strong> Em dispositivos móveis, a opção "Câmera Nativa" oferece a melhor qualidade e estabilização de imagem.
  Use "Web Câmera" para digitalizações rápidas em desktops ou quando a nativa não estiver acessível.

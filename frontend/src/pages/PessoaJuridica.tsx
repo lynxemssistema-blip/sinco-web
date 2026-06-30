@@ -82,7 +82,8 @@ export default function PessoaJuridicaPage() {
  });
 
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  setFormData(prev => ({ ...prev, [name]: value }));
  };
 
@@ -115,12 +116,13 @@ export default function PessoaJuridicaPage() {
 
  // Masked input handler - applies mask while typing
  const handleMaskedChange = (e: React.ChangeEvent<HTMLInputElement>, maskFn: (v: string) => string) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  setFormData(prev => ({ ...prev, [name]: maskFn(value) }));
  };
 
  // Input class for required fields with visual indicator
- const inputBaseClass = "w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
+ const inputBaseClass = "w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
  const inputRequired = `${inputBaseClass} border-gray-300 bg-amber-50/30`;
  const inputOptional = `${inputBaseClass} border-gray-200`;
 
@@ -264,25 +266,25 @@ export default function PessoaJuridicaPage() {
  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
  <div>
  
- <p className="text-gray-500 text-sm">Gerencie o cadastro de empresas</p>
+ <p className="text-gray-500 text-xs">Gerencie o cadastro de empresas</p>
  </div>
  <div className="flex gap-2">
  <motion.button
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={fetchEmpresas}
- className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+ className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
  disabled={loading}
  >
- <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+ <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
  </motion.button>
  <motion.button
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={() => { resetForm(); setShowForm(true); }}
- className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
+ className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
  >
- <Plus size={18} />
+ <Plus size={15} />
  Nova Empresa
  </motion.button>
  </div>
@@ -293,7 +295,7 @@ export default function PessoaJuridicaPage() {
  <motion.div
  initial={{ opacity: 0, y: -10 }}
  animate={{ opacity: 1, y: 0 }}
- className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+ className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
  >
  {error}
  </motion.div>
@@ -301,7 +303,7 @@ export default function PessoaJuridicaPage() {
 
  {/* Search Filters Section */}
  <div className="bg-white rounded-md shadow-sm border border-gray-100 mb-2 shrink-0">
- <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100">
+ <div className="flex justify-between items-center px-2 py-1 border-b border-gray-100">
  <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2 m-0">
  <Search size={12} /> Dados para Pesquisa
  </h3>
@@ -647,10 +649,10 @@ export default function PessoaJuridicaPage() {
  type="submit"
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
- className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium text-sm hover:bg-[#3d4f49] transition-colors disabled:opacity-50"
+ className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium text-xs hover:bg-[#3d4f49] transition-colors disabled:opacity-50"
  disabled={saving}
  >
- {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+ {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
  {isEditing ? 'Atualizar' : 'Salvar'}
  </motion.button>
 </div>
@@ -665,18 +667,18 @@ export default function PessoaJuridicaPage() {
  {loading ? (
  <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
  <Loader2 size={32} className="animate-spin" />
- <p className="text-sm">Carregando dados...</p>
+ <p className="text-xs">Carregando dados...</p>
  </div>
  ) : (
  <div className="overflow-auto flex-1">
  <table className="w-full">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white">
  <tr className=" border-b border-white/20">
- <th className="px-3 py-1.5 text-left text-xs font-semibold text-white uppercase tracking-wider">Empresa</th>
- <th className="px-3 py-1.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">CNPJ</th>
- <th className="px-3 py-1.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Cidade/UF</th>
- <th className="px-3 py-1.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Telefone</th>
- <th className="px-3 py-1.5 text-right text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
+ <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider">Empresa</th>
+ <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden md:table-cell">CNPJ</th>
+ <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Cidade/UF</th>
+ <th className="px-2 py-0.5 text-left text-xs font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Telefone</th>
+ <th className="px-2 py-0.5 text-right text-xs font-semibold text-white uppercase tracking-wider">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
@@ -685,10 +687,10 @@ export default function PessoaJuridicaPage() {
  <td colSpan={5} className="px-4 py-12 text-center">
  <div className="flex flex-col items-center gap-3 text-gray-400">
  <Building2 size={40} strokeWidth={1.5} />
- <p className="text-sm">Nenhuma empresa encontrada</p>
+ <p className="text-xs">Nenhuma empresa encontrada</p>
  <button
  onClick={() => setShowForm(true)}
- className="text-[#32423D] font-medium text-sm hover:underline"
+ className="text-[#32423D] font-medium text-xs hover:underline"
  >
  Cadastrar nova empresa
  </button>
@@ -704,9 +706,9 @@ export default function PessoaJuridicaPage() {
  transition={{ delay: idx * 0.03 }}
  className="hover:bg-gray-50/50 transition-colors"
  >
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center font-bold text-sm overflow-hidden">
+ <div className="w-10 h-10 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center font-bold text-xs overflow-hidden">
  {empresa.EnderecoLogo ? (
  <img src={`${empresa.EnderecoLogo}`} alt="" className="w-full h-full object-cover" />
  ) : (
@@ -714,35 +716,35 @@ export default function PessoaJuridicaPage() {
  )}
  </div>
  <div>
- <p className="font-medium text-[#32423D] text-sm">{empresa.RazaoSocial}</p>
+ <p className="font-medium text-[#32423D] text-xs">{empresa.RazaoSocial}</p>
  <p className="text-xs text-gray-500">{empresa.NomeFantasia}</p>
  </div>
  </div>
  </td>
- <td className="px-3 py-1.5 text-sm text-gray-600 hidden md:table-cell font-mono">
+ <td className="px-2 py-0.5 text-xs text-gray-600 hidden md:table-cell font-mono">
  {empresa.Cnpj?.replace(/,/g, '.')}
  </td>
- <td className="px-3 py-1.5 text-sm text-gray-600 hidden lg:table-cell">
+ <td className="px-2 py-0.5 text-xs text-gray-600 hidden lg:table-cell">
  {empresa.Cidade}/{empresa.Estado}
  </td>
- <td className="px-3 py-1.5 text-sm text-gray-600 hidden lg:table-cell">
+ <td className="px-2 py-0.5 text-xs text-gray-600 hidden lg:table-cell">
  {empresa.Telefone}
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <div className="flex items-center justify-end gap-1">
  <button
  onClick={() => empresa.IdPessoa && handleEdit(empresa.IdPessoa)}
  className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
  title="Editar"
  >
- <Edit2 size={16} />
+ <Edit2 size={14} />
  </button>
  <button
  onClick={() => empresa.IdPessoa && handleDelete(empresa.IdPessoa)}
  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
  title="Excluir"
  >
- <Trash2 size={16} />
+ <Trash2 size={14} />
  </button>
  </div>
  </td>
@@ -756,7 +758,7 @@ export default function PessoaJuridicaPage() {
 
  {/* Table Footer */}
  {!loading && (
- <div className="px-3 py-1.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+ <div className="px-2 py-0.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
  <p className="text-xs text-gray-500">
  Mostrando <span className="font-medium">{filteredEmpresas.length}</span> de <span className="font-medium">{empresas.length}</span> empresas
  </p>

@@ -139,23 +139,23 @@ export default function LoginAcessoPage({ onAuthSuccess }: LoginAcessoProps) {
  <div className="bg-white/10 rounded-md p-5 border border-white/10">
  <div className="flex items-center gap-3 mb-3">
  <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
- <span className="text-white/80 text-sm font-bold uppercase tracking-wider">Banco Ativo</span>
+ <span className="text-white/80 text-xs font-bold uppercase tracking-wider">Banco Ativo</span>
  </div>
  <div className="space-y-2">
  <div className="flex items-center justify-between">
- <span className="text-white/50 text-sm">Database:</span>
- <span className="text-[#E0E800] font-bold font-mono text-sm">{activeDb}</span>
+ <span className="text-white/50 text-xs">Database:</span>
+ <span className="text-[#E0E800] font-bold font-mono text-xs">{activeDb}</span>
  </div>
  {clientName && (
  <div className="flex items-center justify-between">
- <span className="text-white/50 text-sm">Cliente:</span>
- <span className="text-white font-semibold text-sm">{clientName}</span>
+ <span className="text-white/50 text-xs">Cliente:</span>
+ <span className="text-white font-semibold text-xs">{clientName}</span>
  </div>
  )}
  {currentUser && (
  <div className="flex items-center justify-between pt-2 border-t border-white/10">
- <span className="text-white/50 text-sm">Logado como:</span>
- <span className="text-white/80 font-medium text-sm">{currentUser.nome || currentUser.login}</span>
+ <span className="text-white/50 text-xs">Logado como:</span>
+ <span className="text-white/80 font-medium text-xs">{currentUser.nome || currentUser.login}</span>
  </div>
  )}
  </div>
@@ -163,8 +163,8 @@ export default function LoginAcessoPage({ onAuthSuccess }: LoginAcessoProps) {
  </motion.div>
  </div>
 
- <div className="relative z-10 flex items-center gap-4 text-white/40 text-sm font-medium">
- <ShieldCheck size={18} />
+ <div className="relative z-10 flex items-center gap-4 text-white/40 text-xs font-medium">
+ <ShieldCheck size={15} />
  <span>Dados validados contra a tabela de usuários do banco ativo</span>
  </div>
  </div>
@@ -177,7 +177,7 @@ export default function LoginAcessoPage({ onAuthSuccess }: LoginAcessoProps) {
  <Database className="w-10 h-10 text-[#E0E800]" />
  </div>
  <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Login no Banco Ativo</h2>
- <p className="text-gray-500 font-medium mt-1 text-sm text-center">
+ <p className="text-gray-500 font-medium mt-1 text-xs text-center">
  Banco: <span className="font-bold text-[#32423D]">{activeDb}</span>
  </p>
  </div>
@@ -205,15 +205,15 @@ export default function LoginAcessoPage({ onAuthSuccess }: LoginAcessoProps) {
  <CheckCircle className="text-green-600" size={40} />
  </div>
  <h3 className="text-xl font-bold text-green-800 mb-2">Login Realizado!</h3>
- <p className="text-green-600 text-sm text-center">Redirecionando para o Dashboard...</p>
+ <p className="text-green-600 text-xs text-center">Redirecionando para o Dashboard...</p>
  </motion.div>
  ) : (
  <form onSubmit={handleSubmit} className="space-y-6">
  <div className="space-y-2">
- <label className="text-sm font-bold text-gray-700 ml-1">Usuário</label>
+ <label className="text-xs font-bold text-gray-700 ml-1">Usuário</label>
  <div className="relative group">
  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center transition-colors">
- <User className="text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={18} strokeWidth={2} />
+ <User className="text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={15} strokeWidth={2} />
  </div>
  <input
  type="text"
@@ -228,10 +228,10 @@ export default function LoginAcessoPage({ onAuthSuccess }: LoginAcessoProps) {
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-bold text-gray-700 ml-1">Senha</label>
+ <label className="text-xs font-bold text-gray-700 ml-1">Senha</label>
  <div className="relative group">
  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center transition-colors">
- <Lock className="text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={18} strokeWidth={2} />
+ <Lock className="text-gray-400 group-focus-within:text-[#32423D] transition-colors" size={15} strokeWidth={2} />
  </div>
  <input
  type="password"

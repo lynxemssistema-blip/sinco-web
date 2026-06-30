@@ -244,7 +244,7 @@ export default function ListaReposicaoPage() {
 
  return (
  <div className="flex flex-col flex-1 min-h-0 bg-[#fafbfc] animate-in fade-in zoom-in-95 duration-300 p-4 relative h-full flex flex-col min-h-0">
- <div className="flex items-center gap-2 mb-4 shrink-0 text-sm"><span className="px-2 py-1 bg-slate-200 text-slate-600 rounded-lg font-medium">Contadores DB: {items.length} | Filtrados: {filteredItems.length}</span></div>
+ <div className="flex items-center gap-2 mb-4 shrink-0 text-xs"><span className="px-2 py-1 bg-slate-200 text-slate-600 rounded-lg font-medium">Contadores DB: {items.length} | Filtrados: {filteredItems.length}</span></div>
 
  {/* Header Filtros */}
  <div className="bg-white p-3 rounded-md border border-slate-200 mb-4 shrink-0 shadow-sm flex flex-col gap-3">
@@ -355,20 +355,20 @@ export default function ListaReposicaoPage() {
  <table className="w-full text-left text-[11px] whitespace-nowrap">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
  <tr>
- <th className="px-3 py-2">Situação (Sttxt)</th>
- <th className="px-3 py-2">Id. OS</th>
- <th className="px-3 py-2">Id. Item</th>
- <th className="px-3 py-2">Desc. Empresa</th>
- <th className="px-3 py-2">Projeto</th>
- <th className="px-3 py-2">Tag</th>
- <th className="px-3 py-2 text-center">Qtde Total</th>
- <th className="px-3 py-2">Espessura</th>
- <th className="px-3 py-2">Material SW</th>
- <th className="px-3 py-2">Cód. Mat. Fabr.</th>
- <th className="px-3 py-2">Desc. Resumo</th>
- <th className="px-3 py-2">Corte Total Ex.</th>
- <th className="px-3 py-2">Corte Tot. Executar</th>
- <th className="px-3 py-2 text-center w-32">Ações</th>
+ <th className="px-2 py-1">Situação (Sttxt)</th>
+ <th className="px-2 py-1">Id. OS</th>
+ <th className="px-2 py-1">Id. Item</th>
+ <th className="px-2 py-1">Desc. Empresa</th>
+ <th className="px-2 py-1">Projeto</th>
+ <th className="px-2 py-1">Tag</th>
+ <th className="px-2 py-1 text-center">Qtde Total</th>
+ <th className="px-2 py-1">Espessura</th>
+ <th className="px-2 py-1">Material SW</th>
+ <th className="px-2 py-1">Cód. Mat. Fabr.</th>
+ <th className="px-2 py-1">Desc. Resumo</th>
+ <th className="px-2 py-1">Corte Total Ex.</th>
+ <th className="px-2 py-1">Corte Tot. Executar</th>
+ <th className="px-2 py-1 text-center w-32">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -387,22 +387,26 @@ export default function ListaReposicaoPage() {
  onClick={() => setSelectedItem(item)}
  className={`cursor-pointer transition-colors ${selectedItem?.IdOrdemServicoItem === item.IdOrdemServicoItem ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' : 'hover:bg-slate-50'}`}
  >
- <td className="px-3 py-2">
+ <td className="px-2 py-1">
  {sttxt === 'C' ? <span className="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold border border-emerald-200">CONCLUÍDO</span> : <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold border border-amber-200">PENDENTE</span>}
  </td>
  
  
- <td className="px-3 py-2 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
- <td className="px-3 py-2 font-bold text-slate-700">{item.Projeto}</td>
- <td className="px-3 py-2 font-bold text-[#32423D]">{item.Tag}</td>
- <td className="px-3 py-2 text-center font-bold text-slate-800">{item.QtdeTotal}</td>
- <td className="px-3 py-2 text-slate-600">{item.Espessura}</td>
- <td className="px-3 py-2 text-slate-600">{item.MaterialSW}</td>
- <td className="px-3 py-2 font-mono text-slate-500">{item.CodMatFabricante}</td>
- <td className="px-3 py-2 text-slate-600 truncate max-w-[150px]" title={item.DescResumo}>{item.DescResumo}</td>
- <td className="px-3 py-2 font-bold text-green-700">{item.cortetotalexecutado ?? '-'}</td>
- <td className="px-3 py-2 font-bold text-[#32423D]">{item.cortetotalexecutar ?? '-'}</td>
- <td className="px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
+ <td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServico}</td>
+<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServicoItem}</td>
+<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServico}</td>
+<td className="px-2 py-1 text-slate-600 font-mono">{item.IdOrdemServicoItem}</td>
+<td className="px-2 py-1 text-slate-600 max-w-[100px] truncate" title={item.DescEmpresa}>{item.DescEmpresa}</td>
+ <td className="px-2 py-1 font-bold text-slate-700">{item.Projeto}</td>
+ <td className="px-2 py-1 font-bold text-[#32423D]">{item.Tag}</td>
+ <td className="px-2 py-1 text-center font-bold text-slate-800">{item.QtdeTotal}</td>
+ <td className="px-2 py-1 text-slate-600">{item.Espessura}</td>
+ <td className="px-2 py-1 text-slate-600">{item.MaterialSW}</td>
+ <td className="px-2 py-1 font-mono text-slate-500">{item.CodMatFabricante}</td>
+ <td className="px-2 py-1 text-slate-600 truncate max-w-[150px]" title={item.DescResumo}>{item.DescResumo}</td>
+ <td className="px-2 py-1 font-bold text-green-700">{item.cortetotalexecutado ?? '-'}</td>
+ <td className="px-2 py-1 font-bold text-[#32423D]">{item.cortetotalexecutar ?? '-'}</td>
+ <td className="px-2 py-1 text-center" onClick={e => e.stopPropagation()}>
  <div className="flex items-center justify-center gap-1">
  {/* 1 - Abrir Desenho 3D */}
  <button
@@ -472,7 +476,7 @@ export default function ListaReposicaoPage() {
  </h3>
  <p className="text-xs text-slate-500 flex gap-2 font-mono mt-1">OSI: <strong className="text-slate-700">{selectedItem.IdOrdemServicoItem}</strong></p>
  </div>
- <button onClick={() => setSelectedItem(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded transition-colors"><X size={18} /></button>
+ <button onClick={() => setSelectedItem(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded transition-colors"><X size={15} /></button>
  </div>
 
  <div className="table-container flex flex-col gap-4">
@@ -570,7 +574,7 @@ export default function ListaReposicaoPage() {
  <div className="p-5 flex flex-col gap-4">
  <div className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded border border-slate-100">
  <p><strong>OS:</strong> {itemParaApontar.IdOrdemServico} | <strong>Item:</strong> {itemParaApontar.IdOrdemServicoItem}</p>
- <p className="mt-1">Limite Máximo Restante: <strong className="text-emerald-700 font-mono text-sm">{(Number(itemParaApontar.QtdeTotal) || 0) - (Number(itemParaApontar.cortetotalexecutado) || 0)}</strong></p>
+ <p className="mt-1">Limite Máximo Restante: <strong className="text-emerald-700 font-mono text-xs">{(Number(itemParaApontar.QtdeTotal) || 0) - (Number(itemParaApontar.cortetotalexecutado) || 0)}</strong></p>
  </div>
  
  <div>
@@ -582,14 +586,14 @@ export default function ListaReposicaoPage() {
  placeholder="Digite a quantidade..."
  value={quantidadeApontada}
  onChange={e => setQuantidadeApontada(e.target.value === '' ? '' : Number(e.target.value))}
- className="w-full text-sm font-bold p-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+ className="w-full text-xs font-bold p-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
  />
  </div>
  </div>
  <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
  <button 
  onClick={() => setApontamentoModalOpen(false)}
- className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors"
+ className="px-2 py-1 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors"
  >
  Cancelar
  </button>
@@ -598,7 +602,7 @@ export default function ListaReposicaoPage() {
  disabled={apontando}
  className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
  >
- {apontando ? <Loader2 size={16} className="animate-spin" /> : <Target size={16} />}
+ {apontando ? <Loader2 size={14} className="animate-spin" /> : <Target size={14} />}
  Confirmar Baixa
  </button>
  </div>

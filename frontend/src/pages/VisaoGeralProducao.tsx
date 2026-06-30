@@ -722,7 +722,7 @@ export default function VisaoGeralProducaoPage() {
  setStatusFilter(next);
  fetchProj(next);
  }}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all ${
  statusFilter === 'finalizados'
  ? 'bg-emerald-600 text-white shadow-sm'
  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-50'
@@ -737,7 +737,7 @@ export default function VisaoGeralProducaoPage() {
  setStatusFilter(next);
  fetchProj(next);
  }}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all ${
  statusFilter === 'liberados'
  ? 'bg-[#32423D] text-white shadow-sm'
  : 'text-slate-500 hover:text-[#32423D]/70 hover:bg-[#E0E800]/10'
@@ -752,7 +752,7 @@ export default function VisaoGeralProducaoPage() {
  setStatusFilter(next);
  fetchProj(next);
  }}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all ${
  statusFilter === 'todos'
  ? 'bg-slate-700 text-white shadow-sm'
  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
@@ -764,13 +764,13 @@ export default function VisaoGeralProducaoPage() {
 
  {/* View Mode */}
  <div className="hidden md:flex bg-slate-100 p-0.5 rounded-lg items-center shadow-inner">
- <button onClick={() => setViewMode('card')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+ <button onClick={() => setViewMode('card')} className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'card' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <LayoutGrid size={14} /> Cards
  </button>
- <button onClick={() => setViewMode('list')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+ <button onClick={() => setViewMode('list')} className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <List size={14} /> Lista
  </button>
- <button onClick={() => setViewMode('tags')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'tags' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+ <button onClick={() => setViewMode('tags')} className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'tags' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <TagIcon size={14} /> Tags Globais
  </button>
  </div>
@@ -783,7 +783,7 @@ export default function VisaoGeralProducaoPage() {
  setFProjCriacaoIni(''); setFProjCriacaoFim('');
  setFProjPrevIni(''); setFProjPrevFim('');
  fetchProj(null);
- }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
+ }} className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border font-bold text-[10px] transition border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
  <X size={11} /> Limpar
  </button>
  </div>
@@ -846,12 +846,12 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Main Grid Toolbar */}
  <div className="px-6 py-2 border-b border-gray-300 flex items-center justify-between bg-white shrink-0 shadow-sm z-10">
- <div className="font-bold text-gray-800 text-sm flex items-center gap-2">
+ <div className="font-bold text-gray-800 text-xs flex items-center gap-2">
  Visão Geral Produção
  </div>
  <div className="flex items-center gap-2">
  <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition-colors" title={isExpanded ? "Restaurar tamanho" : "Expandir grid"}>
- {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+ {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
  </button>
  </div>
  </div>
@@ -876,19 +876,19 @@ export default function VisaoGeralProducaoPage() {
  <table className="w-full text-left text-xs whitespace-nowrap border-collapse min-w-[800px]">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] border-b border-white/20 sticky top-0 z-10 shadow-sm">
  <tr>
- <th className="px-3 py-1.5 border-r border-slate-100">Projeto</th>
+ <th className="px-2 py-0.5 border-r border-slate-100">Projeto</th>
  <th className="px-3 py-3 border-r border-slate-100 text-center">Peças</th>
  <th className="px-3 py-3 border-r border-slate-100 text-center">TAGS / Qtde</th>
  <th className="px-3 py-3 border-r border-slate-100 text-center">OS / Itens</th>
  <th className="px-3 py-3 border-r border-slate-100 text-center">RNCs</th>
- <th className="px-3 py-1.5 border-r border-slate-100 w-32">Datas</th>
+ <th className="px-2 py-0.5 border-r border-slate-100 w-32">Datas</th>
  <th className="px-3 py-3 text-center">Ações</th>
  </tr>
  </thead>
  {Object.entries(groupedProjs).sort(([a], [b]) => a.localeCompare(b)).map(([client, projs]) => (
  <tbody key={client} className="divide-y divide-slate-100">
  <tr>
- <td colSpan={7} className="bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 uppercase tracking-widest border-t border-b border-slate-200">
+ <td colSpan={7} className="bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700 uppercase tracking-widest border-t border-b border-slate-200">
  {client} <span className="text-[10px] ml-2 text-slate-500 font-normal normal-case">({projs.length} projetos)</span>
  </td>
  </tr>
@@ -897,7 +897,7 @@ export default function VisaoGeralProducaoPage() {
  const isLib = p.liberado?.trim() === 'S';
  return (
  <tr key={p.IdProjeto} className={`group hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
- <td className="px-3 py-1.5 align-top max-w-[280px] border-r border-slate-100 whitespace-normal">
+ <td className="px-2 py-0.5 align-top max-w-[280px] border-r border-slate-100 whitespace-normal">
  <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
  <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded leading-none border border-slate-200">#{p.IdProjeto}</span>
  <div className="font-black text-slate-800 text-[13px] leading-tight" title={p.Projeto}>{p.Projeto}</div>
@@ -911,13 +911,13 @@ export default function VisaoGeralProducaoPage() {
  <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
  <div className="flex flex-col items-center justify-center text-center gap-0.5">
  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Peças</div>
- <div className="text-sm font-black text-slate-800">{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</div>
+ <div className="text-xs font-black text-slate-800">{p.qtdetotalpecas > 0 ? p.qtdetotalpecas : p.QtdePecasTags}</div>
  </div>
  </td>
  <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
  <div className="flex flex-col items-center justify-center text-center gap-0.5">
  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><TagIcon size={10}/> Tags</div>
- <div className="text-sm font-black text-slate-800">{p.QtdeTags || 0}</div>
+ <div className="text-xs font-black text-slate-800">{p.QtdeTags || 0}</div>
  <div className="flex gap-1 mt-0.5 font-bold text-[8px] uppercase flex-col w-full">
  <span className="text-[#32423D] bg-[#E0E800]/20 border border-blue-100 px-1.5 py-0.5 rounded w-full text-center">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
  <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded w-full text-center">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
@@ -934,7 +934,7 @@ export default function VisaoGeralProducaoPage() {
  <div className={`text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 transition-colors ${p.QtdeOS > 0 ? 'text-[#32423D] group-hover:text-[#32423D]' : 'text-slate-400'}`}>
  <ClipboardList size={10}/> OS
  </div>
- <div className={`text-sm font-black flex items-center gap-1.5 transition-colors ${p.QtdeOS > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-800'}`}>
+ <div className={`text-xs font-black flex items-center gap-1.5 transition-colors ${p.QtdeOS > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-800'}`}>
  {p.QtdeOS || 0}
  {p.QtdeOS > 0 && (
  <span className="text-[8px] bg-blue-100 text-[#32423D] px-1 py-0.5 rounded leading-none group-hover:bg-[#32423D] group-hover:text-white transition-colors uppercase">
@@ -947,14 +947,14 @@ export default function VisaoGeralProducaoPage() {
  </td>
  <td className="px-3 py-3 align-middle text-center border-r border-slate-100">
  <div onClick={(e) => { e.stopPropagation(); setSelProj(p); fetchRncs(p.IdProjeto); setRncPanel(true); }} className="flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 p-1.5 rounded-lg group/rnc transition-colors mx-auto w-24 border border-transparent hover:border-slate-200">
- <div className="text-sm font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors flex items-center gap-1"><ShieldAlert size={12}/> {p.qtdernc} Tot</div>
+ <div className="text-xs font-black text-slate-800 group-hover/rnc:text-red-600 transition-colors flex items-center gap-1"><ShieldAlert size={12}/> {p.qtdernc} Tot</div>
  <div className="flex flex-col gap-1 mt-1 font-bold text-[8px] uppercase w-full">
  <span className="text-red-500 bg-red-50 border border-red-100 px-1 py-0.5 rounded w-full text-center">{p.qtderncPendente} Pend</span>
  <span className="text-emerald-500 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded w-full text-center">{p.qtderncFinalizada} Fin</span>
  </div>
  </div>
  </td>
- <td className="px-3 py-1.5 align-middle border-r border-slate-100 w-40">
+ <td className="px-2 py-0.5 align-middle border-r border-slate-100 w-40">
  <div className="flex flex-col gap-3">
  <div className="flex flex-col gap-0.5">
  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
@@ -973,7 +973,7 @@ export default function VisaoGeralProducaoPage() {
  </td>
  <td className="px-3 py-3 align-middle text-center min-w-[140px]">
  <div className="flex flex-col gap-1.5 justify-center">
- <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`px-3 py-2 rounded-lg transition-colors border shadow-sm text-[10px] font-black uppercase flex items-center justify-center gap-1.5 w-full ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`}>
+ <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`px-2 py-1 rounded-lg transition-colors border shadow-sm text-[10px] font-black uppercase flex items-center justify-center gap-1.5 w-full ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`}>
  <LayoutGrid size={12} className="pointer-events-none" /> Exibir Detalhes Tag
  </button>
  <div className="grid grid-cols-2 gap-1.5 text-[9px] font-bold uppercase">
@@ -1002,7 +1002,7 @@ export default function VisaoGeralProducaoPage() {
  <div className="flex flex-col gap-6">
  {Object.entries(groupedProjs).sort(([a], [b]) => a.localeCompare(b)).map(([client, projs]) => (
  <div key={client} className="flex flex-col gap-4">
- <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest border-b border-slate-200 pb-2">
+ <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest border-b border-slate-200 pb-2">
  {client} <span className="text-xs ml-2 text-slate-500 font-normal normal-case">({projs.length} projetos)</span>
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-4">
@@ -1025,7 +1025,7 @@ export default function VisaoGeralProducaoPage() {
  <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed" title={p.DescProjeto}>{p.DescProjeto}</p>
  </div>
  <button type="button" onClick={() => { if (p.QtdeTags && p.QtdeTags > 0) openDetailsModal(p); }} className={`p-2 rounded-lg transition-colors border shadow-sm shrink-0 ${(!p.QtdeTags || p.QtdeTags === 0) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-[#E0E800]/30 text-[#32423D] hover:bg-[#32423D] hover:text-white border-blue-100'}`} title="Ver Tags Detalhadas">
- <ArrowRight size={18} className="pointer-events-none" />
+ <ArrowRight size={15} className="pointer-events-none" />
  </button>
  </div>
 
@@ -1037,7 +1037,7 @@ export default function VisaoGeralProducaoPage() {
  {/* Tags + Qtde */}
  <div className="bg-slate-50 border border-slate-100 rounded-md p-2.5 flex flex-col justify-center text-center hover:border-blue-200 transition-colors">
  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1 justify-center"><TagIcon size={10}/> Tags</span>
- <div className="text-sm font-black text-slate-800">{p.QtdeTags}</div>
+ <div className="text-xs font-black text-slate-800">{p.QtdeTags}</div>
  <div className="flex flex-col gap-0.5 mt-1">
  <span className="text-[8px] font-bold text-[#32423D] bg-[#E0E800]/20 border border-blue-100 px-1 py-0.5 rounded">Mult: {Number(p.SumQtdeTag || 0).toFixed(0)}</span>
  <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1 py-0.5 rounded">Lib: {Number(p.SumQtdeLiberada || 0).toFixed(0)}</span>
@@ -1047,7 +1047,7 @@ export default function VisaoGeralProducaoPage() {
  {/* OS total (fonte: campo QtdeOS da tag) */}
  <div className="bg-slate-50 border border-slate-100 rounded-md p-2.5 flex flex-col justify-center text-center hover:border-indigo-200 transition-colors">
  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1 justify-center"><ClipboardList size={10}/> OS</span>
- <div className="text-sm font-black text-slate-800">{p.QtdeOS || 0}</div>
+ <div className="text-xs font-black text-slate-800">{p.QtdeOS || 0}</div>
  <span className="text-[8px] text-slate-400 font-medium mt-0.5">Total OS</span>
  </div>
  {/* RNCs - full width */}
@@ -1090,7 +1090,7 @@ export default function VisaoGeralProducaoPage() {
  </div>
 
  {/* Footer do Card com Datas (Editaveis via botao) */}
- <div className="bg-slate-50/80 border-t border-slate-100 px-3 py-2 flex gap-3 justify-between items-center sm:flex-row flex-col sm:items-center">
+ <div className="bg-slate-50/80 border-t border-slate-100 px-2 py-1 flex gap-3 justify-between items-center sm:flex-row flex-col sm:items-center">
  <div className="flex gap-6 w-full sm:w-auto">
  <div className="flex flex-col gap-1">
  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><CalendarDays size={10} className="text-slate-400"/> Criação</span>
@@ -1135,13 +1135,13 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div className="text-center">
  <h2 className="text-2xl font-black text-slate-800 mb-2">Log de Pendência (Visão Geral Produção)</h2>
- <p className="text-sm font-medium text-slate-500 max-w-sm mx-auto">
+ <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto">
  A janela de histórico e edição da pendência está aberta automaticamente. Quando finalizar sua consulta, feche o modal da pendência e clique no botão abaixo para retornar.
  </p>
  </div>
  <button 
  onClick={() => window.location.href = '/visao-geral-pendencias'}
- className="mt-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-300 text-sm px-4 py-1.5 rounded-md transition-colors shadow-sm cursor-pointer flex items-center gap-2"
+ className="mt-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-300 text-xs px-4 py-1.5 rounded-md transition-colors shadow-sm cursor-pointer flex items-center gap-2"
  >
  &larr; Voltar para Todas as Pendências
  </button>
@@ -1156,9 +1156,9 @@ export default function VisaoGeralProducaoPage() {
  <div className="bg-white w-full max-w-[100vw] sm:max-w-[95vw] h-full sm:h-[95vh] sm:rounded-md shadow-2xl flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
  
  {/* Header Modal */}
- <div className="bg-[#f0f4f8] border-b border-slate-200 px-3 py-1.5 sm:px-6 sm:py-4 shrink-0 flex flex-wrap items-center gap-3 justify-between">
+ <div className="bg-[#f0f4f8] border-b border-slate-200 px-2 py-0.5 sm:px-6 sm:py-4 shrink-0 flex flex-wrap items-center gap-3 justify-between">
  <div className="flex items-center gap-3 shrink-0">
- <div className="bg-[#32423D] text-white w-10 h-10 rounded-md items-center justify-center font-bold text-sm shadow-sm hidden md:flex">
+ <div className="bg-[#32423D] text-white w-10 h-10 rounded-md items-center justify-center font-bold text-xs shadow-sm hidden md:flex">
  <TagIcon size={20} />
  </div>
  <div className="flex flex-col">
@@ -1261,10 +1261,10 @@ export default function VisaoGeralProducaoPage() {
  className="bg-indigo-600 hover:bg-indigo-700 p-2 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2 font-bold text-xs shrink-0"
  title="Planejar datas para TODAS as tags deste projeto"
  >
- <CalendarDays size={16} /> <span>Plan. em Lote</span>
+ <CalendarDays size={14} /> <span>Plan. em Lote</span>
  </button>
  <button onClick={() => setShowDetailsModal(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 p-2 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1 font-bold text-xs shrink-0">
- <X size={16} /> Fechar
+ <X size={14} /> Fechar
  </button>
  </div>
  </div>
@@ -1273,16 +1273,16 @@ export default function VisaoGeralProducaoPage() {
  {/* Listagem de Tags Expandida (Tabela Gigante) */}
  <div className="flex-1 overflow-auto bg-white p-0 relative w-full scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50">
  {loadTags ? (
- <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3"><Loader className="animate-spin" size={28} /> <span className="text-sm font-bold">Carregando dados das tags...</span></div>
+ <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3"><Loader className="animate-spin" size={28} /> <span className="text-xs font-bold">Carregando dados das tags...</span></div>
  ) : tags.length === 0 ? (
- <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-medium">Nenhuma tag localizada.</div>
+ <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-medium">Nenhuma tag localizada.</div>
  ) : (
  <div className="min-w-max pb-32">
  <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[10px] sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border-b border-white/20">
  <tr>
  {/* Columns Fixed visually by background */}
- <th className="px-3 py-1.5 border-r border-white/20 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
+ <th className="px-2 py-0.5 border-r border-white/20 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
  <th className="px-3 py-3 border-r border-white/20 text-center /50">Cronograma</th>
  <th className="px-3 py-3 border-r border-white/20 text-center /50">Detalhes</th>
  {viewModeTags === 'detailed' ? (
@@ -1298,7 +1298,7 @@ export default function VisaoGeralProducaoPage() {
  return (
  <tr key={t.IdTag} className={`group hover:bg-[#E0E800]/10/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
  {/* TAG INFO */}
- <td className="px-3 py-1.5 align-top min-w-[220px] max-w-[280px] border-r border-slate-100 bg-inherit sticky left-0 z-10 shadow-[1px_0_0_#f1f5f9] group-hover:shadow-[1px_0_0_#dbeafe]">
+ <td className="px-2 py-0.5 align-top min-w-[220px] max-w-[280px] border-r border-slate-100 bg-inherit sticky left-0 z-10 shadow-[1px_0_0_#f1f5f9] group-hover:shadow-[1px_0_0_#dbeafe]">
  <div className="flex items-center gap-1.5 mb-1"><div className={`w-2 h-2 rounded-full shadow-sm ${tFin ? 'bg-emerald-500' : 'bg-amber-400'}`} /> <span className="font-black text-slate-800 text-[13px] break-all whitespace-normal leading-tight">{t.Tag}</span></div>
  <div className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed whitespace-normal pr-2" title={t.DescTag}>{t.DescTag}</div>
  <div className="mt-2 flex flex-wrap gap-1 items-center">
@@ -1414,7 +1414,7 @@ export default function VisaoGeralProducaoPage() {
  const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
  const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
  return (
- <td key={s.k} className="px-3 py-1.5 align-top border-r border-slate-100 hover:bg-slate-50/80 transition-colors">
+ <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 hover:bg-slate-50/80 transition-colors">
  <div className="flex flex-col w-full h-full justify-between">
  {/* Progresso Cima */}
  <div className="flex items-center justify-between w-full">
@@ -1463,7 +1463,7 @@ export default function VisaoGeralProducaoPage() {
  )
  })
  ) : (
- <td className="px-3 py-1.5 align-top border-r border-slate-100">
+ <td className="px-2 py-0.5 align-top border-r border-slate-100">
  <div className="flex flex-col gap-2 h-full justify-start">
  <button 
  onClick={() => { 
@@ -1512,21 +1512,21 @@ export default function VisaoGeralProducaoPage() {
  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
  <div className="flex justify-between items-start mb-4">
- <div><h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={18} className="text-[#32423D]" /> Editar Data Previsão</h3><p className="text-[11px] font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 mt-1.5 rounded-md text-slate-600 inline-block">{actionModal === 'dateTagGlobal' ? `Tag: ${selTag?.Tag}` : `${selProj?.Projeto}`}</p></div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1 rounded-md"><X size={18} /></button>
+ <div><h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={15} className="text-[#32423D]" /> Editar Data Previsão</h3><p className="text-[11px] font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 mt-1.5 rounded-md text-slate-600 inline-block">{actionModal === 'dateTagGlobal' ? `Tag: ${selTag?.Tag}` : `${selProj?.Projeto}`}</p></div>
+ <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1 rounded-md"><X size={15} /></button>
  </div>
- <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} className="w-full border-2 border-slate-200 hover:border-blue-300 rounded-md px-3 py-1.5 text-slate-700 outline-none focus:border-[#32423D] transition mb-4 font-bold" />
+ <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} className="w-full border-2 border-slate-200 hover:border-blue-300 rounded-md px-2 py-0.5 text-slate-700 outline-none focus:border-[#32423D] transition mb-4 font-bold" />
  
  {actionModal === 'dateProj' && (
- <label className="flex items-start gap-3 p-3 bg-slate-50 rounded-md text-sm mb-5 cursor-pointer hover:bg-slate-100 border border-slate-200 transition-colors">
+ <label className="flex items-start gap-3 p-3 bg-slate-50 rounded-md text-xs mb-5 cursor-pointer hover:bg-slate-100 border border-slate-200 transition-colors">
  <input type="checkbox" checked={updateTagsCheck} onChange={e => setUpdateTagsCheck(e.target.checked)} className="rounded border-slate-300 text-[#32423D] mt-1 w-4 h-4" />
- <div className="leading-tight"><span className="font-bold text-slate-800 text-sm">Atualizar tags em cascata</span><br/><span className="text-[10px] text-slate-500 font-medium">Aplica a data para todas as filhas deste projeto</span></div>
+ <div className="leading-tight"><span className="font-bold text-slate-800 text-xs">Atualizar tags em cascata</span><br/><span className="text-[10px] text-slate-500 font-medium">Aplica a data para todas as filhas deste projeto</span></div>
  </label>
  )}
 
- {msg && <div className={`px-3 py-2.5 rounded-lg text-xs uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
- <button onClick={actionModal === 'dateProj' ? salvarDataProj : salvarDataTagPrevisao} disabled={!dateInput || isSaving} className="w-full bg-[#32423D] hover:bg-[#32423D]/80 disabled:opacity-50 text-white font-bold text-sm py-3 rounded-md transition-all shadow-md shadow-blue-500/20 flex justify-center items-center gap-2">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Data Previsão'}
+ {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
+ <button onClick={actionModal === 'dateProj' ? salvarDataProj : salvarDataTagPrevisao} disabled={!dateInput || isSaving} className="w-full bg-[#32423D] hover:bg-[#32423D]/80 disabled:opacity-50 text-white font-bold text-xs py-3 rounded-md transition-all shadow-md shadow-blue-500/20 flex justify-center items-center gap-2">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Salvar Data Previsão'}
  </button>
  </div>
  </div>
@@ -1537,8 +1537,8 @@ export default function VisaoGeralProducaoPage() {
  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4">
  <div className="bg-white rounded-md w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
- <div><h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={18} className="text-[#32423D]" /> Planejamento de Setores</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
+ <div><h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={15} className="text-[#32423D]" /> Planejamento de Setores</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
+ <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
@@ -1549,12 +1549,12 @@ export default function VisaoGeralProducaoPage() {
  <div className="flex flex-col gap-3">
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Inicial</label>
- <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
  value={tagSectorDates[s.fields.pi] || ''} onChange={(e) => setTagSectorDates(prev => ({...prev, [s.fields.pi]: e.target.value}))}/>
  </div>
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Final</label>
- <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-[#32423D] outline-none" 
  value={tagSectorDates[s.fields.pf] || ''} onChange={(e) => setTagSectorDates(prev => ({...prev, [s.fields.pf]: e.target.value}))}/>
  </div>
  </div>
@@ -1566,10 +1566,10 @@ export default function VisaoGeralProducaoPage() {
  <div className="p-5 border-t border-slate-200 bg-white rounded-b-2xl shrink-0 flex items-center justify-between">
  <span className="text-xs font-medium text-slate-500">Deixe em branco para limpar a data.</span>
  <div className="flex gap-3">
- {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
- <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
- <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-md text-sm font-bold bg-[#32423D] hover:bg-[#32423D]/80 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Todos os Setores'}
+ {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+ <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-xs font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+ <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-md text-xs font-bold bg-[#32423D] hover:bg-[#32423D]/80 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Salvar Todos os Setores'}
  </button>
  </div>
  </div>
@@ -1586,12 +1586,12 @@ export default function VisaoGeralProducaoPage() {
  <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={20} className="text-indigo-600" /> Planejamento em Lote (Projeto)</h3>
  <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Projeto: {selProj.Projeto} - Descrição: {selProj.DescProjeto}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
+ <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
  </div>
 
  <div className="bg-amber-50 border-b border-amber-200 p-4 shrink-0">
  <p className="text-xs text-amber-800 font-medium leading-relaxed flex items-center gap-2">
- <ShieldAlert size={16} /> Esta ação aplicará as datas nos setores preenchidos para <strong>TODAS as TAGS</strong> deste projeto. Todas as tags serão atualizadas com as novas datas.
+ <ShieldAlert size={14} /> Esta ação aplicará as datas nos setores preenchidos para <strong>TODAS as TAGS</strong> deste projeto. Todas as tags serão atualizadas com as novas datas.
  </p>
  </div>
 
@@ -1605,12 +1605,12 @@ export default function VisaoGeralProducaoPage() {
  <div className="flex flex-col gap-3">
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Inicial</label>
- <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
  value={bulkSectorDates[s.fields.pi] || ''} onChange={(e) => setBulkSectorDates(prev => ({...prev, [s.fields.pi]: e.target.value}))}/>
  </div>
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Final</label>
- <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-colors" 
  value={bulkSectorDates[s.fields.pf] || ''} onChange={(e) => setBulkSectorDates(prev => ({...prev, [s.fields.pf]: e.target.value}))}/>
  </div>
  </div>
@@ -1622,10 +1622,10 @@ export default function VisaoGeralProducaoPage() {
  <div className="p-5 border-t border-slate-200 bg-white rounded-b-2xl shrink-0 flex items-center justify-between">
  <span className="text-xs font-medium text-slate-500">Apenas os setores com data preenchida serão afetados.</span>
  <div className="flex gap-3 items-center">
- {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
- <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
- <button onClick={salvarDatasBulkTags} disabled={isSaving} className="px-6 py-2.5 rounded-md text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
- <CheckCircle size={18}/> Aplicar Planejamento em Lote
+ {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+ <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-xs font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+ <button onClick={salvarDatasBulkTags} disabled={isSaving} className="px-6 py-2.5 rounded-md text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+ <CheckCircle size={15}/> Aplicar Planejamento em Lote
  </button>
  </div>
  </div>
@@ -1639,17 +1639,17 @@ export default function VisaoGeralProducaoPage() {
  <div className="bg-white rounded-md w-full max-w-2xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
  <div>
- <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={18} className="text-indigo-600" /> Planejar Projetista / Engenharia</h3>
+ <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={15} className="text-indigo-600" /> Planejar Projetista / Engenharia</h3>
  <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={18} /></button>
+ <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
  <div className="md:col-span-3">
  <label className="text-xs font-bold text-slate-600 uppercase">Projetista Planejado <span className="text-red-500">*</span></label>
- <select value={planejarProjetistaForm.projetistaPlanejado} onChange={e => setPlanejarProjetistaForm(prev => ({...prev, projetistaPlanejado: e.target.value}))} className="mt-1.5 w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 transition-colors cursor-pointer bg-white">
+ <select value={planejarProjetistaForm.projetistaPlanejado} onChange={e => setPlanejarProjetistaForm(prev => ({...prev, projetistaPlanejado: e.target.value}))} className="mt-1.5 w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 outline-none focus:border-indigo-500 transition-colors cursor-pointer bg-white">
  <option value="">Selecione um Projetista...</option>
  {planejarProjetistaForm.projetistaPlanejado && !usuarios.find(u => u.NomeCompleto === planejarProjetistaForm.projetistaPlanejado) && <option value={planejarProjetistaForm.projetistaPlanejado}>{planejarProjetistaForm.projetistaPlanejado}</option>}
  {usuarios.map(u => <option key={`eng_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
@@ -1657,12 +1657,12 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div className="md:col-span-1 border-t md:border-t-0 md:border-l border-slate-200 md:pl-5 pt-4 md:pt-0">
  <label className="text-[10px] font-bold text-slate-500 uppercase">Início Engenharia (Plan) <span className="text-red-500">*</span></label>
- <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
+ <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
  value={planejarProjetistaForm.planejadoInicioEngenharia} onChange={(e) => setPlanejarProjetistaForm(prev => ({...prev, planejadoInicioEngenharia: e.target.value}))}/>
  </div>
  <div className="md:col-span-1 pt-4 md:pt-0">
  <label className="text-[10px] font-bold text-slate-500 uppercase">Fim Engenharia (Plan) <span className="text-red-500">*</span></label>
- <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
+ <input type="date" className="mt-1 md:mt-2 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none" 
  value={planejarProjetistaForm.planejadoFinalEngenharia} onChange={(e) => setPlanejarProjetistaForm(prev => ({...prev, planejadoFinalEngenharia: e.target.value}))}/>
  </div>
  </div>
@@ -1671,10 +1671,10 @@ export default function VisaoGeralProducaoPage() {
  <div className="p-5 border-t border-slate-200 bg-[#f8fafc] shrink-0 flex items-center justify-between">
  <span className="text-xs font-medium text-slate-500">Todos os campos desta tela são obrigatórios.</span>
  <div className="flex gap-3 items-center">
- {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
- <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
- <button onClick={salvarPlanejamentoProjetista} disabled={isSaving} className="px-6 py-2.5 rounded-md text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Planejamento'}
+ {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+ <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-xs font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+ <button onClick={salvarPlanejamentoProjetista} disabled={isSaving} className="px-6 py-2.5 rounded-md text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Salvar Planejamento'}
  </button>
  </div>
  </div>
@@ -1688,10 +1688,10 @@ export default function VisaoGeralProducaoPage() {
  <div className="bg-white rounded-md w-full max-w-sm max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
  <div>
- <h3 className="font-black text-slate-800 flex items-center gap-2 text-base"><Edit3 size={16} className="text-emerald-600" /> Alterar Qtde Liberada</h3>
+ <h3 className="font-black text-slate-800 flex items-center gap-2 text-base"><Edit3 size={14} className="text-emerald-600" /> Alterar Qtde Liberada</h3>
  <p className="text-[10px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={16} /></button>
+ <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={14} /></button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
@@ -1706,7 +1706,7 @@ export default function VisaoGeralProducaoPage() {
  type="number" 
  min="0" 
  step="any"
- className="mt-1.5 w-full border-2 border-slate-200 rounded-md px-3 py-1.5 text-lg font-black text-emerald-700 focus:border-emerald-500 outline-none transition-colors" 
+ className="mt-1.5 w-full border-2 border-slate-200 rounded-md px-2 py-0.5 text-lg font-black text-emerald-700 focus:border-emerald-500 outline-none transition-colors" 
  value={qtdeLiberadaForm.qtdeLiberada} 
  onChange={(e) => setQtdeLiberadaForm({ qtdeLiberada: e.target.value })}
  />
@@ -1716,11 +1716,11 @@ export default function VisaoGeralProducaoPage() {
  </div>
 
  <div className="p-5 border-t border-slate-200 bg-[#f8fafc] shrink-0">
- {msg && <div className={`px-4 py-2.5 rounded-lg text-xs uppercase font-bold text-center mb-3 ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
+ {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold text-center mb-3 ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
  <div className="flex gap-2 w-full">
- <button onClick={() => setActionModal(null)} className="flex-1 py-3 rounded-md text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
- <button onClick={salvarQtdeLiberada} disabled={isSaving || parseFloat(qtdeLiberadaForm.qtdeLiberada) > parseFloat(selTag.QtdeTag || '0')} className="flex-1 py-3 rounded-md text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/30 flex justify-center items-center gap-2 transition-all disabled:opacity-50">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Salvar Qtde'}
+ <button onClick={() => setActionModal(null)} className="flex-1 py-3 rounded-md text-xs font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+ <button onClick={salvarQtdeLiberada} disabled={isSaving || parseFloat(qtdeLiberadaForm.qtdeLiberada) > parseFloat(selTag.QtdeTag || '0')} className="flex-1 py-3 rounded-md text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/30 flex justify-center items-center gap-2 transition-all disabled:opacity-50">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Salvar Qtde'}
  </button>
  </div>
  </div>
@@ -1740,16 +1740,16 @@ export default function VisaoGeralProducaoPage() {
  <div className="text-[11px] text-slate-600 text-center mb-5 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
  Deseja finalizar <strong>apenas a tag atual</strong> ou finalizar <strong>todas as tags pendentes</strong> deste projeto ({selProj?.Projeto})?
  </div>
- {msg && <div className={`px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
+ {msg && <div className={`px-2 py-1 rounded-lg text-[10px] uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>{msg.t}</div>}
  <div className="flex flex-col gap-2">
- <button onClick={e => { e.preventDefault(); salvarFinalizarTag(false); }} disabled={isSaving} className="w-full text-white font-bold text-sm py-2.5 rounded-lg transition-all shadow-md flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-700">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Finalizar Apenas Esta Tag'}
+ <button onClick={e => { e.preventDefault(); salvarFinalizarTag(false); }} disabled={isSaving} className="w-full text-white font-bold text-xs py-2.5 rounded-lg transition-all shadow-md flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-700">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Finalizar Apenas Esta Tag'}
  </button>
- <button onClick={e => { e.preventDefault(); salvarFinalizarTag(true); }} disabled={isSaving} className="w-full text-indigo-700 font-bold text-sm py-2.5 rounded-lg transition-all flex justify-center items-center gap-2 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 border border-indigo-200">
- {isSaving ? <Loader className="animate-spin" size={16} /> : 'Finalizar Todas as Tags!'}
+ <button onClick={e => { e.preventDefault(); salvarFinalizarTag(true); }} disabled={isSaving} className="w-full text-indigo-700 font-bold text-xs py-2.5 rounded-lg transition-all flex justify-center items-center gap-2 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 border border-indigo-200">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Finalizar Todas as Tags!'}
  </button>
  <div className="w-full h-px bg-slate-200 my-1"></div>
- <button onClick={() => setActionModal(null)} className="w-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 font-bold text-sm py-2.5 rounded-lg transition-colors">Cancelar</button>
+ <button onClick={() => setActionModal(null)} className="w-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 font-bold text-xs py-2.5 rounded-lg transition-colors">Cancelar</button>
  </div>
  </div>
  </div>
@@ -1767,10 +1767,10 @@ export default function VisaoGeralProducaoPage() {
  <div className="text-[11px] text-slate-600 text-center mb-5 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
  {actionModal === 'fin' ? 'Este projeto, tags e OS vinculadas serão marcados como finalizados.' : 'O projeto voltará para a esteira de liberação/produção ativa.'}
  </div>
- {msg && <div className={`px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{msg.t}</div>}
+ {msg && <div className={`px-2 py-1 rounded-lg text-[10px] uppercase font-bold text-center mb-4 ${msg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{msg.t}</div>}
  <div className="flex gap-2">
- <button onClick={() => setActionModal(null)} className="flex-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 font-bold text-sm py-2 rounded-lg transition-colors">Cancelar</button>
- <button onClick={e => { e.preventDefault(); if (actionModal === 'fin') { finProj(`${API_BASE}/visao-geral/projeto/${selProj?.IdProjeto}/finalizar`, true); } else { finProj(`${API_BASE}/visao-geral/projeto/${selProj?.IdProjeto}/cancelar-finalizacao`, false); } }} disabled={isSaving} className={`flex-1 text-white font-bold text-sm py-2 rounded-lg transition-all shadow-md flex justify-center items-center gap-2 ${actionModal === 'fin' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-500 hover:bg-orange-600'} disabled:opacity-50`}>{isSaving ? <Loader className="animate-spin" size={16} /> : 'Confirmar'}</button>
+ <button onClick={() => setActionModal(null)} className="flex-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 font-bold text-xs py-2 rounded-lg transition-colors">Cancelar</button>
+ <button onClick={e => { e.preventDefault(); if (actionModal === 'fin') { finProj(`${API_BASE}/visao-geral/projeto/${selProj?.IdProjeto}/finalizar`, true); } else { finProj(`${API_BASE}/visao-geral/projeto/${selProj?.IdProjeto}/cancelar-finalizacao`, false); } }} disabled={isSaving} className={`flex-1 text-white font-bold text-xs py-2 rounded-lg transition-all shadow-md flex justify-center items-center gap-2 ${actionModal === 'fin' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-500 hover:bg-orange-600'} disabled:opacity-50`}>{isSaving ? <Loader className="animate-spin" size={14} /> : 'Confirmar'}</button>
  </div>
  </div>
  </div>
@@ -1791,7 +1791,7 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div className="flex items-center gap-2">
  {fromGlobal && (
- <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+ <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-2 py-0.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
  &larr; Voltar
  </button>
  )}
@@ -1805,19 +1805,19 @@ export default function VisaoGeralProducaoPage() {
  {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-md z-10 flex items-center justify-center"><Loader className="animate-spin text-red-600" size={28} /></div>}
  
  <div className="flex justify-between items-center mb-3">
- <h4 className="font-bold text-sm text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Pendência #${rncForm.idRnc}` : 'Nova Pendência'}</h4>
+ <h4 className="font-bold text-xs text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Pendência #${rncForm.idRnc}` : 'Nova Pendência'}</h4>
  <div className="flex gap-2 items-center">
  {rncForm.idRnc && rncForm.estatus !== 'FINALIZADO' && !rncForm.wantsToFinalize && (
- <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: true, dataFin: new Date().toISOString().split('T')[0]}))} className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+ <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: true, dataFin: new Date().toISOString().split('T')[0]}))} className="px-2 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
  <CheckCircle size={14}/> Habilitar Finalização
  </button>
  )}
  {rncForm.wantsToFinalize && (
- <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: false}))} className="px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+ <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: false}))} className="px-2 py-0.5 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
  Cancelar Finalização
  </button>
  )}
- <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
+ <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-2 py-0.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
  <button onClick={salvarNovaRnc} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><ShieldAlert size={12}/> Salvar Dados</button>
  </div>
  </div>
@@ -1854,7 +1854,7 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição Detalhada</label>
- <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a pendência..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-red-400 resize-none font-medium" />
+ <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a pendência..." className="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-700 outline-none focus:border-red-400 resize-none font-medium" />
  </div>
 
  {/* BLOCO DE FINALIZAÇÃO */}
@@ -1890,18 +1890,18 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Descrição do Retorno / Resolução</label>
- <textarea disabled={rncForm.estatus === 'FINALIZADO'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
+ <textarea disabled={rncForm.estatus === 'FINALIZADO'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2 py-0.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
  </div>
  </div>
  )}
 
- {msg && <div className={`mt-3 px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
+ {msg && <div className={`mt-3 px-2 py-1 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
  </div>
 
  {/* ÁREA DE GRID (BOTTOM) */}
  <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-white border border-slate-200 rounded-md relative">
  {/* Toggle Filtro */}
- <div className="bg-[#f8fafc] border-b border-slate-200 px-4 py-2 flex justify-between items-center shrink-0">
+ <div className="bg-[#f8fafc] border-b border-slate-200 px-2 py-1 flex justify-between items-center shrink-0">
  <h5 className="text-[10px] font-bold text-slate-500 uppercase">Histórico de Pendências</h5>
  <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500 cursor-pointer hover:text-slate-800 transition-colors">
  <input type="checkbox" checked={showFinalizedRncs} onChange={e => setShowFinalizedRncs(e.target.checked)} className="accent-blue-500" /> Mostrar Finalizadas
@@ -1909,9 +1909,9 @@ export default function VisaoGeralProducaoPage() {
  </div>
 
  {loadRncs ? (
- <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50/50 z-10"><Loader className="animate-spin" size={28} /> <span className="text-sm font-bold">Carregando pendências...</span></div>
+ <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50/50 z-10"><Loader className="animate-spin" size={28} /> <span className="text-xs font-bold">Carregando pendências...</span></div>
  ) : rncs.length === 0 ? (
- <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-medium bg-slate-50">Nenhuma pendência encontrada.</div>
+ <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-medium bg-slate-50">Nenhuma pendência encontrada.</div>
  ) : (
  <div className="flex-1 py-0 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50 [&::-webkit-scrollbar]:h-2 relative bg-white min-h-0">
  <div className="w-max min-w-full pb-2">
@@ -1919,12 +1919,12 @@ export default function VisaoGeralProducaoPage() {
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-white/20">
  <tr>
  
- <th className="px-3 py-2.5">Status</th>
- <th className="px-3 py-2.5">Descrição</th>
- <th className="px-3 py-2.5">Responsável</th>
- <th className="px-3 py-2.5">Tipo Tarefa</th>
- <th className="px-3 py-2.5">Setor</th>
- <th className="px-3 py-2.5 text-right flex-1">Data Cri.</th>
+ <th className="px-2 py-1.5">Status</th>
+ <th className="px-2 py-1.5">Descrição</th>
+ <th className="px-2 py-1.5">Responsável</th>
+ <th className="px-2 py-1.5">Tipo Tarefa</th>
+ <th className="px-2 py-1.5">Setor</th>
+ <th className="px-2 py-1.5 text-right flex-1">Data Cri.</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -1945,13 +1945,13 @@ export default function VisaoGeralProducaoPage() {
  usuarioFin: r.UsuarioResponsavelFinalizacao || '', dataFin: r.DataFinalizacao ? brToIso(r.DataFinalizacao) : '', setorFin: r.SetorResponsavelFinalizacao || 'Corte', descFin: r.DescricaoFinalizacao || '',
  wantsToFinalize: false 
  })} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'FINALIZADO' ? 'opacity-60' : ''}`}>
- <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
- <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{r.Estatus || 'Aberta'}</span></td>
- <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
- <td className="px-3 py-2 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
- <td className="px-3 py-2 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
- <td className="px-3 py-2 font-bold text-slate-600 text-[9px] uppercase"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors"></div>{r.SetorResponsavel}</span></td>
- <td className="px-3 py-2 text-right font-mono text-[9px] text-slate-400">{r.DataCriacao}</td>
+ <td className="px-2 py-1 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
+ <td className="px-2 py-1"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{r.Estatus || 'Aberta'}</span></td>
+ <td className="px-2 py-1 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
+ <td className="px-2 py-1 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
+ <td className="px-2 py-1 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
+ <td className="px-2 py-1 font-bold text-slate-600 text-[9px] uppercase"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors"></div>{r.SetorResponsavel}</span></td>
+ <td className="px-2 py-1 text-right font-mono text-[9px] text-slate-400">{r.DataCriacao}</td>
  </tr>
  )})}
  </tbody>
@@ -1979,7 +1979,7 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div className="flex items-center gap-2">
  {fromGlobal && (
- <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+ <button onClick={() => window.location.href = '/visao-geral-pendencias'} className="px-2 py-0.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
  &larr; Voltar
  </button>
  )}
@@ -1993,19 +1993,19 @@ export default function VisaoGeralProducaoPage() {
  {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-md z-10 flex items-center justify-center"><Loader className="animate-spin text-[#32423D]" size={28} /></div>}
  
  <div className="flex justify-between items-center mb-3">
- <h4 className="font-bold text-sm text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Nova Tarefa'}</h4>
+ <h4 className="font-bold text-xs text-slate-700 flex items-center gap-1.5"><Edit3 size={14}/> {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Nova Tarefa'}</h4>
  <div className="flex gap-2 items-center">
  {rncForm.idRnc && rncForm.estatus !== 'TarefaFinalizada' && !rncForm.wantsToFinalize && (
- <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: true, dataFin: new Date().toISOString().split('T')[0]}))} className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+ <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: true, dataFin: new Date().toISOString().split('T')[0]}))} className="px-2 py-0.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
  <CheckCircle size={14}/> Habilitar Finalização
  </button>
  )}
  {rncForm.wantsToFinalize && (
- <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: false}))} className="px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+ <button onClick={() => setRncForm(p => ({...p, wantsToFinalize: false}))} className="px-2 py-0.5 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
  Cancelar Finalização
  </button>
  )}
- <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
+ <button onClick={() => setRncForm({ idTag: rncForm.idTag, tag: rncForm.tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false })} className="px-2 py-0.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Novo</button>
  <button onClick={salvarNovaTarefa} disabled={!rncForm.descricao.trim()} className="px-4 py-1.5 text-xs font-bold text-white bg-[#32423D] hover:bg-[#32423D]/80 border border-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"><CalendarDays size={12}/> Agendar Tarefa</button>
  </div>
  </div>
@@ -2042,7 +2042,7 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-1">Descrição / Notas da Tarefa</label>
- <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium" />
+ <textarea value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium" />
  </div>
 
  {/* BLOCO DE FINALIZAÇÃO DA TAREFA */}
@@ -2078,22 +2078,22 @@ export default function VisaoGeralProducaoPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Descrição do Retorno / Resolução</label>
- <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
+ <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={1} placeholder="Detalhes de como foi resolvido..." className="w-full border border-emerald-200 bg-emerald-50 rounded-lg px-2 py-0.5 text-xs text-emerald-800 outline-none focus:border-emerald-400 resize-none font-medium disabled:opacity-75" />
  </div>
  </div>
  )}
 
- {msg && <div className={`mt-3 px-3 py-2 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
+ {msg && <div className={`mt-3 px-2 py-1 rounded-lg text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D]' : 'bg-red-100 text-red-800'}`}>{msg.t}</div>}
  </div>
 
  {/* ÁREA DE GRID (BOTTOM) */}
  <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-white border border-slate-200 rounded-md relative">
- <div className="bg-[#f8fafc] border-b border-slate-200 px-4 py-2 flex justify-between items-center shrink-0">
+ <div className="bg-[#f8fafc] border-b border-slate-200 px-2 py-1 flex justify-between items-center shrink-0">
  <h5 className="text-[10px] font-bold text-slate-500 uppercase">Histórico de Tarefas (PCP)</h5>
  <button
  onClick={exportarTarefasPCP}
  disabled={filteredRncs.length === 0 || isExporting}
- className="px-3 py-1.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+ className="px-2 py-0.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
  >
  {isExporting ? <Loader className="animate-spin" size={12} /> : <FileDown size={14} />}
  Emitir Relatório
@@ -2101,9 +2101,9 @@ export default function VisaoGeralProducaoPage() {
  </div>
 
  {loadRncs ? (
- <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50/50 z-10"><Loader className="animate-spin" size={28} /> <span className="text-sm font-bold">Carregando tarefas...</span></div>
+ <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50/50 z-10"><Loader className="animate-spin" size={28} /> <span className="text-xs font-bold">Carregando tarefas...</span></div>
  ) : rncs.length === 0 ? (
- <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-medium bg-slate-50">Nenhuma tarefa encontrada.</div>
+ <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-medium bg-slate-50">Nenhuma tarefa encontrada.</div>
  ) : (
  <div className="flex-1 py-0 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-50 [&::-webkit-scrollbar]:h-2 relative bg-white min-h-0">
  <div className="w-max min-w-full pb-2">
@@ -2111,12 +2111,12 @@ export default function VisaoGeralProducaoPage() {
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-white/20">
  <tr>
  
- <th className="px-3 py-2.5">Status</th>
- <th className="px-3 py-2.5">Descrição</th>
- <th className="px-3 py-2.5">Responsável</th>
- <th className="px-3 py-2.5">Tipo Tarefa</th>
- <th className="px-3 py-2.5">Setor</th>
- <th className="px-3 py-2.5 text-right flex-1">Data Cri.</th>
+ <th className="px-2 py-1.5">Status</th>
+ <th className="px-2 py-1.5">Descrição</th>
+ <th className="px-2 py-1.5">Responsável</th>
+ <th className="px-2 py-1.5">Tipo Tarefa</th>
+ <th className="px-2 py-1.5">Setor</th>
+ <th className="px-2 py-1.5 text-right flex-1">Data Cri.</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -2135,13 +2135,13 @@ export default function VisaoGeralProducaoPage() {
  usuario: mappedUsuario, tipoTarefa: mappedTipoTarefa, dataExec: r.DataCriacao ? brToIso(r.DataCriacao.split(' ')[0]) : '',
  wantsToFinalize: false 
  })} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'} ${r.Estatus === 'TarefaFinalizada' ? 'opacity-60' : ''}`}>
- <td className="px-3 py-2 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
- <td className="px-3 py-2"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-[#E0E800]/30 text-[#32423D] border-blue-100'}`}>{r.Estatus || 'Aberta'}</span></td>
- <td className="px-3 py-2 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
- <td className="px-3 py-2 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
- <td className="px-3 py-2 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
- <td className="px-3 py-2 font-bold text-slate-600 text-[9px] uppercase"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors"></div>{r.SetorResponsavel}</span></td>
- <td className="px-3 py-2 text-right font-mono text-[9px] text-slate-400">{r.DataCriacao}</td>
+ <td className="px-2 py-1 font-mono font-bold text-slate-600 text-[10px]">#{r.IdRnc}</td>
+ <td className="px-2 py-1"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-[#E0E800]/30 text-[#32423D] border-blue-100'}`}>{r.Estatus || 'Aberta'}</span></td>
+ <td className="px-2 py-1 max-w-[200px] truncate font-medium text-slate-700" title={r.DescricaoPendencia}>{r.DescricaoPendencia}</td>
+ <td className="px-2 py-1 truncate max-w-[120px] text-slate-600">{r.UsuarioResponsavel || '—'}</td>
+ <td className="px-2 py-1 truncate max-w-[120px] text-slate-600 font-medium">{r.TipoTarefa || '—'}</td>
+ <td className="px-2 py-1 font-bold text-slate-600 text-[9px] uppercase"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors"></div>{r.SetorResponsavel}</span></td>
+ <td className="px-2 py-1 text-right font-mono text-[9px] text-slate-400">{r.DataCriacao}</td>
  </tr>
  )})}
  </tbody>
@@ -2159,14 +2159,14 @@ export default function VisaoGeralProducaoPage() {
  <div className="fixed inset-0 z-[60] flex justify-end bg-slate-900/40 ">
  <div className="absolute inset-0" onClick={() => { setRncPanel(false); if (showDetailsModal) setShowDetailsModal(true); }} />
  <div className="w-[450px] max-w-full bg-slate-50 relative flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
- <div className="bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 shadow-sm"><div className="flex flex-col"><div className="flex items-center gap-2 font-black text-red-600 text-base"><ShieldAlert size={18} /> Ocorrências (RNC)</div><div className="text-[10px] font-bold text-slate-500 mt-0.5 truncate max-w-[300px]">{selProj.Projeto}</div></div><button className="bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md text-slate-600 transition-colors" onClick={() => { setRncPanel(false); }}><X size={16} /></button></div>
+ <div className="bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 shadow-sm"><div className="flex flex-col"><div className="flex items-center gap-2 font-black text-red-600 text-base"><ShieldAlert size={15} /> Ocorrências (RNC)</div><div className="text-[10px] font-bold text-slate-500 mt-0.5 truncate max-w-[300px]">{selProj.Projeto}</div></div><button className="bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md text-slate-600 transition-colors" onClick={() => { setRncPanel(false); }}><X size={14} /></button></div>
  <div className="flex-1 overflow-auto p-4 md:p-5">
- {loadRncs ? <div className="flex items-center justify-center flex-col gap-2 text-slate-400 mt-20"><Loader className="animate-spin" size={24} /><span className="text-xs font-bold">Buscando pendências...</span></div> : rncs.length === 0 ? <div className="text-center text-slate-400 mt-20 text-sm font-medium">Nenhuma RNC identificada para este projeto.</div> : (
+ {loadRncs ? <div className="flex items-center justify-center flex-col gap-2 text-slate-400 mt-20"><Loader className="animate-spin" size={24} /><span className="text-xs font-bold">Buscando pendências...</span></div> : rncs.length === 0 ? <div className="text-center text-slate-400 mt-20 text-xs font-medium">Nenhuma RNC identificada para este projeto.</div> : (
  <div className="space-y-3">
  {rncs.map(r => (
  <div key={r.IdRnc} className={`bg-white p-4 rounded-md border-l-4 shadow-sm ${r.Estatus?.toLowerCase().includes('fin') ? 'border-emerald-500' : 'border-red-500'}`}>
  <div className="flex justify-between items-start mb-2">
- <div className="font-bold text-slate-800 text-sm flex items-center gap-1.5">#{r.IdRnc} <span className="bg-slate-100 text-slate-500 text-[9px] px-1.5 py-0.5 rounded font-mono border border-slate-200">{r.Tag}</span></div>
+ <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">#{r.IdRnc} <span className="bg-slate-100 text-slate-500 text-[9px] px-1.5 py-0.5 rounded font-mono border border-slate-200">{r.Tag}</span></div>
  <span className={`text-[9px] font-black px-2 py-0.5 rounded border ${r.Estatus?.toLowerCase().includes('fin') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>{r.Estatus || 'Aberta'}</span>
  </div>
  <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded border border-slate-100 mb-2 leading-relaxed">{r.DescricaoPendencia || r.DescResumo}</div>
@@ -2198,21 +2198,21 @@ export default function VisaoGeralProducaoPage() {
  {loadOsDetails ? (
  <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10"><Loader className="animate-spin text-[#32423D]" /></div>
  ) : osDetailsModal.osList.length === 0 ? (
- <div className="py-8 text-center text-slate-500 text-sm font-medium bg-slate-50 rounded-md border border-slate-100">Nenhuma ordem de serviço vinculada.</div>
+ <div className="py-8 text-center text-slate-500 text-xs font-medium bg-slate-50 rounded-md border border-slate-100">Nenhuma ordem de serviço vinculada.</div>
  ) : (
  <div className="border border-slate-200 rounded-md overflow-hidden">
- <table className="w-full text-left text-sm">
+ <table className="w-full text-left text-xs">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] border-b border-white/20 text-white text-[10px] font-bold uppercase">
  <tr>
- <th className="px-3 py-2 border-r border-white/20">ID da O.S</th>
- <th className="px-3 py-2">Descrição</th>
+ <th className="px-2 py-1 border-r border-white/20">ID da O.S</th>
+ <th className="px-2 py-1">Descrição</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {osDetailsModal.osList.map((os, i) => (
  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
- <td className="px-3 py-2 font-mono text-xs font-bold text-slate-700 border-r border-slate-100 w-24">#{String(os.IdOrdemServico).padStart(5, '0')}</td>
- <td className="px-3 py-2 text-xs text-slate-600 font-medium">{os.Descricao || '-'}</td>
+ <td className="px-2 py-1 font-mono text-xs font-bold text-slate-700 border-r border-slate-100 w-24">#{String(os.IdOrdemServico).padStart(5, '0')}</td>
+ <td className="px-2 py-1 text-xs text-slate-600 font-medium">{os.Descricao || '-'}</td>
  </tr>
  ))}
  </tbody>
@@ -2221,7 +2221,7 @@ export default function VisaoGeralProducaoPage() {
  )}
  </div>
  <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
- <button onClick={() => setOsDetailsModal(null)} className="px-4 py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg text-xs font-bold transition-colors">
+ <button onClick={() => setOsDetailsModal(null)} className="px-2 py-1 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg text-xs font-bold transition-colors">
  Voltar
  </button>
  </div>

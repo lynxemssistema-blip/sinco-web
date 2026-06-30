@@ -319,7 +319,7 @@ export default function ProjetoPage() {
  };
 
 
- const inputBaseClass = "w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
+ const inputBaseClass = "w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
  const inputRequired = `${inputBaseClass} border-gray-300 bg-amber-50/30`;
  const inputOptional = `${inputBaseClass} border-gray-200`;
  const selectClass = `${inputOptional} appearance-none bg-white`;
@@ -346,7 +346,7 @@ export default function ProjetoPage() {
  const handleProjetoInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
  const target = e.target;
  const name = target.name;
- let value = target.value;
+ let value = name.toLowerCase().includes('desc') ? target.value.toUpperCase() : target.value;
  const type = target.type;
 
  // Forçar caixa alta em todos os campos de texto/textarea
@@ -609,7 +609,7 @@ export default function ProjetoPage() {
  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
  const target = e.target;
  const name = target.name;
- let value = target.value;
+ let value = name.toLowerCase().includes('desc') ? target.value.toUpperCase() : target.value;
  const type = target.type;
 
  if (type === 'text' || target.tagName === 'TEXTAREA') {
@@ -732,7 +732,7 @@ export default function ProjetoPage() {
  <motion.div
  initial={{ opacity: 0, y: -10 }}
  animate={{ opacity: 1, y: 0 }}
- className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+ className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
  >
  {error}
  </motion.div>
@@ -755,12 +755,12 @@ export default function ProjetoPage() {
  }[confirmModal.status ?? 'CA'] ?? { bg: 'bg-gray-50 border-gray-100', icon: 'bg-gray-100 text-gray-600', Icon: Pause, label: 'Confirmar', btnCls: 'bg-gray-600' };
  return (
  <>
- <div className={`px-4 py-2 flex items-center gap-3 border-b ${cfg.bg}`}>
+ <div className={`px-2 py-1 flex items-center gap-3 border-b ${cfg.bg}`}>
  <div className={`w-10 h-10 rounded-md flex items-center justify-center ${cfg.icon}`}>
  <cfg.Icon size={20} />
  </div>
  <div>
- <h3 className="font-bold text-gray-800 text-sm">{cfg.label}</h3>
+ <h3 className="font-bold text-gray-800 text-xs">{cfg.label}</h3>
  <p className="text-xs text-gray-500">Esta ação afetará toda a cadeia do projeto</p>
  </div>
  </div>
@@ -768,11 +768,11 @@ export default function ProjetoPage() {
  {/* Body */}
  <div className="px-6 py-5">
  <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
- <p className="text-sm text-amber-800 font-medium leading-relaxed">
+ <p className="text-xs text-amber-800 font-medium leading-relaxed">
  {confirmModal.message}
  </p>
  </div>
- <p className="text-sm text-gray-600 leading-relaxed">Os seguintes registros também serão atualizados:</p>
+ <p className="text-xs text-gray-600 leading-relaxed">Os seguintes registros também serão atualizados:</p>
  <ul className="mt-2 space-y-1">
  <li className="text-xs text-gray-500 flex items-center gap-1.5">
  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
@@ -795,7 +795,7 @@ export default function ProjetoPage() {
  onChange={e => setConfirmUsuario(e.target.value)}
  onKeyDown={e => e.key === 'Enter' && confirmUsuario.trim() && handleConfirmarStatusModal()}
  placeholder="Digite seu nome completo..."
- className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 border-gray-200 focus:border-amber-400 focus:ring-amber-100"
+ className="w-full px-2 py-1 text-xs border rounded-lg focus:outline-none focus:ring-2 border-gray-200 focus:border-amber-400 focus:ring-amber-100"
  autoFocus
  />
  </div>
@@ -805,14 +805,14 @@ export default function ProjetoPage() {
  <div className="px-6 pb-5 flex justify-end gap-3">
  <button
  onClick={() => { setConfirmModal({ open: false, projetoId: null, status: null, message: '', requiresConfirmation: false }); setConfirmUsuario(''); }}
- className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
+ className="px-2 py-1 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 transition-colors"
  >
  Cancelar
  </button>
  <button
  onClick={handleConfirmarStatusModal}
  disabled={!confirmUsuario.trim()}
- className={`px-5 py-2 rounded-lg text-white text-sm font-bold transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${cfg.btnCls}`}
+ className={`px-5 py-2 rounded-lg text-white text-xs font-bold transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${cfg.btnCls}`}
  >
  ✓ Confirmar — {cfg.label}
  </button>
@@ -829,7 +829,7 @@ export default function ProjetoPage() {
  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
  <div>
  
- <p className="text-gray-500 text-sm">Clique em um projeto para expandir e ver suas tags</p>
+ <p className="text-gray-500 text-xs">Clique em um projeto para expandir e ver suas tags</p>
  </div>
  <div className="flex gap-2">
 
@@ -837,9 +837,9 @@ export default function ProjetoPage() {
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={() => { resetProjetoForm(); setShowProjetoForm(true); }}
- className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
+ className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
  >
- <Plus size={18} />
+ <Plus size={15} />
  Novo Projeto
  </motion.button>
  </div>
@@ -847,7 +847,7 @@ export default function ProjetoPage() {
 
  {/* Search Filters Section */}
  <div className="bg-white rounded-md shadow-sm border border-gray-100 mb-2 shrink-0">
- <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100">
+ <div className="flex justify-between items-center px-2 py-1 border-b border-gray-100">
  <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2 m-0">
  <Search size={12} /> Dados para Pesquisa
  </h3>
@@ -992,7 +992,7 @@ export default function ProjetoPage() {
  setSearchFilters(emptyFilters);
  fetchProjetos(emptyFilters);
  }}
- className="px-3 py-1.5 text-gray-500 font-semibold text-xs tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5"
+ className="px-2 py-0.5 text-gray-500 font-semibold text-xs tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5"
  >
  <X size={13} />
  Limpar
@@ -1015,7 +1015,7 @@ export default function ProjetoPage() {
  {loading ? (
  <div className="divide-y divide-gray-100">
  {Array.from({ length: 8 }).map((_, i) => (
- <div key={i} className="flex items-center gap-3 px-3 py-1.5 animate-pulse">
+ <div key={i} className="flex items-center gap-3 px-2 py-0.5 animate-pulse">
  <div className="w-6 h-6 rounded bg-gray-100" />
  <div className="w-9 h-9 rounded-lg bg-gray-100" />
  <div className="flex-1 min-w-0 space-y-1.5">
@@ -1032,12 +1032,12 @@ export default function ProjetoPage() {
  ) : filteredProjetos.length === 0 ? (
  <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
  <FolderKanban size={40} strokeWidth={1.5} />
- <p className="text-sm">Nenhum projeto encontrado</p>
+ <p className="text-xs">Nenhum projeto encontrado</p>
  </div>
  ) : (
  <div className="flex flex-col h-full min-h-0">
  {/* Headers */}
- <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2a3830] bg-[#32423D] text-[10px] font-bold text-white uppercase tracking-wider sticky top-0 z-10">
+ <div className="flex items-center gap-2 px-2 py-1 border-b border-[#2a3830] bg-[#32423D] text-[10px] font-bold text-white uppercase tracking-wider sticky top-0 z-10">
  <div className="flex-1 min-w-0 max-w-[360px] flex items-center gap-2">
  Projeto / Cliente
  <span className="ml-1 text-[9px] font-normal text-white/50 normal-case tracking-normal">
@@ -1066,14 +1066,14 @@ export default function ProjetoPage() {
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  transition={{ duration: 0.15 }}
- className={`flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-[#E0E800]/5' : ''}`}
+ className={`flex items-center gap-2 px-2 py-0.5 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-[#E0E800]/5' : ''}`}
  onClick={() => projeto.IdProjeto && toggleProject(projeto.IdProjeto)}
  >
  {/* Project Info */}
  <div className="flex-1 min-w-0 max-w-[360px]">
  <div className="flex items-center gap-1.5 overflow-hidden">
  <span className="text-xs text-gray-400 font-mono shrink-0">{projeto.IdProjeto}</span>
- <span className="text-sm font-medium text-gray-900 truncate">{projeto.Projeto}</span>
+ <span className="text-xs font-medium text-gray-900 truncate">{projeto.Projeto}</span>
  <span className="text-xs text-gray-500 truncate ml-1 border-l border-gray-200 pl-1.5">
  {(projeto.DescEmpresa && !projeto.DescEmpresa.toLowerCase().includes('sem cliente') && projeto.DescEmpresa !== 'SEM CLIENTE DEFINIDO') ? projeto.DescEmpresa : (projeto.ClienteProjeto || 'Sem cliente')}
  </span>
@@ -1117,7 +1117,7 @@ export default function ProjetoPage() {
  <div className="flex items-center justify-end w-[280px] shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>
  <button
  onClick={() => !isDisabledStatus && projeto.IdProjeto && handleOpenFolder(projeto.IdProjeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed' : 'text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/10'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed' : 'text-[#32423D] hover:bg-[#E0E800]/10'}`}
  title="Abrir Pasta Projeto"
  disabled={isDisabledStatus}
  >
@@ -1126,7 +1126,7 @@ export default function ProjetoPage() {
  {(!projeto.liberado || projeto.liberado.trim() === '') ? (
  <button
  onClick={() => !isDisabledStatus && projeto.IdProjeto && handleLiberar(projeto.IdProjeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-gray-400 hover:text-green-600 hover:bg-green-50'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-green-600 hover:bg-green-50'}`}
  title="Liberar Projeto"
  disabled={isDisabledStatus}
  >
@@ -1135,7 +1135,7 @@ export default function ProjetoPage() {
  ) : (
  <button
  onClick={() => !isDisabledStatus && projeto.IdProjeto && handleCancelarLiberacao(projeto.IdProjeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus || Number(projeto.temApontamento) > 0 ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-gray-400 hover:text-orange-600 hover:bg-orange-50'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus || Number(projeto.temApontamento) > 0 ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-orange-600 hover:bg-orange-50'}`}
  title={Number(projeto.temApontamento) > 0 ? 'Não é possível cancelar: projeto possui apontamentos de produção' : 'Cancelar Liberação'}
  disabled={isDisabledStatus || Number(projeto.temApontamento) > 0}
  >
@@ -1147,7 +1147,7 @@ export default function ProjetoPage() {
  {isPausedOrCanceled && (
  <button
  onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'AT')}
- className="p-1.5 rounded-md text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+ className="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 transition-colors"
  title="Reativar Projeto (Ativo)"
  >
  <Play size={14} />
@@ -1157,7 +1157,7 @@ export default function ProjetoPage() {
  {!isDisabledStatus && (
  <button
  onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'PA')}
- className="p-1.5 rounded-md text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 transition-colors"
+ className="p-1.5 rounded-md text-yellow-600 hover:bg-yellow-50 transition-colors"
  title="Parar Projeto"
  >
  <Pause size={14} />
@@ -1167,7 +1167,7 @@ export default function ProjetoPage() {
  {!isDisabledStatus && (
  <button
  onClick={() => projeto.IdProjeto && handleAlterarStatus(projeto.IdProjeto, 'CA')}
- className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+ className="p-1.5 rounded-md text-red-600 hover:bg-red-50 transition-colors"
  title="Cancelar Projeto"
  >
  <Ban size={14} />
@@ -1176,7 +1176,7 @@ export default function ProjetoPage() {
  <div className="w-px h-3 bg-gray-200 mx-0.5"></div>
  <button
  onClick={() => !isDisabledStatus && openTagForm(projeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-[#32423D] hover:bg-[#E0E800]/20'}`}
  title="Nova Tag"
  disabled={isDisabledStatus}
  >
@@ -1184,7 +1184,7 @@ export default function ProjetoPage() {
  </button>
  <button
  onClick={() => !isDisabledStatus && projeto.IdProjeto && handleProjetoEdit(projeto.IdProjeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-[#32423D] hover:bg-[#E0E800]/20'}`}
  title="Editar Projeto"
  disabled={isDisabledStatus}
  >
@@ -1192,7 +1192,7 @@ export default function ProjetoPage() {
  </button>
  <button
  onClick={() => !isDisabledStatus && projeto.IdProjeto && handleProjetoDelete(projeto.IdProjeto)}
- className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+ className={`p-1.5 rounded-md transition-colors ${isDisabledStatus ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-red-500 hover:bg-red-50'}`}
  title="Excluir Projeto"
  disabled={isDisabledStatus}
  >
@@ -1212,12 +1212,12 @@ export default function ProjetoPage() {
  className="overflow-hidden bg-gray-50/50"
  >
  {isLoadingTags ? (
- <div className="pl-16 py-4 text-sm text-gray-400 flex items-center gap-2">
+ <div className="pl-16 py-4 text-xs text-gray-400 flex items-center gap-2">
  <Loader2 size={14} className="animate-spin" />
  Carregando tags...
  </div>
  ) : tags.length === 0 ? (
- <div className="pl-16 py-4 text-sm text-gray-400 flex items-center gap-2">
+ <div className="pl-16 py-4 text-xs text-gray-400 flex items-center gap-2">
  <TagIcon size={14} />
  Nenhuma tag cadastrada
  <button
@@ -1260,27 +1260,27 @@ export default function ProjetoPage() {
  </div>
 
  <span className="shrink-0 text-xs text-gray-400 font-mono" style={{width:'40px'}}>{tag.IdTag}</span>
- <span className="flex-1 min-w-0 text-sm font-medium text-gray-800 truncate">{tag.Tag}</span>
+ <span className="flex-1 min-w-0 text-xs font-medium text-gray-800 truncate">{tag.Tag}</span>
  <span className="hidden sm:block shrink-0 text-xs text-gray-500 truncate text-center" style={{width:'96px'}}>
  {formatToBRDate(tag.DataPrevisao)}
  </span>
  <span className="hidden sm:block shrink-0 text-xs text-gray-500 truncate" style={{width:'128px'}}>{tag.TipoProduto || '-'}</span>
- <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeTag || '-'}</span>
- <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeLiberada || '-'}</span>
- <span className="shrink-0 text-sm text-gray-600 text-center" style={{width:'64px'}}>{tag.SaldoTag || '-'}</span>
+ <span className="shrink-0 text-xs text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeTag || '-'}</span>
+ <span className="shrink-0 text-xs text-gray-600 text-center" style={{width:'64px'}}>{tag.QtdeLiberada || '-'}</span>
+ <span className="shrink-0 text-xs text-gray-600 text-center" style={{width:'64px'}}>{tag.SaldoTag || '-'}</span>
 
  {/* Tag Actions */}
  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
  <button
  onClick={() => handleTagEdit(tag, projeto)}
- className="p-1.5 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+ className="p-1.5 rounded-lg text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
  title="Editar Tag"
  >
  <Edit2 size={14} />
  </button>
  <button
  onClick={() => tag.IdTag && projeto.IdProjeto && handleTagDelete(tag.IdTag, projeto.IdProjeto)}
- className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+ className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
  title="Excluir Tag"
  >
  <Trash2 size={14} />
@@ -1303,7 +1303,7 @@ export default function ProjetoPage() {
 
  {/* Footer — Paginação / Carregar mais */}
  {!loading && filteredProjetos.length > 0 && (
- <div className="px-3 py-1.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+ <div className="px-2 py-0.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
  <p className="text-xs text-gray-500">
  <span className="font-medium">{projetos.length}</span> de{" "}
  <span className="font-medium">{totalCount}</span> projetos
@@ -1361,30 +1361,30 @@ export default function ProjetoPage() {
  </div>
 
  <div className="flex items-center gap-2">
- <button type="button" onClick={() => resetProjetoForm()} className="px-4 py-2 bg-white border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 shadow-sm rounded">
- <Plus size={16} /> Novo
+ <button type="button" onClick={() => resetProjetoForm()} className="px-2 py-1 bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 shadow-sm rounded">
+ <Plus size={14} /> Novo
  </button>
- <button type="submit" disabled={saving} className="px-4 py-2 bg-[#32423D] text-white text-sm font-semibold hover:bg-[#3d4f49] transition-colors flex items-center gap-2 disabled:opacity-50 shadow-sm rounded">
- {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+ <button type="submit" disabled={saving} className="px-2 py-1 bg-[#32423D] text-white text-xs font-semibold hover:bg-[#3d4f49] transition-colors flex items-center gap-2 disabled:opacity-50 shadow-sm rounded">
+ {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
  Salvar
  </button>
  {isEditingProjeto && projetoFormData.liberado === 'S' && (
  <button type="button" onClick={() => projetoFormData.IdProjeto && handleCancelarLiberacao(projetoFormData.IdProjeto)} 
  disabled={Number(projetoFormData.temApontamento) > 0}
- className={`px-4 py-2 border text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm rounded ${Number(projetoFormData.temApontamento) > 0 ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed' : 'border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100'}`}
+ className={`px-2 py-1 border text-xs font-semibold transition-colors flex items-center gap-2 shadow-sm rounded ${Number(projetoFormData.temApontamento) > 0 ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed' : 'border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100'}`}
  title={Number(projetoFormData.temApontamento) > 0 ? 'Não é possível cancelar: projeto possui apontamentos de produção' : 'Cancelar Liberação'}
  >
- <RotateCcw size={16} /> Cancelar Liberação
+ <RotateCcw size={14} /> Cancelar Liberação
  </button>
  )}
  {isEditingProjeto && (
- <button type="button" onClick={() => { setShowProjetoForm(false); setIsEditingTag(false); openTagForm(projetoFormData); }} className="px-4 py-2 border border-[#32423D]/20 text-[#32423D] bg-[#E0E800]/20 text-sm font-semibold hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2 shadow-sm rounded">
- <TagIcon size={16} /> Inserir Tag
+ <button type="button" onClick={() => { setShowProjetoForm(false); setIsEditingTag(false); openTagForm(projetoFormData); }} className="px-2 py-1 border border-[#32423D]/20 text-[#32423D] bg-[#E0E800]/20 text-xs font-semibold hover:bg-[#E0E800]/40 transition-colors flex items-center gap-2 shadow-sm rounded">
+ <TagIcon size={14} /> Inserir Tag
  </button>
  )}
  <div className="w-px h-6 bg-gray-200 mx-1"></div>
- <button type="button" onClick={resetProjetoForm} className="px-4 py-2 bg-white border border-gray-200 text-sm font-semibold text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors flex items-center gap-2 shadow-sm rounded">
- Fechar <X size={16} />
+ <button type="button" onClick={resetProjetoForm} className="px-2 py-1 bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors flex items-center gap-2 shadow-sm rounded">
+ Fechar <X size={14} />
  </button>
  </div>
  </div>
@@ -1432,11 +1432,11 @@ export default function ProjetoPage() {
  
  <div className={isEditingProjeto ? "md:col-span-5" : "md:col-span-6"}>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Nome Projeto <span className="text-red-500">*</span></label>
- <input type="text" name="Projeto" value={projetoFormData.Projeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" required />
+ <input type="text" name="Projeto" value={projetoFormData.Projeto || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" required />
  </div>
  <div className="md:col-span-6">
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Descrição Projeto</label>
- <textarea name="DescProjeto" value={projetoFormData.DescProjeto || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded shadow-sm" />
+ <textarea name="DescProjeto" value={projetoFormData.DescProjeto || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] resize-none rounded shadow-sm" />
  </div>
  </div>
  </div>
@@ -1449,18 +1449,18 @@ export default function ProjetoPage() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="md:col-span-1">
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Cliente</label>
- <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded shadow-sm">
+ <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] appearance-none rounded shadow-sm">
  <option value="">Selecione...</option>
  {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
  </select>
  </div>
  <div>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">CNPJ</label>
- <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} placeholder="00.000.000/0000-00" className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+ <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} placeholder="00.000.000/0000-00" className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
  </div>
  <div className="md:col-span-2">
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Responsável Técnico</label>
- <input type="text" name="Responsavel" value={projetoFormData.Responsavel || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+ <input type="text" name="Responsavel" value={projetoFormData.Responsavel || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
  </div>
  </div>
  </div>
@@ -1473,19 +1473,19 @@ export default function ProjetoPage() {
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  <div>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Entrada Pedido</label>
- <input type="date" name="DataEntradaPedido" value={projetoFormData.DataEntradaPedido || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+ <input type="date" name="DataEntradaPedido" value={projetoFormData.DataEntradaPedido || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
  </div>
  <div>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Planejado Financeiro</label>
- <input type="date" name="PlanejadoFinanceiro" value={projetoFormData.PlanejadoFinanceiro || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+ <input type="date" name="PlanejadoFinanceiro" value={projetoFormData.PlanejadoFinanceiro || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
  </div>
  <div>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Data Prev. Entrega</label>
- <input type="date" name="DataPrevisao" value={projetoFormData.DataPrevisao || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
+ <input type="date" name="DataPrevisao" value={projetoFormData.DataPrevisao || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm" />
  </div>
  <div>
  <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-700 mb-1">Dias (Prazo)</label>
- <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 bg-white border border-gray-300 text-sm focus:outline-none focus:border-[#32423D] rounded shadow-sm font-semibold text-[#32423D]" />
+ <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 bg-white border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] rounded shadow-sm font-semibold text-[#32423D]" />
  </div>
  </div>
  </div>
@@ -1500,27 +1500,27 @@ export default function ProjetoPage() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="md:col-span-2">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Cliente</label>
- <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
+ <select name="ClienteProjeto" value={projetoFormData.ClienteProjeto || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
  <option value="">Selecione...</option>
  {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
  </select>
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Nome Fantasia</label>
- <input type="text" name="NomeFantasia" value={projetoFormData.NomeFantasia || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="NomeFantasia" value={projetoFormData.NomeFantasia || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div></div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">CNPJ</label>
- <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" placeholder="__.___.___/____-__" />
+ <input type="text" name="Cnpj" value={projetoFormData.Cnpj || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" placeholder="__.___.___/____-__" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">IE (Insc. Estadual)</label>
- <input type="text" name="InscEst" value={projetoFormData.InscEst || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="InscEst" value={projetoFormData.InscEst || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div className="md:col-span-2">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Endereço</label>
- <textarea name="EnderecoCliente" value={projetoFormData.EnderecoCliente || ''} onChange={handleProjetoInputChange} rows={3} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" placeholder="Endereço, Número, Bairro, Cidade, Estado, CEP, Telefone" />
+ <textarea name="EnderecoCliente" value={projetoFormData.EnderecoCliente || ''} onChange={handleProjetoInputChange} rows={3} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] resize-none rounded-none" placeholder="Endereço, Número, Bairro, Cidade, Estado, CEP, Telefone" />
  </div>
  </div>
  </div>
@@ -1530,15 +1530,15 @@ export default function ProjetoPage() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
  <div className="md:col-span-3">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Nome</label>
- <input type="text" name="ContatoComercial" value={projetoFormData.ContatoComercial || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="ContatoComercial" value={projetoFormData.ContatoComercial || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Telefone</label>
- <input type="text" name="FoneContatoComercial" value={projetoFormData.FoneContatoComercial || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="FoneContatoComercial" value={projetoFormData.FoneContatoComercial || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div className="md:col-span-2">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
- <input type="text" name="EmailComercial" value={projetoFormData.EmailComercial || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="EmailComercial" value={projetoFormData.EmailComercial || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  </div>
  </div>
@@ -1548,15 +1548,15 @@ export default function ProjetoPage() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
  <div className="md:col-span-3">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Nome</label>
- <input type="text" name="ContatoTecnico" value={projetoFormData.ContatoTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="ContatoTecnico" value={projetoFormData.ContatoTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Telefone</label>
- <input type="text" name="FoneContatoTecnico" value={projetoFormData.FoneContatoTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="FoneContatoTecnico" value={projetoFormData.FoneContatoTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div className="md:col-span-2">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
- <input type="text" name="EmailTecnico" value={projetoFormData.EmailTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="EmailTecnico" value={projetoFormData.EmailTecnico || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  </div>
  </div>
@@ -1569,64 +1569,64 @@ export default function ProjetoPage() {
  <h4 className="text-[10px] uppercase tracking-widest font-bold text-gray-500 flex items-center gap-1"><Truck size={12} />Entrega</h4>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Cliente Entrega</label>
- <select name="ClienteEntrega" value={projetoFormData.ClienteEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
+ <select name="ClienteEntrega" value={projetoFormData.ClienteEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
  <option value="">Selecione...</option>
  {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
  </select>
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">CNPJ</label>
- <input type="text" name="CnpjEntrega" value={projetoFormData.CnpjEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="CnpjEntrega" value={projetoFormData.CnpjEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div className="grid grid-cols-2 gap-2">
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Contato</label>
- <input type="text" name="ContatoEntrega" value={projetoFormData.ContatoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="ContatoEntrega" value={projetoFormData.ContatoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Telefone</label>
- <input type="text" name="TelefoneEntrega" value={projetoFormData.TelefoneEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="TelefoneEntrega" value={projetoFormData.TelefoneEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Hr/Entrega</label>
- <input type="text" name="HrEntrega" value={projetoFormData.HrEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="HrEntrega" value={projetoFormData.HrEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Endereço</label>
- <textarea name="EnderecoEntrega" value={projetoFormData.EnderecoEntrega || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
+ <textarea name="EnderecoEntrega" value={projetoFormData.EnderecoEntrega || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
  </div>
  </div>
  <div className="p-4 border border-gray-200 bg-gray-50/50 space-y-3">
  <h4 className="text-[10px] uppercase tracking-widest font-bold text-gray-500 flex items-center gap-1"><Banknote size={12} />Cobrança</h4>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Cliente Cobrança</label>
- <select name="ClienteCobranca" value={projetoFormData.ClienteCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
+ <select name="ClienteCobranca" value={projetoFormData.ClienteCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] appearance-none rounded-none">
  <option value="">Selecione...</option>
  {clienteOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
  </select>
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">CNPJ</label>
- <input type="text" name="CnpjCobranca" value={projetoFormData.CnpjCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="CnpjCobranca" value={projetoFormData.CnpjCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div className="grid grid-cols-2 gap-2">
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Contato</label>
- <input type="text" name="ContatoCobranca" value={projetoFormData.ContatoCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="ContatoCobranca" value={projetoFormData.ContatoCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Telefone</label>
- <input type="text" name="TelefoneCobranca" value={projetoFormData.TelefoneCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="TelefoneCobranca" value={projetoFormData.TelefoneCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
- <input type="text" name="EmailCobranca" value={projetoFormData.EmailCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="EmailCobranca" value={projetoFormData.EmailCobranca || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Endereço</label>
- <textarea name="EnderecoCobranca" value={projetoFormData.EnderecoCobranca || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
+ <textarea name="EnderecoCobranca" value={projetoFormData.EnderecoCobranca || ''} onChange={handleProjetoInputChange} rows={2} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
  </div>
  </div>
  </div>
@@ -1639,15 +1639,15 @@ export default function ProjetoPage() {
  <div className="flex items-center gap-3">
  <div className="w-32 shrink-0">
  <label className="block text-xs font-semibold text-gray-600 mb-1">Prazo Entrega</label>
- <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name="PrazoEntrega" value={projetoFormData.PrazoEntrega || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  <span className="text-xs text-gray-500 mt-5">Dias</span>
  </div>
- <fieldset className="border border-gray-200 px-3 py-2">
+ <fieldset className="border border-gray-200 px-2 py-1">
  <legend className="text-[10px] uppercase font-bold text-gray-500 px-1">Forma de Pagto</legend>
  <div className="flex gap-5 mt-1">
  {['Antecipado', 'Parcelado'].map(v => (
- <label key={v} className="flex items-center gap-1.5 text-sm cursor-pointer">
+ <label key={v} className="flex items-center gap-1.5 text-xs cursor-pointer">
  <input type="radio" name="Pagamento" value={v} checked={(projetoFormData.Pagamento || '').trim().toLowerCase() === v.toLowerCase()} onChange={handleProjetoInputChange} className="accent-[#32423D]" />{v}
  </label>
  ))}
@@ -1658,7 +1658,7 @@ export default function ProjetoPage() {
  {/* Observação */}
  <div>
  <label className="block text-xs font-semibold text-gray-600 mb-1">Observação</label>
- <textarea name="ObservacaoFornec" value={projetoFormData.ObservacaoFornec || ''} onChange={handleProjetoInputChange} rows={3} className="w-full px-3 py-2 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
+ <textarea name="ObservacaoFornec" value={projetoFormData.ObservacaoFornec || ''} onChange={handleProjetoInputChange} rows={3} className="w-full px-2 py-1 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] resize-none rounded-none" />
  </div>
  {/* Payment values grid + Valor Total */}
  <div className="flex gap-4 items-start">
@@ -1673,43 +1673,43 @@ export default function ProjetoPage() {
  ].map(([n, l]) => (
  <div key={n} className="flex items-center gap-2">
  <label className="w-24 text-xs font-semibold text-gray-600 shrink-0">{l}</label>
- <input type="text" name={n} value={(projetoFormData[n as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1.5 border border-gray-200 text-sm focus:outline-none focus:border-[#32423D] rounded-none" />
+ <input type="text" name={n} value={(projetoFormData[n as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1.5 border border-gray-200 text-xs focus:outline-none focus:border-[#32423D] rounded-none" />
  </div>
  ))}
  </div>
  <div className="w-40 shrink-0">
  <label className="block text-xs font-bold text-gray-700 mb-1">Valor Total (R$)</label>
- <input type="text" readOnly value={calcPaymentTotal()} className="w-full px-3 py-2 border border-[#32423D] bg-[#E0E800]/20 text-sm font-bold focus:outline-none rounded-none text-right cursor-default" />
+ <input type="text" readOnly value={calcPaymentTotal()} className="w-full px-2 py-1 border border-[#32423D] bg-[#E0E800]/20 text-xs font-bold focus:outline-none rounded-none text-right cursor-default" />
  </div>
 
  </div>
  {/* Frete + Turno da Entrega + Embalagem */}
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <fieldset className="border border-gray-200 px-3 py-2">
+ <fieldset className="border border-gray-200 px-2 py-1">
  <legend className="text-[10px] uppercase font-bold text-gray-500 px-1">Frete</legend>
  <div className="flex gap-4 mt-1">
  {['Empresa', 'Cliente'].map(v => (
- <label key={v} className="flex items-center gap-1.5 text-sm cursor-pointer">
+ <label key={v} className="flex items-center gap-1.5 text-xs cursor-pointer">
  <input type="radio" name="Frete" value={v} checked={(projetoFormData.Frete || '').trim().toLowerCase() === v.toLowerCase()} onChange={handleProjetoInputChange} className="accent-[#32423D]" />{v}
  </label>
  ))}
  </div>
  </fieldset>
- <fieldset className="border border-gray-200 px-3 py-2">
+ <fieldset className="border border-gray-200 px-2 py-1">
  <legend className="text-[10px] uppercase font-bold text-gray-500 px-1">Turno da Entrega</legend>
  <div className="flex gap-3 mt-1 flex-wrap">
  {[['HrComercial', 'Comercial'], ['HrNoturno', 'Noturno'], ['HrCombinar', 'Combinar']].map(([n, l]) => (
- <label key={n} className="flex items-center gap-1.5 text-sm cursor-pointer">
+ <label key={n} className="flex items-center gap-1.5 text-xs cursor-pointer">
  <input type="checkbox" checked={!!projetoFormData[n as keyof Projeto] && String(projetoFormData[n as keyof Projeto]).trim() !== ''} onChange={e => setProjetoFormData(prev => ({ ...prev, [n]: e.target.checked ? 'S' : '' }))} className="accent-[#32423D]" />{l}
  </label>
  ))}
  </div>
  </fieldset>
- <fieldset className="border border-gray-200 px-3 py-2">
+ <fieldset className="border border-gray-200 px-2 py-1">
  <legend className="text-[10px] uppercase font-bold text-gray-500 px-1">Embalagem</legend>
  <div className="flex gap-4 mt-1">
  {['Inclusa', 'Não Inclusa'].map(v => (
- <label key={v} className="flex items-center gap-1.5 text-sm cursor-pointer">
+ <label key={v} className="flex items-center gap-1.5 text-xs cursor-pointer">
  <input type="radio" name="Embalagem" value={v} checked={(projetoFormData.Embalagem || '').trim().toLowerCase() === v.toLowerCase()} onChange={handleProjetoInputChange} className="accent-[#32423D]" />{v}
  </label>
  ))}
@@ -1719,9 +1719,9 @@ export default function ProjetoPage() {
  {/* PRODUTO / EMPRESA / VALOR table */}
  <div className="border border-gray-200">
  <div className="grid grid-cols-3 bg-[#32423D] text-white text-[10px] uppercase font-bold tracking-wider">
- <div className="px-3 py-2">Produto</div>
- <div className="px-3 py-2">Empresa</div>
- <div className="px-3 py-2">Valor (R$)</div>
+ <div className="px-2 py-1">Produto</div>
+ <div className="px-2 py-1">Empresa</div>
+ <div className="px-2 py-1">Valor (R$)</div>
  </div>
  {[
  ['FabricacaoEmpresa', 'ValorFabricacao', 'Fabricação'],
@@ -1731,19 +1731,19 @@ export default function ProjetoPage() {
  ['EmbalagemEmpresa', 'ValorEmbalagem', 'Embalagem'],
  ].map(([ne, nv, l], idx) => (
  <div key={ne} className={`grid grid-cols-3 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
- <div className="px-3 py-1.5 text-sm font-semibold text-gray-700 border-r border-b border-gray-200">{l}</div>
+ <div className="px-2 py-0.5 text-xs font-semibold text-gray-700 border-r border-b border-gray-200">{l}</div>
  <div className="px-2 py-1 border-r border-b border-gray-200">
- <input type="text" name={ne} value={(projetoFormData[ne as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 text-sm focus:outline-none focus:border-[#32423D] border border-transparent focus:border rounded-none" />
+ <input type="text" name={ne} value={(projetoFormData[ne as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 text-xs focus:outline-none focus:border-[#32423D] border border-transparent focus:border rounded-none" />
  </div>
  <div className="px-2 py-1 border-b border-gray-200">
- <input type="text" name={nv} value={(projetoFormData[nv as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 text-sm focus:outline-none focus:border-[#32423D] border border-transparent focus:border rounded-none" />
+ <input type="text" name={nv} value={(projetoFormData[nv as keyof Projeto] as string) || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 text-xs focus:outline-none focus:border-[#32423D] border border-transparent focus:border rounded-none" />
  </div>
  </div>
  ))}
  <div className="grid grid-cols-3 bg-[#32423D]/10 border-t border-gray-200">
- <div className="px-3 py-2 text-xs font-bold text-gray-700 md:col-span-2 col-span-2">Total</div>
+ <div className="px-2 py-1 text-xs font-bold text-gray-700 md:col-span-2 col-span-2">Total</div>
  <div className="px-2 py-1">
- <input type="text" name="TotalFinal" value={projetoFormData.TotalFinal || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 font-bold text-sm text-right focus:outline-none border border-transparent focus:border-[#32423D] focus:border rounded-none" />
+ <input type="text" name="TotalFinal" value={projetoFormData.TotalFinal || ''} onChange={handleProjetoInputChange} className="w-full px-2 py-1 font-bold text-xs text-right focus:outline-none border border-transparent focus:border-[#32423D] focus:border rounded-none" />
  </div>
  </div>
  </div>
@@ -1890,7 +1890,7 @@ export default function ProjetoPage() {
  </div>
  <div className="pt-2 flex justify-end w-full">
 <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium disabled:opacity-50" disabled={saving}>
- {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+ {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
  {isEditingTag ? 'Atualizar' : 'Salvar'}
  </motion.button>
 </div>

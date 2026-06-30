@@ -203,7 +203,8 @@ export default function AcompanhamentoEtapas() {
  const dateFields = ['dataPrevisaoInicio','dataPrevisaoFim','dataFinalInicio','dataFinalFim','dataPlanejamentoInicio','dataPlanejamentoFim','dataRealizadoInicio','dataRealizadoFim'];
 
  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  // Campos de data não recebem toUpperCase (formato YYYY-MM-DD)
  setFilters(prev => ({ ...prev, [name]: dateFields.includes(name) ? value : value.toUpperCase() }));
  };
@@ -537,11 +538,11 @@ export default function AcompanhamentoEtapas() {
  </div>
  </div>
  <div className="mt-3 flex justify-between items-center">
- <button type="button" onClick={clearAllFilters} className="text-xs text-gray-500 hover:text-red-500 flex items-center gap-1 border border-gray-300 px-3 py-1.5 rounded hover:border-red-300 transition-colors">
+ <button type="button" onClick={clearAllFilters} className="text-xs text-gray-500 hover:text-red-500 flex items-center gap-1 border border-gray-300 px-2 py-0.5 rounded hover:border-red-300 transition-colors">
  <X size={12}/> Limpar Todos
  </button>
- <button type="submit" className="bg-[#03624C] hover:bg-[#024a3a] text-white px-4 py-1.5 rounded-md text-sm font-medium shadow-sm flex items-center gap-2 transition-colors">
- <Search size={16} /> Filtrar
+ <button type="submit" className="bg-[#03624C] hover:bg-[#024a3a] text-white px-4 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center gap-2 transition-colors">
+ <Search size={14} /> Filtrar
  </button>
  </div>
  </form>
@@ -550,12 +551,12 @@ export default function AcompanhamentoEtapas() {
 
  {/* Main Grid Toolbar */}
  <div className="px-6 py-2 border-b border-gray-300 flex items-center justify-between bg-white shrink-0 shadow-sm z-10">
- <div className="font-bold text-gray-800 text-sm flex items-center gap-2">
+ <div className="font-bold text-gray-800 text-xs flex items-center gap-2">
  Acompanhamento Etapas
  </div>
  <div className="flex items-center gap-2">
  <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition-colors" title={isExpanded ? "Restaurar tamanho" : "Expandir grid"}>
- {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+ {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
  </button>
  </div>
  </div>
@@ -694,7 +695,7 @@ export default function AcompanhamentoEtapas() {
  }`}
  title={!hasDates ? 'Sem datas cadastradas' : 'Exibir datas de planejamento'}
  >
- <Calendar size={16} />
+ <Calendar size={14} />
  </button>
  <button 
  onClick={() => row.TotalTags > 0 && openEditModal(row)} 
@@ -706,7 +707,7 @@ export default function AcompanhamentoEtapas() {
  }`} 
  title={row.TotalTags === 0 ? 'Sem tags cadastradas' : 'Editar Datas Lote'}
  >
- <Edit3 size={16} />
+ <Edit3 size={14} />
  </button>
  </td>
  </tr>
@@ -852,7 +853,7 @@ export default function AcompanhamentoEtapas() {
  PlanejadoInicioExpedicao: toISO(selectedProjeto?.PlanExpedicao), PlanejadoFinalExpedicao: '', RealizadoInicioExpedicao: '', realizadoFinalExpedicao: toISO(selectedProjeto?.RealExpedicao)
  });
  }}
- className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+ className={`px-2 py-0.5 rounded text-xs font-semibold transition-all ${
  !modoIndividual
  ? 'bg-white shadow text-[#03624C] border border-[#03624C]/20'
  : 'text-gray-500 hover:text-gray-700'
@@ -875,7 +876,7 @@ export default function AcompanhamentoEtapas() {
  PlanejadoInicioExpedicao: '', PlanejadoFinalExpedicao: '', RealizadoInicioExpedicao: '', realizadoFinalExpedicao: ''
  });
  }}
- className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+ className={`px-2 py-0.5 rounded text-xs font-semibold transition-all ${
  modoIndividual
  ? 'bg-white shadow text-blue-700 border border-blue-300'
  : 'text-gray-500 hover:text-gray-700'
@@ -891,7 +892,7 @@ export default function AcompanhamentoEtapas() {
  ? 'bg-blue-50 border-blue-400'
  : 'bg-amber-50 border-amber-400'
  }`}>
- <AlertCircle className={modoIndividual ? 'text-blue-500' : 'text-amber-500'} size={16} style={{flexShrink:0, marginTop:2}} />
+ <AlertCircle className={modoIndividual ? 'text-blue-500' : 'text-amber-500'} size={14} style={{flexShrink:0, marginTop:2}} />
  <p className={`text-xs ${modoIndividual ? 'text-blue-800' : 'text-amber-800'}`}>
  {modoIndividual ? (
  <>
@@ -910,7 +911,7 @@ export default function AcompanhamentoEtapas() {
  {/* SELEÇÃO DE TAGS */}
  <div className="w-1/3 flex flex-col bg-white border border-gray-200 rounded-md p-3">
  <div className="flex justify-between items-center mb-2 pb-2 border-b">
- <h3 className="font-semibold text-gray-700 text-sm">
+ <h3 className="font-semibold text-gray-700 text-xs">
  {modoIndividual ? '🎯 Selecione 1 Tag' : 'Tags a atualizar'}
  </h3>
  {!modoIndividual && (
@@ -996,7 +997,7 @@ export default function AcompanhamentoEtapas() {
  {/* FORMULÁRIO DE DATAS */}
  <div className="w-2/3 bg-white border border-gray-200 rounded-md p-4">
  {/* Badge de status da configuração */}
- <div className={`flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full w-fit text-[10px] font-bold border ${
+ <div className={`flex items-center gap-2 mb-3 px-2 py-0.5 rounded-full w-fit text-[10px] font-bold border ${
  permitirRealizado
  ? 'bg-green-50 border-green-300 text-green-700'
  : 'bg-red-50 border-red-300 text-red-700'
@@ -1024,19 +1025,19 @@ export default function AcompanhamentoEtapas() {
  <button 
  onClick={() => setIsModalOpen(false)} 
  disabled={saving}
- className="px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+ className="px-2 py-1 bg-white border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
  >
  Cancelar
  </button>
  <button 
  onClick={handleSave} 
  disabled={saving || (modoIndividual && !selectedSingleTagId)}
- className="px-4 py-2 bg-[#03624C] hover:bg-[#024a3a] text-white rounded text-sm font-medium shadow flex items-center gap-2 transition-colors disabled:opacity-50"
+ className="px-2 py-1 bg-[#03624C] hover:bg-[#024a3a] text-white rounded text-xs font-medium shadow flex items-center gap-2 transition-colors disabled:opacity-50"
  >
  {saving ? (
  <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Salvando...</>
  ) : (
- <><Save size={16} /> {modoIndividual ? 'Salvar Tag' : 'Salvar Datas em Lote'}</>
+ <><Save size={14} /> {modoIndividual ? 'Salvar Tag' : 'Salvar Datas em Lote'}</>
  )}
  </button>
  </div>

@@ -367,7 +367,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
 
  {/* Error Display */}
  {error && (
- <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm flex items-center gap-3">
+ <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-600 text-xs flex items-center gap-3">
  <AlertTriangle size={20} />
  {error}
  </div>
@@ -380,7 +380,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <h2 className="font-bold text-[#32423D] text-xs">Informações do Item</h2>
  </div>
 
- <div className="px-4 py-2">
+ <div className="px-2 py-1">
  {/* Main Technical Summary Bar */}
  <div className="grid grid-cols-4 md:grid-cols-7 gap-2 mb-2">
  <div>
@@ -459,8 +459,8 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
 
  {/* Main Form */}
  <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
- <div className="bg-[#32423D] px-4 py-2 text-white flex items-center justify-between">
- <h3 className="font-semibold flex items-center gap-2 text-sm">
+ <div className="bg-[#32423D] px-2 py-1 text-white flex items-center justify-between">
+ <h3 className="font-semibold flex items-center gap-2 text-xs">
  <Save size={14} />
  {formData.IdOrdemServicoItemPendencia ? `Editar RNC #${formData.IdOrdemServicoItemPendencia}` : 'Cadastrar Nova RNC/Pendência'}
  </h3>
@@ -478,7 +478,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">
  ID Ordem Serviço
  </label>
- <div className="text-sm font-bold text-[#32423D] bg-white border border-gray-200 px-3 py-2 rounded-lg">
+ <div className="text-xs font-bold text-[#32423D] bg-white border border-gray-200 px-2 py-1 rounded-lg">
  {formData.displayIdOrdemServico || '-'}
  </div>
  </div>
@@ -486,7 +486,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">
  ID Item OS
  </label>
- <div className="text-sm font-bold text-[#32423D] bg-white border border-gray-200 px-3 py-2 rounded-lg">
+ <div className="text-xs font-bold text-[#32423D] bg-white border border-gray-200 px-2 py-1 rounded-lg">
  {formData.displayIdOrdemServicoItem || '-'}
  </div>
  </div>
@@ -494,7 +494,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">
  Cód. Mat. Fabricante
  </label>
- <div className="text-sm font-bold text-orange-600 bg-white border border-gray-200 px-3 py-2 rounded-lg">
+ <div className="text-xs font-bold text-orange-600 bg-white border border-gray-200 px-2 py-1 rounded-lg">
  {formData.displayCodMatFabricante || '-'}
  </div>
  </div>
@@ -502,7 +502,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">
  ID RNC / Pendência
  </label>
- <div className="text-sm font-bold text-orange-600 bg-white border border-gray-200 px-3 py-2 rounded-lg">
+ <div className="text-xs font-bold text-orange-600 bg-white border border-gray-200 px-2 py-1 rounded-lg">
  {formData.IdOrdemServicoItemPendencia || '-'}
  </div>
  </div>
@@ -516,7 +516,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  Setor Responsável <span className="text-red-500">*</span>
  </label>
  <select
- className="w-full bg-amber-50/30 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+ className="w-full bg-amber-50/30 border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
  value={formData.setorResponsavel}
  onChange={(e) => setFormData({ ...formData, setorResponsavel: e.target.value })}
  >
@@ -529,7 +529,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <div className="space-y-1">
  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide">Responsável</label>
  <select
- className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+ className="w-full bg-white border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
  value={formData.idUsuarioResponsavel}
  onChange={(e) => {
  const colab = collaborators.find(c => String(c.idUsuario) === e.target.value);
@@ -550,7 +550,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wide">Tipo de Tarefa/RNC</label>
  <div className="flex gap-1">
  <select
- className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+ className="flex-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
  value={isCustomTaskType ? 'OUTRO' : formData.tipoTarefa}
  onChange={(e) => {
  if (e.target.value === 'OUTRO') {
@@ -570,7 +570,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <input
  type="text"
  placeholder="Digite o novo tipo de tarefa..."
- className="w-full mt-1 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
+ className="w-full mt-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] transition-all"
  value={formData.tipoTarefa}
  onChange={(e) => setFormData({ ...formData, tipoTarefa: e.target.value.toUpperCase() })}
  autoFocus
@@ -589,7 +589,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  </label>
  <input
  type="date"
- className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800]"
+ className="w-full bg-white border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800]"
  value={formData.dataExecucao}
  onChange={(e) => setFormData({ ...formData, dataExecucao: e.target.value })}
  />
@@ -602,7 +602,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  Descrição da Pendência
  </label>
  <textarea
- className="w-full bg-amber-50/10 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] min-h-[55px]"
+ className="w-full bg-amber-50/10 border border-gray-200 rounded-lg px-2 py-0.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]/20 focus:border-[#E0E800] min-h-[55px]"
  placeholder="Descreva os detalhes da não conformidade ou pendência encontrada..."
  value={formData.descricaoPendencia}
  onChange={(e) => setFormData({ ...formData, descricaoPendencia: e.target.value.toUpperCase() })}
@@ -627,7 +627,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  displayIdOrdemServicoItem: undefined,
  displayCodMatFabricante: ''
  })}
- className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all font-semibold text-xs"
+ className="px-2 py-0.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all font-semibold text-xs"
  >
  Novo Cadastro
  </button>
@@ -637,7 +637,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  type="button"
  onClick={handleFinalize}
  disabled={saving}
- className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all flex items-center gap-1.5 font-bold text-xs"
+ className="bg-green-600 text-white px-2 py-0.5 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all flex items-center gap-1.5 font-bold text-xs"
  >
  {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
  Finalizar RNC
@@ -721,7 +721,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  {pendencies.length === 0 ? (
  <div className="bg-white p-12 rounded-md border border-dashed border-gray-200 text-center text-gray-400">
  <MessageSquare className="mx-auto mb-3 opacity-20" size={48} />
- <p className="text-sm">Nenhuma rnc encontrada com os filtros atuais.</p>
+ <p className="text-xs">Nenhuma rnc encontrada com os filtros atuais.</p>
  </div>
  ) : (
  <div className="grid gap-2">
@@ -796,7 +796,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  <button
  disabled={p.Estatus === 'FINALIZADA'}
  onClick={() => handleEdit(p)}
- className="px-4 py-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#E0E800]/20 hover:text-[#32423D] transition-all text-xs font-bold disabled:opacity-30 disabled:hover:bg-gray-50"
+ className="px-2 py-1 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#E0E800]/20 hover:text-[#32423D] transition-all text-xs font-bold disabled:opacity-30 disabled:hover:bg-gray-50"
  >
  Editar
  </button>

@@ -293,13 +293,13 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  </div>
  <div>
  <h1 className="text-2xl font-black text-[#567469] tracking-tight">Lista Itens da Planilha</h1>
- <p className="text-sm text-gray-500 font-medium">Visualize, aglutine e inclua itens importados em Ordens de Serviço.</p>
+ <p className="text-xs text-gray-500 font-medium">Visualize, aglutine e inclua itens importados em Ordens de Serviço.</p>
  </div>
  </div>
  <div className="flex gap-3">
  <button 
  onClick={() => onNavigate('powerbuild-import')}
- className="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold border border-gray-300 transition-all flex items-center gap-2 shadow-sm"
+ className="bg-white hover:bg-gray-50 text-gray-700 px-2 py-1 rounded-lg text-xs font-bold border border-gray-300 transition-all flex items-center gap-2 shadow-sm"
  >
  <RefreshCw className="w-4 h-4" />
  Nova Importação
@@ -402,7 +402,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  <select 
  value={selectedProjeto}
  onChange={e => { setSelectedProjeto(e.target.value); setSelectedTag(''); setSelectedOS(''); setOsDestinoList([]); }}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800"
  >
  <option value="">Selecione o Projeto</option>
  {projetos.map(p => <option key={p.IdProjeto} value={p.IdProjeto}>{p.Projeto}</option>)}
@@ -414,7 +414,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  value={selectedTag}
  onChange={e => { setSelectedTag(e.target.value); setSelectedOS(''); }}
  disabled={!selectedProjeto}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800 disabled:opacity-50"
  >
  <option value="">Selecione a Tag</option>
  {tags.map(t => <option key={t.IdTag} value={t.IdTag}>{t.NomeTag}</option>)}
@@ -426,7 +426,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  value={selectedPlanilha}
  onChange={e => setSelectedPlanilha(e.target.value)}
  disabled={!selectedTag}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800 disabled:opacity-50"
  >
  <option value="">Selecione a Planilha</option>
  {planilhas.map(p => <option key={p} value={p}>{p}</option>)}
@@ -438,7 +438,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  value={selectedRevisao}
  onChange={e => setSelectedRevisao(e.target.value)}
  disabled={!selectedPlanilha}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800 disabled:opacity-50"
  >
  <option value="-1">Todas</option>
  {revisoes.map(r => <option key={r} value={r}>Revisão {r}</option>)}
@@ -468,7 +468,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  onChange={e => setSelectedOS(e.target.value)}
  disabled={!selectedTag}
  title="Exibe apenas OS não liberadas e não finalizadas da tag selecionada"
- className={`w-full border rounded-md px-4 py-2.5 outline-none transition-all text-sm shadow-sm disabled:opacity-50 ${
+ className={`w-full border rounded-md px-2 py-1.5 outline-none transition-all text-xs shadow-sm disabled:opacity-50 ${
  !selectedOS && selectedTag
  ? 'bg-red-50 border-red-300 text-red-800 focus:border-red-500'
  : 'bg-gray-50 border-gray-300 text-gray-800 focus:border-[#32423D]'
@@ -537,7 +537,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  placeholder="Ex: 1SVR405622R0000"
  value={codMatFilter}
  onChange={e => setCodMatFilter(e.target.value)}
- className="w-full bg-gray-50 border border-gray-300 rounded-md py-2.5 pl-10 pr-4 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md py-2.5 pl-10 pr-4 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800"
  />
  </div>
  </div>
@@ -555,7 +555,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  </button>
  <button 
  onClick={handleClear}
- className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-md font-medium border border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm"
+ className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1.5 rounded-md font-medium border border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm"
  >
  <Trash2 className="w-4 h-4" />
  Limpar
@@ -569,10 +569,10 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  <div className="bg-[#E0E800]/20 border border-yellow-300 rounded-md p-4 flex flex-col md:flex-row items-center justify-between gap-4">
  {/* OS selecionada — somente leitura como confirmação */}
  <div className="flex items-center gap-3 flex-1">
- <div className="flex items-center gap-2 bg-white border border-green-300 rounded-md px-4 py-2.5 shadow-sm">
+ <div className="flex items-center gap-2 bg-white border border-green-300 rounded-md px-2 py-1.5 shadow-sm">
  <CheckSquare className="w-4 h-4 text-green-600 shrink-0" />
  <span className="text-xs font-bold text-gray-500 uppercase mr-1">OS:</span>
- <span className="text-sm font-bold text-green-700">
+ <span className="text-xs font-bold text-green-700">
  {osDestinoList.find(o => o.IdOrdemServico.toString() === selectedOS.toString())?.DescricaoOS || `OS #${selectedOS}`}
  </span>
  </div>
@@ -597,7 +597,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  localStorage.setItem('agglutination_filter_planilha', selectedPlanilha);
  onNavigate('powerbuild-agglutination');
  }}
- className="text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+ className="text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-2 py-0.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
  >
  <FileText className="w-3.5 h-3.5 text-gray-500" />
  Resumo Fabricação
@@ -662,12 +662,12 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  </td>
  <td className="py-3 px-6">
  <div className="flex flex-col">
- <span className="text-sm font-mono font-bold text-gray-800 tracking-wider">{item.Part_Reference}</span>
+ <span className="text-xs font-mono font-bold text-gray-800 tracking-wider">{item.Part_Reference}</span>
  <span className="text-[10px] text-gray-500 font-medium">{item.TabelaOrigem}</span>
  </div>
  </td>
- <td className="py-3 px-6 text-center font-medium text-sm text-gray-700">{item.PD_qty}</td>
- <td className="py-3 px-6 text-center font-bold text-sm text-[#32423D]">{item.Part_total_qty}</td>
+ <td className="py-3 px-6 text-center font-medium text-xs text-gray-700">{item.PD_qty}</td>
+ <td className="py-3 px-6 text-center font-bold text-xs text-[#32423D]">{item.Part_total_qty}</td>
  <td className="py-3 px-6 text-center">
  <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-300">
  R{item.Revisao}
@@ -675,7 +675,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
  </td>
  <td className="py-3 px-6">
  {item.IdOrdemServico > 0 ? (
- <span className="text-sm font-bold text-green-700 bg-green-100 border border-green-200 px-2 py-1 rounded">
+ <span className="text-xs font-bold text-green-700 bg-green-100 border border-green-200 px-2 py-1 rounded">
  {item.IdOrdemServico}
  </span>
  ) : (
@@ -697,7 +697,7 @@ const PowerBuildList: React.FC<PowerBuildListProps> = ({ onNavigate }) => {
 
  {/* Footer Info */}
  {items.length > 0 && (
- <div className="flex items-center justify-between text-sm text-gray-500 px-2">
+ <div className="flex items-center justify-between text-xs text-gray-500 px-2">
  <div className="flex gap-4">
  <span>Total de Itens: <strong className="text-gray-800">{items.length}</strong></span>
  <span>Selecionados: <strong className="text-[#32423D]">{items.filter(i => i.selected).length}</strong></span>

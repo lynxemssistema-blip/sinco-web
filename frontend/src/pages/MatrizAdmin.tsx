@@ -132,14 +132,14 @@ export default function MatrizAdmin() {
  <div className="flex justify-between items-center">
  <div>
  <h2 className="text-2xl font-bold text-foreground">Gestão de Matrizes</h2>
- <p className="text-muted-foreground text-sm">Controle as empresas cadastradas no banco de dados.</p>
+ <p className="text-muted-foreground text-xs">Controle as empresas cadastradas no banco de dados.</p>
  </div>
  {!isEditing && (
  <button
  onClick={() => setIsEditing(true)}
- className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm font-medium"
+ className="flex items-center gap-2 bg-primary text-primary-foreground px-2 py-1 rounded-lg hover:bg-primary/90 transition-colors shadow-sm font-medium"
  >
- <Plus size={18} />
+ <Plus size={15} />
  Nova Matriz
  </button>
  )}
@@ -154,12 +154,12 @@ export default function MatrizAdmin() {
  <form onSubmit={handleSave} className="flex gap-4 items-end">
 
  <div className="flex-1">
- <label className="block text-sm font-medium text-foreground mb-1">Descrição da Nova Matriz</label>
+ <label className="block text-xs font-medium text-foreground mb-1">Descrição da Nova Matriz</label>
  <input
  type="text"
  value={formData.Descricao}
  onChange={(e) => setFormData({ ...formData, Descricao: e.target.value })}
- className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+ className="w-full bg-background border border-border rounded-lg px-2 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
  placeholder="Ex: alfatec"
  required
  />
@@ -168,15 +168,15 @@ export default function MatrizAdmin() {
  <button
  type="button"
  onClick={handleCancel}
- className="px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+ className="px-2 py-1 rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
  >
  <X size={20} />
  </button>
  <button
  type="submit"
- className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm font-medium"
+ className="flex items-center gap-2 px-2 py-1 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm font-medium"
  >
- <Save size={18} />
+ <Save size={15} />
  Salvar
  </button>
  </div>
@@ -189,7 +189,7 @@ export default function MatrizAdmin() {
  <div className="overflow-auto flex-1">
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white">
- <tr className="bg-muted/50 border-b border-border text-sm">
+ <tr className="bg-muted/50 border-b border-border text-xs">
  <th className="p-4 font-semibold text-foreground w-32">Id da Matriz</th>
  <th className="p-4 font-semibold text-foreground">Descrição da Matriz</th>
  <th className="p-4 font-semibold text-foreground w-24 text-center">Ações</th>
@@ -219,14 +219,14 @@ export default function MatrizAdmin() {
  className="p-1.5 text-[#32423D] hover:bg-[#E0E800]/100/10 rounded-lg transition-colors"
  title="Editar"
  >
- <Edit2 size={16} />
+ <Edit2 size={14} />
  </button>
  <button
  onClick={() => handleDelete(matriz.Id)}
  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
  title="Excluir"
  >
- <Trash2 size={16} />
+ <Trash2 size={14} />
  </button>
  </td>
  </tr>

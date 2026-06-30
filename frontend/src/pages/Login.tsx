@@ -89,8 +89,8 @@ export default function LoginPage() {
  </motion.p>
  </div>
 
- <div className="relative z-10 flex items-center gap-4 text-primary-foreground/50 text-sm font-medium">
- <ShieldCheck size={18} />
+ <div className="relative z-10 flex items-center gap-4 text-primary-foreground/50 text-xs font-medium">
+ <ShieldCheck size={15} />
  <span>Conexão Segura e Criptografada</span>
  </div>
  </div>
@@ -120,10 +120,10 @@ export default function LoginPage() {
 
  <form onSubmit={handleSubmit} className="space-y-6">
  <div className="space-y-2">
- <label className="text-sm font-bold text-foreground ml-1">Usuário</label>
+ <label className="text-xs font-bold text-foreground ml-1">Usuário</label>
  <div className="relative group">
  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center transition-colors">
- <User className="text-muted-foreground group-focus-within:text-primary transition-colors" size={18} strokeWidth={2} />
+ <User className="text-muted-foreground group-focus-within:text-primary transition-colors" size={15} strokeWidth={2} />
  </div>
  <input
  type="text"
@@ -138,11 +138,11 @@ export default function LoginPage() {
 
  <div className="space-y-2">
  <div className="flex items-center justify-between ml-1">
- <label className="text-sm font-bold text-foreground">Senha</label>
+ <label className="text-xs font-bold text-foreground">Senha</label>
  </div>
  <div className="relative group">
  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center transition-colors">
- <Lock className="text-muted-foreground group-focus-within:text-primary transition-colors" size={18} strokeWidth={2} />
+ <Lock className="text-muted-foreground group-focus-within:text-primary transition-colors" size={15} strokeWidth={2} />
  </div>
  <input
  type="password"

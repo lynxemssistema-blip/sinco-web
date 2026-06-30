@@ -129,7 +129,7 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
             <div className="p-4 bg-white border-b border-slate-200 flex flex-col gap-3 shrink-0 shadow-sm">
                 <div className="flex flex-wrap items-center gap-3">
                     {onVoltar && (
-                        <button onClick={onVoltar} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm flex items-center gap-1.5 mr-2">
+                        <button onClick={onVoltar} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-2 py-0.5 rounded-lg text-xs font-bold transition-colors shadow-sm flex items-center gap-1.5 mr-2">
                             <ArrowRight className="rotate-180" size={14} /> Voltar
                         </button>
                     )}
@@ -166,7 +166,7 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                             <option value="Montagem">MONTAGEM</option>
                         </select>
                     </div>
-                    <button onClick={limparFiltros} className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ml-auto border border-slate-200 shadow-sm flex items-center gap-1">
+                    <button onClick={limparFiltros} className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded-lg text-xs font-bold transition-colors ml-auto border border-slate-200 shadow-sm flex items-center gap-1">
                         <X size={14} /> Limpar
                     </button>
                 </div>
@@ -239,9 +239,9 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10 shadow-sm border-b border-white/20">
                         <tr>
-                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Tag / Descrição</th>
-                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Projeto (Segundo Plano)</th>
-                            <th className="px-4 py-3 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20">Previsão</th>
+                            <th className="px-2 py-1 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Tag / Descrição</th>
+                            <th className="px-2 py-1 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20 min-w-[200px]">Projeto (Segundo Plano)</th>
+                            <th className="px-2 py-1 text-[10px] font-black text-white uppercase tracking-wider border-r border-white/20">Previsão</th>
                             {SECTORS.map(s => {
                                 if (fSetor && fSetor !== s.k) return null;
                                 return (
@@ -255,15 +255,15 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                     <tbody className="divide-y divide-slate-100">
                         {filtered.map(t => (
                             <tr key={t.IdTag} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-4 py-3 border-r border-slate-100">
+                                <td className="px-2 py-1 border-r border-slate-100">
                                     <div className="font-black text-slate-800 text-[13px]">{t.Tag}</div>
                                     <div className="text-[11px] text-slate-500 line-clamp-1">{t.DescTag}</div>
                                 </td>
-                                <td className="px-4 py-3 border-r border-slate-100 bg-slate-50/50">
+                                <td className="px-2 py-1 border-r border-slate-100 bg-slate-50/50">
                                     <div className="font-bold text-slate-700 text-xs">{t.Projeto}</div>
                                     <div className="text-[10px] text-slate-400 line-clamp-1">{t.ProjetoDescricao}</div>
                                 </td>
-                                <td className="px-4 py-3 border-r border-slate-100">
+                                <td className="px-2 py-1 border-r border-slate-100">
                                     <span className="text-xs font-bold text-slate-600">{t.DataPrevisao || '—'}</span>
                                 </td>
                                 {SECTORS.map(s => {
@@ -310,7 +310,7 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                         ))}
                         {filtered.length === 0 && (
                             <tr>
-                                <td colSpan={10} className="text-center py-12 text-slate-400 font-medium text-sm">
+                                <td colSpan={10} className="text-center py-12 text-slate-400 font-medium text-xs">
                                     Nenhuma tag encontrada para os filtros aplicados.
                                 </td>
                             </tr>
@@ -318,7 +318,7 @@ export default function VisaoGeralTagsGlobais({ onVoltar }: { onVoltar?: () => v
                     </tbody>
                 </table>
             </div>
-            <div className="bg-slate-100 px-4 py-2 text-xs font-bold text-slate-500 border-t border-slate-200 shrink-0 text-right">
+            <div className="bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 border-t border-slate-200 shrink-0 text-right">
                 Exibindo {filtered.length} tags de {tags.length} totais.
             </div>
         </div>

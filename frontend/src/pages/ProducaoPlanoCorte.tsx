@@ -404,13 +404,13 @@ export default function ProducaoPlanoCorte() {
  <div className="flex flex-col flex-1 min-h-0 bg-slate-50 p-3 gap-3 h-full flex flex-col min-h-0">
  
  <div className={`flex flex-col bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden transition-all duration-300 ${planoSel ? 'h-1/3' : 'h-full'}`}>
- <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
+ <div className="flex items-center justify-between px-2 py-1 bg-slate-50 border-b border-slate-200">
  <div className="flex items-center gap-2">
  <div className="p-1.5 bg-[#32423D] text-white rounded-lg shadow-sm">
- <Scissors size={18} />
+ <Scissors size={15} />
  </div>
  <div>
- <h2 className="text-sm font-black text-slate-800 tracking-tight leading-none">Produção — Planos de Corte</h2>
+ <h2 className="text-xs font-black text-slate-800 tracking-tight leading-none">Produção — Planos de Corte</h2>
  <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-0.5">Visão Execução Fábrica</p>
  </div>
  </div>
@@ -456,7 +456,7 @@ export default function ProducaoPlanoCorte() {
  className="p-2 bg-[#E0E800]/30 text-[#32423D] border border-blue-200 rounded-lg hover:bg-[#E0E800]/20 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
  title="Abrir Pasta Plano de Corte"
  >
- <FolderOpen size={16} />
+ <FolderOpen size={14} />
  </button>
  <button
  onClick={handleLiberarProducao}
@@ -468,7 +468,7 @@ export default function ProducaoPlanoCorte() {
  }`}
  title={planoSel?.LiberacaoParaCorte === 'S' ? 'Plano já liberado para produção' : 'Liberar Plano de Corte para Produção'}
  >
- {loadingAcao ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+ {loadingAcao ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
  </button>
  <button
  onClick={handleFinalizarPlano}
@@ -476,7 +476,7 @@ export default function ProducaoPlanoCorte() {
  className="p-2 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
  title="Finalizar Plano de Corte"
  >
- <Flag size={16} />
+ <Flag size={14} />
  </button>
  </div>
 
@@ -500,15 +500,15 @@ export default function ProducaoPlanoCorte() {
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
  <tr className="border-b border-white/20">
  
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Descrição</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Espessura</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Material SW</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 italic">Liberação Eng.</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100">Liberado em</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
- <th className="px-3 py-2 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Exec.</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100">Descrição</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100">Espessura</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100">Material SW</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100 italic">Liberação Eng.</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100">Liberado em</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Início</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Fim</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Peças</th>
+ <th className="px-2 py-1 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Exec.</th>
  </tr>
  </thead>
  <tbody>
@@ -519,15 +519,15 @@ export default function ProducaoPlanoCorte() {
  className={`group cursor-pointer transition-colors border-b border-slate-50 ${planoSel?.IdPlanodecorte === p.IdPlanodecorte ? 'bg-[#E0E800]/20/80 ring-1 ring-inset ring-blue-100' : 'hover:bg-slate-50'}`}
  >
  
- <td className="px-3 py-1.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
- <td className="px-3 py-1.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
- <td className="px-3 py-1.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>
- <td className="px-3 py-1.5 text-[#32423D] italic font-medium">{fmt(p.DataLiberacao)}</td>
- <td className="px-3 py-1.5 text-slate-500">{fmt(p.DataLiberacaoParaCorte)}</td>
- <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataInicial)}</td>
- <td className="px-3 py-1.5 text-center text-slate-500 font-mono">{fmt(p.DataFinal)}</td>
- <td className="px-3 py-1.5 text-center font-black text-indigo-600 bg-indigo-50/30">{p.QtdeTotalPecas ?? 0}</td>
- <td className="px-3 py-1.5 text-center font-black text-emerald-600 bg-emerald-50/30">{p.QtdeTotalPecasExecutadas ?? 0}</td>
+ <td className="px-2 py-0.5 font-bold text-slate-700">{p.DescPlanodecorte || '—'}</td>
+ <td className="px-2 py-0.5 font-black text-slate-600 uppercase italic">{p.Espessura || '—'}</td>
+ <td className="px-2 py-0.5 font-medium text-slate-500">{p.MaterialSW || '—'}</td>
+ <td className="px-2 py-0.5 text-[#32423D] italic font-medium">{fmt(p.DataLiberacao)}</td>
+ <td className="px-2 py-0.5 text-slate-500">{fmt(p.DataLiberacaoParaCorte)}</td>
+ <td className="px-2 py-0.5 text-center text-slate-500 font-mono">{fmt(p.DataInicial)}</td>
+ <td className="px-2 py-0.5 text-center text-slate-500 font-mono">{fmt(p.DataFinal)}</td>
+ <td className="px-2 py-0.5 text-center font-black text-indigo-600 bg-indigo-50/30">{p.QtdeTotalPecas ?? 0}</td>
+ <td className="px-2 py-0.5 text-center font-black text-emerald-600 bg-emerald-50/30">{p.QtdeTotalPecasExecutadas ?? 0}</td>
  </tr>
  ))}
  </tbody>
@@ -537,20 +537,20 @@ export default function ProducaoPlanoCorte() {
 
  {planoSel ? (
  <div className="flex flex-col flex-1 bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2">
- <div className="flex items-center justify-between px-4 py-2 bg-indigo-50/50 border-b border-indigo-100">
+ <div className="flex items-center justify-between px-2 py-1 bg-indigo-50/50 border-b border-indigo-100">
  <div className="flex items-center gap-2">
  <button 
  onClick={() => setPlanoSel(null)}
  className="p-1.5 text-indigo-400 hover:text-white hover:bg-indigo-600 rounded-lg transition-colors mr-1"
  title="Voltar para Planos de Corte"
  >
- <ArrowLeft size={18} />
+ <ArrowLeft size={15} />
  </button>
  <div className="p-1.5 bg-indigo-600 text-white rounded-lg shadow-sm">
- <Database size={18} />
+ <Database size={15} />
  </div>
  <div>
- <h2 className="text-sm font-black text-indigo-900 tracking-tight leading-none">Itens do Plano #{planoSel.IdPlanodecorte}</h2>
+ <h2 className="text-xs font-black text-indigo-900 tracking-tight leading-none">Itens do Plano #{planoSel.IdPlanodecorte}</h2>
  <p className="text-[10px] text-indigo-500 uppercase font-black tracking-widest mt-0.5">{planoSel.DescPlanodecorte}</p>
  </div>
  </div>
@@ -608,18 +608,18 @@ export default function ProducaoPlanoCorte() {
  <table className="w-full text-[10px] text-left border-separate border-spacing-0">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10 ">
  <tr>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Ações</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Projeto</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Tag</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Qtde</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Cortado</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">A Cortar</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center min-w-[100px]">Parcial</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Início Corte</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Final Corte</th>
- <th className="px-3 py-2 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Status</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Ações</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Fabricante</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Projeto</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Tag</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Resumo</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Qtde</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Cortado</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">A Cortar</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center min-w-[100px]">Parcial</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Início Corte</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100 text-center">Final Corte</th>
+ <th className="px-2 py-1 font-black text-indigo-700 uppercase tracking-wider border-b border-indigo-100">Status</th>
  </tr>
  </thead>
  <tbody>
@@ -637,7 +637,7 @@ export default function ProducaoPlanoCorte() {
  onClick={() => setItemSel(it)}
  className={`group cursor-pointer transition-colors border-b border-slate-50 ${selecionado ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-100' : 'hover:bg-slate-50'} ${finalizado ? 'opacity-60' : ''}`}
  >
- <td className="px-3 py-2">
+ <td className="px-2 py-1">
  <div className={`flex items-center gap-1 transition-all duration-200 ${selecionado ? 'opacity-100' : 'opacity-30 pointer-events-none grayscale'}`}>
  <button onClick={() => handleAbrirDesenho(it, '3D')} className="p-1 hover:bg-[#E0E800]/20 text-[#32423D] rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
  <button onClick={() => handleAbrirDesenho(it, 'PDF')} className="p-1 hover:bg-red-100 text-red-600 rounded transition-colors" title="Abrir Desenho PDF"><FileText size={14}/></button>
@@ -647,13 +647,13 @@ export default function ProducaoPlanoCorte() {
  <button onClick={() => handleLancarProducao(it)} className="p-1 hover:bg-indigo-100 text-indigo-600 rounded transition-colors" title="Lançar Produção de Peças Cortadas"><ClipboardCheck size={14}/></button>
  </div>
  </td>
- <td className="px-3 py-2 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
- <td className="px-3 py-2 font-bold text-slate-700">{it.Projeto}</td>
- <td className="px-3 py-2 font-black text-[#32423D]">{it.Tag}</td>
- <td className="px-3 py-2 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
- <td className="px-3 py-2 text-center font-black text-indigo-600">{it.QtdeTotal}</td>
- <td className="px-3 py-2 text-center font-black text-emerald-600">{executado}</td>
- <td className="px-3 py-2 text-center font-black text-orange-600">{executar}</td>
+ <td className="px-2 py-1 font-black text-slate-800 uppercase tabular-nums">{it.CodMatFabricante}</td>
+ <td className="px-2 py-1 font-bold text-slate-700">{it.Projeto}</td>
+ <td className="px-2 py-1 font-black text-[#32423D]">{it.Tag}</td>
+ <td className="px-2 py-1 text-slate-500 max-w-[200px] truncate" title={it.DescResumo}>{it.DescResumo}</td>
+ <td className="px-2 py-1 text-center font-black text-indigo-600">{it.QtdeTotal}</td>
+ <td className="px-2 py-1 text-center font-black text-emerald-600">{executado}</td>
+ <td className="px-2 py-1 text-center font-black text-orange-600">{executar}</td>
  <td className="px-2 py-2">
  <div className="flex flex-col gap-0.5 w-full min-w-[100px]">
  <div className="flex items-center justify-between px-1">
@@ -665,9 +665,9 @@ export default function ProducaoPlanoCorte() {
  </div>
  </div>
  </td>
- <td className="px-3 py-2 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoInicioCorte ? fmt(it.RealizadoInicioCorte) : '—'}</td>
- <td className="px-3 py-2 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoFinalCorte ? fmt(it.RealizadoFinalCorte) : '—'}</td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoInicioCorte ? fmt(it.RealizadoInicioCorte) : '—'}</td>
+ <td className="px-2 py-1 text-center text-slate-500 font-mono text-[9px]">{it.RealizadoFinalCorte ? fmt(it.RealizadoFinalCorte) : '—'}</td>
+ <td className="px-2 py-1">
  {finalizado ? (
  <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 font-black text-[8px]"><CheckCircle2 size={8}/>CONCLUÍDO</span>
  ) : (
@@ -690,7 +690,7 @@ export default function ProducaoPlanoCorte() {
  <div className="p-4 bg-slate-50 rounded-full mb-3 text-slate-300">
  <ArrowRight size={48} className="-rotate-45" />
  </div>
- <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Selecione um plano de corte acima para ver seus itens</p>
+ <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Selecione um plano de corte acima para ver seus itens</p>
  </div>
  )}
 
@@ -733,7 +733,7 @@ export default function ProducaoPlanoCorte() {
  max={lancarSaldo}
  value={qtdeApontar}
  onChange={(e) => setQtdeApontar(e.target.value)}
- className="flex-1 px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
+ className="flex-1 px-2 py-1 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
  placeholder="0"
  />
  <div className="flex flex-col gap-1 w-28">
@@ -764,16 +764,16 @@ export default function ProducaoPlanoCorte() {
  <div className="flex gap-2 justify-end mt-6">
  <button
  onClick={() => setModalLancarOpen(false)}
- className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold rounded-lg transition-colors"
+ className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold rounded-lg transition-colors"
  >
  Cancelar
  </button>
  <button
  onClick={confirmLancarProducao}
  disabled={loadingAcao || (tipoApontamento === 'Parcial' && (!qtdeApontar || Number(qtdeApontar) <= 0))}
- className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+ className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />}
  Confirmar Apontamento
  </button>
  </div>

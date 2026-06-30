@@ -445,7 +445,7 @@ export default function ConfiguracaoPage() {
  <Database size={32} />
  </div>
  <h2 className="text-2xl font-bold text-gray-800">Selecione o Banco de Dados</h2>
- <p className="text-sm text-gray-500 text-center mt-1">Ambiente Superadmin - Escolha onde deseja trabalhar</p>
+ <p className="text-xs text-gray-500 text-center mt-1">Ambiente Superadmin - Escolha onde deseja trabalhar</p>
  </div>
 
  {loadingDbs ? (
@@ -478,7 +478,7 @@ export default function ConfiguracaoPage() {
  )}
 
  <div className="mt-8 flex justify-center">
- <button onClick={() => setShowDbSelection(false)} className="text-gray-400 hover:text-gray-600 text-sm">Cancelar / Voltar</button>
+ <button onClick={() => setShowDbSelection(false)} className="text-gray-400 hover:text-gray-600 text-xs">Cancelar / Voltar</button>
  </div>
  </div>
  ) : (
@@ -488,14 +488,14 @@ export default function ConfiguracaoPage() {
  <Lock size={32} />
  </div>
  <h2 className="text-2xl font-bold text-gray-800">Acesso Restrito</h2>
- <p className="text-sm text-gray-500 text-center mt-1">Área de Configuração do Sistema</p>
+ <p className="text-xs text-gray-500 text-center mt-1">Área de Configuração do Sistema</p>
  </div>
 
  <form onSubmit={handleLogin} className="space-y-5">
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Login</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Login</label>
  <div className="relative">
- <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="text"
  value={login}
@@ -506,9 +506,9 @@ export default function ConfiguracaoPage() {
  </div>
  </div>
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Senha</label>
  <div className="relative">
- <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="password"
  value={senha}
@@ -568,12 +568,12 @@ export default function ConfiguracaoPage() {
  <Settings2 size={22} className="text-[#E0E800]" />
  </div>
  <div>
- <p className="text-gray-500 text-sm">Gerencie o sistema</p>
+ <p className="text-gray-500 text-xs">Gerencie o sistema</p>
  </div>
  </div>
  <button
  onClick={() => { localStorage.removeItem('adminUser'); setIsAdmin(false); }}
- className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1 px-3 py-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-end sm:self-auto"
+ className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1 px-2 py-0.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-end sm:self-auto"
  >
  Sair
  </button>
@@ -582,14 +582,14 @@ export default function ConfiguracaoPage() {
  <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6 w-full">
  <button
  onClick={() => setActiveTab('regras')}
- className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+ className={`flex-1 py-2.5 px-3 rounded-md font-medium text-xs transition-all ${activeTab === 'regras' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
  >
  <span className="hidden sm:inline">Regras de Negócio</span>
  <span className="sm:hidden">Regras</span>
  </button>
  <button
  onClick={() => setActiveTab('menu')}
- className={`flex-1 py-2.5 px-3 rounded-md font-medium text-sm transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
+ className={`flex-1 py-2.5 px-3 rounded-md font-medium text-xs transition-all ${activeTab === 'menu' ? 'bg-white shadow text-[#32423D]' : 'text-gray-500 hover:text-gray-700'}`}
  >
  <span className="hidden sm:inline">Menu do Sistema</span>
  <span className="sm:hidden">Menu</span>
@@ -600,7 +600,7 @@ export default function ConfiguracaoPage() {
  <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
  <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
  <h2 className="font-semibold text-gray-700 flex items-center gap-2">
- <Shield size={18} className="text-[#32423D]" />
+ <Shield size={15} className="text-[#32423D]" />
  Regras de Produção
  </h2>
  </div>
@@ -608,7 +608,7 @@ export default function ConfiguracaoPage() {
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-3">
  <div>
  <h3 className="font-medium text-gray-900">Restringir sem saldo anterior</h3>
- <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ <p className="text-xs text-gray-500 mt-1 max-w-xl">
  Impede o apontamento se não houver saldo no setor anterior.
  </p>
  </div>
@@ -620,7 +620,7 @@ export default function ConfiguracaoPage() {
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mt-4 gap-3">
  <div>
  <h3 className="font-medium text-gray-900">Visualizar módulo Power Build</h3>
- <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ <p className="text-xs text-gray-500 mt-1 max-w-xl">
  Habilita a exibição da seção lateral do sistema referente ao Power Build.
  </p>
  </div>
@@ -642,7 +642,7 @@ export default function ConfiguracaoPage() {
  {permitirRealizadoSemPlanejamento === 'Sim' ? 'DESBLOQUEADO' : 'BLOQUEADO'}
  </span>
  </h3>
- <p className="text-sm text-gray-500 mt-1 max-w-xl">
+ <p className="text-xs text-gray-500 mt-1 max-w-xl">
  Controla se datas de <strong>Realizado</strong> podem ser registradas na tela
  <strong> Visão Geral Engenharia</strong> sem que as datas de{' '}
  <strong>Planejamento</strong> estejam preenchidas para aquele setor.
@@ -664,8 +664,8 @@ export default function ConfiguracaoPage() {
  </label>
  </div>
  <div className="mt-6 flex justify-end">
- <button onClick={handleSaveRegras} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
- <Save size={18} /> Salvar Regras
+ <button onClick={handleSaveRegras} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-2 py-1 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
+ <Save size={15} /> Salvar Regras
  </button>
  </div>
 
@@ -687,7 +687,7 @@ export default function ConfiguracaoPage() {
  >
  <div className="flex items-center gap-3">
  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
- {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+ {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
  </div>
  <span className="capitalize font-medium text-gray-700">{proc}</span>
  </div>
@@ -723,9 +723,9 @@ export default function ConfiguracaoPage() {
  }}
  >
  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D]/10 text-[#32423D]' : 'bg-gray-200 text-gray-400'}`}>
- {isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+ {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
  </div>
- <span className="capitalize font-medium text-gray-700 text-sm">{proc === 'medicao' ? 'medição' : proc === 'aprovacao' ? 'aprovação' : proc === 'isometrico' ? 'isométrico' : proc === 'expedicao' ? 'expedição' : proc}</span>
+ <span className="capitalize font-medium text-gray-700 text-xs">{proc === 'medicao' ? 'medição' : proc === 'aprovacao' ? 'aprovação' : proc === 'isometrico' ? 'isométrico' : proc === 'expedicao' ? 'expedição' : proc}</span>
  </div>
  <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isVisible ? 'bg-[#32423D] border-[#32423D]' : 'border-gray-300 bg-white'}`}>
  {isVisible && <CheckCircle size={12} className="text-[#E0E800]" />}
@@ -735,7 +735,7 @@ export default function ConfiguracaoPage() {
  <label className="text-[10px] text-gray-500 font-medium ml-1">Rótulo Personalizado</label>
  <input
  type="text"
- className="w-full border rounded p-1.5 text-sm outline-none focus:ring-1 focus:ring-[#E0E800]"
+ className="w-full border rounded p-1.5 text-xs outline-none focus:ring-1 focus:ring-[#E0E800]"
  value={nomesProcessosEngenharia[proc] || ''}
  onChange={e => setNomesProcessosEngenharia(prev => ({ ...prev, [proc]: e.target.value }))}
  placeholder="Nome na grade"
@@ -753,11 +753,11 @@ export default function ConfiguracaoPage() {
 
  <div className="mt-8 border-t border-gray-100 pt-6">
  <h3 className="font-medium text-gray-900 mb-3">Filtro Padrão — Plano de Corte</h3>
- <p className="text-sm text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
+ <p className="text-xs text-gray-500 mb-4">Define quais itens ficam disponíveis na tela de Montagem do Plano de Corte.</p>
  <div className="flex flex-col sm:flex-row gap-3">
  <button
  onClick={() => setPlanoCorteFiltroDC('corte')}
- className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+ className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-xs transition-all ${
  planoCorteFiltroDC === 'corte'
  ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
@@ -768,7 +768,7 @@ export default function ConfiguracaoPage() {
  </button>
  <button
  onClick={() => setPlanoCorteFiltroDC('chaparia')}
- className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-sm transition-all ${
+ className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 font-bold text-xs transition-all ${
  planoCorteFiltroDC === 'chaparia'
  ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
@@ -783,10 +783,10 @@ export default function ConfiguracaoPage() {
  {/* ===== LIMITE DE REGISTROS ===== */}
  <div className="mt-8 border-t border-gray-100 pt-6">
  <div className="flex items-center gap-2 mb-1">
- <List size={18} className="text-[#32423D]" />
+ <List size={15} className="text-[#32423D]" />
  <h3 className="font-medium text-gray-900">Limite de Registros por Listagem</h3>
  </div>
- <p className="text-sm text-gray-500 mb-4">
+ <p className="text-xs text-gray-500 mb-4">
  Número máximo de registros retornados em todas as consultas do sistema.
  Valor atual: <span className="font-bold text-[#32423D]">{maxRegistros}</span> registros.
  </p>
@@ -795,7 +795,7 @@ export default function ConfiguracaoPage() {
  <button
  key={val}
  onClick={() => { setMaxRegistros(val); setMaxRegistrosCustom(''); }}
- className={`px-5 py-2.5 rounded-lg border-2 font-bold text-sm transition-all ${
+ className={`px-5 py-2.5 rounded-lg border-2 font-bold text-xs transition-all ${
  maxRegistros === val && maxRegistrosCustom === ''
  ? 'border-[#32423D] bg-[#32423D] text-[#E0E800]'
  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
@@ -806,7 +806,7 @@ export default function ConfiguracaoPage() {
  ))}
  </div>
  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
- <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
+ <label className="text-xs text-gray-600 font-medium whitespace-nowrap">Valor personalizado:</label>
  <input
  type="number"
  min="1"
@@ -819,7 +819,7 @@ export default function ConfiguracaoPage() {
  const n = parseInt(v);
  if (!isNaN(n) && n > 0) setMaxRegistros(n);
  }}
- className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#E0E800] focus:border-transparent outline-none"
+ className="w-36 border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-2 focus:ring-[#E0E800] focus:border-transparent outline-none"
  />
  </div>
  <p className="text-xs text-gray-400 mt-2">
@@ -832,18 +832,18 @@ export default function ConfiguracaoPage() {
  <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
  <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
  <h2 className="font-semibold text-gray-700 flex items-center gap-2">
- <Menu size={18} className="text-[#32423D]" />
+ <Menu size={15} className="text-[#32423D]" />
  Editor de Menu
  </h2>
  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
  <button 
  onClick={() => setMenuItems(sortMenuRecursive(menuItems))} 
- className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-sm font-bold transition-colors border border-blue-100"
+ className="flex items-center gap-2 px-2 py-0.5 bg-[#E0E800]/30 text-[#32423D] rounded-lg hover:bg-[#E0E800]/20 text-xs font-bold transition-colors border border-blue-100"
  >
- <List size={16} /> Ordenar A-Z
+ <List size={14} /> Ordenar A-Z
  </button>
- <button onClick={handleAddGroup} className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-sm font-bold transition-colors">
- <FolderPlus size={16} /> Novo Grupo
+ <button onClick={handleAddGroup} className="flex items-center gap-2 px-2 py-0.5 bg-[#E0E800]/20 text-[#32423D] rounded-lg hover:bg-[#E0E800]/40 text-xs font-bold transition-colors">
+ <FolderPlus size={14} /> Novo Grupo
  </button>
  </div>
  </div>
@@ -855,11 +855,11 @@ export default function ConfiguracaoPage() {
  </div>
 
  <div className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-100">
- <button onClick={() => setMenuItems(defaultMenuItems)} className="px-4 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors text-center">
+ <button onClick={() => setMenuItems(defaultMenuItems)} className="px-2 py-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-xs transition-colors text-center">
  Restaurar Padrão
  </button>
  <button onClick={handleSaveMenu} className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-6 py-2 rounded-lg font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20">
- <Save size={18} /> Salvar Menu
+ <Save size={15} /> Salvar Menu
  </button>
  </div>
  </div>

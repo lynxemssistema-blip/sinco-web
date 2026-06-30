@@ -5206,6 +5206,24 @@ const storageIsometrico = multer.diskStorage({
 });
 const uploadIso = multer({ storage: storageIsometrico });
 
+// Upload configurations for CNH
+const storageCNH = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const cnhDir = path.join(__dirname, '../public/uploads/cnh');
+        if (!fs.existsSync(cnhDir)) {
+            fs.mkdirSync(cnhDir, { recursive: true });
+        }
+        cb(null, cnhDir)
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'cnh-' + uniqueSuffix + ext)
+    }
+});
+const uploadCNH = multer({ storage: storageCNH });
+
+
 // POST upload isometrico
 app.post('/api/visao-geral-engenharia/tags/:idTag/isometrico', uploadIso.single('isometricoPdf'), async (req, res) => {
     try {
@@ -10429,14 +10447,14 @@ app.delete('/api/usuario/:id', tenantMiddleware, async (req, res) => {
             "UPDATE usuario SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = 'Sistema' WHERE idUsuario = ?",
             [now, req.params.id]
         );
-        res.json({ success: true, message: 'UsuÃ¯Â¿Â½rio excluÃ¯Â¿Â½do' });
+        res.json({ success: true, message: 'Usuário excluído' });
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ success: false, message: 'Erro ao excluir usuÃ¯Â¿Â½rio' });
+        res.status(500).json({ success: false, message: 'Erro ao excluir usuário' });
     }
 });
 
-// --- RNC / PENDÃ¯Â¿Â½NCIA ROMANEIO ---
+// --- RNC / PENDÊNCIA ROMANEIO ---
 
 // GET /api/rnc/sectors - List all sectors from dedicated table
 app.get('/api/rnc/sectors', tenantMiddleware, async (req, res) => {
@@ -10533,15 +10551,25 @@ app.get('/api/motoristas', tenantMiddleware, async (req, res) => {
     }
 });
 
+
+// POST /api/motoristas/upload-cnh - Fazer upload da imagem da CNH
+app.post('/api/motoristas/upload-cnh', tenantMiddleware, uploadCNH.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
+    }
+    const fileUrl = '/uploads/cnh/' + req.file.filename;
+    res.json({ success: true, url: fileUrl });
+});
+
 // POST /api/motoristas - Criar novo motorista
 app.post('/api/motoristas', tenantMiddleware, async (req, res) => {
-    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    const { Motorista, CNH, Categoria, Telefone, DataVencimentoCNH, ImagemCNH } = req.body;
     const now = new Date();
     const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     try {
         await req.tenantDbPool.execute(
             "INSERT INTO motorista (Motorista, CNH, Categoria, Telefone, DataCadastro) VALUES (?, ?, ?, ?, ?)",
-            [Motorista, CNH || '', Categoria || '', Telefone || '', nowFormat]
+            [Motorista, CNH || '', Categoria || '', Telefone || '', DataVencimentoCNH || null, nowFormat]
         );
         res.json({ success: true, message: 'Motorista criado com sucesso' });
     } catch (error) {
@@ -10553,11 +10581,11 @@ app.post('/api/motoristas', tenantMiddleware, async (req, res) => {
 // PUT /api/motoristas/:id - Atualizar motorista
 app.put('/api/motoristas/:id', tenantMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { Motorista, CNH, Categoria, Telefone } = req.body;
+    const { Motorista, CNH, Categoria, Telefone, DataVencimentoCNH, ImagemCNH } = req.body;
     try {
         await req.tenantDbPool.execute(
-            "UPDATE motorista SET Motorista = ?, CNH = ?, Categoria = ?, Telefone = ? WHERE IdMotorista = ?",
-            [Motorista, CNH || '', Categoria || '', Telefone || '', id]
+            "UPDATE motorista SET Motorista = ?, CNH = ?, Categoria = ?, Telefone = ?, DataVencimentoCNH = ?, ImagemCNH = ? WHERE IdMotorista = ?",
+              [Motorista, CNH || '', Categoria || '', Telefone || '', DataVencimentoCNH || null, ImagemCNH || null, id]
         );
         res.json({ success: true, message: 'Motorista atualizado com sucesso' });
     } catch (error) {

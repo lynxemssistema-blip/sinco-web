@@ -407,8 +407,8 @@ export default function VisaoGeralEngenharia() {
             <div className="border-b border-gray-300 bg-white shrink-0">
 
                 {/* Title bar */}
-                <div className="flex items-center justify-between px-3 py-2 bg-white">
-                    <div className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                <div className="flex items-center justify-between px-2 py-1 bg-white">
+                    <div className="font-bold text-gray-800 text-xs flex items-center gap-2">
                         Visão Engenharia
                     </div>
                     <div className="flex items-center gap-2">
@@ -600,7 +600,7 @@ export default function VisaoGeralEngenharia() {
                                         <div className="flex items-center gap-2 mb-2 border-b border-white/20 pb-2">
                                             <span className="text-lg">{info.icon}</span>
                                             <div>
-                                                <div className="font-black text-sm uppercase tracking-wide">{customName}</div>
+                                                <div className="font-black text-xs uppercase tracking-wide">{customName}</div>
                                                 <div className="text-[10px] text-white/70 font-medium">Setor de Engenharia</div>
                                             </div>
                                         </div>
@@ -633,7 +633,7 @@ export default function VisaoGeralEngenharia() {
                 <div className="text-gray-700 font-bold flex items-center gap-2">
                     {selectedIds.size > 0 && <span className="font-bold text-[#32423D] bg-[#E0E800]/40 px-2 py-0.5 rounded border border-[#E0E800]">{selectedIds.size} tags selecionadas</span>}
                     <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-800 transition-colors" title={isExpanded ? "Restaurar tamanho" : "Expandir grid"}>
-                        {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                        {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
                 </div>
                 <div>
@@ -878,7 +878,7 @@ export default function VisaoGeralEngenharia() {
                                     {/* Linha-resumo de datas do projeto (acordeão) */}
                                     {isLastOfProject && isExpProj && (
                                         <tr className="bg-[#32423D]/8 border-t-2 border-[#32423D]/30">
-                                            <td colSpan={2} className="px-3 py-2 bg-[#32423D] text-white text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
+                                            <td colSpan={2} className="px-2 py-1 bg-[#32423D] text-white text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
                                                 📅 Resumo Datas — {t.Projeto}
                                             </td>
                                             <td colSpan={8} className="px-2 py-2 bg-[#32423D]/5">

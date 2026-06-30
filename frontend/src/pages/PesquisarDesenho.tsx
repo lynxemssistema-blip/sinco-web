@@ -142,7 +142,7 @@ export default function PesquisarDesenho() {
  <div className="bg-white p-3 rounded-md shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-200 mb-2 shrink-0">
  <div className="flex justify-between items-center mb-2">
  <h2 className="text-xs font-bold text-slate-700 flex items-center gap-2">
- <FileSearch className="text-[#32423D]" size={16} />
+ <FileSearch className="text-[#32423D]" size={14} />
  Pesquisar Desenho
  </h2>
  </div>

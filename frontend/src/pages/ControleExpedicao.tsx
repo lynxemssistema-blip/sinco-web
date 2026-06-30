@@ -311,11 +311,11 @@ export default function ControleExpedicaoPage() {
  className="flex items-center justify-center p-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
  title="Voltar para Todas as Pendências"
  >
- <ArrowLeft size={16} />
+ <ArrowLeft size={14} />
  </button>
  )}
  <h2 className="text-xs font-bold text-slate-700 flex items-center gap-2">
- <PackageCheck className="text-[#32423D]" size={16} />
+ <PackageCheck className="text-[#32423D]" size={14} />
  Filtros de Pesquisa
  </h2>
  </div>
@@ -492,17 +492,17 @@ export default function ControleExpedicaoPage() {
 
  {/* AÇÕES (Desenhos e Atualizar) */}
  <div className="flex flex-wrap gap-2 mb-4">
- <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, '3d') }} className="px-3 py-1.5 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+ <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, '3d') }} className="px-2 py-0.5 bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
  <Box size={14} /> Abrir Desenho 3D
  </button>
- <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, 'pdf') }} className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+ <button onClick={(e) => { e.stopPropagation(); abrirArquivoLocal(item.enderecoarquivo, 'pdf') }} className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
  <FileText size={14} /> Abrir Desenho PDF
  </button>
- <button onClick={(e) => { e.stopPropagation(); abrirIsoLocal(item.IdTag) }} className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+ <button onClick={(e) => { e.stopPropagation(); abrirIsoLocal(item.IdTag) }} className="px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
  <FileCode2 size={14} /> Abrir Isométrico
  </button>
  {(item.TotalExpedicao < (item.QtdeTotal || item.QTDETOTAL || 0)) && (
- <button onClick={(e) => { e.stopPropagation(); openApontarModal(item); }} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
+ <button onClick={(e) => { e.stopPropagation(); openApontarModal(item); }} className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm text-[10px] font-bold flex items-center gap-1.5 transition-colors">
  <RefreshCw size={14} /> Atualizar Expedição
  </button>
  )}
@@ -525,23 +525,23 @@ export default function ControleExpedicaoPage() {
  <table className="w-full text-left text-[11px] whitespace-nowrap">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white border-b border-white/20">
  <tr>
- <th className="px-3 py-2 font-bold">ID Item Control</th>
- <th className="px-3 py-2 font-bold">Criado Por</th>
- <th className="px-3 py-2 font-bold">Data Criação</th>
- <th className="px-3 py-2 font-bold">Cód. Mat.</th>
- <th className="px-3 py-2 font-bold">Qtde Total</th>
- <th className="px-3 py-2 font-bold">Total Expedição</th>
+ <th className="px-2 py-1 font-bold">ID Item Control</th>
+ <th className="px-2 py-1 font-bold">Criado Por</th>
+ <th className="px-2 py-1 font-bold">Data Criação</th>
+ <th className="px-2 py-1 font-bold">Cód. Mat.</th>
+ <th className="px-2 py-1 font-bold">Qtde Total</th>
+ <th className="px-2 py-1 font-bold">Total Expedição</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {secItems.map(sec => (
  <tr key={sec.idordemservicoitemControle} className="hover:bg-slate-50">
- <td className="px-3 py-1.5 font-mono text-slate-500">#{sec.IDOrdemServicoITEM ?? sec.IdOrdemServicoITem}</td>
- <td className="px-3 py-1.5 text-slate-700">{sec.CriadoPor}</td>
- <td className="px-3 py-1.5 text-slate-500">{sec.DataCriacao}</td>
- <td className="px-3 py-1.5 font-mono text-[#32423D]">{sec.CodMatFabricante || '-'}</td>
- <td className="px-3 py-1.5 font-bold text-slate-700">{sec.QtdeTotal || 0}</td>
- <td className="px-3 py-1.5 font-bold text-emerald-600">{sec.TotalExpedicao || 0}</td>
+ <td className="px-2 py-0.5 font-mono text-slate-500">#{sec.IDOrdemServicoITEM ?? sec.IdOrdemServicoITem}</td>
+ <td className="px-2 py-0.5 text-slate-700">{sec.CriadoPor}</td>
+ <td className="px-2 py-0.5 text-slate-500">{sec.DataCriacao}</td>
+ <td className="px-2 py-0.5 font-mono text-[#32423D]">{sec.CodMatFabricante || '-'}</td>
+ <td className="px-2 py-0.5 font-bold text-slate-700">{sec.QtdeTotal || 0}</td>
+ <td className="px-2 py-0.5 font-bold text-emerald-600">{sec.TotalExpedicao || 0}</td>
  </tr>
  ))}
  </tbody>
@@ -566,9 +566,9 @@ export default function ControleExpedicaoPage() {
  {apontarItem && (
  <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4">
  <div className="bg-white rounded-md shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
- <div className="bg-[#32423D] px-3 py-1.5 flex justify-between items-center text-white">
+ <div className="bg-[#32423D] px-2 py-0.5 flex justify-between items-center text-white">
  <h3 className="font-bold flex items-center gap-2">
- <Box size={18} /> Apontar Expedição
+ <Box size={15} /> Apontar Expedição
  </h3>
  <button onClick={closeApontarModal} className="text-white/80 hover:text-white transition-colors" disabled={isApontarSubmitting}>
  <X size={20} />
@@ -593,17 +593,17 @@ export default function ControleExpedicaoPage() {
  max={(apontarItem.QtdeTotal || apontarItem.QTDETOTAL || 0) - (apontarItem.TotalExpedicao || 0)}
  value={apontarQtde}
  onChange={(e) => setApontarQtde(e.target.value)}
- className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:border-[#32423D] focus:outline-none"
+ className="w-full border border-slate-300 rounded px-2 py-1 text-xs focus:border-[#32423D] focus:outline-none"
  placeholder="Digite a quantidade"
  disabled={isApontarSubmitting}
  />
  </div>
  </div>
  <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
- <button onClick={closeApontarModal} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors disabled:opacity-50">
+ <button onClick={closeApontarModal} disabled={isApontarSubmitting} className="px-2 py-1 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition-colors disabled:opacity-50">
  Cancelar
  </button>
- <button onClick={submitApontar} disabled={isApontarSubmitting} className="px-4 py-2 text-xs font-bold bg-[#32423D] text-white hover:bg-[#32423D]/80 rounded shadow-sm inline-flex items-center gap-2 transition-colors disabled:opacity-50">
+ <button onClick={submitApontar} disabled={isApontarSubmitting} className="px-2 py-1 text-xs font-bold bg-[#32423D] text-white hover:bg-[#32423D]/80 rounded shadow-sm inline-flex items-center gap-2 transition-colors disabled:opacity-50">
  {isApontarSubmitting && <Loader2 size={14} className="animate-spin" />}
  Confirmar Apontamento
  </button>

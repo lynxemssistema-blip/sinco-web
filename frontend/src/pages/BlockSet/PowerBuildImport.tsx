@@ -213,7 +213,7 @@ const PowerBuildImport: React.FC = () => {
  </div>
  <div>
  <h1 className="text-2xl font-black text-[#567469] tracking-tight">Leitura de Dados (Power Build)</h1>
- <p className="text-sm text-gray-500 font-medium">Importe planilhas BlockSet (data) ou PixEasy (bom) para o sistema.</p>
+ <p className="text-xs text-gray-500 font-medium">Importe planilhas BlockSet (data) ou PixEasy (bom) para o sistema.</p>
  </div>
  </div>
 
@@ -221,7 +221,7 @@ const PowerBuildImport: React.FC = () => {
  {user?.dbName === 'lynxlocal' && (
  <button 
  onClick={handleTruncate}
- className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-all text-sm font-bold shadow-sm"
+ className="flex items-center gap-2 px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-all text-xs font-bold shadow-sm"
  >
  <Trash2 className="w-4 h-4" />
  Limpar Base (Truncate)
@@ -235,7 +235,7 @@ const PowerBuildImport: React.FC = () => {
  {initializing && (
  <div className="bg-[#E0E800]/20 border border-blue-200 p-4 rounded-md flex items-center gap-3 text-[#32423D]">
  <Loader2 className="w-5 h-5 animate-spin" />
- <span className="text-sm font-medium">Verificando estrutura do banco de dados...</span>
+ <span className="text-xs font-medium">Verificando estrutura do banco de dados...</span>
  </div>
  )}
 
@@ -256,7 +256,7 @@ const PowerBuildImport: React.FC = () => {
  <select 
  value={selectedProjeto}
  onChange={e => setSelectedProjeto(e.target.value)}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800"
  >
  <option value="">Selecione o Projeto</option>
  {Array.isArray(projetos) && projetos.map(p => (
@@ -270,7 +270,7 @@ const PowerBuildImport: React.FC = () => {
  value={selectedTag}
  onChange={e => setSelectedTag(e.target.value)}
  disabled={!selectedProjeto}
- className="w-full bg-gray-50 border border-gray-300 rounded-md px-4 py-2.5 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800 disabled:opacity-50"
+ className="w-full bg-gray-50 border border-gray-300 rounded-md px-2 py-1.5 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800 disabled:opacity-50"
  >
  <option value="">Selecione a Tag</option>
  {Array.isArray(tags) && tags.map(t => (
@@ -290,7 +290,7 @@ const PowerBuildImport: React.FC = () => {
  <div className="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-4">
  <div className="flex items-center justify-between">
  <div className="space-y-0.5">
- <p className="text-sm font-bold text-gray-800">Modo de Inclusão</p>
+ <p className="text-xs font-bold text-gray-800">Modo de Inclusão</p>
  <p className="text-[10px] text-gray-500">Defina se esta planilha é uma nova importação ou revisão.</p>
  </div>
  <div className="flex bg-gray-200 p-1 rounded-lg">
@@ -323,7 +323,7 @@ const PowerBuildImport: React.FC = () => {
  <select 
  value={selectedMaster}
  onChange={e => setSelectedMaster(e.target.value)}
- className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:border-[#32423D] outline-none transition-all text-sm text-gray-800"
+ className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 focus:border-[#32423D] outline-none transition-all text-xs text-gray-800"
  >
  <option value="">Selecione o arquivo mestre...</option>
  {masterPlanilhas.map(p => <option key={p.NomeArquivo} value={p.NomeArquivo}>{p.NomeArquivo}</option>)}

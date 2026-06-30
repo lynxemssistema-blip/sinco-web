@@ -123,7 +123,7 @@ export default function ApontamentoProducaoPage() {
  const [hasSearched, setHasSearched] = useState(false);
  const [error, setError] = useState<string | null>(null);
  const [fromGlobal, setFromGlobal] = useState(false);
- // const [showTabs, setShowTabs] = useState(true);
+ const [showTabs, setShowTabs] = useState(true);
 
  // Paginação
  const [page, setPage] = useState(1);
@@ -884,7 +884,7 @@ export default function ApontamentoProducaoPage() {
  <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] gap-4 min-h-0 bg-slate-50">
  <div className="p-4 bg-red-100 rounded-full text-red-600"><Lock size={40} /></div>
  <h2 className="text-xl font-black text-red-700">Acesso Negado</h2>
- <p className="text-sm text-slate-500 text-center max-w-xs">
+ <p className="text-xs text-slate-500 text-center max-w-xs">
  Somente usuários com permissão de Mapa de Produção ou Administradores podem acessar esta tela.
  </p>
  {user && (
@@ -912,10 +912,10 @@ export default function ApontamentoProducaoPage() {
  <div className="mb-2">
  <button
  onClick={() => window.location.href = '/visao-geral-pendencias'}
- className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors w-fit text-sm font-medium"
+ className="flex items-center gap-2 px-2 py-0.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors w-fit text-xs font-medium"
  title="Voltar para Todas as Pendências"
  >
- <ArrowLeft size={16} /> Voltar
+ <ArrowLeft size={14} /> Voltar
  </button>
  </div>
  )}
@@ -939,12 +939,12 @@ export default function ApontamentoProducaoPage() {
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={() => setSetorAtivo(setor.id)}
- className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all text-sm ${isActive
+ className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 px-2 py-1.5 rounded-lg font-medium transition-all text-xs ${isActive
  ? `${setor.color} text-white shadow-lg`
  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
  }`}
  >
- <Icon size={16} />
+ <Icon size={14} />
  {setor.label}
  </motion.button>
  );
@@ -966,7 +966,7 @@ export default function ApontamentoProducaoPage() {
  <div className="flex items-center gap-2 shrink-0">
  <button
  onClick={() => setShowFilters(!showFilters)}
- className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm transition-all border ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold rounded-lg shadow-sm transition-all border ${
  showFilters
  ? 'text-gray-600 bg-white hover:bg-gray-50 border-gray-200'
  : 'text-[#32423D] bg-[#E0E800]/40 hover:bg-[#E0E800]/60 border-[#c8cf00]'
@@ -1174,7 +1174,7 @@ export default function ApontamentoProducaoPage() {
  {/* Planejamento Button */}
  <button
  onClick={() => setSetorAtivo('planejamento')}
- className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded shadow-sm transition-colors"
+ className="flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded shadow-sm transition-colors"
  >
  <Calendar size={14} />
  Planejamento
@@ -1186,7 +1186,7 @@ export default function ApontamentoProducaoPage() {
  className="p-1.5 text-gray-500 hover:text-[#03624C] transition-colors rounded border bg-gray-50 shadow-sm"
  title={isExpanded ? "Restaurar tela" : "Maximizar tela"}
  >
- {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+ {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
  </button>
 
  {/* Search Button */}
@@ -1209,9 +1209,9 @@ export default function ApontamentoProducaoPage() {
  <motion.div
  initial={{ opacity: 0, y: -10 }}
  animate={{ opacity: 1, y: 0 }}
- className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2"
+ className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2"
  >
- <AlertCircle size={18} />
+ <AlertCircle size={15} />
  {error}
  </motion.div>
  )}
@@ -1224,7 +1224,7 @@ export default function ApontamentoProducaoPage() {
  <div className="flex flex-col items-center justify-center py-20 text-gray-400">
  <Search size={48} className="mb-4 text-gray-300" />
  <h3 className="text-lg font-bold text-gray-500">Pronto para buscar</h3>
- <p className="text-sm mt-2">Preencha pelo menos 1 filtro acima e clique em "Pesquisar" para exibir os apontamentos.</p>
+ <p className="text-xs mt-2">Preencha pelo menos 1 filtro acima e clique em "Pesquisar" para exibir os apontamentos.</p>
  </div>
  )}
  
@@ -1255,7 +1255,7 @@ export default function ApontamentoProducaoPage() {
  <div className="p-12 flex flex-col items-center justify-center gap-4 text-gray-400">
  <Loader2 size={32} className="animate-spin text-[#32423D]" />
  <div className="text-center">
- <p className="text-sm font-medium text-gray-600">Carregando itens do setor {setorInfo.label}...</p>
+ <p className="text-xs font-medium text-gray-600">Carregando itens do setor {setorInfo.label}...</p>
  <p className="text-[10px] text-gray-400 mt-1">Aguarde enquanto processamos os dados...</p>
  </div>
  <button 
@@ -1277,7 +1277,7 @@ export default function ApontamentoProducaoPage() {
  </motion.div>
  <div className="text-center max-w-sm">
  <h3 className="text-lg font-bold text-gray-700 mb-2">Nada a Executar</h3>
- <p className="text-sm text-gray-500">
+ <p className="text-xs text-gray-500">
  Não há itens pendentes para o setor <span className="font-bold text-[#32423D]">{setorInfo.label}</span>.
  </p>
  <p className="text-xs text-gray-400 mt-3 bg-[#E0E800]/20 p-3 rounded-lg border border-blue-100 italic">
@@ -1549,7 +1549,7 @@ export default function ApontamentoProducaoPage() {
  <div key={groupKey}>
  {/* Group Header */}
  <div className="px-4 py-1 sticky top-0 z-10 bg-gray-100 border-b border-gray-200 text-[#32423D] flex items-center justify-between shadow-sm min-w-max">
- <span className="font-bold text-sm uppercase">{groupKey}</span>
+ <span className="font-bold text-xs uppercase">{groupKey}</span>
  <span className="text-xs font-medium text-gray-500">{items.length} itens</span>
  </div>
 
@@ -1788,7 +1788,7 @@ export default function ApontamentoProducaoPage() {
 
  {/* Paginação Controls */}
  {!loading && totalPages > 1 && (
- <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-t border-gray-200 mt-auto rounded-b-xl">
+ <div className="flex items-center justify-between px-2 py-0.5 bg-gray-50 border-t border-gray-200 mt-auto rounded-b-xl">
  <div className="text-xs text-gray-500 font-medium">
  Mostrando página <span className="font-bold text-gray-700">{page}</span> de <span className="font-bold text-gray-700">{totalPages}</span>
  <span className="ml-2 text-[10px] bg-white px-2 py-0.5 rounded border border-gray-200">Total: {totalItems} itens</span>
@@ -1797,14 +1797,14 @@ export default function ApontamentoProducaoPage() {
  <button
  onClick={() => { setPage(p => Math.max(1, p - 1)); }}
  disabled={page === 1}
- className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+ className="px-2 py-0.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
  >
  Anterior
  </button>
  <button
  onClick={() => { setPage(p => Math.min(totalPages, p + 1)); }}
  disabled={page === totalPages}
- className="px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+ className="px-2 py-0.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
  >
  Próxima
  </button>
@@ -1824,14 +1824,14 @@ export default function ApontamentoProducaoPage() {
  <AlertTriangle size={36} />
  </div>
  <h2 className="text-2xl font-bold text-[#32423D] mb-2 tracking-tight">Log de Pendência (Mapa)</h2>
- <p className="text-gray-500 mb-8 max-w-md text-center text-sm leading-relaxed">
+ <p className="text-gray-500 mb-8 max-w-md text-center text-xs leading-relaxed">
  A janela de histórico e edição da pendência está aberta automaticamente. Quando finalizar sua consulta, feche o modal da pendência e clique no botão abaixo para retornar.
  </p>
  <button
  onClick={() => window.location.href = '/visao-geral-pendencias'}
  className="group flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 hover:text-[#32423D] hover:border-blue-200 transition-all font-medium shadow-sm active:scale-95 z-10"
  >
- <ArrowLeft size={18} className="text-gray-400 group-hover:text-[#32423D] transition-colors" />
+ <ArrowLeft size={15} className="text-gray-400 group-hover:text-[#32423D] transition-colors" />
  Voltar para Todas as Pendências
  </button>
  
@@ -1859,13 +1859,13 @@ export default function ApontamentoProducaoPage() {
  className="bg-white rounded-md shadow-2xl w-full max-w-4xl overflow-hidden"
  >
  {/* Modal Header */}
- <div className={`px-4 py-2 flex items-center justify-between ${modalSetor === 'mapa' ? 'bg-[#32423D]' : setorInfo.color} text-white`}>
+ <div className={`px-2 py-1 flex items-center justify-between ${modalSetor === 'mapa' ? 'bg-[#32423D]' : setorInfo.color} text-white`}>
  <div className="flex items-center gap-2">
  <div className="p-1.5 bg-white/20 rounded-lg">
- {modalSetor === 'mapa' ? <CheckCircle size={18} /> : (setorInfo.icon ? <setorInfo.icon size={18} /> : <Settings2 size={18} />)}
+ {modalSetor === 'mapa' ? <CheckCircle size={15} /> : (setorInfo.icon ? <setorInfo.icon size={15} /> : <Settings2 size={15} />)}
  </div>
  <div>
- <h3 className="text-sm font-black uppercase tracking-tight">
+ <h3 className="text-xs font-black uppercase tracking-tight">
  {modalSetor === 'mapa' ? 'Finalização Geral (MAPA)' : `Apontar ${setorInfo.label}`}
  </h3>
  <div className="flex items-center gap-1.5">
@@ -1878,7 +1878,7 @@ export default function ApontamentoProducaoPage() {
  onClick={() => setModalOpen(false)}
  className="p-1 rounded-full hover:bg-white/20 transition-colors"
  >
- <X size={18} />
+ <X size={15} />
  </button>
  </div>
 
@@ -1887,7 +1887,7 @@ export default function ApontamentoProducaoPage() {
  {loadingDetails ? (
  <div className="py-8 flex flex-col items-center gap-3 text-gray-400">
  <Loader2 size={24} className="animate-spin" />
- <p className="text-sm">Carregando detalhes...</p>
+ <p className="text-xs">Carregando detalhes...</p>
  </div>
  ) : itemDetails ? (
  <div className="space-y-2">
@@ -1932,7 +1932,7 @@ export default function ApontamentoProducaoPage() {
  const pdfUrl = `${API_BASE}/pdf?path=${encodeURIComponent(itemDetails.item.EnderecoArquivo || '')}`;
  window.open(pdfUrl, '_blank');
  }}
- className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors text-xs font-bold border border-red-100"
+ className="flex items-center gap-2 px-2 py-0.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors text-xs font-bold border border-red-100"
  title="Abrir Desenho PDF"
  >
  <FileText size={14} />
@@ -1945,7 +1945,7 @@ export default function ApontamentoProducaoPage() {
  const dxfUrl = `${API_BASE}/download?path=${encodeURIComponent(itemDetails.item.EnderecoArquivo || '')}&type=dxf`;
  window.open(dxfUrl, '_blank');
  }}
- className="flex items-center gap-2 px-3 py-1.5 bg-[#E0E800]/30 text-[#32423D] rounded hover:bg-[#E0E800]/20 transition-colors text-xs font-bold border border-blue-100"
+ className="flex items-center gap-2 px-2 py-0.5 bg-[#E0E800]/30 text-[#32423D] rounded hover:bg-[#E0E800]/20 transition-colors text-xs font-bold border border-blue-100"
  title="Abrir Desenho DXF"
  >
  <PenTool size={14} />
@@ -1958,7 +1958,7 @@ export default function ApontamentoProducaoPage() {
  const path3d = `${API_BASE}/download?path=${encodeURIComponent(itemDetails.item.EnderecoArquivo || '')}&type=sldprt`;
  window.open(path3d, '_blank');
  }}
- className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-xs font-bold border border-gray-200"
+ className="flex items-center gap-2 px-2 py-0.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-xs font-bold border border-gray-200"
  title="Abrir Desenho 3D"
  >
  <Box size={14} />
@@ -2030,7 +2030,7 @@ export default function ApontamentoProducaoPage() {
  <CheckCircle size={24} />
  </div>
  <div>
- <h3 className="text-sm font-bold text-blue-900 uppercase">
+ <h3 className="text-xs font-bold text-blue-900 uppercase">
  Finalização Total (MAPA)
  </h3>
  <p className="text-xs text-[#32423D]">
@@ -2101,7 +2101,7 @@ export default function ApontamentoProducaoPage() {
  {/* Histórico */}
  {itemDetails.historico.length > 0 && (
  <div>
- <div className="flex items-center gap-2 text-sm font-semibold text-[#32423D] mb-1">
+ <div className="flex items-center gap-2 text-xs font-semibold text-[#32423D] mb-1">
  <History size={14} />
  Histórico de Apontamentos
  </div>
@@ -2120,7 +2120,7 @@ export default function ApontamentoProducaoPage() {
  </div>
 
  {/* Modal Footer */}
- <div className="px-3 py-1.5 bg-gray-50 flex gap-3">
+ <div className="px-2 py-0.5 bg-gray-50 flex gap-3">
  <button
  onClick={() => setModalOpen(false)}
  className="flex-1 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100"
@@ -2139,17 +2139,17 @@ export default function ApontamentoProducaoPage() {
  >
  {submitting ? (
  <>
- <Loader2 size={16} className="animate-spin" />
+ <Loader2 size={14} className="animate-spin" />
  Processando...
  </>
  ) : modalSetor === 'mapa' ? (
  <>
- <CheckCircle size={16} />
+ <CheckCircle size={14} />
  Sim, Finalizar Tudo
  </>
  ) : (
  <>
- <CheckCircle size={16} />
+ <CheckCircle size={14} />
  Confirmar Apontamento
  </>
  )}
@@ -2178,7 +2178,7 @@ export default function ApontamentoProducaoPage() {
  onClick={e => e.stopPropagation()}
  >
  {/* Modal Header */}
- <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-white">
+ <div className="px-2 py-1 border-b border-gray-100 flex items-center justify-between bg-white">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-[#E0E800]/30 text-[#32423D] rounded-lg">
  <History size={20} />
@@ -2208,11 +2208,11 @@ export default function ApontamentoProducaoPage() {
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white">
  <tr className=" text-[10px] uppercase tracking-wider font-bold text-white">
- <th className="px-3 py-1.5 border-b border-white/20">Data</th>
- <th className="px-3 py-1.5 border-b border-white/20">Setor</th>
- <th className="px-3 py-1.5 border-b border-white/20">Qtde Apontada</th>
- <th className="px-3 py-1.5 border-b border-white/20">Qtde a Apontar</th>
- <th className="px-3 py-1.5 border-b border-white/20">Usuário</th>
+ <th className="px-2 py-0.5 border-b border-white/20">Data</th>
+ <th className="px-2 py-0.5 border-b border-white/20">Setor</th>
+ <th className="px-2 py-0.5 border-b border-white/20">Qtde Apontada</th>
+ <th className="px-2 py-0.5 border-b border-white/20">Qtde a Apontar</th>
+ <th className="px-2 py-0.5 border-b border-white/20">Usuário</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
@@ -2227,19 +2227,19 @@ export default function ApontamentoProducaoPage() {
 
  return (
  <tr key={h.IdOrdemServicoItemControle} className="hover:bg-gray-50 transition-colors">
- <td className="px-3 py-1.5 text-xs text-gray-600">{formatDate(h.DataCriacao)}</td>
- <td className="px-3 py-1.5 text-xs">
+ <td className="px-2 py-0.5 text-xs text-gray-600">{formatDate(h.DataCriacao)}</td>
+ <td className="px-2 py-0.5 text-xs">
  <span className="px-2 py-0.5 rounded-full bg-[#E0E800]/40 text-[#32423D] font-bold uppercase text-[9px]">
  {sectorDisplay}
  </span>
  </td>
- <td className="px-3 py-1.5 text-xs font-bold text-[#32423D]">
+ <td className="px-2 py-0.5 text-xs font-bold text-[#32423D]">
  +{h.QtdeProduzida}
  </td>
- <td className="px-3 py-1.5 text-xs font-bold text-[#32423D]">
+ <td className="px-2 py-0.5 text-xs font-bold text-[#32423D]">
  {h.QtdeFaltante}
  </td>
- <td className="px-3 py-1.5 text-xs text-gray-500">
+ <td className="px-2 py-0.5 text-xs text-gray-500">
  {h.CriadoPor}
  </td>
  </tr>
@@ -2260,7 +2260,7 @@ export default function ApontamentoProducaoPage() {
  </div>
 
  {/* Modal Footer */}
- <div className="px-4 py-2 bg-gray-50 flex justify-end">
+ <div className="px-2 py-1 bg-gray-50 flex justify-end">
  <button
  onClick={() => setHistoryModalOpen(false)}
  className="px-6 py-2 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#32423D]/90 transition-colors"
@@ -2291,7 +2291,7 @@ export default function ApontamentoProducaoPage() {
  onClick={e => e.stopPropagation()}
  >
  {/* Header */}
- <div className="bg-amber-500 px-4 py-2 text-white">
+ <div className="bg-amber-500 px-2 py-1 text-white">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
  <RefreshCw size={24} />
@@ -2310,12 +2310,12 @@ export default function ApontamentoProducaoPage() {
 
  {/* Body */}
  <div className="p-6 space-y-4">
- <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 text-sm text-amber-800">
+ <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 text-xs text-amber-800">
  Esta ação irá criar um novo item de reposição idêntico a este, incluindo todos os sub-itens caso seja uma montagem, com a quantidade desejada.
  </div>
 
  <div>
- <label className="block text-sm font-semibold text-gray-700 mb-1">
+ <label className="block text-xs font-semibold text-gray-700 mb-1">
  Quantidade de Reposição
  </label>
  <input
@@ -2323,20 +2323,20 @@ export default function ApontamentoProducaoPage() {
  min="1"
  value={qtdeReposicao}
  onChange={(e) => setQtdeReposicao(e.target.value)}
- className="w-full px-3 py-1.5 text-lg font-bold text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+ className="w-full px-2 py-0.5 text-lg font-bold text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
  placeholder="Digite a quantidade..."
  autoFocus
  />
  </div>
 
  <div>
- <label className="block text-sm font-semibold text-gray-700 mb-1">
+ <label className="block text-xs font-semibold text-gray-700 mb-1">
  Motivo (Opcional)
  </label>
  <textarea
  value={motivoReposicao}
  onChange={(e) => setMotivoReposicao(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+ className="w-full px-2 py-1 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
  placeholder="Ex: Peça danificada..."
  rows={2}
  />
@@ -2344,7 +2344,7 @@ export default function ApontamentoProducaoPage() {
  </div>
 
  {/* Footer */}
- <div className="px-4 py-2 bg-gray-50 flex gap-3">
+ <div className="px-2 py-1 bg-gray-50 flex gap-3">
  <button
  onClick={() => setReposicaoModalOpen(false)}
  className="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 font-medium"
@@ -2360,9 +2360,9 @@ export default function ApontamentoProducaoPage() {
  }`}
  >
  {submittingReposicao ? (
- <><Loader2 size={16} className="animate-spin" /> Gerando...</>
+ <><Loader2 size={14} className="animate-spin" /> Gerando...</>
  ) : (
- <><RefreshCw size={16} /> Confirmar</>
+ <><RefreshCw size={14} /> Confirmar</>
  )}
  </button>
  </div>
@@ -2389,7 +2389,7 @@ export default function ApontamentoProducaoPage() {
  onClick={e => e.stopPropagation()}
  >
  {/* Header */}
- <div className="bg-red-500 px-4 py-2 text-white flex-shrink-0">
+ <div className="bg-red-500 px-2 py-1 text-white flex-shrink-0">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
  <AlertTriangle size={24} />
@@ -2409,27 +2409,27 @@ export default function ApontamentoProducaoPage() {
  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
  <div>
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">ID RNC</label>
- <div className="text-sm font-bold text-red-600 bg-white px-3 py-2 border border-red-200 rounded">{idRncEdicao ? `#${idRncEdicao}` : 'NOVA'}</div>
+ <div className="text-xs font-bold text-red-600 bg-white px-2 py-1 border border-red-200 rounded">{idRncEdicao ? `#${idRncEdicao}` : 'NOVA'}</div>
  </div>
  <div>
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">O.S.</label>
- <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded">{selectedItem.IdOrdemServico}</div>
+ <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded">{selectedItem.IdOrdemServico}</div>
  </div>
  <div>
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">O.S.I.</label>
- <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded">{selectedItem.IdOrdemServicoItem}</div>
+ <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded">{selectedItem.IdOrdemServicoItem}</div>
  </div>
  <div className="col-span-2">
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Cód. Mat. Fabric.</label>
- <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItem.CodMatFabricante || '-'}</div>
+ <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItem.CodMatFabricante || '-'}</div>
  </div>
  <div className="col-span-2">
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Projeto</label>
- <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItem.Projeto || '-'}</div>
+ <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItem.Projeto || '-'}</div>
  </div>
  <div className="col-span-3">
  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Tag</label>
- <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItem.Tag || '-'}</div>
+ <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItem.Tag || '-'}</div>
  </div>
  </div>
 
@@ -2442,7 +2442,7 @@ export default function ApontamentoProducaoPage() {
  value={tituloRnc}
  onChange={(e) => setTituloRnc(e.target.value)}
  readOnly={idRncEdicao !== null}
- className={`w-full px-3 py-2 text-sm rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
+ className={`w-full px-2 py-1 text-xs rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
  />
  </div>
  <div>
@@ -2452,7 +2452,7 @@ export default function ApontamentoProducaoPage() {
  value={subTituloRnc}
  onChange={(e) => setSubTituloRnc(e.target.value)}
  readOnly={idRncEdicao !== null}
- className={`w-full px-3 py-2 text-sm rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
+ className={`w-full px-2 py-1 text-xs rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
  placeholder="Sub-título da RNC"
  />
  </div>
@@ -2462,7 +2462,7 @@ export default function ApontamentoProducaoPage() {
  <select
  value={usuarioResponsavel}
  onChange={(e) => setUsuarioResponsavel(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500"
  >
  <option value="">Selecione...</option>
  {usuariosConfig.map((u) => (
@@ -2475,7 +2475,7 @@ export default function ApontamentoProducaoPage() {
  <select
  value={setorResponsavel}
  onChange={(e) => setSetorResponsavel(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500"
  >
  <option value="">Selecione...</option>
  {setoresConfig.filter(s => {
@@ -2498,7 +2498,7 @@ export default function ApontamentoProducaoPage() {
  <select
  value={espessuraRnc}
  onChange={(e) => setEspessuraRnc(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white"
  >
  <option value="">Selecione...</option>
  {espessurasConfig.map(esp => (
@@ -2515,7 +2515,7 @@ export default function ApontamentoProducaoPage() {
  <select
  value={materialSWRnc}
  onChange={(e) => setMaterialSWRnc(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white truncate"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white truncate"
  >
  <option value="">Selecione...</option>
  {materiaisSWConfig.map(mat => (
@@ -2536,7 +2536,7 @@ export default function ApontamentoProducaoPage() {
  type="date"
  value={dataExecucaoRnc}
  onChange={(e) => setDataExecucaoRnc(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500"
  />
  </div>
  <div>
@@ -2544,7 +2544,7 @@ export default function ApontamentoProducaoPage() {
  <select
  value={tipoRnc}
  onChange={(e) => setTipoRnc(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500"
  >
  <option value="RNC">RNC</option>
  <option value="TAREFA">TAREFA</option>
@@ -2563,7 +2563,7 @@ export default function ApontamentoProducaoPage() {
  <textarea
  value={descricaoPendencia}
  onChange={(e) => setDescricaoPendencia(e.target.value)}
- className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+ className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
  placeholder="Descreva os detalhes da RNC/Pendência..."
  rows={4}
  />
@@ -2607,11 +2607,11 @@ export default function ApontamentoProducaoPage() {
  {idRncEdicao && (
  <div className="mt-4 border border-green-200 rounded-lg overflow-hidden bg-green-50/30">
  <div
- className="bg-green-100/80 px-3 py-1.5 border-b border-green-200 flex justify-between items-center cursor-pointer transition-colors hover:bg-green-200"
+ className="bg-green-100/80 px-2 py-0.5 border-b border-green-200 flex justify-between items-center cursor-pointer transition-colors hover:bg-green-200"
  onClick={() => setFinalizandoRnc(!finalizandoRnc)}
  >
- <h3 className="text-sm font-bold text-green-800 flex items-center gap-2 uppercase tracking-wide">
- <CheckCircle size={16} className={finalizandoRnc ? 'text-green-600' : 'text-green-500 opacity-50'} />
+ <h3 className="text-xs font-bold text-green-800 flex items-center gap-2 uppercase tracking-wide">
+ <CheckCircle size={14} className={finalizandoRnc ? 'text-green-600' : 'text-green-500 opacity-50'} />
  Finalizar RNC
  </h3>
  <div className="flex items-center gap-2">
@@ -2626,7 +2626,7 @@ export default function ApontamentoProducaoPage() {
  <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-green-100 bg-white/60">
  <div className="flex flex-col gap-1">
  <label className="text-xs font-bold text-green-800">Setor Finalização *</label>
- <select value={setorFinalizacao} onChange={e => setSetorFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
+ <select value={setorFinalizacao} onChange={e => setSetorFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
  <option value="">Selecione...</option>
  {setoresConfig.filter(s => {
  const lower = s.toLowerCase();
@@ -2640,18 +2640,18 @@ export default function ApontamentoProducaoPage() {
  </div>
  <div className="flex flex-col gap-1">
  <label className="text-xs font-bold text-green-800">Colaborador Finalização *</label>
- <select value={colaboradorFinalizacao} onChange={e => setColaboradorFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
+ <select value={colaboradorFinalizacao} onChange={e => setColaboradorFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
  <option value="">Selecione...</option>
  {usuariosConfig.map(u => <option key={u.NomeCompleto} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
  </select>
  </div>
  <div className="flex flex-col gap-1">
  <label className="text-xs font-bold text-green-800">Data Finalização *</label>
- <input type="date" value={dataFinalizacao} onChange={e => setDataFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full" />
+ <input type="date" value={dataFinalizacao} onChange={e => setDataFinalizacao(e.target.value)} className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full" />
  </div>
  <div className="flex flex-col gap-1 md:col-span-3">
  <label className="text-xs font-bold text-green-800">Parecer Finalização *</label>
- <textarea value={descricaoFinalizacao} onChange={e => setDescricaoFinalizacao(e.target.value)} rows={2} className="p-2 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full resize-none placeholder-green-300" placeholder="Insira o parecer de fechamento da RNC..." />
+ <textarea value={descricaoFinalizacao} onChange={e => setDescricaoFinalizacao(e.target.value)} rows={2} className="p-2 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full resize-none placeholder-green-300" placeholder="Insira o parecer de fechamento da RNC..." />
  </div>
  </div>
  </motion.div>
@@ -2665,7 +2665,7 @@ export default function ApontamentoProducaoPage() {
  const pendenciasExibidas = exibirFinalizadas ? pendenciasHistorico : pendenciasHistorico.filter(p => p.ST !== 'FINALIZADO');
  return (
  <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden bg-white">
- <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+ <div className="bg-gray-100 px-2 py-1 border-b border-gray-200 flex justify-between items-center">
  <div className="flex items-center gap-3">
  <h3 className="text-xs font-bold text-gray-700 uppercase">Histórico de Pendências deste Item</h3>
  <label className="flex items-center gap-1 cursor-pointer">
@@ -2675,7 +2675,7 @@ export default function ApontamentoProducaoPage() {
  </div>
  <span className="text-xs text-gray-500">{pendenciasExibidas.length} registro(s)</span>
  </div>
- <div className="px-3 py-1.5 bg-white border-b border-gray-200 flex flex-wrap gap-4 items-end">
+ <div className="px-2 py-0.5 bg-white border-b border-gray-200 flex flex-wrap gap-4 items-end">
  <div className="flex-1 min-w-[200px]">
  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 1</label>
  <input
@@ -2700,7 +2700,7 @@ export default function ApontamentoProducaoPage() {
  <button
  type="button"
  onClick={() => { setSearchQuery1(''); setSearchQuery2(''); }}
- className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded border border-gray-300 flex items-center justify-center gap-1 transition-colors"
+ className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded border border-gray-300 flex items-center justify-center gap-1 transition-colors"
  >
  <X size={14} />
  Limpar Filtros
@@ -2711,7 +2711,7 @@ export default function ApontamentoProducaoPage() {
  {loadingPendencias ? (
  <div className="p-4 flex justify-center text-gray-500"><Loader2 size={20} className="animate-spin" /></div>
  ) : pendenciasHistorico.length === 0 ? (
- <div className="p-4 text-center text-sm text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
+ <div className="p-4 text-center text-xs text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
  ) : (
  <table className="w-full text-left text-xs text-gray-600">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] sticky top-0 border-b border-white/20 shadow-sm text-white font-semibold">
@@ -2767,7 +2767,7 @@ export default function ApontamentoProducaoPage() {
  </div>
 
  {/* Footer */}
- <div className="px-4 py-2 bg-gray-50 flex gap-3 flex-shrink-0 justify-end border-t border-gray-200">
+ <div className="px-2 py-1 bg-gray-50 flex gap-3 flex-shrink-0 justify-end border-t border-gray-200">
  <button
  onClick={handleNovaPendencia}
  className="px-6 py-2 rounded text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium transition-colors"
@@ -2789,9 +2789,9 @@ export default function ApontamentoProducaoPage() {
  }`}
  >
  {submittingPendencia ? (
- <><Loader2 size={16} className="animate-spin" /> Salvando...</>
+ <><Loader2 size={14} className="animate-spin" /> Salvando...</>
  ) : (
- <><AlertTriangle size={16} /> Salvar</>
+ <><AlertTriangle size={14} /> Salvar</>
  )}
  </button>
  </div>

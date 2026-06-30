@@ -345,7 +345,7 @@ export default function CadastroUsuarioPage() {
  <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] gap-4 h-full flex flex-col min-h-0">
  <div className="p-4 bg-red-100 rounded-full text-red-600"><Lock size={40} /></div>
  <h2 className="text-xl font-black text-red-700">Acesso Negado</h2>
- <p className="text-sm text-slate-500 text-center max-w-xs">
+ <p className="text-xs text-slate-500 text-center max-w-xs">
  Somente usuários do tipo <strong>Administrador</strong> podem acessar o Cadastro de Usuários.
  </p>
  </div>
@@ -356,7 +356,7 @@ export default function CadastroUsuarioPage() {
  <div className="flex flex-col h-[calc(100vh-4rem)] min-h-0 bg-slate-50 p-3 gap-2">
 
  {/* ── Top Bar ── */}
- <div className="bg-white border border-slate-200 rounded-md shadow-sm px-4 py-2.5 flex items-center justify-between shrink-0">
+ <div className="bg-white border border-slate-200 rounded-md shadow-sm px-2 py-1.5 flex items-center justify-between shrink-0">
  <div className="flex items-center gap-3">
  <div className="p-2 bg-indigo-600 text-white rounded-lg shadow-sm"><Users size={20} /></div>
  <div>
@@ -365,27 +365,27 @@ export default function CadastroUsuarioPage() {
  </div>
  </div>
  <div className="flex items-center gap-2">
- <button onClick={handleNovo} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[11px] font-black shadow-sm hover:bg-emerald-700 transition-colors">
+ <button onClick={handleNovo} className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-600 text-white rounded-lg text-[11px] font-black shadow-sm hover:bg-emerald-700 transition-colors">
  <Plus size={14} /> Novo
  </button>
  <button onClick={handleSalvar} disabled={saving || !showForm}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showForm ? 'bg-[#32423D] text-white hover:bg-[#32423D]/80' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showForm ? 'bg-[#32423D] text-white hover:bg-[#32423D]/80' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
  {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Salvar
  </button>
  <button onClick={handleExcluir} disabled={saving || isNewMode || !form.idUsuario}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${!isNewMode && form.idUsuario ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${!isNewMode && form.idUsuario ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
  <Trash2 size={14} /> Excluir
  </button>
  {!isNewMode && form.idUsuario && (
  <button onClick={handleToggleProcessos}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showProcessos ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'}`}>
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showProcessos ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'}`}>
  <Settings size={14} />
  {showProcessos ? 'Ocultar' : 'Ver Processos'}
  {showProcessos ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
  </button>
  )}
  <div className="w-px h-6 bg-slate-200 mx-1" />
- <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus-within:border-indigo-400 shadow-inner">
+ <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 focus-within:border-indigo-400 shadow-inner">
  <Search size={12} className="text-slate-400" />
  <div className="relative flex items-center w-full">
  <input type="text" placeholder="Nome completo..." value={fNome} onChange={e => setFNome(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchUsuarios()}
@@ -397,7 +397,7 @@ export default function CadastroUsuarioPage() {
  )}
  </div>
  </div>
- <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus-within:border-indigo-400 shadow-inner">
+ <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 focus-within:border-indigo-400 shadow-inner">
  <Building2 size={12} className="text-slate-400" />
  <div className="relative flex items-center w-full">
  <input type="text" placeholder="Setor..." value={fSetor} onChange={e => setFSetor(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchUsuarios()}
@@ -560,9 +560,9 @@ export default function CadastroUsuarioPage() {
  <div className="border border-slate-200 rounded-lg overflow-auto max-h-44">
  <table className="w-full text-[11px]">
  <thead className="bg-[#567469] text-white sticky top-0"><tr>
- <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Processo</th>
- <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Código</th>
- <th className="px-3 py-1.5 w-8"></th>
+ <th className="px-2 py-0.5 text-left font-black text-[10px] uppercase">Processo</th>
+ <th className="px-2 py-0.5 text-left font-black text-[10px] uppercase">Código</th>
+ <th className="px-2 py-0.5 w-8"></th>
  </tr></thead>
  <tbody>{processos.map(p => (
  <tr key={p.IdProcessoFabricacao} className="border-b border-slate-50 hover:bg-slate-50">
@@ -579,8 +579,8 @@ export default function CadastroUsuarioPage() {
  <div className="border border-amber-200 rounded-lg overflow-auto max-h-44">
  <table className="w-full text-[11px]">
  <thead className="bg-[#567469] text-white sticky top-0"><tr>
- <th className="px-3 py-1.5 text-left font-black text-[10px] uppercase">Processo</th>
- <th className="px-3 py-1.5 w-8"></th>
+ <th className="px-2 py-0.5 text-left font-black text-[10px] uppercase">Processo</th>
+ <th className="px-2 py-0.5 w-8"></th>
  </tr></thead>
  <tbody>{userProcessos.map(p => (
  <tr key={p.IdUsuarioprocessofabricacao} className="border-b border-amber-50 hover:bg-amber-50">
@@ -644,16 +644,16 @@ export default function CadastroUsuarioPage() {
  </div>
  <div className="border border-slate-200 rounded-lg overflow-hidden">
  {loadingProc ? (
- <div className="flex items-center justify-center h-16"><Loader2 className="animate-spin text-slate-400" size={18} /></div>
+ <div className="flex items-center justify-center h-16"><Loader2 className="animate-spin text-slate-400" size={15} /></div>
  ) : (
  <div className="max-h-40 overflow-y-auto">
  <table className="w-full text-[11px]">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0">
  <tr>
  
- <th className="px-3 py-1.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Processo</th>
- <th className="px-3 py-1.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Código</th>
- <th className="px-3 py-1.5 border-b border-slate-100 w-8"></th>
+ <th className="px-2 py-0.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Processo</th>
+ <th className="px-2 py-0.5 text-left font-black text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">Código</th>
+ <th className="px-2 py-0.5 border-b border-slate-100 w-8"></th>
  </tr>
  </thead>
  <tbody>
@@ -691,15 +691,15 @@ export default function CadastroUsuarioPage() {
  </p>
  <div className="border border-amber-200 rounded-lg overflow-hidden">
  {loadingUserProc ? (
- <div className="flex items-center justify-center h-16"><Loader2 className="animate-spin text-amber-500" size={18} /></div>
+ <div className="flex items-center justify-center h-16"><Loader2 className="animate-spin text-amber-500" size={15} /></div>
  ) : (
  <div className="max-h-40 overflow-y-auto">
  <table className="w-full text-[11px]">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0">
  <tr>
  
- <th className="px-3 py-1.5 text-left font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider">Processo</th>
- <th className="px-3 py-1.5 text-right font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider w-8"></th>
+ <th className="px-2 py-0.5 text-left font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider">Processo</th>
+ <th className="px-2 py-0.5 text-right font-black text-amber-700 border-b border-amber-100 text-[10px] uppercase tracking-wider w-8"></th>
  </tr>
  </thead>
  <tbody>
@@ -738,13 +738,13 @@ export default function CadastroUsuarioPage() {
  <table className="w-full text-[11px] text-left border-separate border-spacing-0">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] sticky top-0 z-10">
  <tr>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center w-12">#</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Nome Completo</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Login</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Setor</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100">E-mail</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Tipo</th>
- <th className="px-4 py-2.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Status</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center w-12">#</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Nome Completo</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Login</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100">Setor</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100">E-mail</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Tipo</th>
+ <th className="px-2 py-1.5 font-black text-white uppercase tracking-wider border-b border-slate-100 text-center">Status</th>
  </tr>
  </thead>
  <tbody>
@@ -757,21 +757,21 @@ export default function CadastroUsuarioPage() {
  <tr key={u.idUsuario} onClick={() => handleSelectUser(u)}
  className={`cursor-pointer transition-colors border-b border-slate-50 ${selected ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-200' : 'hover:bg-slate-50'}`}>
  
- <td className="px-4 py-2 text-center w-12">
+ <td className="px-2 py-1 text-center w-12">
  <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-[10px] mx-auto">
  {u.NomeCompleto?.charAt(0)?.toUpperCase() || '?'}
  </div>
  </td>
- <td className="px-4 py-2">
+ <td className="px-2 py-1">
  <span className="font-bold text-slate-800">{u.NomeCompleto}</span>
  </td>
- <td className="px-4 py-2 font-mono text-slate-500 text-[10px]">{u.Login}</td>
- <td className="px-4 py-2 text-slate-600">{u.Setor || <span className="text-slate-300">—</span>}</td>
- <td className="px-4 py-2 text-slate-500 text-[10px]">{u.email || <span className="text-slate-300">—</span>}</td>
- <td className="px-4 py-2 text-center">
+ <td className="px-2 py-1 font-mono text-slate-500 text-[10px]">{u.Login}</td>
+ <td className="px-2 py-1 text-slate-600">{u.Setor || <span className="text-slate-300">—</span>}</td>
+ <td className="px-2 py-1 text-slate-500 text-[10px]">{u.email || <span className="text-slate-300">—</span>}</td>
+ <td className="px-2 py-1 text-center">
  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border ${tipo.cls}`}>{tipo.icon}{tipo.label}</span>
  </td>
- <td className="px-4 py-2 text-center">{statusBadge(u.status)}</td>
+ <td className="px-2 py-1 text-center">{statusBadge(u.status)}</td>
  </tr>
  );
  })}

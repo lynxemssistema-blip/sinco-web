@@ -132,7 +132,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  className="flex items-center justify-center p-1.5 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-[#32423D] transition-colors"
  title="Voltar para Mapa"
  >
- <ArrowLeft size={18} />
+ <ArrowLeft size={15} />
  </button>
  )}
  <div>
@@ -155,7 +155,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  placeholder="Nº da OS ou Texto"
  value={osPesquisa} 
  onChange={e => setOsPesquisa(e.target.value)} 
- className="w-full pl-9 pr-8 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all shadow-sm" 
+ className="w-full pl-9 pr-8 py-2.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all shadow-sm" 
  />
  {osPesquisa && (
  <button onClick={() => setOsPesquisa('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
@@ -176,7 +176,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  type="date"
  value={planInicioDe}
  onChange={e => setPlanInicioDe(e.target.value)}
- className="w-full px-3 py-2.5 text-[13px] border-2 border-amber-400 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-400/50 outline-none transition-all bg-amber-50 font-semibold text-amber-800"
+ className="w-full px-2 py-1.5 text-[13px] border-2 border-amber-400 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-400/50 outline-none transition-all bg-amber-50 font-semibold text-amber-800"
  />
  {planInicioDe && (
  <button onClick={() => setPlanInicioDe('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-amber-400 hover:text-red-500 transition-colors" title="Limpar">
@@ -197,7 +197,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  type="date"
  value={planInicioAte}
  onChange={e => setPlanInicioAte(e.target.value)}
- className="w-full px-3 py-2.5 text-[13px] border-2 border-amber-400 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-400/50 outline-none transition-all bg-amber-50 font-semibold text-amber-800"
+ className="w-full px-2 py-1.5 text-[13px] border-2 border-amber-400 rounded-lg shadow-sm focus:ring-2 focus:ring-amber-400/50 outline-none transition-all bg-amber-50 font-semibold text-amber-800"
  />
  {planInicioAte && (
  <button onClick={() => setPlanInicioAte('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-amber-400 hover:text-red-500 transition-colors" title="Limpar">
@@ -215,7 +215,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  type="date"
  value={planFimDe}
  onChange={e => setPlanFimDe(e.target.value)}
- className="w-full px-3 py-2.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
+ className="w-full px-2 py-1.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
  />
  {planFimDe && (
  <button onClick={() => setPlanFimDe('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
@@ -233,7 +233,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  type="date"
  value={planFimAte}
  onChange={e => setPlanFimAte(e.target.value)}
- className="w-full px-3 py-2.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
+ className="w-full px-2 py-1.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
  />
  {planFimAte && (
  <button onClick={() => setPlanFimAte('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
@@ -246,7 +246,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  {/* Setor */}
  <div className="md:col-span-3">
  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Setor</label>
- <select value={setor} onChange={e => setSetor(e.target.value)} className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all appearance-none bg-white">
+ <select value={setor} onChange={e => setSetor(e.target.value)} className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all appearance-none bg-white">
  <option value="todos">Todos os Setores</option>
  {processosVisiveis.map(p => (
  <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
@@ -266,20 +266,20 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  setPlanFimAte('');
  setSetor('todos');
  }}
- className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-sm font-medium shrink-0"
+ className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-medium shrink-0"
  title="Limpar todos os filtros"
  >
  <XCircle size={15} /> Limpar
  </button>
  )}
- <button onClick={() => fetchPlanejamento(false)} className="flex-1 bg-[#32423D] text-white py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#1f2926] transition-colors shadow-md font-medium text-sm">
+ <button onClick={() => fetchPlanejamento(false)} className="flex-1 bg-[#32423D] text-white py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#1f2926] transition-colors shadow-md font-medium text-xs">
  <Search className="w-4 h-4" /> Buscar Planos
  </button>
  </div>
  </div>
 
  {fallbackMsg && (
- <div className="bg-amber-50 text-amber-800 px-3 py-1.5 rounded-lg border border-amber-200 text-sm font-medium animate-in fade-in slide-in-from-top-4 mt-4">
+ <div className="bg-amber-50 text-amber-800 px-2 py-0.5 rounded-lg border border-amber-200 text-xs font-medium animate-in fade-in slide-in-from-top-4 mt-4">
  {fallbackMsg}
  </div>
  )}
@@ -332,11 +332,11 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  {loading ? (
  <div className="flex flex-col items-center justify-center py-20 text-gray-400">
  <Loader2 className="w-8 h-8 animate-spin text-[#E0E800] mb-3" />
- <p className="text-sm font-medium">Sincronizando planejamento...</p>
+ <p className="text-xs font-medium">Sincronizando planejamento...</p>
  </div>
  ) : itens.length === 0 ? (
  <div className="text-center py-10 bg-white rounded-md border border-dashed border-gray-200">
- <p className="text-sm text-gray-500 font-medium">Nenhuma ordem de serviço planejada encontrada.</p>
+ <p className="text-xs text-gray-500 font-medium">Nenhuma ordem de serviço planejada encontrada.</p>
  </div>
  ) : (
  Object.keys(groupedByOS).map((osId) => {
@@ -355,14 +355,14 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  return (
  <div key={osId} className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden mb-4">
  {/* OS Header */}
- <div className="bg-gray-50 px-3 py-1.5 border-b border-gray-200 flex justify-between items-center sticky top-0 z-0">
+ <div className="bg-gray-50 px-2 py-0.5 border-b border-gray-200 flex justify-between items-center sticky top-0 z-0">
  <div className="flex items-center gap-3">
- <div className="bg-white shadow-sm border border-gray-200 text-[#32423D] text-sm font-black px-2 py-1 rounded flex items-center gap-1.5">
+ <div className="bg-white shadow-sm border border-gray-200 text-[#32423D] text-xs font-black px-2 py-1 rounded flex items-center gap-1.5">
  <Hash className="w-3.5 h-3.5 text-gray-400" />
  {osId}
  </div>
  <div>
- <h3 className="font-bold text-gray-800 text-sm">{osDesc}</h3>
+ <h3 className="font-bold text-gray-800 text-xs">{osDesc}</h3>
  <p className="text-[11px] text-gray-500">{Object.keys(groupedByItem).length} itens / {items.length} setores planejados</p>
  </div>
  </div>
@@ -380,7 +380,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  <div className="w-full lg:w-1/3 grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
  <div>
  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Item / Material</p>
- <p className="font-bold text-gray-800 text-sm truncate" title={firstItem.CodMatFabricante}>{firstItem.CodMatFabricante}</p>
+ <p className="font-bold text-gray-800 text-xs truncate" title={firstItem.CodMatFabricante}>{firstItem.CodMatFabricante}</p>
  <p className="text-xs text-gray-500 truncate mt-0.5" title={firstItem.DescResumo}>{firstItem.DescResumo}</p>
  </div>
  <div>
@@ -413,7 +413,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  <div className="flex items-center gap-3 sm:border-l sm:border-gray-100 sm:pl-3">
  <div className="text-center w-8">
  <span className="block text-[8px] font-bold text-gray-400 uppercase">Meta</span>
- <span className="block text-sm font-black text-gray-300 leading-tight">{sectorItem.QtdeTotal}</span>
+ <span className="block text-xs font-black text-gray-300 leading-tight">{sectorItem.QtdeTotal}</span>
  </div>
  <div className="w-12 flex flex-col justify-center gap-0.5">
  <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -423,7 +423,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  </div>
  <div className="text-center w-8">
  <span className="block text-[8px] font-bold text-gray-400 uppercase">Feito</span>
- <span className={`block text-sm font-black leading-tight ${sectorItem.QtdeExecutada >= sectorItem.QtdeTotal ? 'text-[#8a8f00]' : 'text-[#32423D]'}`}>{sectorItem.QtdeExecutada}</span>
+ <span className={`block text-xs font-black leading-tight ${sectorItem.QtdeExecutada >= sectorItem.QtdeTotal ? 'text-[#8a8f00]' : 'text-[#32423D]'}`}>{sectorItem.QtdeExecutada}</span>
  </div>
  </div>
  </div>

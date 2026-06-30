@@ -72,7 +72,8 @@ router.get('/composicao/:idMaterialPeca', async (req, res) => {
                         mp.CodMatFabricantePeca,
                         COALESCE(m.DescDetal, m.DescResumo, mp.CodMatFabricante) AS DescDetal,
                         mp.PecaQtde,
-                        m.EnderecoArquivo
+                        m.EnderecoArquivo,
+                        m.PecaManufat
                      FROM montapeca mp
                      LEFT JOIN material m ON m.IdMaterial = mp.IdMaterial
                      WHERE (mp.D_E_L_E_T_E IS NULL OR mp.D_E_L_E_T_E = '')
@@ -175,8 +176,7 @@ router.get('/desenhos-criar', async (req, res) => {
         let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,
                           EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, PecaManufat
                    FROM material
-                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
-                     AND (PecaManufat IS NULL OR TRIM(UPPER(PecaManufat)) != 'S')`;
+                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
         const params = [];
         if (q) { sql += ` AND (CodMatFabricante LIKE ? OR DescResumo LIKE ?)`; params.push(`%${q}%`, `%${q}%`); }
         sql += ` ORDER BY CodMatFabricante LIMIT 200`;
@@ -198,8 +198,7 @@ router.get('/materiais-criar', async (req, res) => {
         let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,
                           EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal
                    FROM material
-                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
-                     AND (EnderecoArquivo IS NULL OR EnderecoArquivo = '')`;
+                   WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
         const params = [];
         if (idDesenho) {
             sql += ` AND IdMaterial NOT IN (

@@ -477,11 +477,11 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="flex flex-col items-center mb-6">
  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600"><ShieldCheck size={32} /></div>
  
- <p className="text-gray-500 text-sm">Área restrita para gerenciamento do sistema</p>
+ <p className="text-gray-500 text-xs">Área restrita para gerenciamento do sistema</p>
  </div>
  <form onSubmit={handleLogin} className="space-y-4">
- <div><label className="block text-sm font-medium text-gray-700 mb-1">Usuário</label><input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-2 border rounded-lg" /></div>
- <div><label className="block text-sm font-medium text-gray-700 mb-1">Senha</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-2 border rounded-lg" /></div>
+ <div><label className="block text-xs font-medium text-gray-700 mb-1">Usuário</label><input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-2 py-1 border rounded-lg" /></div>
+ <div><label className="block text-xs font-medium text-gray-700 mb-1">Senha</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-2 py-1 border rounded-lg" /></div>
  <button type="submit" disabled={loading} className="w-full py-3 bg-red-600 text-white rounded-lg font-semibold flex justify-center items-center gap-2">{loading ? <RefreshCcw className="animate-spin" size={20} /> : 'Entrar no Painel'}</button>
 
  <button
@@ -534,29 +534,29 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  window.location.href = '/';
  }
  }}
- className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg flex items-center gap-2 transition-colors border border-red-600/30"
+ className="px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg flex items-center gap-2 transition-colors border border-red-600/30"
  >
- <LogOut size={18} /> Sair do Painel
+ <LogOut size={15} /> Sair do Painel
  </button>
  </div>
  </motion.div>
 
  {/* Tabs */}
  <div className="flex space-x-1 bg-gray-100 p-1 rounded-md overflow-x-auto">
- <button onClick={() => setActiveTab('tenants')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'tenants' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
- <div className="flex items-center justify-center gap-2"><Server size={16} /> Gestão de Bancos</div>
+ <button onClick={() => setActiveTab('tenants')} className={`flex-1 min-w-[150px] py-2.5 text-xs font-medium rounded-lg transition-all ${activeTab === 'tenants' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+ <div className="flex items-center justify-center gap-2"><Server size={14} /> Gestão de Bancos</div>
  </button>
- <button onClick={() => setActiveTab('users')} className={`flex-1 min-w-[150px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'users' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
- <div className="flex items-center justify-center gap-2"><Users size={16} /> Usuários Globais</div>
+ <button onClick={() => setActiveTab('users')} className={`flex-1 min-w-[150px] py-2.5 text-xs font-medium rounded-lg transition-all ${activeTab === 'users' ? 'bg-white text-[#32423D] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+ <div className="flex items-center justify-center gap-2"><Users size={14} /> Usuários Globais</div>
  </button>
- <button onClick={() => setActiveTab('schema')} className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'schema' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
- <div className="flex items-center justify-center gap-2"><GitCompare size={16} /> Comparação de Estrutura</div>
+ <button onClick={() => setActiveTab('schema')} className={`flex-1 py-2.5 text-xs font-medium rounded-lg transition-all ${activeTab === 'schema' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+ <div className="flex items-center justify-center gap-2"><GitCompare size={14} /> Comparação de Estrutura</div>
  </button>
- <button onClick={() => setActiveTab('config')} className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'config' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
- <div className="flex items-center justify-center gap-2"><Database size={16} /> ConfigLocal (Fallback)</div>
+ <button onClick={() => setActiveTab('config')} className={`flex-1 py-2.5 text-xs font-medium rounded-lg transition-all ${activeTab === 'config' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+ <div className="flex items-center justify-center gap-2"><Database size={14} /> ConfigLocal (Fallback)</div>
  </button>
- <button onClick={() => { setActiveTab('audit'); fetchAuditLogs(); }} className={`flex-1 min-w-[130px] py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === 'audit' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
- <div className="flex items-center justify-center gap-2"><Monitor size={16} /> Acessos ao Sistema</div>
+ <button onClick={() => { setActiveTab('audit'); fetchAuditLogs(); }} className={`flex-1 min-w-[130px] py-2.5 text-xs font-medium rounded-lg transition-all ${activeTab === 'audit' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+ <div className="flex items-center justify-center gap-2"><Monitor size={14} /> Acessos ao Sistema</div>
  </button>
  </div>
 
@@ -564,7 +564,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="space-y-4 animate-fade-in">
  {/* Add Tenant Form */}
  <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
- <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-800"><Plus size={18} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
+ <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-800"><Plus size={15} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <input placeholder="Nome do Cliente" className="border p-2 rounded" value={newTenant.nome_cliente} onChange={e => setNewTenant({ ...newTenant, nome_cliente: e.target.value })} />
  <input placeholder="Host" className="border p-2 rounded" value={newTenant.db_host} onChange={e => setNewTenant({ ...newTenant, db_host: e.target.value })} />
@@ -572,7 +572,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <input placeholder="Usuário" className="border p-2 rounded" value={newTenant.db_user} onChange={e => setNewTenant({ ...newTenant, db_user: e.target.value })} />
  <input placeholder="Senha" type="password" className="border p-2 rounded" value={newTenant.db_pass} onChange={e => setNewTenant({ ...newTenant, db_pass: e.target.value })} />
  <input placeholder="Cópia Banco Dados (Backup)" className="border p-2 rounded" value={newTenant.copia_banco_dados} onChange={e => setNewTenant({ ...newTenant, copia_banco_dados: e.target.value })} />
- <button onClick={handleAddTenant} disabled={loading} className="bg-[#32423D] text-white p-2 rounded hover:bg-[#32423D]/80 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={16} /> Cadastrar</button>
+ <button onClick={handleAddTenant} disabled={loading} className="bg-[#32423D] text-white p-2 rounded hover:bg-[#32423D]/80 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={14} /> Cadastrar</button>
  </div>
  </div>
  
@@ -585,7 +585,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  placeholder="Pesquisar banco de dados..."
  value={tenantSearch}
  onChange={(e) => setTenantSearch(e.target.value)}
- className="w-full pl-9 pr-8 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+ className="w-full pl-9 pr-8 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {tenantSearch && (
  <button onClick={() => setTenantSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
@@ -605,9 +605,9 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <button
  onClick={handleSyncAllUsers}
  disabled={loading}
- className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 flex items-center gap-2 shadow-sm transition-colors text-sm"
+ className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 flex items-center gap-2 shadow-sm transition-colors text-xs"
  >
- {loading ? <RefreshCcw className="animate-spin" size={16} /> : <RefreshCcw size={16} />}
+ {loading ? <RefreshCcw className="animate-spin" size={14} /> : <RefreshCcw size={14} />}
  {loading ? 'Sincronizando...' : 'Sincronizar Todos'}
  </button>
  </div>
@@ -635,9 +635,9 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  </p>
  )}
  <div className="mt-auto pt-3 space-y-1.5">
- <button onClick={() => handleAccessTenant(tenant)} className="w-full py-1.5 text-sm bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium shadow-sm"><ArrowRight size={14} /> Acessar</button>
- <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-1.5 text-sm ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-100' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-100'} rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium`}><ShieldCheck size={14} /> {tenant.ativo ? 'Desativar' : 'Ativar'}</button>
- <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-1.5 text-sm bg-white hover:bg-gray-50 text-gray-700 rounded-md border border-gray-200 flex items-center justify-center gap-1.5 transition-colors"><Users size={14} /> {loading ? 'Sincronizando...' : 'Usuários'}</button>
+ <button onClick={() => handleAccessTenant(tenant)} className="w-full py-1.5 text-xs bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium shadow-sm"><ArrowRight size={14} /> Acessar</button>
+ <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-1.5 text-xs ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-100' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-100'} rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium`}><ShieldCheck size={14} /> {tenant.ativo ? 'Desativar' : 'Ativar'}</button>
+ <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-1.5 text-xs bg-white hover:bg-gray-50 text-gray-700 rounded-md border border-gray-200 flex items-center justify-center gap-1.5 transition-colors"><Users size={14} /> {loading ? 'Sincronizando...' : 'Usuários'}</button>
  </div>
  </motion.div>
  ))}
@@ -651,7 +651,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="space-y-6 animate-fade-in bg-white p-6 rounded-md shadow-sm border border-gray-200">
  <h3 className="text-lg font-semibold mb-4 text-gray-800">Usuários Globais (Centralizados)</h3>
  <div className="overflow-auto flex-1">
- <table className="w-full text-sm text-left text-gray-500">
+ <table className="w-full text-xs text-left text-gray-500">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-xs text-white uppercase bg-[#567469]">
  <tr>
  
@@ -665,20 +665,20 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  {users.map(user => (
  <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
  
- <td className="px-4 py-2 font-medium text-gray-900">{user.login}</td>
- <td className="px-4 py-2">
+ <td className="px-2 py-1 font-medium text-gray-900">{user.login}</td>
+ <td className="px-2 py-1">
  <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.superadmin === 'S' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>
  {user.superadmin === 'S' ? 'SIM' : 'NÃO'}
  </span>
  </td>
- <td className="px-4 py-2">
+ <td className="px-2 py-1">
  {user.id_conexao_banco ? (
  <span className="text-[#32423D]">{user.nome_cliente} ({user.db_name})</span>
  ) : (
  <span className="text-gray-400 italic">Global (Sem Vínculo)</span>
  )}
  </td>
- <td className="px-4 py-2">
+ <td className="px-2 py-1">
  <button
  onClick={() => handleToggleSuperadmin(user.id, user.superadmin)}
  className={`font-medium hover:underline ${user.superadmin === 'S' ? 'text-red-600' : 'text-[#32423D]'}`}
@@ -701,7 +701,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="bg-white p-6 rounded-md shadow-sm border border-gray-200">
  <div className="flex flex-col md:flex-row items-center gap-4">
  <div className="flex-1 w-full">
- <label className="block text-sm font-medium text-gray-700 mb-1">Banco de Origem (Referência)</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Banco de Origem (Referência)</label>
  <select
  className="w-full p-2.5 border rounded-lg bg-gray-50"
  value={sourceDbId}
@@ -715,7 +715,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  </div>
  <div className="text-gray-400 hidden md:block pt-6"><ArrowRight /></div>
  <div className="flex-1 w-full">
- <label className="block text-sm font-medium text-gray-700 mb-1">Banco de Destino (Cliente)</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Banco de Destino (Cliente)</label>
  <select
  className="w-full p-2.5 border rounded-lg bg-purple-50 border-purple-100"
  value={destDbId}
@@ -733,7 +733,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  disabled={!sourceDbId || !destDbId || sourceDbId === destDbId || comparing}
  className="px-6 py-2.5 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors shadow-md shadow-purple-200"
  >
- {comparing ? <RefreshCcw className="animate-spin" size={18} /> : <GitCompare size={18} />}
+ {comparing ? <RefreshCcw className="animate-spin" size={15} /> : <GitCompare size={15} />}
  Comparar
  </button>
  </div>
@@ -745,22 +745,22 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="p-4 border-b border-gray-100 bg-gray-50 flex flex-wrap justify-between items-center gap-2">
  <h3 className="font-bold text-gray-800 flex items-center gap-2">
  {schemaActions.length > 0
- ? <span className="text-amber-600 flex items-center gap-2"><AlertTriangle size={18}/> Divergências ({schemaActions.length}) · Sel.: {selectedActions.size}</span>
- : <span className="text-green-600 flex items-center gap-2"><CheckCircle size={18}/> Idênticos</span>}
+ ? <span className="text-amber-600 flex items-center gap-2"><AlertTriangle size={15}/> Divergências ({schemaActions.length}) · Sel.: {selectedActions.size}</span>
+ : <span className="text-green-600 flex items-center gap-2"><CheckCircle size={15}/> Idênticos</span>}
  </h3>
  {schemaActions.length > 0 && (
  <div className="flex items-center gap-2 flex-wrap">
- <button onClick={fetchHistory} className="px-3 py-1.5 text-xs border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 flex items-center gap-1"><Database size={13}/> Histórico</button>
- <button onClick={toggleSelectAll} className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50">
+ <button onClick={fetchHistory} className="px-2 py-0.5 text-xs border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 flex items-center gap-1"><Database size={13}/> Histórico</button>
+ <button onClick={toggleSelectAll} className="px-2 py-0.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50">
  {selectedActions.size === schemaActions.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
  </button>
  <button onClick={() => handleSyncSchema(true)} disabled={syncing || selectedActions.size === 0}
- className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-2">
+ className="px-2 py-1 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-2">
  <RefreshCcw size={15} className={syncing ? 'animate-spin' : ''}/>
  {syncing ? 'Executando...' : 'Executar Sel. (' + selectedActions.size + ')'}
  </button>
  <button onClick={() => handleSyncSchema(false)} disabled={syncing}
- className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+ className="px-2 py-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
  Todos ({schemaActions.length})
  </button>
  </div>
@@ -780,7 +780,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  {action.type === 'create_table' ? <Database size={15}/> : <Code size={15}/>}
  </div>
  <div className="flex-1 min-w-0">
- <h4 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
+ <h4 className="font-semibold text-gray-800 flex items-center gap-2 text-xs">
  {action.description}
  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono shrink-0">{action.type}</span>
  </h4>
@@ -794,10 +794,10 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
 
  {syncResults.length > 0 && (
  <div className="border-t border-gray-200 p-4 bg-gray-50">
- <h4 className="font-bold text-gray-700 mb-2 text-sm flex items-center gap-2"><CheckCircle size={15}/> Relatório de Execução</h4>
+ <h4 className="font-bold text-gray-700 mb-2 text-xs flex items-center gap-2"><CheckCircle size={15}/> Relatório de Execução</h4>
  <div className="space-y-1 max-h-48 overflow-y-auto">
  {syncResults.map((r: Record<string, unknown>, i: number) => (
- <div key={i} className={'flex items-start gap-2 text-xs rounded px-3 py-1.5 ' + (r.status === 'ok' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800')}>
+ <div key={i} className={'flex items-start gap-2 text-xs rounded px-2 py-0.5 ' + (r.status === 'ok' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800')}>
  {r.status === 'ok' ? <CheckCircle size={12} className="shrink-0 mt-0.5"/> : <XCircle size={12} className="shrink-0 mt-0.5"/>}
  <div className="min-w-0">
  <div className="font-semibold truncate">{r.description}</div>
@@ -821,32 +821,32 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  {showHistory && (
  <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
  <div className="p-4 border-b flex justify-between items-center bg-gray-50">
- <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm"><Database size={16}/> Histórico de Sincronizações</h3>
- <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-700"><XCircle size={18}/></button>
+ <h3 className="font-bold text-gray-800 flex items-center gap-2 text-xs"><Database size={14}/> Histórico de Sincronizações</h3>
+ <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-gray-700"><XCircle size={15}/></button>
  </div>
  <div className="overflow-x-auto max-h-64">
  <table className="w-full text-xs">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white uppercase text-[10px]">
  <tr>
- <th className="px-3 py-2 text-left">Data</th>
- <th className="px-3 py-2 text-left">Usuário</th>
- <th className="px-3 py-2 text-left">Destino</th>
- <th className="px-3 py-2 text-left">Tipo</th>
- <th className="px-3 py-2 text-left">Status</th>
- <th className="px-3 py-2 text-left">Descrição</th>
+ <th className="px-2 py-1 text-left">Data</th>
+ <th className="px-2 py-1 text-left">Usuário</th>
+ <th className="px-2 py-1 text-left">Destino</th>
+ <th className="px-2 py-1 text-left">Tipo</th>
+ <th className="px-2 py-1 text-left">Status</th>
+ <th className="px-2 py-1 text-left">Descrição</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
  {history.map((h: Record<string, unknown>) => (
  <tr key={h.id} className="hover:bg-gray-50">
- <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(h.data_execucao).toLocaleString('pt-BR')}</td>
- <td className="px-3 py-2 font-medium">{h.usuario}</td>
- <td className="px-3 py-2 font-mono">{h.banco_destino}</td>
- <td className="px-3 py-2 text-gray-500">{h.tipo_acao}</td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1 text-gray-500 whitespace-nowrap">{new Date(h.data_execucao).toLocaleString('pt-BR')}</td>
+ <td className="px-2 py-1 font-medium">{h.usuario}</td>
+ <td className="px-2 py-1 font-mono">{h.banco_destino}</td>
+ <td className="px-2 py-1 text-gray-500">{h.tipo_acao}</td>
+ <td className="px-2 py-1">
  <span className={'px-1.5 py-0.5 rounded text-[10px] font-bold ' + (h.status === 'ok' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{h.status.toUpperCase()}</span>
  </td>
- <td className="px-3 py-2 max-w-xs truncate text-gray-600" title={h.descricao}>{h.descricao}</td>
+ <td className="px-2 py-1 max-w-xs truncate text-gray-600" title={h.descricao}>{h.descricao}</td>
  </tr>
  ))}
  </tbody>
@@ -886,7 +886,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="bg-white rounded-md shadow-sm border border-gray-200 p-4">
  <div className="flex flex-wrap items-center justify-between gap-3">
  <div className="flex items-center gap-2">
- <Monitor size={18} className="text-blue-600" />
+ <Monitor size={15} className="text-blue-600" />
  <h3 className="font-semibold text-gray-800">Acessos ao Sistema</h3>
  <span className="text-xs text-gray-400 ml-1">— apenas informativo, registros &gt;24h podem ser excluídos</span>
  </div>
@@ -906,13 +906,13 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <button
  onClick={() => fetchAuditLogs()}
  disabled={loadingAudit}
- className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+ className="flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
  >
  <RefreshCcw size={13} className={loadingAudit ? 'animate-spin' : ''} /> Atualizar
  </button>
  <button
  onClick={handleCleanAudit}
- className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+ className="flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
  >
  <Trash2 size={13} /> Limpar &gt;24h
  </button>
@@ -925,26 +925,26 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  {loadingAudit ? (
  <div className="p-12 flex items-center justify-center gap-3 text-gray-400">
  <RefreshCcw size={20} className="animate-spin" />
- <span className="text-sm">Carregando registros...</span>
+ <span className="text-xs">Carregando registros...</span>
  </div>
  ) : auditLogs.length === 0 ? (
  <div className="p-12 flex flex-col items-center gap-3 text-gray-400">
  <Monitor size={36} strokeWidth={1.5} />
- <p className="text-sm">Nenhum acesso registrado no período</p>
+ <p className="text-xs">Nenhum acesso registrado no período</p>
  </div>
  ) : (
  <div className="overflow-auto">
- <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs text-gray-500 font-medium">
+ <div className="px-2 py-1 bg-gray-50 border-b border-gray-100 text-xs text-gray-500 font-medium">
  {auditLogs.length} registro(s) encontrado(s)
  </div>
  <table className="w-full">
  <thead className="bg-[#567469] text-white">
  <tr>
- <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Data / Hora</th>
- <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Usuário</th>
- <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Empresa</th>
- <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">Banco</th>
- <th className="px-3 py-2 text-left text-[9px] font-semibold uppercase tracking-wider">IP</th>
+ <th className="px-2 py-1 text-left text-[9px] font-semibold uppercase tracking-wider">Data / Hora</th>
+ <th className="px-2 py-1 text-left text-[9px] font-semibold uppercase tracking-wider">Usuário</th>
+ <th className="px-2 py-1 text-left text-[9px] font-semibold uppercase tracking-wider">Empresa</th>
+ <th className="px-2 py-1 text-left text-[9px] font-semibold uppercase tracking-wider">Banco</th>
+ <th className="px-2 py-1 text-left text-[9px] font-semibold uppercase tracking-wider">IP</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
@@ -955,21 +955,21 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  animate={{ opacity: 1 }}
  className="hover:bg-blue-50/30 transition-colors"
  >
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <span className="text-[11px] text-gray-700 font-mono whitespace-nowrap">
  {new Date(log.data_acesso).toLocaleString('pt-BR')}
  </span>
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <span className="text-[11px] font-semibold text-[#32423D]">{log.login}</span>
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <span className="text-[11px] text-gray-600">{log.client_name || '—'}</span>
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{log.db_name || '—'}</span>
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <span className="text-[10px] text-gray-400 font-mono">{log.ip_address || '—'}</span>
  </td>
  </motion.tr>

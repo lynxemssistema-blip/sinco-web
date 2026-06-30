@@ -57,7 +57,8 @@ export default function ApontamentosParciaisPage() {
 
  useEffect(() => {
  fetchParciais();
- }, [fetchParciais]);  
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, []);  
 
  const handleDelete = async (id: number) => {
  if (!window.confirm('Tem certeza que deseja estornar este apontamento parcial? A quantidade executada será subtraída do setor!')) return;
@@ -172,7 +173,7 @@ export default function ApontamentosParciaisPage() {
  return (
  <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden bg-gray-50 p-3 h-full flex flex-col min-h-0 gap-2">
  {/* Barra de filtros compacta */}
- <div className="flex flex-wrap items-center gap-2 shrink-0 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+ <div className="flex flex-wrap items-center gap-2 shrink-0 bg-white px-2 py-1 rounded-lg shadow-sm border border-gray-200">
  {/* Ícone + título inline */}
  <div className="flex items-center gap-1.5 mr-2">
  <AlertTriangle size={14} className="text-amber-500 shrink-0" />
@@ -213,7 +214,7 @@ export default function ApontamentosParciaisPage() {
  )}
  </div>
 
- <button onClick={fetchParciais} className="ml-auto px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-md font-bold shadow-sm transition-colors text-xs flex items-center gap-1.5">
+ <button onClick={fetchParciais} className="ml-auto px-2 py-0.5 bg-amber-500 hover:bg-amber-600 text-white rounded-md font-bold shadow-sm transition-colors text-xs flex items-center gap-1.5">
  <RefreshCw size={12} /> Atualizar
  </button>
  </div>
@@ -223,17 +224,17 @@ export default function ApontamentosParciaisPage() {
  <table className="w-full text-left">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white text-xs uppercase tracking-wider sticky top-0 z-10">
  <tr>
- <th className="px-3 py-1.5 font-bold w-32 border-b border-[#4d665d]">Data / Hora</th>
- <th className="px-3 py-1.5 font-bold w-24 border-b border-[#4d665d] text-center">Plano de Corte</th>
- <th className="px-3 py-1.5 font-bold w-28 border-b border-[#4d665d]">Responsável</th>
- <th className="px-3 py-1.5 font-bold w-24 border-b border-[#4d665d] text-center">O.S.</th>
- <th className="px-3 py-1.5 font-bold w-32 border-b border-[#4d665d] text-center">Setor</th>
- <th className="px-3 py-1.5 font-bold border-b border-[#4d665d]">Peça / Projeto / Tag</th>
- <th className="px-3 py-1.5 font-bold w-24 text-center border-b border-[#4d665d]">Qtde Parcial</th>
- <th className="px-3 py-1.5 font-bold w-40 text-center border-b border-[#4d665d]">Ações</th>
+ <th className="px-2 py-0.5 font-bold w-32 border-b border-[#4d665d]">Data / Hora</th>
+ <th className="px-2 py-0.5 font-bold w-24 border-b border-[#4d665d] text-center">Plano de Corte</th>
+ <th className="px-2 py-0.5 font-bold w-28 border-b border-[#4d665d]">Responsável</th>
+ <th className="px-2 py-0.5 font-bold w-24 border-b border-[#4d665d] text-center">O.S.</th>
+ <th className="px-2 py-0.5 font-bold w-32 border-b border-[#4d665d] text-center">Setor</th>
+ <th className="px-2 py-0.5 font-bold border-b border-[#4d665d]">Peça / Projeto / Tag</th>
+ <th className="px-2 py-0.5 font-bold w-24 text-center border-b border-[#4d665d]">Qtde Parcial</th>
+ <th className="px-2 py-0.5 font-bold w-40 text-center border-b border-[#4d665d]">Ações</th>
  </tr>
  </thead>
- <tbody className="text-sm divide-y divide-gray-100">
+ <tbody className="text-xs divide-y divide-gray-100">
  {loading && (
  <tr>
  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
@@ -255,10 +256,10 @@ export default function ApontamentosParciaisPage() {
 
  {!loading && filteredList.map(item => (
  <tr key={item.IdOrdemServicoItemControle} className="hover:bg-amber-50/50 transition-colors">
- <td className="px-4 py-2 font-medium text-gray-600 text-xs">
+ <td className="px-2 py-1 font-medium text-gray-600 text-xs">
  {formatDate(item.DataCriacao)}
  </td>
- <td className="px-4 py-2 text-center text-xs">
+ <td className="px-2 py-1 text-center text-xs">
  {item.IdPlanodecorte ? (
  <span className="bg-sky-100 text-sky-700 font-black px-2 py-1 rounded shadow-sm text-xs border border-sky-200">
  Pl. {item.IdPlanodecorte}
@@ -267,20 +268,20 @@ export default function ApontamentosParciaisPage() {
  <span className="text-gray-400 text-xs">—</span>
  )}
  </td>
- <td className="px-4 py-2 text-gray-700 font-bold truncate max-w-[120px]" title={item.CriadoPor}>
+ <td className="px-2 py-1 text-gray-700 font-bold truncate max-w-[120px]" title={item.CriadoPor}>
  {item.CriadoPor}
  </td>
- <td className="px-4 py-2 text-center text-xs">
+ <td className="px-2 py-1 text-center text-xs">
  <span className="bg-[#E0E800]/40 text-[#32423D] font-black px-2 py-0.5 rounded shadow-sm">
  OS {item.IdOrdemServico}
  </span>
  </td>
- <td className="px-4 py-2 text-center">
+ <td className="px-2 py-1 text-center">
  <span className="uppercase text-[10px] font-black border border-gray-300 bg-gray-100 px-2 py-1 rounded">
  {item.Processo}
  </span>
  </td>
- <td className="px-4 py-2">
+ <td className="px-2 py-1">
  <div className="flex flex-col gap-0.5">
  <span className="font-bold text-[#32423D] text-xs">{(item.CodMatFabricante || '').substring(0,25)}</span>
  <div className="flex gap-1 flex-wrap">
@@ -289,12 +290,12 @@ export default function ApontamentosParciaisPage() {
  </div>
  </div>
  </td>
- <td className="px-4 py-2 text-center">
+ <td className="px-2 py-1 text-center">
  <span className="inline-block min-w-[60px] text-center font-black text-amber-700 bg-amber-100 border border-amber-200 px-2 py-1 rounded">
  {item.QtdeProduzida} / {item.QtdeTotal}
  </span>
  </td>
- <td className="px-4 py-2 text-center">
+ <td className="px-2 py-1 text-center">
  <div className="flex items-center justify-center gap-1">
  <button onClick={() => handleAbrirDesenho(item, '3D')} className="p-1 hover:bg-[#E0E800]/20 text-[#32423D] rounded transition-colors" title="Abrir 3D (SolidWorks)"><Box size={14}/></button>
  <button onClick={() => handleAbrirDesenho(item, 'PDF')} className="p-1 hover:bg-red-100 text-red-600 rounded transition-colors" title="Abrir Desenho PDF"><FileText size={14}/></button>

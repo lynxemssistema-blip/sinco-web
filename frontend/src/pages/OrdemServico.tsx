@@ -723,9 +723,9 @@ function OrdemServicoContent() {
     const hasActiveFilters = projetoFilter || tagFilter || searchTerm;
 
     const getStatusIcon = (status?: string, finalizado?: string) => {
-        if (finalizado === 'C') return <CheckCircle size={16} className="text-green-500" />;
-        if (status === 'C') return <XCircle size={16} className="text-red-500" />;
-        return <Clock size={16} className="text-yellow-500" />;
+        if (finalizado === 'C') return <CheckCircle size={14} className="text-green-500" />;
+        if (status === 'C') return <XCircle size={14} className="text-red-500" />;
+        return <Clock size={14} className="text-yellow-500" />;
     };
 
     const getStatusText = (os: OrdemServico) => {
@@ -1457,8 +1457,8 @@ function OrdemServicoContent() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-4">
                 {/* Voltar and Actions Bar */}
                 <div className="px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-100 bg-gray-50 gap-4">
-                    <button onClick={() => setSelectedOSId(null)} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary border border-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
-                        <ArrowLeft size={16} />
+                    <button onClick={() => setSelectedOSId(null)} className="inline-flex items-center gap-2 px-2 py-1 text-xs font-medium text-white bg-primary border border-primary rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+                        <ArrowLeft size={14} />
                         Voltar para Lista
                     </button>
                     
@@ -1476,7 +1476,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-teal-50 text-teal-600 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors shadow-sm disabled:opacity-50"
                                     title="Incluir Itens na Ordem de Serviço"
                                 >
-                                    <PackagePlus size={18} />
+                                    <PackagePlus size={15} />
                                 </button>
                             )}
 
@@ -1487,7 +1487,7 @@ function OrdemServicoContent() {
                                 className="p-2.5 border rounded-lg shadow-sm transition-colors bg-[#E0E800]/30 text-[#32423D] border-blue-200 hover:bg-[#E0E800]/20 disabled:opacity-50"
                                 title="Atualizar arquivos na pasta da OS"
                             >
-                                <RefreshCw size={18} />
+                                <RefreshCw size={15} />
                             </button>
 
                             {os.Liberado_Engenharia === 'S' && os.OrdemServicoFinalizado !== 'C' && (
@@ -1497,7 +1497,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-yellow-50 text-yellow-600 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors shadow-sm disabled:opacity-50"
                                     title="Informar Ordem de Produção ERP (OMIE)"
                                 >
-                                    <Hash size={18} />
+                                    <Hash size={15} />
                                 </button>
                             )}
 
@@ -1507,7 +1507,7 @@ function OrdemServicoContent() {
                                 className="p-2.5 border rounded-lg shadow-sm transition-colors bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 disabled:opacity-50"
                                 title="Alterar Fator Multiplicador da O.S."
                             >
-                                <Settings2 size={18} />
+                                <Settings2 size={15} />
                             </button>
 
                             <button 
@@ -1522,7 +1522,7 @@ function OrdemServicoContent() {
                                     ? 'Ação bloqueada: O.S. já está concluída/finalizada.' 
                                     : 'Excluir Ordem de Serviço'}
                             >
-                                <Trash2 size={18} />
+                                <Trash2 size={15} />
                             </button>
 
                             <button 
@@ -1531,7 +1531,7 @@ function OrdemServicoContent() {
                                 className="p-2.5 bg-sky-50 text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-100 transition-colors shadow-sm disabled:opacity-50"
                                 title="Criar Cópia (Duplicar) desta Ordem de Serviço"
                             >
-                                <Copy size={18} />
+                                <Copy size={15} />
                             </button>
 
                             {os.OrdemServicoFinalizado !== 'C' && (
@@ -1541,7 +1541,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-sm disabled:opacity-50"
                                     title="Finalizar Ordem de Serviço"
                                 >
-                                    <Flag size={18} />
+                                    <Flag size={15} />
                                 </button>
                             )}
 
@@ -1552,7 +1552,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors shadow-sm disabled:opacity-50"
                                     title="Cancelar Finalização da O.S."
                                 >
-                                    <RotateCcw size={18} />
+                                    <RotateCcw size={15} />
                                 </button>
                             )}
 
@@ -1563,7 +1563,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-green-50 text-green-600 border border-green-200 rounded-lg hover:bg-green-100 transition-colors shadow-sm disabled:opacity-50"
                                     title="Liberar Ordem de Serviço"
                                 >
-                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle size={15} />}
                                 </button>
                             ) : (
                                 <button 
@@ -1573,7 +1573,7 @@ function OrdemServicoContent() {
                                     className="p-2.5 bg-gray-50 text-green-500 border border-gray-200 rounded-lg cursor-not-allowed opacity-60"
                                     title="Ordem de Serviço já liberada"
                                 >
-                                    <CheckCircle size={18} />
+                                    <CheckCircle size={15} />
                                 </button>
                             )}
 
@@ -1596,7 +1596,7 @@ function OrdemServicoContent() {
                                                 : 'Cancelar Liberação Engenharia'
                                     }
                                 >
-                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
+                                    {liberandoOS === os.IdOrdemServico ? <Loader2 size={15} className="animate-spin" /> : <XCircle size={15} />}
                                 </button>
                             )}
                         </div>
@@ -1695,7 +1695,7 @@ function OrdemServicoContent() {
 
                             {/* Itens */}
                             {isLoadingItens ? (
-                                <div className="px-4 py-4">
+                                <div className="px-2 py-1">
                                     {/* Loading Header */}
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="relative">
@@ -1703,7 +1703,7 @@ function OrdemServicoContent() {
                                             <div className="absolute inset-0 bg-accent/20 rounded-full animate-ping" />
                                         </div>
                                         <div>
-                                            <div className="text-sm font-medium text-primary">Carregando itens da OS...</div>
+                                            <div className="text-xs font-medium text-primary">Carregando itens da OS...</div>
                                             <div className="text-xs text-gray-400">Buscando dados do servidor</div>
                                         </div>
                                     </div>
@@ -1765,12 +1765,12 @@ function OrdemServicoContent() {
                                     </div>
                                 </div>
                             ) : itens.length === 0 ? (
-                                <div className="pl-16 py-4 text-sm text-gray-400 flex items-center gap-2">
+                                <div className="pl-16 py-4 text-xs text-gray-400 flex items-center gap-2">
                                     <Box size={14} />
                                     Nenhum item nesta OS
                                 </div>
                             ) : (
-                                <div className="px-4 py-2">
+                                <div className="px-2 py-1">
                                     <div className="flex items-center justify-between mb-2 pl-2">
                                         <span className="text-xs font-semibold text-primary">
                                             Itens da OS ({itens.length})
@@ -1784,7 +1784,7 @@ function OrdemServicoContent() {
                                             <button
                                                 onClick={() => handleDeleteSelected(os.IdOrdemServico)}
                                                 disabled={deletandoSelecionados}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors shadow disabled:opacity-50 mr-2"
+                                                className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors shadow disabled:opacity-50 mr-2"
                                             >
                                                 {deletandoSelecionados ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                                                 Excluir Selecionados ({selectedItemIds.size})
@@ -1941,7 +1941,7 @@ function OrdemServicoContent() {
                                                     {item.CodMatFabricante || '-'}
                                                 </span>
 
-                                                <span className="flex-1 text-sm text-gray-700 truncate" title={item.DescDetal || item.DescResumo}>
+                                                <span className="flex-1 text-xs text-gray-700 truncate" title={item.DescDetal || item.DescResumo}>
                                                     {item.DescResumo || '-'}
                                                 </span>
 
@@ -1975,7 +1975,7 @@ function OrdemServicoContent() {
                                                     className="w-8 h-8 rounded flex items-center justify-center bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white transition-colors ml-auto"
                                                     title="Gerar Pendência (RNC)"
                                                 >
-                                                    <ShieldAlert size={16} />
+                                                    <ShieldAlert size={14} />
                                                 </button>
 
                                                 {!(os.Liberado_Engenharia === 'S' || os.Liberado_Engenharia === 'SIM' || os.OrdemServicoFinalizado === 'C' || os.OrdemServicoFinalizado === 'S') && !(item.Liberado_Engenharia === 'S' || item.Liberado_Engenharia === 'SIM') ? (
@@ -1984,7 +1984,7 @@ function OrdemServicoContent() {
                                                         className="w-8 h-8 rounded flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors mr-2"
                                                         title="Excluir Linha Selecionada"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={14} />
                                                     </button>
                                                 ) : (
                                                     <div className="w-8 h-8 shrink-0 mr-2" />
@@ -2011,23 +2011,23 @@ function OrdemServicoContent() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: Math.min(idx * 0.01, 0.2) }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-accent/5' : ''}`}
+                    className={`flex items-center gap-3 px-2 py-1 hover:bg-gray-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-accent/5' : ''}`}
                     onClick={() => toggleOS(os.IdOrdemServico)}
                 >
                     <div className="w-6 h-6 flex items-center justify-center text-gray-400">
                         {isLoadingItens ? (
-                            <Loader2 size={16} className="animate-spin" />
+                            <Loader2 size={14} className="animate-spin" />
                         ) : isExpanded ? (
-                            <ChevronDown size={18} className="text-primary" />
+                            <ChevronDown size={15} className="text-primary" />
                         ) : (
-                            <ChevronRight size={18} />
+                            <ChevronRight size={15} />
                         )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">OS {os.IdOrdemServico}</span>
-                            <span className="text-sm font-medium text-gray-900 truncate">{os.Tag || '-'}</span>
+                            <span className="text-xs font-medium text-gray-900 truncate">{os.Tag || '-'}</span>
                         </div>
                         <div className="text-xs text-gray-500 truncate flex items-center gap-2">
                             <span className="truncate">{os.Projeto} • {os.DescTag || 'Sem descrição'}</span>
@@ -2054,14 +2054,14 @@ function OrdemServicoContent() {
                     </div>
 
                     <div className="hidden md:flex flex-col items-center text-center w-16">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-xs font-medium text-gray-900">
                             {Number(os.QtdeItensExecutadosCalc ?? os.QtdeItensExecutados) || 0}/{Number(os.QtdeTotalItensCalc ?? os.QtdeTotalItens) || 0}
                         </span>
                         <span className="text-[10px] text-gray-400">Itens</span>
                     </div>
 
                     <div className="hidden md:flex flex-col items-center w-20">
-                        <span className="text-sm font-medium text-gray-900">{Number(os.PercentualItensCalc ?? os.PercentualItens) || 0}%</span>
+                        <span className="text-xs font-medium text-gray-900">{Number(os.PercentualItensCalc ?? os.PercentualItens) || 0}%</span>
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-0.5">
                             <div
                                 className={`h-full rounded-full transition-all ${getProgressColor(Number(os.PercentualItensCalc ?? os.PercentualItens))}`}
@@ -2085,7 +2085,7 @@ function OrdemServicoContent() {
                                 className="p-2 rounded-lg text-teal-500 hover:text-teal-700 hover:bg-teal-50 transition-colors disabled:opacity-50"
                                 title="Incluir Itens na Ordem de Serviço"
                             >
-                                <PackagePlus size={16} />
+                                <PackagePlus size={14} />
                             </button>
                         )}
 
@@ -2108,7 +2108,7 @@ function OrdemServicoContent() {
                             className="p-2 rounded-lg text-blue-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 transition-colors"
                             title={`Abrir pasta: ${os.EnderecoOrdemServico}`}
                         >
-                            <FolderOpen size={16} />
+                            <FolderOpen size={14} />
                         </button>
                     )}
                     
@@ -2135,7 +2135,7 @@ function OrdemServicoContent() {
                             className="p-2 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
                             title="Gerar Relatório Excel"
                         >
-                            <FileSpreadsheet size={16} />
+                            <FileSpreadsheet size={14} />
                         </button>
                     )}
                     </div>
@@ -2152,7 +2152,7 @@ function OrdemServicoContent() {
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+                    className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
                 >
                     {error}
                 </motion.div>
@@ -2165,16 +2165,16 @@ function OrdemServicoContent() {
                     {/* Search Input */}
                     <div className="relative flex-1 min-w-[200px] flex items-center gap-2">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                             <input
                                 type="text"
                                 placeholder="Buscar Ordem de Serviço..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-1.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all text-sm"
+                                className="w-full pl-10 pr-4 py-1.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all text-xs"
                             />
                             {(searchingItems || (searchMode === 'os' && loading && searchTerm)) && (
-                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={16} />
+                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={14} />
                             )}
                         </div>
                         {searchTerm && (
@@ -2192,7 +2192,7 @@ function OrdemServicoContent() {
                             value={projetoFilter}
                             onChange={(e) => { setProjetoFilter(e.target.value); setTagFilter(''); }}
                             onKeyDown={(e) => e.key === 'Enter' && fetchOrdens(1)}
-                            className="pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 w-40"
+                            className="pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-accent/50 w-40"
                         />
                         {projetoFilter && (
                             <button
@@ -2213,7 +2213,7 @@ function OrdemServicoContent() {
                             value={tagFilter}
                             onChange={(e) => setTagFilter(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && fetchOrdens(1)}
-                            className="pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 w-36"
+                            className="pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-accent/50 w-36"
                         />
                         {tagFilter && (
                             <button
@@ -2228,11 +2228,11 @@ function OrdemServicoContent() {
 
                     {/* Group By */}
                     <div className="flex items-center gap-2">
-                        <Layers size={16} className="text-gray-400" />
+                        <Layers size={14} className="text-gray-400" />
                         <select
                             value={groupBy}
                             onChange={(e) => setGroupBy(e.target.value as 'none' | 'projeto' | 'tag')}
-                            className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                            className="px-2 py-0.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-accent/50"
                         >
                             <option value="none">Sem Agrupamento</option>
                             <option value="projeto">Agrupar por Projeto</option>
@@ -2244,7 +2244,7 @@ function OrdemServicoContent() {
                         <select
                             value={filtroFinalizado}
                             onChange={(e) => setFiltroFinalizado(e.target.value as any)}
-                            className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                            className="px-2 py-0.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-accent/50"
                         >
                             <option value="TODAS">Finalização: Todas</option>
                             <option value="NAO_FINALIZADAS">Finalização: Não Finalizadas</option>
@@ -2256,7 +2256,7 @@ function OrdemServicoContent() {
                         <select
                             value={filtroLiberado}
                             onChange={(e) => setFiltroLiberado(e.target.value as any)}
-                            className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                            className="px-2 py-0.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-accent/50"
                         >
                             <option value="TODAS">Liberação: Todas</option>
                             <option value="NAO_LIBERADAS">Liberação: Não Liberadas</option>
@@ -2319,7 +2319,7 @@ function OrdemServicoContent() {
                     {hasActiveFilters && (
                         <button
                             onClick={clearFilters}
-                            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                             <X size={14} />
                             Limpar
@@ -2354,14 +2354,14 @@ function OrdemServicoContent() {
             {/* Item Search Results */}
             {searchMode === 'item' && itemSearchResults.length > 0 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-4 py-3 bg-gradient-to-r from-[#E0E800]/10 to-transparent border-b border-gray-100">
-                        <h2 className="text-sm font-semibold text-primary">
+                    <div className="px-2 py-1 bg-gradient-to-r from-[#E0E800]/10 to-transparent border-b border-gray-100">
+                        <h2 className="text-xs font-semibold text-primary">
                             Resultados da Busca por Documento ({itemSearchResults.length})
                         </h2>
                     </div>
                     <div className="divide-y divide-gray-100">
                         {itemSearchResults.map((item) => (
-                            <div key={item.IdOrdemServicoItem} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                            <div key={item.IdOrdemServicoItem} className="flex items-center gap-3 px-2 py-1 hover:bg-gray-50 transition-colors">
                                 {item.EnderecoArquivo ? (
                                     <button
                                         onClick={() => {
@@ -2381,7 +2381,7 @@ function OrdemServicoContent() {
                                 <span className="text-xs font-bold text-primary bg-accent/20 px-2 py-1 rounded">
                                     {item.CodMatFabricante}
                                 </span>
-                                <span className="flex-1 text-sm text-gray-700 truncate">
+                                <span className="flex-1 text-xs text-gray-700 truncate">
                                     {item.DescResumo || '-'}
                                 </span>
                                 <span className="text-xs text-gray-500">
@@ -2402,24 +2402,24 @@ function OrdemServicoContent() {
                     {loading ? (
                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
                             <Loader2 size={32} className="animate-spin" />
-                            <p className="text-sm">Carregando ordens de serviço...</p>
+                            <p className="text-xs">Carregando ordens de serviço...</p>
                         </div>
                     ) : ordens.length === 0 && selectedOSId ? (
                          <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
                             <ClipboardList size={40} strokeWidth={1.5} />
-                            <p className="text-sm">Atualizando...</p>
+                            <p className="text-xs">Atualizando...</p>
                             {(() => { setTimeout(() => setSelectedOSId(null), 10); return null; })()}
                         </div>
                     ) : ordens.length === 0 ? (
                         <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
                             <ClipboardList size={40} strokeWidth={1.5} />
-                            <p className="text-sm">Nenhuma ordem de serviço encontrada</p>
+                            <p className="text-xs">Nenhuma ordem de serviço encontrada</p>
                         </div>
                     ) : groupBy !== 'none' && groupedOrdens ? (
                         // Grouped View
                         <div>
                             {/* Cabeçalho fixo do grid agrupado */}
-                            <div className="sticky top-0 z-20 flex items-center gap-3 px-4 py-2 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
+                            <div className="sticky top-0 z-20 flex items-center gap-3 px-2 py-1 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
                                 <span className="w-6 shrink-0" />
                                 <span className="flex-1 min-w-0">OS / Tag / Projeto</span>
                                 <span className="hidden md:block w-16 text-center">Itens</span>
@@ -2429,7 +2429,7 @@ function OrdemServicoContent() {
                             </div>
                             {Object.entries(groupedOrdens).map(([groupName, groupOrdens]) => (
                                 <div key={groupName}>
-                                    <div className="px-4 py-3 bg-gradient-to-r from-[#32423D] to-[#32423D]/80 text-white sticky top-9 z-10">
+                                    <div className="px-2 py-1 bg-gradient-to-r from-[#32423D] to-[#32423D]/80 text-white sticky top-9 z-10">
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium">{groupName}</span>
                                             <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
@@ -2446,7 +2446,7 @@ function OrdemServicoContent() {
                     ) : (
                         // Normal View com cabeçalho fixo
                         <div>
-                            <div className="sticky top-0 z-20 flex items-center gap-3 px-4 py-2 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
+                            <div className="sticky top-0 z-20 flex items-center gap-3 px-2 py-1 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
                                 <span className="w-6 shrink-0" />
                                 <span className="flex-1 min-w-0">OS / Tag / Projeto</span>
                                 <span className="hidden lg:block w-44">Descrição OS</span>
@@ -2464,7 +2464,7 @@ function OrdemServicoContent() {
 
                     {/* Load More Button */}
                     {pagination?.hasMore && !loading && (
-                        <div className="px-4 py-4 bg-gray-50 border-t border-gray-100 text-center">
+                        <div className="px-2 py-1 bg-gray-50 border-t border-gray-100 text-center">
                             <button
                                 onClick={loadMore}
                                 disabled={loadingMore}
@@ -2472,7 +2472,7 @@ function OrdemServicoContent() {
                             >
                                 {loadingMore ? (
                                     <>
-                                        <Loader2 size={16} className="animate-spin" />
+                                        <Loader2 size={14} className="animate-spin" />
                                         Carregando...
                                     </>
                                 ) : (
@@ -2489,7 +2489,7 @@ function OrdemServicoContent() {
 
                     {/* Footer Stats */}
                     {!loading && ordens.length > 0 && (
-                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                        <div className="px-2 py-1 bg-gray-50 border-t border-gray-100">
                             <p className="text-xs text-gray-500">
                                 <span className="font-medium">{ordens.length}</span> de <span className="font-medium">{pagination?.total || ordens.length}</span> ordens de serviço •
                                 <span className="font-medium ml-1">{expandedOrdens.size}</span> expandidas
@@ -2523,13 +2523,13 @@ function OrdemServicoContent() {
                             </div>
 
                             <div className="p-6 overflow-y-auto flex-1 space-y-4">
-                                <div className="bg-[#E0E800]/30 text-[#32423D] p-3 rounded-lg text-sm mb-4">
+                                <div className="bg-[#E0E800]/30 text-[#32423D] p-3 rounded-lg text-xs mb-4">
                                     <strong>Atenção:</strong> Você está prestes a duplicar a <strong>OS {showModalClonar.IdOrdemServico}</strong>.<br/> 
                                     Selecione o Projeto e a Tag de destino.
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
                                         Novo Projeto Destino *
                                     </label>
                                     <select
@@ -2538,7 +2538,7 @@ function OrdemServicoContent() {
                                             setCloneProjetoId(e.target.value);
                                             setCloneTagId(''); // reset tag ao trocar projeto
                                         }}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
                                         required
                                     >
                                         <option value="">Selecione o Projeto...</option>
@@ -2549,16 +2549,16 @@ function OrdemServicoContent() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
                                         Nova Tag Destino *
                                     </label>
                                     {loadingCloneTags ? (
-                                        <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-400">
+                                        <div className="flex items-center gap-2 px-2 py-1 border border-gray-200 rounded-lg bg-gray-50 text-xs text-gray-400">
                                             <Loader2 size={14} className="animate-spin" />
                                             Carregando tags...
                                         </div>
                                     ) : cloneTagsEmpty ? (
-                                        <div className="flex items-center gap-2 px-3 py-2 border border-amber-200 rounded-lg bg-amber-50 text-sm text-amber-700">
+                                        <div className="flex items-center gap-2 px-2 py-1 border border-amber-200 rounded-lg bg-amber-50 text-xs text-amber-700">
                                             <span className="text-base">⚠️</span>
                                             <span>Este projeto não possui tags cadastradas. Selecione outro projeto para continuar.</span>
                                         </div>
@@ -2566,7 +2566,7 @@ function OrdemServicoContent() {
                                         <select
                                             value={cloneTagId}
                                             onChange={(e) => setCloneTagId(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                            className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
                                             required
                                             disabled={!cloneProjetoId}
                                         >
@@ -2579,7 +2579,7 @@ function OrdemServicoContent() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
                                         Fator Multiplicador
                                     </label>
                                     <input
@@ -2588,20 +2588,20 @@ function OrdemServicoContent() {
                                         step="1"
                                         value={cloneFator}
                                         onChange={(e) => setCloneFator(parseInt(e.target.value) || 1)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Multiplica as quantidades e pesos da OS original.</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">
                                         Nova Descrição (Opcional)
                                     </label>
                                     <textarea
                                         value={cloneDescricao}
                                         onChange={(e) => setCloneDescricao(e.target.value)}
                                         rows={3}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent resize-none"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent resize-none"
                                         placeholder="Descreva o motivo da clonagem ou especificidades da nova OS..."
                                     />
                                 </div>
@@ -2610,19 +2610,19 @@ function OrdemServicoContent() {
                             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
                                 <button
                                     onClick={() => setShowModalClonar(null)}
-                                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                    className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={() => executeClone(showModalClonar)}
                                     disabled={liberandoOS === showModalClonar.IdOrdemServico || !cloneProjetoId || !cloneTagId}
-                                    className="px-6 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    className="px-6 py-2 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                     {liberandoOS === showModalClonar.IdOrdemServico ? (
-                                        <><Loader2 size={16} className="animate-spin" /> Clonando...</>
+                                        <><Loader2 size={14} className="animate-spin" /> Clonando...</>
                                     ) : (
-                                        <><Copy size={16} /> Confirmar Clonagem</>
+                                        <><Copy size={14} /> Confirmar Clonagem</>
                                     )}
                                 </button>
                             </div>
@@ -2659,7 +2659,7 @@ function OrdemServicoContent() {
                                         </div>
                                     </div>
                                     <button onClick={() => !excluindoItens && setShowModalExcluirItens(null)} disabled={excluindoItens}
-                                        className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><X size={18} /></button>
+                                        className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><X size={15} /></button>
                                 </div>
                                 {/* Toolbar */}
                                 <div className="flex items-center justify-between px-5 py-2.5 bg-gray-50 border-b border-gray-100 shrink-0">
@@ -2675,7 +2675,7 @@ function OrdemServicoContent() {
                                     </label>
                                     <div className="flex items-center gap-2">
                                         <button onClick={() => !excluindoItens && setShowModalExcluirItens(null)} disabled={excluindoItens}
-                                            className="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                                            className="px-2 py-0.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                                             Cancelar
                                         </button>
                                         <button onClick={handleConfirmarExclusaoItens}
@@ -2689,22 +2689,22 @@ function OrdemServicoContent() {
                                 <div className="overflow-y-auto flex-1">
                                     {isLoadingOS ? (
                                         <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-400">
-                                            <Loader2 size={28} className="animate-spin" /><p className="text-sm">Carregando itens...</p>
+                                            <Loader2 size={28} className="animate-spin" /><p className="text-xs">Carregando itens...</p>
                                         </div>
                                     ) : itensOS.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-16 gap-2 text-gray-400">
-                                            <Box size={32} strokeWidth={1.5} /><p className="text-sm">Nenhum item encontrado</p>
+                                            <Box size={32} strokeWidth={1.5} /><p className="text-xs">Nenhum item encontrado</p>
                                         </div>
                                     ) : (
-                                        <table className="w-full text-sm border-collapse">
+                                        <table className="w-full text-xs border-collapse">
                                             <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white bg-[#567469] border-b border-white/20 sticky top-0 z-10">
                                                 <tr>
-                                                    <th className="w-10 px-3 py-2.5"></th>
-                                                    <th className="px-3 py-2.5 text-left text-xs text-white font-semibold uppercase">Código</th>
-                                                    <th className="px-3 py-2.5 text-left text-xs text-white font-semibold uppercase">Descrição</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Qtde</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Peso (kg)</th>
-                                                    <th className="px-3 py-2.5 text-center text-xs text-white font-semibold uppercase">Área (m²)</th>
+                                                    <th className="w-10 px-2 py-1.5"></th>
+                                                    <th className="px-2 py-1.5 text-left text-xs text-white font-semibold uppercase">Código</th>
+                                                    <th className="px-2 py-1.5 text-left text-xs text-white font-semibold uppercase">Descrição</th>
+                                                    <th className="px-2 py-1.5 text-center text-xs text-white font-semibold uppercase">Qtde</th>
+                                                    <th className="px-2 py-1.5 text-center text-xs text-white font-semibold uppercase">Peso (kg)</th>
+                                                    <th className="px-2 py-1.5 text-center text-xs text-white font-semibold uppercase">Área (m²)</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
@@ -2715,37 +2715,37 @@ function OrdemServicoContent() {
                                                         <tr key={item.IdOrdemServicoItem}
                                                             onClick={() => !excluindoItens && toggleExcluirCheck(item.IdOrdemServicoItem)}
                                                             className={'cursor-pointer transition-all border-l-4 ' + (checked ? 'bg-red-50 border-l-red-400' : 'hover:bg-gray-50 border-l-transparent')}>
-                                                            <td className="px-3 py-2.5 text-center">
+                                                            <td className="px-2 py-1.5 text-center">
                                                                 <input type="checkbox" checked={checked}
                                                                     onChange={() => toggleExcluirCheck(item.IdOrdemServicoItem)}
                                                                     onClick={(e) => e.stopPropagation()}
                                                                     disabled={excluindoItens} className="w-4 h-4 accent-red-500 cursor-pointer" />
                                                             </td>
-                                                            <td className="px-3 py-2.5">
+                                                            <td className="px-2 py-1.5">
                                                                 <span className="font-bold text-xs text-primary bg-accent/20 px-2 py-0.5 rounded">{item.CodMatFabricante || '-'}</span>
                                                                 {item.ProdutoPrincipal === 'SIM' && <Star size={10} className="inline ml-1 text-yellow-500 fill-yellow-400" />}
                                                             </td>
-                                                            <td className="px-3 py-2.5 text-xs text-gray-700 max-w-xs truncate" title={item.DescDetal || item.DescResumo || ''}>{item.DescResumo || '-'}</td>
-                                                            <td className="px-3 py-2.5 text-center text-xs font-semibold text-gray-700">{item.QtdeTotal ?? '-'}</td>
-                                                            <td className="px-3 py-2.5 text-center text-xs text-gray-600">{item.Peso ? Number(item.Peso).toFixed(2) : '-'}</td>
-                                                            <td className="px-3 py-2.5 text-center text-xs text-gray-600">{areaItem ? Number(areaItem).toFixed(2) : '-'}</td>
+                                                            <td className="px-2 py-1.5 text-xs text-gray-700 max-w-xs truncate" title={item.DescDetal || item.DescResumo || ''}>{item.DescResumo || '-'}</td>
+                                                            <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">{item.QtdeTotal ?? '-'}</td>
+                                                            <td className="px-2 py-1.5 text-center text-xs text-gray-600">{item.Peso ? Number(item.Peso).toFixed(2) : '-'}</td>
+                                                            <td className="px-2 py-1.5 text-center text-xs text-gray-600">{areaItem ? Number(areaItem).toFixed(2) : '-'}</td>
                                                         </tr>
                                                     );
                                                 })}
                                             </tbody>
                                             <tfoot className="bg-gray-50 border-t-2 border-gray-200 sticky bottom-0">
                                                 <tr>
-                                                    <td colSpan={3} className="px-4 py-2 text-xs text-gray-500 font-semibold">Total ({itensOS.length})</td>
-                                                    <td className="px-3 py-2 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number(i.QtdeTotal) || 0), 0)}</td>
-                                                    <td className="px-3 py-2 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number(i.Peso) || 0), 0).toFixed(2)}</td>
-                                                    <td className="px-3 py-2 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number((i as any).AreaPintura) || 0), 0).toFixed(2)}</td>
+                                                    <td colSpan={3} className="px-2 py-1 text-xs text-gray-500 font-semibold">Total ({itensOS.length})</td>
+                                                    <td className="px-2 py-1 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number(i.QtdeTotal) || 0), 0)}</td>
+                                                    <td className="px-2 py-1 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number(i.Peso) || 0), 0).toFixed(2)}</td>
+                                                    <td className="px-2 py-1 text-center text-xs font-bold text-primary">{itensOS.reduce((a, i) => a + (Number((i as any).AreaPintura) || 0), 0).toFixed(2)}</td>
                                                 </tr>
                                                 {excluirItemChecks.size > 0 && (
                                                     <tr className="bg-red-50 border-t border-red-200">
-                                                        <td colSpan={3} className="px-4 py-2 text-xs text-red-600 font-bold">Selecionados ({totalSel.length})</td>
-                                                        <td className="px-3 py-2 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number(i.QtdeTotal) || 0), 0)}</td>
-                                                        <td className="px-3 py-2 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number(i.Peso) || 0), 0).toFixed(2)} kg</td>
-                                                        <td className="px-3 py-2 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number((i as any).AreaPintura) || 0), 0).toFixed(2)} m²</td>
+                                                        <td colSpan={3} className="px-2 py-1 text-xs text-red-600 font-bold">Selecionados ({totalSel.length})</td>
+                                                        <td className="px-2 py-1 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number(i.QtdeTotal) || 0), 0)}</td>
+                                                        <td className="px-2 py-1 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number(i.Peso) || 0), 0).toFixed(2)} kg</td>
+                                                        <td className="px-2 py-1 text-center text-xs font-bold text-red-600">{totalSel.reduce((a, i) => a + (Number((i as any).AreaPintura) || 0), 0).toFixed(2)} m²</td>
                                                     </tr>
                                                 )}
                                             </tfoot>
@@ -2773,7 +2773,7 @@ function OrdemServicoContent() {
                             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-teal-50/60">
                                 <div className="flex items-center gap-3">
                                     <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center shadow">
-                                        <PackagePlus size={18} className="text-white" />
+                                        <PackagePlus size={15} className="text-white" />
                                     </div>
                                     <div>
                                         <h3 className="text-base font-bold text-gray-800">Incluir Itens na OS {showModalIncluirItens.IdOrdemServico}</h3>
@@ -2805,7 +2805,7 @@ function OrdemServicoContent() {
                                 </div>
                                 <button
                                     onClick={() => fetchItensDisponiveis(showModalIncluirItens, searchItensDisp)}
-                                    className="px-3 py-2 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
+                                    className="px-2 py-1 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-1"
                                 >
                                     <Search size={13} /> Buscar
                                 </button>
@@ -2841,20 +2841,20 @@ function OrdemServicoContent() {
                                 ) : itensDisponiveis.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                                         <Box size={40} className="mb-2 opacity-20" />
-                                        <p className="text-sm">Nenhum item disponível para inclusão.</p>
+                                        <p className="text-xs">Nenhum item disponível para inclusão.</p>
                                         <p className="text-xs mt-1 text-gray-300">Todos os itens já estão incluídos nesta OS ou não há itens cadastrados.</p>
                                     </div>
                                 ) : (
                                     <table className="w-full text-xs">
                                         <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white sticky top-0 bg-[#567469] z-10">
                                             <tr className="border-b border-white/20">
-                                                <th className="w-10 px-4 py-2 text-center text-white"></th>
-                                                <th className="px-3 py-2 text-left font-semibold text-white">Código</th>
-                                                <th className="px-3 py-2 text-left font-semibold text-white">Descrição</th>
-                                                <th className="px-3 py-2 text-left font-semibold text-white hidden md:table-cell">Projeto / Tag</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-white hidden lg:table-cell">Espessura</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-white hidden lg:table-cell">Material</th>
-                                                <th className="px-3 py-2 text-center font-semibold text-white">Peso (kg)</th>
+                                                <th className="w-10 px-2 py-1 text-center text-white"></th>
+                                                <th className="px-2 py-1 text-left font-semibold text-white">Código</th>
+                                                <th className="px-2 py-1 text-left font-semibold text-white">Descrição</th>
+                                                <th className="px-2 py-1 text-left font-semibold text-white hidden md:table-cell">Projeto / Tag</th>
+                                                <th className="px-2 py-1 text-center font-semibold text-white hidden lg:table-cell">Espessura</th>
+                                                <th className="px-2 py-1 text-center font-semibold text-white hidden lg:table-cell">Material</th>
+                                                <th className="px-2 py-1 text-center font-semibold text-white">Peso (kg)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -2877,7 +2877,7 @@ function OrdemServicoContent() {
                                                         title={invalido ? 'Item bloqueado: ' + (semEsp ? 'Espessura ' : '') + (semMat ? 'MaterialSW ' : '') + 'não preenchido(s)' : ''}
                                                         className={'border-b border-gray-100 transition-colors ' + (invalido ? 'bg-amber-50 opacity-80 cursor-not-allowed' : sel ? 'bg-teal-50 hover:bg-teal-100/70 cursor-pointer' : 'hover:bg-gray-50 cursor-pointer')}
                                                     >
-                                                        <td className="px-4 py-2 text-center">
+                                                        <td className="px-2 py-1 text-center">
                                                             {invalido ? (
                                                                 <AlertTriangle size={14} className="text-amber-500 mx-auto" />
                                                             ) : (
@@ -2889,12 +2889,12 @@ function OrdemServicoContent() {
                                                                 />
                                                             )}
                                                         </td>
-                                                        <td className="px-3 py-2">
+                                                        <td className="px-2 py-1">
                                                             <span className={'font-bold px-2 py-0.5 rounded text-[11px] ' + (invalido ? 'text-amber-700 bg-amber-100' : 'text-primary bg-primary/10')}>
                                                                 {item.CodMatFabricante || '-'}
                                                             </span>
                                                         </td>
-                                                        <td className="px-3 py-2 text-gray-700 max-w-xs">
+                                                        <td className="px-2 py-1 text-gray-700 max-w-xs">
                                                             <div className="truncate" title={item.DescDetal || item.DescResumo}>
                                                                 {item.DescResumo || '-'}
                                                             </div>
@@ -2902,23 +2902,23 @@ function OrdemServicoContent() {
                                                                 <div className="text-gray-400 truncate text-[10px]">{item.DescDetal}</div>
                                                             )}
                                                         </td>
-                                                        <td className="px-3 py-2 text-gray-500 hidden md:table-cell">
+                                                        <td className="px-2 py-1 text-gray-500 hidden md:table-cell">
                                                             <div className="font-medium">{item.Projeto || '-'}</div>
                                                             {item.Tag && <div className="text-[10px] text-gray-400">{item.Tag}</div>}
                                                         </td>
-                                                        <td className="px-3 py-2 text-center hidden lg:table-cell">
+                                                        <td className="px-2 py-1 text-center hidden lg:table-cell">
                                                             {semEsp
                                                                 ? <span className="text-amber-600 font-semibold text-[11px]">⚠ Ausente</span>
                                                                 : <span className="text-gray-600">{item.Espessura}</span>
                                                             }
                                                         </td>
-                                                        <td className="px-3 py-2 text-center hidden lg:table-cell">
+                                                        <td className="px-2 py-1 text-center hidden lg:table-cell">
                                                             {semMat
                                                                 ? <span className="text-amber-600 font-semibold text-[11px]">⚠ Ausente</span>
                                                                 : <span className="text-gray-600">{item.MaterialSW}</span>
                                                             }
                                                         </td>
-                                                        <td className="px-3 py-2 text-center text-gray-600 font-medium">
+                                                        <td className="px-2 py-1 text-center text-gray-600 font-medium">
                                                             {item.Peso ? item.Peso : '-'}
                                                         </td>
                                                     </tr>
@@ -2943,14 +2943,14 @@ function OrdemServicoContent() {
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setShowModalIncluirItens(null)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                        className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
                                     >
                                         Cancelar
                                     </button>
                                     <button
                                         onClick={handleConfirmarInclusao}
                                         disabled={itensSelecionados.size === 0 || salvandoItens}
-                                        className="px-6 py-2 bg-teal-600 text-white text-sm font-bold rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+                                        className="px-6 py-2 bg-teal-600 text-white text-xs font-bold rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                                     >
                                         {salvandoItens ? (
                                             <><Loader2 size={15} className="animate-spin" /> Incluindo...</>
@@ -2974,13 +2974,13 @@ function OrdemServicoContent() {
                                 <AlertTriangle size={20} />
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold text-red-800">Fator Inválido ou Ausente</h3>
+                                <h3 className="text-xs font-semibold text-red-800">Fator Inválido ou Ausente</h3>
                                 <p className="text-xs text-red-600/80">O fator da O.S. não pode ser zero.</p>
                             </div>
                         </div>
                         
                         <div className="p-6">
-                            <p className="text-sm text-gray-600 mb-4 text-center">
+                            <p className="text-xs text-gray-600 mb-4 text-center">
                                 Por favor, informe um novo Fator Multiplicador para a Ordem de Serviço <span className="font-semibold text-gray-800">OS {liberacaoFatorModal.IdOrdemServico}</span> antes de prosseguir com a liberação.
                             </p>
                             
@@ -2994,7 +2994,7 @@ function OrdemServicoContent() {
                                     value={novoFator}
                                     onChange={(e) => setNovoFator(e.target.value.replace(/\D/g, ''))}
                                     placeholder="Ex: 1, 2, 3..."
-                                    className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 />
                             </div>
                         </div>
@@ -3002,7 +3002,7 @@ function OrdemServicoContent() {
                         <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-2 justify-end">
                             <button
                                 onClick={() => setLiberacaoFatorModal(null)}
-                                className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-white transition-colors"
+                                className="px-2 py-1 border border-gray-200 text-gray-600 rounded-lg text-xs font-medium hover:bg-white transition-colors"
                             >
                                 Cancelar
                             </button>
@@ -3017,7 +3017,7 @@ function OrdemServicoContent() {
                                     proceedWithLiberacao(liberacaoFatorModal, num);
                                 }}
                                 disabled={!novoFator || parseInt(novoFator, 10) <= 0}
-                                className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-2 py-1 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Confirmar Liberação
                             </button>
@@ -3057,33 +3057,33 @@ function OrdemServicoContent() {
                                 <div className="grid grid-cols-12 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
                                     <div className="col-span-2">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">ID RNC</label>
-                                        <div className={`text-sm font-bold px-3 py-2 border rounded ${idRncEdicao ? 'bg-[#E0E800]/20 border-blue-200 text-[#32423D]' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                                        <div className={`text-xs font-bold px-2 py-1 border rounded ${idRncEdicao ? 'bg-[#E0E800]/20 border-blue-200 text-[#32423D]' : 'bg-red-50 border-red-200 text-red-600'}`}>
                                             {idRncEdicao ? `#${idRncEdicao}` : 'NOVA'}
                                         </div>
                                     </div>
                                     <div className="col-span-2">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">O.S.</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded">{selectedItemRnc.IdOrdemServico}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded">{selectedItemRnc.IdOrdemServico}</div>
                                     </div>
                                     <div className="col-span-2">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">O.S.I.</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded">{selectedItemRnc.IdOrdemServicoItem}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded">{selectedItemRnc.IdOrdemServicoItem}</div>
                                     </div>
                                     <div className="col-span-3">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Cód. Mat. Fabric.</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItemRnc.CodMatFabricante || '-'}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItemRnc.CodMatFabricante || '-'}</div>
                                     </div>
                                     <div className="col-span-3">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Projeto</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItemRnc.Projeto || '-'}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItemRnc.Projeto || '-'}</div>
                                     </div>
                                     <div className="col-span-6">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Tag</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItemRnc.Tag || '-'}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItemRnc.Tag || '-'}</div>
                                     </div>
                                     <div className="col-span-6">
                                         <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1">Descrição</label>
-                                        <div className="text-sm font-medium text-gray-700 bg-white px-3 py-2 border border-gray-200 rounded truncate">{selectedItemRnc.DescResumo || '-'}</div>
+                                        <div className="text-xs font-medium text-gray-700 bg-white px-2 py-1 border border-gray-200 rounded truncate">{selectedItemRnc.DescResumo || '-'}</div>
                                     </div>
                                 </div>
 
@@ -3093,19 +3093,19 @@ function OrdemServicoContent() {
                                         <label className="block text-xs font-semibold text-gray-700 mb-1">Título</label>
                                         <input type="text" value={tituloRnc} onChange={e => setTituloRnc(e.target.value)}
                                             readOnly={idRncEdicao !== null}
-                                            className={`w-full px-3 py-2 text-sm rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`} />
+                                            className={`w-full px-2 py-1 text-xs rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`} />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-700 mb-1">Sub Título</label>
                                         <input type="text" value={subTituloRnc} onChange={e => setSubTituloRnc(e.target.value)}
                                             readOnly={idRncEdicao !== null}
-                                            className={`w-full px-3 py-2 text-sm rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
+                                            className={`w-full px-2 py-1 text-xs rounded border focus:outline-none focus:border-red-500 bg-gray-50 uppercase ${idRncEdicao !== null ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300'}`}
                                             placeholder="Sub-título da RNC" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-700 mb-1">Colaborador</label>
                                         <select value={usuarioResponsavel} onChange={e => setUsuarioResponsavel(e.target.value)}
-                                            className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500">
+                                            className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500">
                                             <option value="">Selecione...</option>
                                             {usuariosRncConfig.map(u => <option key={u.IdUsuario} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
                                         </select>
@@ -3113,7 +3113,7 @@ function OrdemServicoContent() {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-700 mb-1">Setor</label>
                                         <select value={setorResponsavel} onChange={e => setSetorResponsavel(e.target.value)}
-                                            className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500">
+                                            className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500">
                                             <option value="">Selecione...</option>
                                             {setoresRncConfig.filter(s => {
                                                 const lower = s.toLowerCase();
@@ -3129,7 +3129,7 @@ function OrdemServicoContent() {
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 mb-1">Espessura</label>
                                             <select value={espessuraRnc} onChange={e => setEspessuraRnc(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white">
+                                                className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white">
                                                 <option value="">Selecione...</option>
                                                 {espessurasRncConfig.map(esp => <option key={esp.idEspessura} value={esp.Espessura}>{esp.Espessura}</option>)}
                                                 {espessuraRnc && !espessurasRncConfig.some(e => e.Espessura === espessuraRnc) && <option value={espessuraRnc}>{espessuraRnc}</option>}
@@ -3138,7 +3138,7 @@ function OrdemServicoContent() {
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 mb-1">Material SW</label>
                                             <select value={materialSWRnc} onChange={e => setMaterialSWRnc(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white truncate">
+                                                className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500 bg-white truncate">
                                                 <option value="">Selecione...</option>
                                                 {materiaisSWRncConfig.map(mat => <option key={mat.idMaterialSw} value={mat.MaterialSw}>{mat.MaterialSw}</option>)}
                                                 {materialSWRnc && !materiaisSWRncConfig.some(m => m.MaterialSw === materialSWRnc) && <option value={materialSWRnc}>{materialSWRnc}</option>}
@@ -3149,12 +3149,12 @@ function OrdemServicoContent() {
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 mb-1">Data Execução</label>
                                             <input type="date" value={dataExecucaoRnc} onChange={e => setDataExecucaoRnc(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500" />
+                                                className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 mb-1">Tipo RNC</label>
                                             <select value={tipoRnc} onChange={e => setTipoRnc(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:border-red-500">
+                                                className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:border-red-500">
                                                 <option value="RNC">RNC</option>
                                                 <option value="TAREFA">TAREFA</option>
                                                 <option value="RETRABALHO">RETRABALHO</option>
@@ -3168,7 +3168,7 @@ function OrdemServicoContent() {
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">Descrição da Pendência *</label>
                                     <textarea value={descricaoPendencia} onChange={e => setDescricaoPendencia(e.target.value)}
-                                        className="w-full px-3 py-2 text-sm rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                                        className="w-full px-2 py-1 text-xs rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
                                         placeholder="Descreva os detalhes da RNC/Pendência..." rows={4} />
                                 </div>
 
@@ -3209,10 +3209,10 @@ function OrdemServicoContent() {
                                 {/* Seção Finalização - só exibida em edição */}
                                 {idRncEdicao && (
                                     <div className="mt-4 border border-green-200 rounded-lg overflow-hidden bg-green-50/30">
-                                        <div className="bg-green-100/80 px-4 py-3 border-b border-green-200 flex justify-between items-center cursor-pointer hover:bg-green-200 transition-colors"
+                                        <div className="bg-green-100/80 px-2 py-1 border-b border-green-200 flex justify-between items-center cursor-pointer hover:bg-green-200 transition-colors"
                                             onClick={() => setFinalizandoRnc(!finalizandoRnc)}>
-                                            <h3 className="text-sm font-bold text-green-800 flex items-center gap-2 uppercase tracking-wide">
-                                                <CheckCircle size={16} className={finalizandoRnc ? 'text-green-600' : 'text-green-500 opacity-50'} />
+                                            <h3 className="text-xs font-bold text-green-800 flex items-center gap-2 uppercase tracking-wide">
+                                                <CheckCircle size={14} className={finalizandoRnc ? 'text-green-600' : 'text-green-500 opacity-50'} />
                                                 Finalizar RNC
                                             </h3>
                                             <div className="flex items-center gap-2">
@@ -3227,7 +3227,7 @@ function OrdemServicoContent() {
                                                         <div className="flex flex-col gap-1">
                                                             <label className="text-xs font-bold text-green-800">Setor Finalização *</label>
                                                             <select value={setorFinalizacao} onChange={e => setSetorFinalizacao(e.target.value)}
-                                                                className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
+                                                                className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
                                                                 <option value="">Selecione...</option>
                                                                 {setoresRncConfig.map(s => <option key={s} value={s}>{s}</option>)}
                                                             </select>
@@ -3235,7 +3235,7 @@ function OrdemServicoContent() {
                                                         <div className="flex flex-col gap-1">
                                                             <label className="text-xs font-bold text-green-800">Colaborador Finalização *</label>
                                                             <select value={colaboradorFinalizacao} onChange={e => setColaboradorFinalizacao(e.target.value)}
-                                                                className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
+                                                                className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full">
                                                                 <option value="">Selecione...</option>
                                                                 {usuariosRncConfig.map(u => <option key={u.NomeCompleto} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
                                                             </select>
@@ -3243,12 +3243,12 @@ function OrdemServicoContent() {
                                                         <div className="flex flex-col gap-1">
                                                             <label className="text-xs font-bold text-green-800">Data Finalização *</label>
                                                             <input type="date" value={dataFinalizacao} onChange={e => setDataFinalizacao(e.target.value)}
-                                                                className="p-1.5 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full" />
+                                                                className="p-1.5 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full" />
                                                         </div>
                                                         <div className="flex flex-col gap-1 md:col-span-3">
                                                             <label className="text-xs font-bold text-green-800">Parecer Finalização *</label>
                                                             <textarea value={descricaoFinalizacao} onChange={e => setDescricaoFinalizacao(e.target.value)} rows={2}
-                                                                className="p-2 border border-green-200 rounded text-sm bg-white focus:ring-1 focus:ring-green-500 outline-none w-full resize-none placeholder-green-300"
+                                                                className="p-2 border border-green-200 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 outline-none w-full resize-none placeholder-green-300"
                                                                 placeholder="Insira o parecer de fechamento da RNC..." />
                                                         </div>
                                                     </div>
@@ -3263,7 +3263,7 @@ function OrdemServicoContent() {
                                     const pendenciasExibidas = exibirFinalizadas ? pendenciasHistorico : pendenciasHistorico.filter((p: any) => p.ST !== 'FINALIZADO');
                                     return (
                                         <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden bg-white">
-                                            <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                                            <div className="bg-gray-100 px-2 py-1 border-b border-gray-200 flex justify-between items-center">
                                                 <div className="flex items-center gap-3">
                                                     <h3 className="text-xs font-bold text-gray-700 uppercase">Histórico de Pendências deste Item</h3>
                                                     <label className="flex items-center gap-1 cursor-pointer">
@@ -3273,7 +3273,7 @@ function OrdemServicoContent() {
                                                 </div>
                                                 <span className="text-xs text-gray-500">{pendenciasExibidas.length} registro(s)</span>
                                             </div>
-                                            <div className="px-4 py-3 bg-white border-b border-gray-200 flex flex-wrap gap-4 items-end">
+                                            <div className="px-2 py-1 bg-white border-b border-gray-200 flex flex-wrap gap-4 items-end">
                                                 <div className="flex-1 min-w-[200px]">
                                                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição Pendência 1</label>
                                                     <input type="text" value={searchQuery1} onChange={e => setSearchQuery1(e.target.value)}
@@ -3287,7 +3287,7 @@ function OrdemServicoContent() {
                                                         className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded focus:border-[#32423D] focus:outline-none" />
                                                 </div>
                                                 <button type="button" onClick={() => { setSearchQuery1(''); setSearchQuery2(''); }}
-                                                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded border border-gray-300 flex items-center gap-1 transition-colors">
+                                                    className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded border border-gray-300 flex items-center gap-1 transition-colors">
                                                     <X size={14} /> Limpar Filtros
                                                 </button>
                                             </div>
@@ -3295,7 +3295,7 @@ function OrdemServicoContent() {
                                                 {loadingPendencias ? (
                                                     <div className="p-4 flex justify-center text-gray-500"><Loader2 size={20} className="animate-spin" /></div>
                                                 ) : pendenciasHistorico.length === 0 ? (
-                                                    <div className="p-4 text-center text-sm text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
+                                                    <div className="p-4 text-center text-xs text-gray-500">Nenhuma pendência anterior encontrada para este item.</div>
                                                 ) : (
                                                     <table className="w-full text-left text-xs text-gray-600">
                                                         <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] sticky top-0 border-b border-white/20 shadow-sm text-white font-semibold">
@@ -3365,8 +3365,8 @@ function OrdemServicoContent() {
                                         submittingPendencia ? 'bg-red-400 cursor-not-allowed opacity-70' : 'bg-red-600 hover:bg-red-700 shadow-sm'
                                     }`}>
                                     {submittingPendencia
-                                        ? <><Loader2 size={16} className="animate-spin" /> Salvando...</>
-                                        : <><AlertTriangle size={16} /> Salvar</>}
+                                        ? <><Loader2 size={14} className="animate-spin" /> Salvando...</>
+                                        : <><AlertTriangle size={14} /> Salvar</>}
                                 </button>
                             </div>
                         </motion.div>

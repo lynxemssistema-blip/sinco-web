@@ -252,7 +252,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
 
  return (
  <div className="flex flex-col bg-white rounded-md shadow border border-indigo-200 overflow-hidden h-full flex flex-col min-h-0" style={{ minHeight: 220, maxHeight: 360 }}>
- <div className="shrink-0 bg-indigo-50 border-b border-indigo-200 px-3 py-1.5 flex items-center justify-between">
+ <div className="shrink-0 bg-indigo-50 border-b border-indigo-200 px-2 py-0.5 flex items-center justify-between">
  <div className="flex items-center gap-2">
  <div className="h-6 w-6 bg-indigo-600 text-white rounded flex items-center justify-center shrink-0"><Database size={12} /></div>
  <span className="text-xs font-black text-indigo-800">Itens do Plano #{plano.IdPlanodecorte}</span>
@@ -288,7 +288,7 @@ function PainelItensPlano({ plano, onFechar, aglutinado, setAglutinado, onGerarR
  <button onClick={onFechar} className="p-1 rounded hover:bg-indigo-100 text-indigo-400" title="Fechar"><X size={13} /></button>
  </div>
  </div>
- {error && <div className="bg-red-50 text-red-700 px-3 py-1.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5"><AlertCircle size={12} />{error}</div>}
+ {error && <div className="bg-red-50 text-red-700 px-2 py-0.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5"><AlertCircle size={12} />{error}</div>}
  <div className="flex-1 overflow-auto relative">
  {loading && <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center"><Loader2 className="animate-spin text-indigo-500" size={20} /></div>}
  {aglutinado ? (
@@ -589,7 +589,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
  return (
  <div className="shrink-0 bg-white border-t-2 border-orange-200 overflow-hidden" style={{ maxHeight: 360 }}>
  {/* Header */}
- <div className="flex items-center justify-between bg-orange-50 border-b border-orange-200 px-3 py-1.5">
+ <div className="flex items-center justify-between bg-orange-50 border-b border-orange-200 px-2 py-0.5">
  <div className="flex items-center gap-2">
  <div className="h-5 w-5 bg-orange-500 text-white rounded flex items-center justify-center shrink-0">
  <ShieldAlert size={10} />
@@ -647,7 +647,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
  <div className="overflow-auto relative" style={{ maxHeight: 280 }}>
  {loading && (
  <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center">
- <Loader2 className="animate-spin text-orange-400" size={18} />
+ <Loader2 className="animate-spin text-orange-400" size={15} />
  </div>
  )}
  <table className="w-full text-left">
@@ -708,7 +708,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
  {finalizandoId === p.IDRNC && (
  <tr key={`fin-${i}`}>
  <td colSpan={gridCols} className="p-0">
- <div className="bg-emerald-50 border-b-2 border-emerald-300 px-3 py-1.5">
+ <div className="bg-emerald-50 border-b-2 border-emerald-300 px-2 py-0.5">
  <div className="flex items-center gap-2 mb-3">
  <div className="h-5 w-5 bg-emerald-500 text-white rounded flex items-center justify-center shrink-0"><CheckCircle size={10} /></div>
  <span className="text-[11px] font-black text-emerald-800">Finalizar Pendencia #{p.IDRNC}</span>
@@ -764,7 +764,7 @@ function PainelPendenciasPlanoCorte({ codMatFabricante, usuarios, setores, refre
  <div className="flex justify-end gap-2 mt-3">
  <button
  onClick={() => setFinalizandoId(null)}
- className="px-3 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-emerald-100 rounded-lg transition-all border border-emerald-200"
+ className="px-2 py-0.5 text-[10px] font-bold text-slate-500 hover:bg-emerald-100 rounded-lg transition-all border border-emerald-200"
  >
  Cancelar
  </button>
@@ -924,7 +924,7 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
  return (
  <div className="flex flex-col h-full bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
  {/* Header */}
- <div className="shrink-0 bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+ <div className="shrink-0 bg-slate-50 border-b border-slate-200 px-2 py-0.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
  <div className="flex items-center gap-3">
  <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-md shadow-sm"><Database size={20} /></div>
  <div>
@@ -944,12 +944,12 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
  </span>
  {/* Ações */}
  <div className="flex items-center gap-2">
- <button onClick={handleIncluirNoPlano} disabled={selected.size === 0 || salvando} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white border border-indigo-600 rounded-lg transition-all shadow-sm font-bold text-xs disabled:opacity-50">
- {salvando ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
+ <button onClick={handleIncluirNoPlano} disabled={selected.size === 0 || salvando} className="inline-flex items-center gap-2 px-2 py-1 bg-indigo-500 hover:bg-indigo-600 text-white border border-indigo-600 rounded-lg transition-all shadow-sm font-bold text-xs disabled:opacity-50">
+ {salvando ? <Loader2 size={14} className="animate-spin" /> : <PlusCircle size={14} />}
  Incluir no Plano
  </button>
  <button onClick={fetchItens} className="p-2 bg-white text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-700 transition-all shadow-sm">
- <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+ <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
  </button>
  </div>
  </div>
@@ -957,12 +957,12 @@ function PainelItensOS({ tipoFiltro, onPlanosChange, onGerarRnc }: {
 
  {/* Mensagens */}
  {successMsg && (
- <div className="shrink-0 bg-emerald-50 text-emerald-700 px-3 py-1.5 text-[10px] font-bold border-b border-emerald-200 flex items-center gap-1.5">
+ <div className="shrink-0 bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[10px] font-bold border-b border-emerald-200 flex items-center gap-1.5">
  <CheckCircle2 size={12} />{successMsg}
  </div>
  )}
  {error && (
- <div className="shrink-0 bg-red-50 text-red-700 px-3 py-1.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5">
+ <div className="shrink-0 bg-red-50 text-red-700 px-2 py-0.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5">
  <AlertCircle size={12} />{error}
  </div>
  )}
@@ -1506,7 +1506,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  <div className="flex flex-col h-full overflow-hidden gap-2">
  {/* Card de planos */}
  <div className="flex flex-col bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden" style={{ flex: planoSelecionado ? '0 0 auto' : '1 1 auto', maxHeight: planoSelecionado ? '50%' : '100%' }}>
- {error && <div className="bg-red-50 text-red-700 px-3 py-1.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5"><AlertCircle size={12} />{error}</div>}
+ {error && <div className="bg-red-50 text-red-700 px-2 py-0.5 text-[10px] font-bold border-b border-red-200 flex items-center gap-1.5"><AlertCircle size={12} />{error}</div>}
  
  {/* Header */}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -1527,7 +1527,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-sm disabled:opacity-50"
  title={!planoSelecionado ? 'Selecione um plano para abrir a pasta' : 'Abrir pasta do plano no Windows Explorer'}
  >
- <FolderOpen size={18} />
+ <FolderOpen size={15} />
  </button>
 
  <button
@@ -1546,7 +1546,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  : `Atualizar arquivos do Plano de Corte #${planoSelecionado.IdPlanodecorte} (LXDS, DXF, DFT, PDF)`
  }
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <RefreshCcw size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <RefreshCcw size={15} />}
  </button>
 
  <button
@@ -1565,7 +1565,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  : `Gerar Relatório Excel do Plano #${planoSelecionado.IdPlanodecorte}`
  }
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <FileSpreadsheet size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <FileSpreadsheet size={15} />}
  </button>
 
  {(() => {
@@ -1581,7 +1581,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  title="Plano já liberado para a fábrica"
  onClick={() => addToast({ type: 'info', title: 'Atenção', message: 'Este plano já foi liberado para a fábrica!' })}
  >
- <Send size={18} />
+ <Send size={15} />
  </button>
  <button
  onClick={handleCancelarLiberacao}
@@ -1589,7 +1589,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors shadow-sm disabled:opacity-50"
  title="Cancelar Liberação do Plano de Corte"
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}
  </button>
  </>
  );
@@ -1604,7 +1604,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  title="Plano bloqueado para preenchimento automático"
  onClick={() => addToast({ type: 'warning', title: 'Bloqueado', message: 'Este plano está bloqueado para preenchimento automático.' })}
  >
- <Lock size={18} />
+ <Lock size={15} />
  </button>
  <button
  onClick={handleDesbloquearPlano}
@@ -1612,7 +1612,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-teal-50 text-teal-600 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors shadow-sm disabled:opacity-50"
  title="Desbloquear Plano de Corte (reativar preenchimento automático)"
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <Unlock size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <Unlock size={15} />}
  </button>
  </>
  );
@@ -1627,7 +1627,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
  title="Liberar Plano de Corte"
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
  </button>
  <button
  onClick={handleBloquearPlano}
@@ -1635,7 +1635,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors shadow-sm disabled:opacity-50"
  title={!planoSelecionado ? 'Selecione um plano para bloquear' : `Bloquear preenchimento automático do Plano #${planoSelecionado.IdPlanodecorte}`}
  >
- {loadingAcao ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
+ {loadingAcao ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
  </button>
  </>
  );
@@ -1648,13 +1648,13 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className="p-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm disabled:opacity-50"
  title={`Excluir Plano de Corte #${planoSelecionado.IdPlanodecorte}`}
  >
- <Trash2 size={18} />
+ <Trash2 size={15} />
  </button>
  )}
 
  <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
 
- <div className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-lg">
+ <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 border border-indigo-100 rounded-lg">
  <span className="text-[10px] font-black text-indigo-400">{planos.length}</span>
  <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-tight">planos</span>
  </div>
@@ -1664,7 +1664,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  className={`p-2.5 rounded-lg transition-colors border shadow-sm ${exibirConcluidos ? 'bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
  title={exibirConcluidos ? 'Exibindo todos os planos — clique para só pendentes' : 'Exibindo apenas pendentes — clique para ver todos'}
  >
- <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+ <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
  </button>
  </div>
  </div>
@@ -1702,7 +1702,7 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
  </div>
  </div>
 
- {error && <div className="bg-red-50 text-red-700 px-3 py-1.5 text-[10px] font-bold border-b border-red-200">{error}</div>}
+ {error && <div className="bg-red-50 text-red-700 px-2 py-0.5 text-[10px] font-bold border-b border-red-200">{error}</div>}
 
  {/* Tabela */}
  <div className="flex-1 overflow-auto relative">
@@ -1857,20 +1857,20 @@ function ModalRnc({
  <div className="flex items-center gap-2.5">
  <div className="p-2 bg-orange-100 text-orange-600 rounded-md shadow-sm"><ShieldAlert size={17} /></div>
  <div>
- <h3 className="text-sm font-black text-slate-800 leading-none">Gerar Pendência (RNC)</h3>
+ <h3 className="text-xs font-black text-slate-800 leading-none">Gerar Pendência (RNC)</h3>
  <p className="text-[9px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">
  {rncForm.codMatFabricante && <span className="text-orange-500 mr-1">{rncForm.codMatFabricante}</span>}
  {rncForm.projeto}{rncForm.tag ? ` › Tag: ${rncForm.tag}` : ''}
  </p>
  </div>
  </div>
- <button onClick={() => setActionModal(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-md transition-colors"><X size={18} /></button>
+ <button onClick={() => setActionModal(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-md transition-colors"><X size={15} /></button>
  </div>
 
  {/* ── Corpo scrollável ── */}
  <div className="flex-1 overflow-auto px-5 py-3 space-y-3">
  {msg && (
- <div className={`px-3 py-2 rounded-lg text-[11px] font-bold flex items-center gap-2 border ${msg.t === 's' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+ <div className={`px-2 py-1 rounded-lg text-[11px] font-bold flex items-center gap-2 border ${msg.t === 's' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
  {msg.t === 's' ? <CheckCircle size={13}/> : <AlertCircle size={13}/>}
  {msg.m}
  </div>
@@ -1972,7 +1972,7 @@ function ModalRnc({
  <p className="text-[9px] text-slate-400">* Após salvar, o formulário é limpo e o grid atualizado automaticamente.</p>
  <div className="flex items-center gap-2">
  <button onClick={() => setActionModal(null)}
- className="px-4 py-2 text-[11px] font-bold text-slate-500 hover:bg-slate-200 rounded-md transition-all">
+ className="px-2 py-1 text-[11px] font-bold text-slate-500 hover:bg-slate-200 rounded-md transition-all">
  Fechar
  </button>
  <button onClick={salvarNovaRnc}
@@ -2131,7 +2131,7 @@ export default function MontagemPlanoCortePage() {
  <p className="text-[11px] text-slate-500 mt-0.5">Selecione itens de OS e inclua no plano de corte</p>
  </div>
  </div>
- <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${filtroAtivo === 'chaparia' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-[#E0E800]/20 border-blue-300 text-[#32423D]'}`}>
+ <div className={`flex items-center gap-2 px-2 py-0.5 rounded-lg text-xs font-bold border-2 ${filtroAtivo === 'chaparia' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-[#E0E800]/20 border-blue-300 text-[#32423D]'}`}>
  {filtroAtivo === 'chaparia' ? <FileType2 size={14} /> : <SplitSquareHorizontal size={14} />}
  {filtroAtivo === 'chaparia' ? 'Desenho Chaparia' : 'Setor Corte'}
  <span className="text-[9px] opacity-60 ml-1">(via Configuracao)</span>

@@ -355,7 +355,8 @@ export default function RomaneioPage() {
  };
 
  const handleShipmentInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  if (name === 'telefone') {
  // Aplica máscara (XX) XXXXX-XXXX
  const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -716,7 +717,8 @@ export default function RomaneioPage() {
  };
 
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  setFormData(prev => ({ ...prev, [name]: value.toUpperCase() }));
  };
 
@@ -811,14 +813,14 @@ export default function RomaneioPage() {
  return (
  <div className="flex-1 flex flex-col min-h-0" style={{gap:'6px'}}>
  {/* Header compacto */}
- <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md shadow-sm border border-gray-100">
+ <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100">
  {fromGlobal && (
  <button
  onClick={() => window.location.href = '/visao-geral-pendencias'}
  className="flex items-center justify-center p-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
  title="Voltar para Todas as Pendências"
  >
- <ArrowLeft size={16} />
+ <ArrowLeft size={14} />
  </button>
  )}
  <p className="text-gray-400 text-xs flex-1">
@@ -828,7 +830,7 @@ export default function RomaneioPage() {
  </p>
  <button
  onClick={handleCreateNew}
- className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#32423D] text-white text-xs font-semibold hover:bg-[#2a3632] transition-colors shrink-0"
+ className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#32423D] text-white text-xs font-semibold hover:bg-[#2a3632] transition-colors shrink-0"
  >
  <Plus size={14} />
  Criar Novo
@@ -836,8 +838,8 @@ export default function RomaneioPage() {
  </div>
 
  {successMsg && (
- <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-green-50 text-green-700 border border-green-200 rounded-lg text-sm font-medium flex items-center gap-2">
- <CheckCircle size={18} /> {successMsg}
+ <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-medium flex items-center gap-2">
+ <CheckCircle size={15} /> {successMsg}
  </motion.div>
  )}
 
@@ -852,7 +854,7 @@ export default function RomaneioPage() {
  placeholder="Ex: 15"
  value={searchId}
  onChange={(e) => setSearchId(e.target.value)}
- className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+ className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchId && (
  <button onClick={() => setSearchId('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
@@ -868,7 +870,7 @@ export default function RomaneioPage() {
  placeholder="Cliente..."
  value={searchCliente}
  onChange={(e) => setSearchCliente(e.target.value)}
- className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+ className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchCliente && (
  <button onClick={() => setSearchCliente('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
@@ -884,7 +886,7 @@ export default function RomaneioPage() {
  placeholder="Descrição..."
  value={searchDescricao}
  onChange={(e) => setSearchDescricao(e.target.value)}
- className="w-full pl-7 pr-7 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
+ className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchDescricao && (
  <button onClick={() => setSearchDescricao('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
@@ -903,7 +905,7 @@ export default function RomaneioPage() {
  </button>
  )}
  {selectedId && (
- <span className="text-sm text-[#32423D] font-medium ml-auto shrink-0">
+ <span className="text-xs text-[#32423D] font-medium ml-auto shrink-0">
  Romaneio #{selectedId} Selecionado
  </span>
  )}
@@ -913,17 +915,17 @@ export default function RomaneioPage() {
  <table className="w-full">
  <thead className="bg-[#567469] text-white text-[11px] font-medium uppercase tracking-wider sticky top-0 z-10">
  <tr>
- <th className="px-3 py-2 text-left">ID</th>
- <th className="px-3 py-2 text-left">Status</th>
- <th className="px-3 py-2 text-left">Cliente</th>
- <th className="px-3 py-2 text-left hidden xl:table-cell">Motorista</th>
- <th className="px-3 py-2 text-left hidden md:table-cell">Descrição</th>
- <th className="px-3 py-2 text-left hidden xl:table-cell">Envio</th>
- <th className="px-3 py-2 text-left hidden lg:table-cell">Criado em</th>
+ <th className="px-2 py-1 text-left">ID</th>
+ <th className="px-2 py-1 text-left">Status</th>
+ <th className="px-2 py-1 text-left">Cliente</th>
+ <th className="px-2 py-1 text-left hidden xl:table-cell">Motorista</th>
+ <th className="px-2 py-1 text-left hidden md:table-cell">Descrição</th>
+ <th className="px-2 py-1 text-left hidden xl:table-cell">Envio</th>
+ <th className="px-2 py-1 text-left hidden lg:table-cell">Criado em</th>
 
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-100 text-sm">
+ <tbody className="divide-y divide-gray-100 text-xs">
  {loading ? (
  <tr>
  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
@@ -949,8 +951,8 @@ export default function RomaneioPage() {
  : 'hover:bg-gray-50 border-transparent'
  }`}
  >
- <td className="px-3 py-1.5 text-gray-900 font-medium text-[13px]">#{romaneio.idRomaneio}</td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5 text-gray-900 font-medium text-[13px]">#{romaneio.idRomaneio}</td>
+ <td className="px-2 py-0.5">
  {(() => {
  const getVal = (obj: Record<string, unknown>, key: string) => {
  if (!obj) return '';
@@ -981,7 +983,7 @@ export default function RomaneioPage() {
  );
  })()}
  </td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5">
  <div className="flex flex-col">
  <span className="font-medium text-[13px] text-gray-800 flex items-center gap-1.5 leading-tight">
  <Building2 size={13} className="text-gray-400 shrink-0" />
@@ -990,25 +992,25 @@ export default function RomaneioPage() {
  <span className="text-[11px] text-gray-500 md:hidden mt-0.5 line-clamp-1">{romaneio.Descricao}</span>
  </div>
  </td>
- <td className="px-3 py-1.5 text-gray-600 hidden xl:table-cell">
+ <td className="px-2 py-0.5 text-gray-600 hidden xl:table-cell">
  <div className="flex items-center gap-1.5 text-[12px]">
  <Truck size={13} className="text-gray-400 shrink-0" />
  <span className="line-clamp-1 leading-tight">{romaneio.NomeMotorista || '-'}</span>
  </div>
  </td>
- <td className="px-3 py-1.5 text-gray-600 hidden md:table-cell max-w-xs truncate" title={romaneio.Descricao}>
+ <td className="px-2 py-0.5 text-gray-600 hidden md:table-cell max-w-xs truncate" title={romaneio.Descricao}>
  <div className="flex items-center gap-1.5 text-[12px]">
  <FileText size={13} className="text-gray-400 shrink-0" />
  {romaneio.Descricao}
  </div>
  </td>
- <td className="px-3 py-1.5 text-gray-500 text-sm hidden xl:table-cell">
+ <td className="px-2 py-0.5 text-gray-500 text-xs hidden xl:table-cell">
  <div className="flex items-center gap-1.5 text-[12px]">
  <Calendar size={13} className="text-gray-400 shrink-0" />
  {formatToBRDate(romaneio.DataEnvio)}
  </div>
  </td>
- <td className="px-3 py-1.5 text-gray-500 text-sm hidden lg:table-cell">
+ <td className="px-2 py-0.5 text-gray-500 text-xs hidden lg:table-cell">
  <div className="flex items-center gap-1.5 text-[12px]">
  <Calendar size={13} className="text-gray-400 shrink-0" />
  {formatToBRDate(romaneio.DATACRIACAO)}
@@ -1037,7 +1039,7 @@ export default function RomaneioPage() {
 
  return (
  <tr className="bg-[#32423D]/5 border-l-4 border-[#32423D]">
- <td colSpan={7} className="px-3 py-1.5">
+ <td colSpan={7} className="px-2 py-0.5">
  <div className="flex flex-wrap items-center gap-1.5">
  <span className={`text-[10px] font-bold uppercase tracking-wider mr-1 ${statusColor}`}>
  {statusLabel} · Ações:
@@ -1116,7 +1118,7 @@ export default function RomaneioPage() {
  setShipmentData(prev => ({ ...prev, motorista: e.target.value }));
  }
  }}
- className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white uppercase"
+ className="w-full px-2 py-1 rounded-lg border border-gray-200 bg-white uppercase"
  >
  <option value="">SELECIONE O MOTORISTA...</option>
  {motoristas.map(m => (
@@ -1128,15 +1130,15 @@ export default function RomaneioPage() {
  </div>
  <div>
  <label className="block text-xs font-medium text-gray-600 mb-1">Telefone *</label>
- <input required type="text" name="telefone" value={shipmentData.telefone} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase" placeholder="(00) 00000-0000" />
+ <input required type="text" name="telefone" value={shipmentData.telefone} onChange={handleShipmentInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 uppercase" placeholder="(00) 00000-0000" />
  </div>
  <div>
  <label className="block text-xs font-medium text-gray-600 mb-1">CNH *</label>
- <input required type="text" name="cnh" value={shipmentData.cnh} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase" />
+ <input required type="text" name="cnh" value={shipmentData.cnh} onChange={handleShipmentInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 uppercase" />
  </div>
  <div>
  <label className="block text-xs font-medium text-gray-600 mb-1">Categoria *</label>
- <input required type="text" name="categoria" value={shipmentData.categoria} onChange={handleShipmentInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 uppercase" maxLength={2} />
+ <input required type="text" name="categoria" value={shipmentData.categoria} onChange={handleShipmentInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 uppercase" maxLength={2} />
  </div>
  <div className="col-span-2">
  <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Transporte *</label>
@@ -1146,7 +1148,7 @@ export default function RomaneioPage() {
  name="tipoTransporte"
  value={shipmentData.tipoTransporte}
  onChange={handleShipmentInputChange}
- className="flex-1 px-3 py-2 rounded-lg border border-gray-200 uppercase bg-white"
+ className="flex-1 px-2 py-1 rounded-lg border border-gray-200 uppercase bg-white"
  >
  <option value="">SELECIONE...</option>
  {tiposTransporte.map(t => (
@@ -1168,7 +1170,7 @@ export default function RomaneioPage() {
  </div>
 
  <div className="pt-4 flex justify-end gap-3">
- <button type="button" onClick={() => setShowShipmentModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Cancelar</button>
+ <button type="button" onClick={() => setShowShipmentModal(false)} className="px-2 py-1 text-gray-600 hover:bg-gray-50 rounded-lg">Cancelar</button>
  <button type="submit" className="px-6 py-2 bg-[#32423D] text-white rounded-lg hover:bg-[#32423D]/80 font-medium">Confirmar Envio</button>
  </div>
  </form>
@@ -1186,8 +1188,8 @@ export default function RomaneioPage() {
  >
  {/* Header */}
  <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-[#32423D]">
- <h3 className="text-sm font-bold text-white flex items-center gap-2">
- <Truck size={16} /> Tipos de Transporte
+ <h3 className="text-xs font-bold text-white flex items-center gap-2">
+ <Truck size={14} /> Tipos de Transporte
  </h3>
  <button
  onClick={() => { setShowTipoModal(false); setTipoForm({ TipoVeiculo: '', Placa: '' }); setTipoEditId(null); }}
@@ -1208,7 +1210,7 @@ export default function RomaneioPage() {
  placeholder="Tipo de Veículo *"
  value={tipoForm.TipoVeiculo}
  onChange={e => setTipoForm(prev => ({ ...prev, TipoVeiculo: e.target.value.toUpperCase() }))}
- className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
+ className="flex-1 px-2 py-0.5 rounded-lg border border-gray-200 text-xs uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
  />
  <input
  type="text"
@@ -1216,12 +1218,12 @@ export default function RomaneioPage() {
  maxLength={10}
  value={tipoForm.Placa}
  onChange={e => setTipoForm(prev => ({ ...prev, Placa: e.target.value.toUpperCase() }))}
- className="w-28 px-3 py-1.5 rounded-lg border border-gray-200 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
+ className="w-28 px-2 py-0.5 rounded-lg border border-gray-200 text-xs uppercase focus:outline-none focus:ring-2 focus:ring-[#32423D]/20"
  />
  <button
  onClick={saveTipoTransporte}
  disabled={tipoSaving}
- className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#32423D] text-white text-xs font-bold hover:bg-[#2a3632] disabled:opacity-50 transition-colors shrink-0"
+ className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#32423D] text-white text-xs font-bold hover:bg-[#2a3632] disabled:opacity-50 transition-colors shrink-0"
  >
  {tipoSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
  {tipoEditId ? 'Atualizar' : 'Incluir'}
@@ -1241,21 +1243,21 @@ export default function RomaneioPage() {
  {/* List */}
  <div className="overflow-auto max-h-72">
  {tiposTransporte.length === 0 ? (
- <p className="text-center text-gray-400 text-sm py-8">Nenhum tipo cadastrado.</p>
+ <p className="text-center text-gray-400 text-xs py-8">Nenhum tipo cadastrado.</p>
  ) : (
- <table className="w-full text-sm">
+ <table className="w-full text-xs">
  <thead className="bg-gray-50 sticky top-0">
  <tr className="text-[10px] font-bold uppercase text-gray-500 border-b border-gray-100">
- <th className="px-4 py-2 text-left">Tipo de Veículo</th>
- <th className="px-4 py-2 text-left">Placa</th>
+ <th className="px-2 py-1 text-left">Tipo de Veículo</th>
+ <th className="px-2 py-1 text-left">Placa</th>
  <th className="px-2 py-2 text-center w-20">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50">
  {tiposTransporte.map(t => (
  <tr key={t.IdTipoTransporte} className={`hover:bg-gray-50 transition-colors ${tipoEditId === t.IdTipoTransporte ? 'bg-[#E0E800]/10 border-l-2 border-[#32423D]' : ''}`}>
- <td className="px-4 py-2 font-medium text-gray-800 text-xs">{t.TipoVeiculo}</td>
- <td className="px-4 py-2 text-gray-500 text-xs font-mono">{t.Placa || '—'}</td>
+ <td className="px-2 py-1 font-medium text-gray-800 text-xs">{t.TipoVeiculo}</td>
+ <td className="px-2 py-1 text-gray-500 text-xs font-mono">{t.Placa || '—'}</td>
  <td className="px-2 py-2 text-center">
  <div className="flex items-center justify-center gap-1">
  <button
@@ -1293,9 +1295,9 @@ export default function RomaneioPage() {
  animate={{ opacity: 1, scale: 1 }}
  className="bg-white rounded-md shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
  >
- <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
- <h3 className="text-sm font-bold text-[#32423D] flex items-center gap-2">
- <List size={16} />
+ <div className="px-2 py-1 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+ <h3 className="text-xs font-bold text-[#32423D] flex items-center gap-2">
+ <List size={14} />
  Lista de Peças e Desenhos
  <span className="text-[10px] text-gray-400 font-normal ml-1">Busque e selecione itens para incluir no romaneio.</span>
  </h3>
@@ -1308,7 +1310,7 @@ export default function RomaneioPage() {
  </div>
 
  {/* SEARCH FILTERS — COMPACTO */}
- <div className="px-4 py-2 bg-white border-b border-gray-100">
+ <div className="px-2 py-1 bg-white border-b border-gray-100">
  <div className="flex flex-wrap gap-2 items-end">
  <div className="flex flex-col gap-0.5">
  <label className="text-[9px] font-bold text-gray-400 uppercase">Projeto</label>
@@ -1383,17 +1385,17 @@ export default function RomaneioPage() {
 
  {/* RESULTS TABLE */}
  <div className="flex-1 overflow-auto p-6">
- <table className="w-full text-sm">
+ <table className="w-full text-xs">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-white sticky top-0 bg-[#567469] border-b border-white/20 z-10">
  <tr className="text-white font-bold uppercase text-[10px] tracking-wider">
- <th className="px-3 py-2 text-left">Projeto</th>
- <th className="px-3 py-2 text-left">Tag</th>
- <th className="px-3 py-2 text-left">Cod.Fabricante</th>
- <th className="px-3 py-2 text-left">Descrição</th>
- <th className="px-3 py-2 text-center">Unidade</th>
- <th className="px-3 py-2 text-right">Qtde Total</th>
- <th className="px-3 py-2 text-right">Já Enviado</th>
- <th className="px-3 py-2 text-center">Ações</th>
+ <th className="px-2 py-1 text-left">Projeto</th>
+ <th className="px-2 py-1 text-left">Tag</th>
+ <th className="px-2 py-1 text-left">Cod.Fabricante</th>
+ <th className="px-2 py-1 text-left">Descrição</th>
+ <th className="px-2 py-1 text-center">Unidade</th>
+ <th className="px-2 py-1 text-right">Qtde Total</th>
+ <th className="px-2 py-1 text-right">Já Enviado</th>
+ <th className="px-2 py-1 text-center">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
@@ -1404,24 +1406,24 @@ export default function RomaneioPage() {
  ) : (
  availableItems.map((item, idx) => (
  <tr key={idx} className="hover:bg-gray-50 transition-colors border-l-2 border-transparent hover:border-[#E0E800]">
- <td className="px-3 py-2 font-semibold text-gray-700 text-xs">{item.Projeto}</td>
- <td className="px-3 py-2 text-gray-600 font-mono text-[10px]">{item.Tag}</td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1 font-semibold text-gray-700 text-xs">{item.Projeto}</td>
+ <td className="px-2 py-1 text-gray-600 font-mono text-[10px]">{item.Tag}</td>
+ <td className="px-2 py-1">
  <span className="font-mono text-[10px] text-[#32423D] font-bold">
  {item.CodMatFabricante || '—'}
  <span className="text-gray-400 font-normal ml-1"># {item.IdOrdemServicoItem}</span>
  </span>
  </td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1">
  <span className="text-xs text-gray-800">
  <span className="font-medium">{item.DescResumo}</span>
  {item.DescDetal && <span className="text-gray-400 ml-1">{item.DescDetal}</span>}
  </span>
  </td>
- <td className="px-3 py-2 text-center text-gray-500 text-xs">{item.Unidade}</td>
- <td className="px-3 py-2 text-right font-bold text-gray-700 text-xs">{item.QtdeTotal}</td>
- <td className="px-3 py-2 text-right text-gray-500 text-xs">{item.RomaneioTotalEnviado || 0}</td>
- <td className="px-3 py-1.5 text-center">
+ <td className="px-2 py-1 text-center text-gray-500 text-xs">{item.Unidade}</td>
+ <td className="px-2 py-1 text-right font-bold text-gray-700 text-xs">{item.QtdeTotal}</td>
+ <td className="px-2 py-1 text-right text-gray-500 text-xs">{item.RomaneioTotalEnviado || 0}</td>
+ <td className="px-2 py-0.5 text-center">
  {itemInclusion?.idx === idx ? (
  <div className="flex items-center gap-1">
  <input
@@ -1440,14 +1442,14 @@ export default function RomaneioPage() {
  className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"
  title="Confirmar"
  >
- <CheckCircle size={16} />
+ <CheckCircle size={14} />
  </button>
  <button
  onClick={() => setItemInclusion(null)}
  className="p-1 text-red-600 hover:bg-red-50 rounded"
  title="Cancelar"
  >
- <XCircle size={16} />
+ <XCircle size={14} />
  </button>
  </div>
  ) : (
@@ -1456,7 +1458,7 @@ export default function RomaneioPage() {
  className="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
  title="Selecionar para Incluir"
  >
- <PlusSquare size={18} />
+ <PlusSquare size={15} />
  </button>
  )}
  </td>
@@ -1487,7 +1489,7 @@ export default function RomaneioPage() {
  {insertedView === 'rnc' ? (
  <>
  {/* Cabeçalho da sub-view */}
- <div className="px-4 py-2.5 bg-[#32423D] flex items-center gap-3 border-b border-white/10">
+ <div className="px-2 py-1.5 bg-[#32423D] flex items-center gap-3 border-b border-white/10">
  <button
  onClick={() => setInsertedView('list')}
  className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-colors"
@@ -1495,12 +1497,12 @@ export default function RomaneioPage() {
  <ArrowLeft size={14} /> Voltar para itens
  </button>
  <AlertTriangle size={15} className="text-orange-400" />
- <span className="text-sm font-bold text-white">RNC / Pendência — Item #{selectedInsertedId}</span>
+ <span className="text-xs font-bold text-white">RNC / Pendência — Item #{selectedInsertedId}</span>
  <button
  onClick={() => { setShowInsertedModal(false); setInsertedView('list'); setSelectedInsertedId(null); }}
  className="ml-auto p-1 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
  >
- <X size={18} />
+ <X size={15} />
  </button>
  </div>
  {/* Conteúdo da pendência */}
@@ -1515,9 +1517,9 @@ export default function RomaneioPage() {
  <>
  {/* ── Vista de lista ───────────────────────────────────── */}
  {/* Cabeçalho — linha 1: título + fechar */}
- <div className="px-4 py-2.5 border-b border-gray-100 bg-[#32423D] flex items-center gap-3">
- <FileCheck size={16} className="text-[#E0E800] shrink-0" />
- <span className="text-sm font-bold text-white">Manutenção de Itens — Romaneio #{selectedId}</span>
+ <div className="px-2 py-1.5 border-b border-gray-100 bg-[#32423D] flex items-center gap-3">
+ <FileCheck size={14} className="text-[#E0E800] shrink-0" />
+ <span className="text-xs font-bold text-white">Manutenção de Itens — Romaneio #{selectedId}</span>
  {selectedInsertedId && (
  <span className="text-[11px] text-[#E0E800] font-semibold ml-2 shrink-0">
  Item #{selectedInsertedId} selecionado
@@ -1527,12 +1529,12 @@ export default function RomaneioPage() {
  onClick={() => { setShowInsertedModal(false); setSelectedInsertedId(null); setInsertedView('list'); }}
  className="ml-auto p-1 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
  >
- <X size={18} />
+ <X size={15} />
  </button>
  </div>
 
  {/* Linha 2: filtros + total de peso */}
- <div className="px-4 py-2 bg-[#3d4f49] border-b border-white/10 flex items-center gap-2">
+ <div className="px-2 py-1 bg-[#3d4f49] border-b border-white/10 flex items-center gap-2">
  <div className="relative">
  <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
  <input
@@ -1571,12 +1573,12 @@ export default function RomaneioPage() {
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
  <tr>
- <th className="px-3 py-2 text-right w-12">#ID</th>
- <th className="px-3 py-2">Descrição</th>
- <th className="px-3 py-2 text-center">Unidade</th>
- <th className="px-3 py-2 text-right">Qtde Romaneio</th>
- <th className="px-3 py-2 text-right">Saldo</th>
- <th className="px-3 py-2 text-right">Peso Total</th>
+ <th className="px-2 py-1 text-right w-12">#ID</th>
+ <th className="px-2 py-1">Descrição</th>
+ <th className="px-2 py-1 text-center">Unidade</th>
+ <th className="px-2 py-1 text-right">Qtde Romaneio</th>
+ <th className="px-2 py-1 text-right">Saldo</th>
+ <th className="px-2 py-1 text-right">Peso Total</th>
 
  </tr>
  </thead>
@@ -1598,8 +1600,8 @@ export default function RomaneioPage() {
  }}
  className={`hover:bg-cyan-50/30 transition-colors cursor-pointer border-l-4 ${selectedInsertedId === item.IdRomaneioItem ? 'bg-cyan-50 border-cyan-500' : 'border-transparent'}`}
  >
- <td className="px-3 py-1.5 text-right text-gray-400 text-[10px] font-mono">{item.IdRomaneioItem || '—'}</td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5 text-right text-gray-400 text-[10px] font-mono">{item.IdRomaneioItem || '—'}</td>
+ <td className="px-2 py-0.5">
  {item.DescResumo && (
  <span className="font-medium text-gray-800">{item.DescResumo}</span>
  )}
@@ -1607,17 +1609,17 @@ export default function RomaneioPage() {
  <span className="text-gray-400 ml-2">· {item.DescDetal}</span>
  )}
  </td>
- <td className="px-3 py-1.5 text-center text-gray-500">{item.Unidade || ''}</td>
- <td className="px-3 py-1.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio ?? '—'}</td>
- <td className="px-3 py-1.5 text-right text-gray-500">{item.SaldoRomaneio ?? '—'}</td>
- <td className="px-3 py-1.5 text-right text-gray-700 font-medium">{item.PesoTotal != null ? `${item.PesoTotal}kg` : '—'}</td>
+ <td className="px-2 py-0.5 text-center text-gray-500">{item.Unidade || ''}</td>
+ <td className="px-2 py-0.5 text-right font-bold text-cyan-700">{item.QtdeRomaneio ?? '—'}</td>
+ <td className="px-2 py-0.5 text-right text-gray-500">{item.SaldoRomaneio ?? '—'}</td>
+ <td className="px-2 py-0.5 text-right text-gray-700 font-medium">{item.PesoTotal != null ? `${item.PesoTotal}kg` : '—'}</td>
 
  </tr>
 
  {/* Linha de ações inline */}
  {selectedInsertedId === item.IdRomaneioItem && (
  <tr className="bg-cyan-50 border-l-4 border-cyan-500">
- <td colSpan={6} className="px-3 py-1.5">
+ <td colSpan={6} className="px-2 py-0.5">
  <div className="flex flex-wrap items-center gap-1.5">
  <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider mr-1">Ações:</span>
  {insertedActions.map(action => (
@@ -1670,14 +1672,14 @@ export default function RomaneioPage() {
  {/* Linha de observação inline */}
  {obsOpenId === item.IdRomaneioItem && (
  <tr className="bg-slate-50 border-l-4 border-slate-400">
- <td colSpan={6} className="px-3 py-2">
+ <td colSpan={6} className="px-2 py-1">
  <div className="flex items-start gap-2">
  <MessageSquare size={14} className="text-slate-500 mt-1 shrink-0" />
  <textarea
  autoFocus
  rows={2}
  placeholder="Digite a observação sobre este item..."
- className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white resize-none"
+ className="flex-1 text-xs border border-slate-200 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white resize-none"
  value={obsText}
  onChange={(e) => setObsText(e.target.value)}
  onBlur={() => saveObservacao(item.IdRomaneioItem, obsText)}
@@ -1699,7 +1701,7 @@ export default function RomaneioPage() {
  {/* Linha inline — Desfazer Qtde Envio */}
  {alterarQtdeId === item.IdRomaneioItem && (
  <tr className="bg-violet-50 border-l-4 border-violet-500">
- <td colSpan={7} className="px-3 py-2">
+ <td colSpan={7} className="px-2 py-1">
  <div className="flex items-center gap-2 flex-wrap">
  <span className="text-[10px] font-bold text-violet-600 uppercase tracking-wider whitespace-nowrap">
  Desfazer Qtde Envio (atual: {item.QtdeRomaneio ?? item.qtdeUsuario ?? '?'}):
@@ -1776,7 +1778,7 @@ export default function RomaneioPage() {
  {/* Print Header - Hidden on screen */}
  <div className="hidden print:block mb-8 text-center border-b-2 border-gray-800 pb-4">
  
- <p className="text-sm">Controle de Saída de Materiais</p>
+ <p className="text-xs">Controle de Saída de Materiais</p>
  </div>
 
  {/* Toolbar */}
@@ -1784,9 +1786,9 @@ export default function RomaneioPage() {
  <div className="flex items-center gap-3">
  <button
  onClick={() => { setView('list'); setSelectedId(null); fetchRomaneios(); }}
- className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all font-medium"
+ className="flex items-center gap-2 px-2 py-1 rounded-lg text-gray-600 hover:bg-gray-100 transition-all font-medium"
  >
- <ArrowLeft size={18} /> Voltar
+ <ArrowLeft size={15} /> Voltar
  </button>
  <div className="h-6 w-px bg-gray-200 mx-2" />
  <span className="text-gray-800 font-bold">Relatório do Romaneio #{reportData.idRomaneio.toString().padStart(5, '0')}</span>
@@ -1795,22 +1797,22 @@ export default function RomaneioPage() {
  <div className="flex items-center gap-2">
  <button
  onClick={() => handleAction('Abrir Pasta', 'abrir_pasta')}
- className="flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-all text-sm font-bold"
+ className="flex items-center gap-2 px-2 py-1 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-all text-xs font-bold"
  title="Abrir pasta no servidor (Explorer)"
  >
- <FolderOpen size={18} /> Abrir Pasta
+ <FolderOpen size={15} /> Abrir Pasta
  </button>
  <button
  onClick={() => window.open(`${API_BASE}/romaneio/download-excel/${reportData.idRomaneio}`, '_blank')}
- className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-sm font-bold"
+ className="flex items-center gap-2 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all text-xs font-bold"
  >
- <FileSpreadsheet size={18} /> Excel
+ <FileSpreadsheet size={15} /> Excel
  </button>
  <button
  onClick={() => window.print()}
- className="flex items-center gap-2 px-4 py-2 bg-[#32423D] text-white rounded-lg hover:opacity-90 transition-all text-sm font-bold shadow-sm"
+ className="flex items-center gap-2 px-2 py-1 bg-[#32423D] text-white rounded-lg hover:opacity-90 transition-all text-xs font-bold shadow-sm"
  >
- <Printer size={18} /> Imprimir
+ <Printer size={15} /> Imprimir
  </button>
  </div>
  </div>
@@ -1823,7 +1825,7 @@ export default function RomaneioPage() {
  <div className="md:col-span-2 space-y-2">
  <div>
  <label className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Destinatário / Endereço de Entrega</label>
- <p className="text-sm font-extrabold text-[#32423D] leading-tight uppercase">
+ <p className="text-xs font-extrabold text-[#32423D] leading-tight uppercase">
  {reportData.EnviadoPara}
  </p>
  <p className="text-xs text-gray-600 uppercase mt-0.5">
@@ -1866,41 +1868,41 @@ export default function RomaneioPage() {
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white">
  <tr className="bg-[#32423D] text-white text-[10px] uppercase tracking-widest font-bold">
- <th className="px-3 py-2">Item</th>
- <th className="px-3 py-2">Projeto</th>
- <th className="px-3 py-2">Tag</th>
- <th className="px-3 py-2">Descrição Completa</th>
- <th className="px-3 py-2 text-center">Qtd</th>
- <th className="px-3 py-2 text-right">Peso Un.</th>
- <th className="px-3 py-2 text-right">Peso Tot.</th>
+ <th className="px-2 py-1">Item</th>
+ <th className="px-2 py-1">Projeto</th>
+ <th className="px-2 py-1">Tag</th>
+ <th className="px-2 py-1">Descrição Completa</th>
+ <th className="px-2 py-1 text-center">Qtd</th>
+ <th className="px-2 py-1 text-right">Peso Un.</th>
+ <th className="px-2 py-1 text-right">Peso Tot.</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100">
  {reportItems.map((item, idx) => (
  <tr key={idx} className="hover:bg-gray-50 transition-colors">
- <td className="px-3 py-2 text-xs font-bold text-gray-500">{idx + 1}</td>
- <td className="px-3 py-2 text-xs font-bold text-[#32423D]">{item.PROJETO}</td>
- <td className="px-3 py-2 text-xs font-medium text-[#32423D]">{item.TAG}</td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1 text-xs font-bold text-gray-500">{idx + 1}</td>
+ <td className="px-2 py-1 text-xs font-bold text-[#32423D]">{item.PROJETO}</td>
+ <td className="px-2 py-1 text-xs font-medium text-[#32423D]">{item.TAG}</td>
+ <td className="px-2 py-1">
  <p className="text-xs font-bold text-gray-800 uppercase">{item.DescResumo}</p>
  <p className="text-[10px] text-gray-500 uppercase mt-0.5">{item.DescDetal}</p>
  </td>
- <td className="px-3 py-2 text-center">
+ <td className="px-2 py-1 text-center">
  <span className="px-2 py-0.5 bg-gray-100 rounded-full text-xs font-black text-gray-700">{item.QtdeRomaneio}</span>
  </td>
- <td className="px-3 py-2 text-right text-xs text-gray-500">{item.PesoUnit}</td>
- <td className="px-3 py-2 text-right text-xs font-bold text-gray-800">{item.PesoTotal}kg</td>
+ <td className="px-2 py-1 text-right text-xs text-gray-500">{item.PesoUnit}</td>
+ <td className="px-2 py-1 text-right text-xs font-bold text-gray-800">{item.PesoTotal}kg</td>
  </tr>
  ))}
  </tbody>
  <tfoot className="bg-gray-50 font-bold">
  <tr>
  <td colSpan={4} className="px-3 py-3 text-right uppercase text-xs text-gray-500">Total do Romaneio</td>
- <td className="px-3 py-3 text-center text-sm text-[#32423D]">
+ <td className="px-3 py-3 text-center text-xs text-[#32423D]">
  {reportItems.reduce((acc, curr) => acc + (Number(curr.QtdeRomaneio) || 0), 0)}
  </td>
  <td></td>
- <td className="px-3 py-3 text-right text-sm text-[#32423D]">
+ <td className="px-3 py-3 text-right text-xs text-[#32423D]">
  {reportItems.reduce((acc, curr) => acc + (Number(curr.PesoTotal) || 0), 0).toFixed(2)}kg
  </td>
  </tr>
@@ -1946,7 +1948,7 @@ export default function RomaneioPage() {
  </button>
  <div>
  
- <p className="text-gray-500 text-sm">Preencha os dados do romaneio.</p>
+ <p className="text-gray-500 text-xs">Preencha os dados do romaneio.</p>
  </div>
  </div>
  </div>
@@ -1967,7 +1969,7 @@ export default function RomaneioPage() {
  value={formData.descricao}
  onChange={handleInputChange}
  rows={2}
- className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all uppercase"
+ className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all uppercase"
  placeholder="DESCREVA O CONTEÚDO..."
  autoFocus
  />
@@ -1982,7 +1984,7 @@ export default function RomaneioPage() {
  <div className="relative">
  <select
  onChange={handleCompanyChange}
- className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all appearance-none"
+ className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all appearance-none"
  >
  <option value="">Selecione um Destinatário...</option>
  {companies.map(c => (
@@ -2003,41 +2005,41 @@ export default function RomaneioPage() {
  name="email"
  value={formData.email}
  onChange={handleInputChange}
- className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 transition-all uppercase"
+ className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 transition-all uppercase"
  />
  </div>
  </div>
 
  <div className="pt-4 border-t border-gray-100">
- <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Dados de Entrega</h3>
+ <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Dados de Entrega</h3>
  <div className="grid grid-cols-12 gap-4">
  <div className="col-span-12 md:col-span-9">
  <label className="block text-xs font-medium text-gray-600 mb-1">Endereço</label>
- <input type="text" name="endereco" value={formData.endereco} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="endereco" value={formData.endereco} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  <div className="col-span-12 md:col-span-3">
  <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
- <input type="text" name="numero" value={formData.numero} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="numero" value={formData.numero} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  <div className="col-span-12 md:col-span-5">
  <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
- <input type="text" name="bairro" value={formData.bairro} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="bairro" value={formData.bairro} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  <div className="col-span-12 md:col-span-7">
  <label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label>
- <input type="text" name="complemento" value={formData.complemento} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="complemento" value={formData.complemento} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  <div className="col-span-12 md:col-span-5">
  <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
- <input type="text" name="cidade" value={formData.cidade} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="cidade" value={formData.cidade} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  <div className="col-span-6 md:col-span-2">
  <label className="block text-xs font-medium text-gray-600 mb-1">UF</label>
- <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} maxLength={2} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase text-center" />
+ <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} maxLength={2} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase text-center" />
  </div>
  <div className="col-span-6 md:col-span-5">
  <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
- <input type="text" name="cep" value={formData.cep} onChange={handleInputChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm uppercase" />
+ <input type="text" name="cep" value={formData.cep} onChange={handleInputChange} className="w-full px-2 py-1 rounded-lg border border-gray-200 text-xs uppercase" />
  </div>
  </div>
  </div>
@@ -2046,16 +2048,16 @@ export default function RomaneioPage() {
  <button
  type="button"
  onClick={() => setView('list')} // Cancel -> Back to list
- className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium text-sm"
+ className="flex items-center gap-2 px-2 py-1 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium text-xs"
  >
  Cancelar
  </button>
  <button
  type="submit"
- className="inline-flex items-center gap-2 px-6 py-2 rounded-lg bg-[#32423D] text-white font-medium text-sm hover:bg-[#3d4f49] transition-colors disabled:opacity-70 shadow-sm"
+ className="inline-flex items-center gap-2 px-6 py-2 rounded-lg bg-[#32423D] text-white font-medium text-xs hover:bg-[#3d4f49] transition-colors disabled:opacity-70 shadow-sm"
  disabled={saving}
  >
- {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+ {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
  {saving ? 'Salvando...' : 'Salvar Romaneio'}
  </button>
  </div>

@@ -130,7 +130,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md mb-4 border border-white/10"
+                        className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md mb-4 border border-white/10"
                     >
                         <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                         <span className="text-xs font-bold uppercase tracking-widest text-white/90">Sistema Online</span>
@@ -206,7 +206,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
             <motion.div initial={{ opacity: 1, y: 0 }} className="relative z-10 pt-2">
                 <h2 className="text-lg md:text-xl font-extrabold text-foreground mb-4 flex items-center gap-2">
                     <div className="p-1.5 bg-primary text-primary-foreground rounded-md shadow-sm">
-                        <LayoutDashboard size={18} strokeWidth={2.5} />
+                        <LayoutDashboard size={15} strokeWidth={2.5} />
                     </div>
                     Módulos Rápidos
                 </h2>
@@ -226,7 +226,7 @@ export default function DashboardPage({ onNavigate }: DashboardProps) {
                                     <item.icon size={20} strokeWidth={2.5} />
                                 </div>
                                 <div className="flex-1 overflow-hidden">
-                                    <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">{item.label}</h3>
+                                    <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate">{item.label}</h3>
                                 </div>
                                 <div className="w-6 h-6 rounded-full flex items-center justify-center text-foreground/40 group-hover:text-primary transition-all duration-300 group-hover:translate-x-1 shrink-0">
                                     <ArrowRight size={14} strokeWidth={2.5} />

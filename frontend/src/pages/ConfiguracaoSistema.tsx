@@ -182,13 +182,13 @@ export default function ConfiguracaoSistemaPage() {
  </div>
  <div>
  
- <p className="text-gray-500 text-sm">Gerenciamento de parâmetros e configurações</p>
+ <p className="text-gray-500 text-xs">Gerenciamento de parâmetros e configurações</p>
  </div>
  </div>
 
  <button
  onClick={() => handleOpenModal()}
- className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-4 py-2.5 rounded-md font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20"
+ className="flex items-center gap-2 bg-[#32423D] text-[#E0E800] px-2 py-1.5 rounded-md font-bold hover:bg-[#2a3833] transition-colors shadow-lg shadow-[#32423D]/20"
  >
  <Plus size={20} />
  <span>Nova Configuração</span>
@@ -239,7 +239,7 @@ export default function ConfiguracaoSistemaPage() {
  <div key={opt.value} className="bg-white rounded-md p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
  <div className="flex items-center justify-between">
  <div>
- <p className="text-sm text-gray-500 capitalize">{opt.label}</p>
+ <p className="text-xs text-gray-500 capitalize">{opt.label}</p>
  <p className="text-2xl font-bold text-[#32423D] mt-1">{count}</p>
  </div>
  <div className={`p-3 rounded-lg ${getTipoStyle(opt.value)}`}>
@@ -270,7 +270,7 @@ export default function ConfiguracaoSistemaPage() {
  <td colSpan={5} className="py-8 text-center text-gray-500">
  <div className="flex flex-col items-center gap-2">
  <Loader2 className="animate-spin text-[#32423D]" size={24} />
- <p className="text-sm">Carregando configurações...</p>
+ <p className="text-xs">Carregando configurações...</p>
  </div>
  </td>
  </tr>
@@ -286,10 +286,10 @@ export default function ConfiguracaoSistemaPage() {
  return (
  <tr key={config.id} className="hover:bg-gray-50/50 transition-colors group">
  <td className="py-4 px-6">
- <span className="font-mono text-sm font-medium text-gray-800">{config.chave}</span>
+ <span className="font-mono text-xs font-medium text-gray-800">{config.chave}</span>
  </td>
  <td className="py-4 px-6">
- <span className="text-sm text-gray-600" title={config.valor}>
+ <span className="text-xs text-gray-600" title={config.valor}>
  {truncateText(config.valor, 50)}
  </span>
  </td>
@@ -300,7 +300,7 @@ export default function ConfiguracaoSistemaPage() {
  </span>
  </td>
  <td className="py-4 px-6">
- <span className="text-sm text-gray-500">
+ <span className="text-xs text-gray-500">
  {config.descricao ? truncateText(config.descricao, 40) : '-'}
  </span>
  </td>
@@ -311,14 +311,14 @@ export default function ConfiguracaoSistemaPage() {
  className="p-2 text-[#32423D] hover:bg-[#E0E800]/10 rounded-lg transition-colors"
  title="Editar"
  >
- <Edit2 size={18} />
+ <Edit2 size={15} />
  </button>
  <button
  onClick={() => config.chave && handleDelete(config.chave)}
  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
  title="Excluir"
  >
- <Trash2 size={18} />
+ <Trash2 size={15} />
  </button>
  </div>
  </td>
@@ -335,7 +335,7 @@ export default function ConfiguracaoSistemaPage() {
  {showModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 animate-fade-in">
  <div className="bg-white rounded-md shadow-2xl w-full max-w-2xl overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
- <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+ <div className="px-2 py-1 border-b border-gray-100 flex items-center justify-between bg-gray-50">
  <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
  {editingConfig ? <Edit2 size={20} className="text-[#32423D]" /> : <Plus size={20} className="text-[#32423D]" />}
  {editingConfig ? 'Editar Configuração' : 'Nova Configuração'}
@@ -348,12 +348,12 @@ export default function ConfiguracaoSistemaPage() {
  <form onSubmit={handleSubmit} className="p-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Chave *</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Chave *</label>
  <input
  type="text"
  required
  disabled={!!editingConfig}
- className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
+ className="w-full px-2 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
  placeholder="Ex: NovoParametro"
  value={formData.chave}
  onChange={(e) => setFormData({ ...formData, chave: e.target.value })}
@@ -361,9 +361,9 @@ export default function ConfiguracaoSistemaPage() {
  {editingConfig && <p className="text-xs text-gray-400 mt-1">A chave não pode ser alterada</p>}
  </div>
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Tipo *</label>
  <select
- className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all appearance-none bg-white"
+ className="w-full px-2 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all appearance-none bg-white"
  value={formData.tipo}
  onChange={(e) => setFormData({ ...formData, tipo: e.target.value as "string" | "number" | "boolean" })}
  >
@@ -375,11 +375,11 @@ export default function ConfiguracaoSistemaPage() {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Valor *</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Valor *</label>
  <textarea
  required
  rows={3}
- className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all resize-none"
+ className="w-full px-2 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all resize-none"
  placeholder="Valor da configuração"
  value={formData.valor}
  onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
@@ -387,10 +387,10 @@ export default function ConfiguracaoSistemaPage() {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+ <label className="block text-xs font-medium text-gray-700 mb-1">Descrição</label>
  <input
  type="text"
- className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
+ className="w-full px-2 py-1.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#32423D] focus:border-transparent outline-none transition-all"
  placeholder="Descrição opcional"
  value={formData.descricao || ''}
  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
@@ -401,7 +401,7 @@ export default function ConfiguracaoSistemaPage() {
  <button
  type="button"
  onClick={() => setShowModal(false)}
- className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+ className="px-2 py-1 text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors"
  >
  Cancelar
  </button>

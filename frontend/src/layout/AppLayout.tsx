@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon, Search, HelpCircle, Info } from 'lucide-react';
+import { Menu, X, LogOut, ChevronDown, ChevronRight, Moon, Sun, User as UserIcon, Search, HelpCircle, Info, Maximize, Minimize } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { helpContents } from '../utils/helpContent';
 import { getIcon } from '../utils/iconMap';
@@ -27,6 +27,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
     const [sidebarSearch, setSidebarSearch] = useState('');
     const [showPageTooltip, setShowPageTooltip] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
+    const [isAppMaximized, setIsAppMaximized] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -153,8 +154,6 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             onNavigate(item.id);
                             if (isMobile) {
                                 setIsMobileMenuOpen(false);
-                            } else {
-                                setIsSidebarCollapsed(true);
                             }
                         }
                     }}
@@ -420,12 +419,16 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             </div>
                         </div>
                         <div id="page-actions-portal" className="flex items-center gap-2 empty:hidden">
+                            
+                            <button onClick={() => setIsAppMaximized(!isAppMaximized)} className="p-2 bg-card border border-border hover:bg-secondary rounded-md text-foreground/80 hover:text-foreground transition-colors" title={isAppMaximized ? "Restaurar Tamanho" : "Maximizar Tela"}>
+                                {isAppMaximized ? <Minimize size={18} /> : <Maximize size={18} />}
+                            </button>
                             <DatabaseSwitcher />
                         </div>
                     </div>
 
                     {/* Dashboard/Page Content Slot */}
-                    <div className="flex-1 flex flex-col min-h-0 w-full relative">
+                    <div className={cn("flex-1 flex flex-col min-h-0 relative transition-all duration-300", isAppMaximized ? "w-full" : "w-full max-w-7xl mx-auto")}>
                         {children}
                     </div>
                 </div>

@@ -80,6 +80,18 @@ function AppContent() {
           if (data.success && data.menu) {
           let savedMenu: MenuItem[] = data.menu;
 
+          // FORCE override href for Peça Manufaturada regardless of what the DB says
+          const fixPecaHref = (items: MenuItem[]) => {
+            items.forEach(item => {
+              if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada') {
+                 item.href = '/peca-manufaturada';
+              }
+              if (item.children) fixPecaHref(item.children);
+            });
+          };
+          fixPecaHref(savedMenu);
+
+
           const itemExists = (items: MenuItem[], id: string): boolean => {
             return items.some(item => item.id === id || (item.children && itemExists(item.children, id)));
           };
@@ -333,10 +345,16 @@ function AppContent() {
   return () => window.removeEventListener('sinco_menu_updated', loadMenu);
 }, [user, mostrarPowerBuild]);
 
-  const handleNavigate = (id: string) => {
-    const item = findItemById(menuItems, id);
-    if (item && item.href) {
-      window.history.pushState({}, '', item.href);
+    const handleNavigate = (id: string) => {
+    // Busca a href correta no defaultMenuItems invés do menuItems (que pode vir corrompido do DB)
+    const staticItem = findItemById(defaultMenuItems, id);
+    if (staticItem && staticItem.href) {
+      window.history.pushState({}, '', staticItem.href);
+    } else {
+      const item = findItemById(menuItems, id);
+      if (item && item.href) {
+        window.history.pushState({}, '', item.href);
+      }
     }
     setActivePageId(id);
   };

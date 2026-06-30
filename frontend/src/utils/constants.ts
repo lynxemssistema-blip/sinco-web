@@ -22,6 +22,8 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'familia', icon: 'FolderTree', label: 'Família', href: '/familia' },
     { id: 'pecas-reposicao', icon: 'Wrench', label: 'Lista Peças de Reposição', href: '/pecas-reposicao' },
     { id: 'materiais', icon: 'Package', label: 'Materiais', href: '/materiais' },
+    { id: 'motorista', icon: 'Car', label: 'Motorista', href: '/motorista' },
+    { id: 'cadastros_motorista', icon: 'Car', label: 'Motorista', href: '/motorista' },
     { id: 'ordens-servico', icon: 'ClipboardList', label: 'Ordens de Serviço', href: '/ordens-servico' },
     { id: 'pessoa-juridica', icon: 'Building2', label: 'Pessoa Jurídica', href: '/cadastro-pj' },
     { id: 'pesquisar-desenho', icon: 'FileSearch', label: 'Pesquisar Desenho', href: '/pesquisar-desenho' },

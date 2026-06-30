@@ -149,17 +149,17 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <div className="bg-white rounded-md shadow-2xl w-full max-w-md mx-4 overflow-hidden">
 
  {/* Header */}
- <div className="bg-indigo-600 px-4 py-2 flex items-center justify-between">
+ <div className="bg-indigo-600 px-2 py-1 flex items-center justify-between">
  <div className="flex items-center gap-2 text-white">
  <ClipboardPen size={20} />
  <span className="font-black text-base">Lançar Montagem</span>
  </div>
- <button onClick={onClose} className="text-white/80 hover:text-white"><X size={18} /></button>
+ <button onClick={onClose} className="text-white/80 hover:text-white"><X size={15} /></button>
  </div>
 
  <div className="px-6 py-5 space-y-4">
  {/* Info do item */}
- <div className="bg-slate-50 rounded-md px-3 py-1.5 text-xs space-y-1 border border-slate-200">
+ <div className="bg-slate-50 rounded-md px-2 py-0.5 text-xs space-y-1 border border-slate-200">
  <div className="flex gap-6">
  <span><span className="text-slate-400 font-medium">OS:</span> <strong>{item.IdOrdemServico}</strong></span>
  <span><span className="text-slate-400 font-medium">Item:</span> <strong>{item.IdOrdemServicoItem}</strong></span>
@@ -185,7 +185,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  max={item.QtdeTotal}
  value={qtde}
  onChange={e => { setQtde(e.target.value); setErro(''); }}
- className="w-full border-2 border-indigo-200 rounded-md px-3 py-1.5 text-xl font-black text-center text-indigo-700 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+ className="w-full border-2 border-indigo-200 rounded-md px-2 py-0.5 text-xl font-black text-center text-indigo-700 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
  autoFocus
  onKeyDown={e => e.key === 'Enter' && handleClick()}
  />
@@ -199,7 +199,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  </div>
  ) : (
  /* Tela de confirmação final */
- <div className="bg-amber-50 border border-amber-300 rounded-md px-3 py-2 text-sm">
+ <div className="bg-amber-50 border border-amber-300 rounded-md px-2 py-1 text-xs">
  <p className="font-black text-amber-800 text-center mb-2">⚠️ Confirmar Finalização</p>
  <p className="text-amber-700 text-center text-xs">
  Esta opção irá <strong>concluir o setor Montagem</strong> para o item {item.IdOrdemServicoItem}.
@@ -213,7 +213,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <div className="px-6 pb-5 flex gap-3">
  <button
  onClick={() => { setConfirmando(false); onClose(); }}
- className="flex-1 px-4 py-2.5 border border-slate-200 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+ className="flex-1 px-2 py-1.5 border border-slate-200 rounded-md text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
  >
  Cancelar
  </button>
@@ -221,14 +221,14 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <>
  <button
  onClick={() => setConfirmando(false)}
- className="flex-1 px-4 py-2.5 border border-slate-300 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-50"
+ className="flex-1 px-2 py-1.5 border border-slate-300 rounded-md text-xs font-bold text-slate-600 hover:bg-slate-50"
  >
  Voltar
  </button>
  <button
  onClick={enviar}
  disabled={salvando}
- className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+ className="flex-1 px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
  >
  {salvando ? <><Loader2 size={14} className="animate-spin" />Salvando...</> : '✅ Confirmar'}
  </button>
@@ -237,7 +237,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <button
  onClick={handleClick}
  disabled={salvando}
- className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+ className="flex-1 px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
  >
  {salvando ? <><Loader2 size={14} className="animate-spin" />Salvando...</> : <><ClipboardPen size={14} />Lançar</>}
  </button>
@@ -332,7 +332,7 @@ export default function TesteFinalMontagemPage() {
  </div>
  </div>
  <div className="flex items-center gap-3">
- <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${mc.badge}`}>
+ <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-bold ${mc.badge}`}>
  <Database size={13} />
  {loading ? '...' : `${itensFiltrados.length} itens`}
  </div>
@@ -341,7 +341,7 @@ export default function TesteFinalMontagemPage() {
  const cfg = MODO_CONFIG[m]; const Icon = cfg.icon; const ativo = modo === m;
  return (
  <button key={m} onClick={() => setModo(m)}
- className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold transition-all ${ativo ? m === 'pendentes' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+ className={`flex items-center gap-1.5 px-2 py-1 text-xs font-bold transition-all ${ativo ? m === 'pendentes' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
  <Icon size={13} />{cfg.label}
  </button>
  );
@@ -353,7 +353,7 @@ export default function TesteFinalMontagemPage() {
 
  {/* ── Filtros ── */}
  <div className="shrink-0 bg-white border-b border-slate-200 mx-4 mt-3 rounded-md shadow-sm overflow-hidden">
- <button className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+ <button className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
  onClick={() => setFiltroAberto(v => !v)}>
  <span className="flex items-center gap-2"><Filter size={13} />Filtros de Pesquisa</span>
  {filtroAberto ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -379,10 +379,10 @@ export default function TesteFinalMontagemPage() {
  className="w-full text-xs py-1.5 outline-none bg-transparent font-medium text-slate-700 placeholder:text-slate-400" />
  </div>
  ))}
- <button onClick={handleSearch} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 border border-emerald-200 text-emerald-800 hover:bg-emerald-200 text-xs font-bold rounded-lg transition-colors shadow-sm">
+ <button onClick={handleSearch} className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-100 border border-emerald-200 text-emerald-800 hover:bg-emerald-200 text-xs font-bold rounded-lg transition-colors shadow-sm">
  <Search size={13} />Pesquisar
  </button>
- <button onClick={handleLimpar} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs font-bold rounded-lg transition-colors">
+ <button onClick={handleLimpar} className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs font-bold rounded-lg transition-colors">
  <X size={13} />Limpar
  </button>
  </div>
@@ -416,21 +416,21 @@ export default function TesteFinalMontagemPage() {
  <div className="flex-1 overflow-hidden mx-4 my-3 relative">
  {loading && (
  <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] z-20 flex items-center justify-center rounded-md">
- <div className="flex items-center gap-2 text-indigo-600 font-bold text-sm bg-white shadow-lg px-5 py-3 rounded-md border border-indigo-100">
+ <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-white shadow-lg px-5 py-3 rounded-md border border-indigo-100">
  <Loader2 className="animate-spin" size={20} />Carregando itens...
  </div>
  </div>
  )}
  {error && (
- <div className="bg-red-50 text-red-700 px-3 py-1.5 rounded-md text-sm font-bold border border-red-200 mb-3">⚠️ {error}</div>
+ <div className="bg-red-50 text-red-700 px-2 py-0.5 rounded-md text-xs font-bold border border-red-200 mb-3">⚠️ {error}</div>
  )}
 
  <div className="h-full bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden flex flex-col">
  {!loading && !error && itensFiltrados.length === 0 && (
- <div className="bg-amber-50 border-b border-amber-200 px-3 py-1.5 flex items-center gap-3 text-amber-800 animate-in fade-in slide-in-from-top-2 duration-300">
- <AlertTriangle size={18} className="text-amber-500" />
+ <div className="bg-amber-50 border-b border-amber-200 px-2 py-0.5 flex items-center gap-3 text-amber-800 animate-in fade-in slide-in-from-top-2 duration-300">
+ <AlertTriangle size={15} className="text-amber-500" />
  <div>
- <p className="text-sm font-black">Nenhum registro encontrado</p>
+ <p className="text-xs font-black">Nenhum registro encontrado</p>
  <p className="text-[11px] opacity-80">A pesquisa foi concluída, mas não há itens {modo === 'concluidos' ? 'concluídos' : 'pendentes'} para os filtros aplicados.</p>
  </div>
  </div>
@@ -439,21 +439,21 @@ export default function TesteFinalMontagemPage() {
  <table className="w-full text-xs text-left">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-[10px] text-white uppercase bg-[#567469] sticky top-0 z-10 border-b border-white/20 shadow-sm">
  <tr>
- <th className="px-3 py-2 font-black whitespace-nowrap">OS / Item</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Projeto</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Tag</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Empresa</th>
- <th className="px-3 py-2 font-black text-center whitespace-nowrap">Qtde</th>
- <th className="px-3 py-2 font-black text-right whitespace-nowrap">Executado</th>
- <th className="px-3 py-2 font-black text-right whitespace-nowrap">A Executar</th>
- <th className="px-3 py-2 font-black text-center whitespace-nowrap">Parcial</th>
- <th className="px-3 py-2 font-black text-center whitespace-nowrap">Ação</th>
- <th className="px-3 py-2 font-black text-right whitespace-nowrap">Peso Un.</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Cód. Fabri.</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Desc. Resumo</th>
- <th className="px-3 py-2 font-black text-center whitespace-nowrap">Principal</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Início Mont.</th>
- <th className="px-3 py-2 font-black whitespace-nowrap">Final Mont.</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">OS / Item</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Projeto</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Tag</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Empresa</th>
+ <th className="px-2 py-1 font-black text-center whitespace-nowrap">Qtde</th>
+ <th className="px-2 py-1 font-black text-right whitespace-nowrap">Executado</th>
+ <th className="px-2 py-1 font-black text-right whitespace-nowrap">A Executar</th>
+ <th className="px-2 py-1 font-black text-center whitespace-nowrap">Parcial</th>
+ <th className="px-2 py-1 font-black text-center whitespace-nowrap">Ação</th>
+ <th className="px-2 py-1 font-black text-right whitespace-nowrap">Peso Un.</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Cód. Fabri.</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Desc. Resumo</th>
+ <th className="px-2 py-1 font-black text-center whitespace-nowrap">Principal</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Início Mont.</th>
+ <th className="px-2 py-1 font-black whitespace-nowrap">Final Mont.</th>
  </tr>
  </thead>
  <tbody>
@@ -471,21 +471,21 @@ export default function TesteFinalMontagemPage() {
  return (
  <tr key={`${item.IdOrdemServicoItem}-${idx}`}
  className={`border-b border-slate-100 hover:bg-indigo-50/40 transition-colors ${isPrincipal ? 'bg-amber-50/30' : ''} ${concluido ? 'opacity-60' : ''}`}>
- <td className="px-3 py-1.5 font-bold text-slate-700 whitespace-nowrap">
+ <td className="px-2 py-0.5 font-bold text-slate-700 whitespace-nowrap">
  {item.IdOrdemServico}<span className="text-slate-400 font-normal"> / {item.IdOrdemServicoItem}</span>
  </td>
- <td className="px-3 py-1.5 text-slate-600 max-w-[120px] truncate" title={item.Projeto}>{item.Projeto}</td>
- <td className="px-3 py-1.5 font-bold text-indigo-700 whitespace-nowrap max-w-[100px] truncate" title={item.Tag}>{item.Tag}</td>
- <td className="px-3 py-1.5 whitespace-nowrap">
+ <td className="px-2 py-0.5 text-slate-600 max-w-[120px] truncate" title={item.Projeto}>{item.Projeto}</td>
+ <td className="px-2 py-0.5 font-bold text-indigo-700 whitespace-nowrap max-w-[100px] truncate" title={item.Tag}>{item.Tag}</td>
+ <td className="px-2 py-0.5 whitespace-nowrap">
  <span className="flex items-center gap-1 text-slate-500">
  <Building2 size={11} className="shrink-0" />
  <span className="truncate max-w-[100px]" title={item.DescEmpresa}>{item.DescEmpresa}</span>
  </span>
  </td>
- <td className="px-3 py-1.5 text-center font-bold text-indigo-600 bg-indigo-50/60">{item.QtdeTotal}</td>
- <td className="px-3 py-1.5 text-right font-semibold text-emerald-700">{item.MontagemTotalExecutado ?? '—'}</td>
- <td className="px-3 py-1.5 text-right font-semibold text-amber-700">{item.MontagemTotalExecutar ?? '—'}</td>
- <td className="px-3 py-1.5 text-center">
+ <td className="px-2 py-0.5 text-center font-bold text-indigo-600 bg-indigo-50/60">{item.QtdeTotal}</td>
+ <td className="px-2 py-0.5 text-right font-semibold text-emerald-700">{item.MontagemTotalExecutado ?? '—'}</td>
+ <td className="px-2 py-0.5 text-right font-semibold text-amber-700">{item.MontagemTotalExecutar ?? '—'}</td>
+ <td className="px-2 py-0.5 text-center">
  <span className="inline-flex items-center gap-1.5 font-bold text-[11px]">
  {/* executado / total */}
  <span className="text-emerald-700">{Number(item.MontagemTotalExecutado ?? 0)}</span>
@@ -503,7 +503,7 @@ export default function TesteFinalMontagemPage() {
  )}
  </span>
  </td>
- <td className="px-3 py-1.5 text-center">
+ <td className="px-2 py-0.5 text-center">
  {concluido ? (
  <span className="inline-flex items-center gap-0.5 bg-emerald-100 text-emerald-700 rounded px-1.5 py-0.5 text-[9px] font-bold">
  <CheckCircle2 size={9} />OK
@@ -517,22 +517,22 @@ export default function TesteFinalMontagemPage() {
  </button>
  )}
  </td>
- <td className="px-3 py-1.5 text-right text-slate-500">
+ <td className="px-2 py-0.5 text-right text-slate-500">
  {item.PesoUnitario !== null ? (
  <span className="flex items-center justify-end gap-0.5"><Weight size={10} />{Number(item.PesoUnitario).toFixed(2)}</span>
  ) : '—'}
  </td>
- <td className="px-3 py-1.5 font-mono text-[10px] text-slate-500 whitespace-nowrap">{item.CodMatFabricante}</td>
- <td className="px-3 py-1.5 max-w-[180px] truncate text-slate-600" title={item.DescResumo}>{item.DescResumo}</td>
- <td className="px-3 py-1.5 text-center">
+ <td className="px-2 py-0.5 font-mono text-[10px] text-slate-500 whitespace-nowrap">{item.CodMatFabricante}</td>
+ <td className="px-2 py-0.5 max-w-[180px] truncate text-slate-600" title={item.DescResumo}>{item.DescResumo}</td>
+ <td className="px-2 py-0.5 text-center">
  {isPrincipal && (
  <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 border border-amber-300 rounded px-1.5 py-0.5 text-[9px] font-bold">
  <Star size={9} fill="currentColor" />PP
  </span>
  )}
  </td>
- <td className={`px-3 py-1.5 whitespace-nowrap text-[10px] ${corInicio}`}>{formatarData(item.RealizadoInicioMontagem)}</td>
- <td className={`px-3 py-1.5 whitespace-nowrap text-[10px] ${corFinal}`}>{formatarData(item.RealizadoFinalMontagem)}</td>
+ <td className={`px-2 py-0.5 whitespace-nowrap text-[10px] ${corInicio}`}>{formatarData(item.RealizadoInicioMontagem)}</td>
+ <td className={`px-2 py-0.5 whitespace-nowrap text-[10px] ${corFinal}`}>{formatarData(item.RealizadoFinalMontagem)}</td>
  </tr>
  );
  })
@@ -541,7 +541,7 @@ export default function TesteFinalMontagemPage() {
  <td colSpan={15} className="px-6 py-16 text-center">
  <div className="flex flex-col items-center gap-2 text-slate-400">
  <PackageCheck size={36} className="opacity-30" />
- <span className="font-medium text-sm">{loading ? 'Carregando...' : `Nenhum item ${modo === 'concluidos' ? 'concluído' : 'pendente'} encontrado`}</span>
+ <span className="font-medium text-xs">{loading ? 'Carregando...' : `Nenhum item ${modo === 'concluidos' ? 'concluído' : 'pendente'} encontrado`}</span>
  </div>
  </td>
  </tr>

@@ -232,7 +232,7 @@ function GanttChart({ data, mode, setoresVisiveis }: GanttChartProps) {
  return (
  <div className="flex flex-col items-center justify-center py-20 text-slate-400 h-full flex flex-col min-h-0">
  <GanttChartSquare size={48} className="mb-4 opacity-20" />
- <p className="text-sm font-medium">Sem datas planejadas ou realizadas para exibir o Gantt</p>
+ <p className="text-xs font-medium">Sem datas planejadas ou realizadas para exibir o Gantt</p>
  <p className="text-xs mt-1 opacity-70">Cadastre datas nas OS & Tags para visualizar o cronograma</p>
  </div>
  );
@@ -307,7 +307,7 @@ const exec = Number(mode === 'tag' ? item[`${s.key}TotalExecutado`] : item[`Exec
  return (
  <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
  {/* Legend */}
- <div className="shrink-0 flex items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-200 flex-wrap">
+ <div className="shrink-0 flex items-center gap-4 px-2 py-1 bg-slate-50 border-b border-slate-200 flex-wrap">
  <div className="flex items-center gap-1.5">
  <div className="w-8 h-3 rounded-sm bg-slate-300 opacity-60" style={{ border: '1px dashed #94a3b8' }} />
  <span className="text-[10px] text-slate-500 font-semibold">Planejado</span>
@@ -512,7 +512,7 @@ function TagDetailSection({ tag, setoresVisiveis }: { tag: TagDetalhe; setoresVi
  {/* Tag Header Row */}
  <button
  onClick={() => setExpanded(v => !v)}
- className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50/80 transition-colors text-left"
+ className="w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50/80 transition-colors text-left"
  >
  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center">
  <Package size={12} className="text-white" />
@@ -552,7 +552,7 @@ const exec = Number((tag as Record<string, unknown>)[`${s.key}TotalExecutado`]) 
 
  {/* Expanded Detail */}
  {expanded && (
- <div className="border-t border-slate-100 px-3 py-1.5 bg-slate-50/50">
+ <div className="border-t border-slate-100 px-2 py-0.5 bg-slate-50/50">
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
  {setoresVisiveis.map(s => {
  const total = Number((tag as Record<string, unknown>)[`${s.key}TotalExecutar`]) || 0;
@@ -646,18 +646,18 @@ function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: P
  return (
  <div className="flex flex-col w-full bg-slate-50/50 font-sans border border-slate-200 rounded-md shadow-sm">
  {/* Header */}
- <div className="shrink-0 bg-white border-b border-slate-200 px-4 py-2 shadow-sm">
+ <div className="shrink-0 bg-white border-b border-slate-200 px-2 py-1 shadow-sm">
  <div className="flex items-center gap-4">
  <button
  onClick={onVoltar}
- className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold transition-colors"
+ className="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
  >
  <ArrowLeft size={15} /> Voltar
  </button>
  <div className="flex-1 min-w-0">
  <div className="flex items-center gap-3">
  <div className="w-10 h-10 rounded-md bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
- <Eye size={18} />
+ <Eye size={15} />
  </div>
  <div>
  <h1 className="text-lg font-black text-slate-800 leading-tight">
@@ -681,7 +681,7 @@ function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: P
  <div className="flex rounded-md border border-slate-200 overflow-hidden bg-slate-50 p-0.5 gap-0.5">
  <button
  onClick={() => setViewMode('lista')}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
  viewMode === 'lista'
  ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
@@ -692,7 +692,7 @@ function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: P
  </button>
  <button
  onClick={() => setViewMode('gantt')}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
  viewMode === 'gantt'
  ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100'
  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
@@ -757,14 +757,14 @@ function DetalheProjetoView({ projeto, onVoltar, setoresVisiveis }: { projeto: P
  </div>
  )}
  {error && (
- <div className="m-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2 text-sm">
- <AlertTriangle size={16} /> {error}
+ <div className="m-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2 text-xs">
+ <AlertTriangle size={14} /> {error}
  </div>
  )}
  {!loading && !error && tags.length === 0 && (
  <div className="flex flex-col items-center justify-center py-20 text-slate-400">
  <Layers size={48} className="mb-4 opacity-20" />
- <p className="text-sm font-medium">Nenhuma tag encontrada para este projeto</p>
+ <p className="text-xs font-medium">Nenhuma tag encontrada para este projeto</p>
  </div>
  )}
 
@@ -795,7 +795,7 @@ export default function AcompanhamentoGeralPage() {
  const { processosVisiveis } = useAppConfig();
  const setoresAtivos = SETORES.filter(s => processosVisiveis.includes(s.label.toLowerCase()));
 
- const [, setProjetos] = useState<ProjetoAcomp[]>([]);
+ const [projetos, setProjetos] = useState<ProjetoAcomp[]>([]);
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState<string | null>(null);
  const [selected, setSelected] = useState<ProjetoAcomp | null>(null);
@@ -949,7 +949,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white text-xs">
  {(['liberados', 'nao_liberados', 'finalizados', 'todos'] as const).map(m => (
  <button key={m} onClick={() => setFModo(m)}
- className={`px-3 py-1.5 font-semibold transition-colors border-r border-slate-100 last:border-0 ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+ className={`px-2 py-0.5 font-semibold transition-colors border-r border-slate-100 last:border-0 ${fModo === m ? 'bg-[#32423D] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
  {m === 'liberados' ? 'Liberados' : m === 'nao_liberados' ? 'Não Liberados' : m === 'finalizados' ? 'Finalizados' : 'Todos'}
  </button>
  ))}
@@ -960,7 +960,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <button
  onClick={() => { setFSearchInput(''); setFSearchProjeto(''); setFDescricaoInput(''); setFSearchDescricao(''); setFStatus(''); setFDataDe(''); setFDataAte(''); setFModo('liberados'); }}
  title="Limpar todos os filtros"
- className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 transition-colors">
+ className="flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold rounded-lg bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 transition-colors">
  <X size={12} /> Limpar
  </button>
 
@@ -976,11 +976,11 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  {/* View Switcher */}
  <div className="flex bg-slate-100 p-0.5 rounded-lg">
  <button onClick={() => setMainViewMode('lista')}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'lista' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <LayoutList size={13} /> Lista
  </button>
  <button onClick={() => setMainViewMode('gantt')}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-bold transition-all ${mainViewMode === 'gantt' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <GanttChartSquare size={13} /> Ver Gantt Geral
  </button>
  </div>
@@ -988,7 +988,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  {/* Detalhar Tags (condicional) */}
  {selected && (
  <button id="btn-detalhar-projeto" onClick={() => setDetalhe(selected)}
- className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs font-bold rounded-lg shadow hover:opacity-90 transition-all">
+ className="flex items-center gap-1.5 px-2 py-0.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs font-bold rounded-lg shadow hover:opacity-90 transition-all">
  <ChevronRight size={13} /> Detalhar Tags
  </button>
  )}
@@ -1006,15 +1006,15 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  {/* ── Table ── */}
  <div className="flex-1 overflow-auto custom-scrollbar relative">
  {error && (
- <div className="m-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2 text-sm">
- <AlertTriangle size={16} /> {error}
+ <div className="m-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2 text-xs">
+ <AlertTriangle size={14} /> {error}
  </div>
  )}
 
  {!loading && projetos.length === 0 && !error && (
  <div className="flex flex-col items-center justify-center py-20 text-slate-400">
  <Layers size={48} className="mb-4 opacity-20" />
- <p className="text-sm font-medium">Nenhum projeto encontrado</p>
+ <p className="text-xs font-medium">Nenhum projeto encontrado</p>
  </div>
  )}
 
@@ -1023,7 +1023,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <table className="w-full text-[11px] border-collapse" style={{ minWidth: 1000 }}>
  <thead className="bg-[#567469] text-white sticky top-0 z-20 shadow-sm">
  <tr className="bg-[#0B3A2D] text-white border-b border-[#0B3A2D]">
- <th className="px-3 py-2 text-left font-black tracking-wider uppercase border-r border-[#155A47]">Projeto / Cliente</th>
+ <th className="px-2 py-1 text-left font-black tracking-wider uppercase border-r border-[#155A47]">Projeto / Cliente</th>
  <th className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-24">Data Previsao</th>
  {setoresAtivos.map(s => (
  <th key={s.key} className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-28">
@@ -1090,7 +1090,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  className={`cursor-pointer transition-all ${isSelected ? 'bg-indigo-50/50' : 'hover:bg-slate-50/50'} ${finalizado ? 'bg-emerald-50/30' : ''}`}
  >
  
- <td className="px-3 py-2 border-r border-slate-100">
+ <td className="px-2 py-1 border-r border-slate-100">
  <div className="flex items-center gap-1.5 overflow-hidden">
  <div className="font-black text-slate-800 leading-tight truncate">{p.Projeto}</div>
  <div className="text-[10px] text-slate-500 truncate uppercase shrink-0 bg-slate-100 px-1 rounded-sm">{p.DescEmpresa || 'Sem Cliente'}</div>

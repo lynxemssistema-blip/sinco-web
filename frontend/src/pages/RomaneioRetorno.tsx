@@ -84,18 +84,18 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  return (
  <div className="flex-1 flex flex-col min-h-0 bg-gray-50">
  {/* Cabeçalho da sub-view */}
- <header className="bg-white border-b border-gray-200 px-3 py-1.5 shadow-sm flex items-center gap-3">
+ <header className="bg-white border-b border-gray-200 px-2 py-0.5 shadow-sm flex items-center gap-3">
  <button
  onClick={onBack}
- className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#32423D] text-white text-sm font-medium hover:bg-[#26312D] transition-colors"
+ className="flex items-center gap-2 px-2 py-0.5 rounded-lg bg-[#32423D] text-white text-xs font-medium hover:bg-[#26312D] transition-colors"
  >
- <ArrowLeft size={16} />
+ <ArrowLeft size={14} />
  Voltar
  </button>
  <div className="h-5 w-px bg-gray-300" />
  <div>
- <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
- <History size={16} className="text-[#32423D]" />
+ <h2 className="text-xs font-bold text-gray-800 flex items-center gap-2">
+ <History size={14} className="text-[#32423D]" />
  Histórico de Controle —{' '}
  <span className="text-[#32423D]">
  {item.DescResumo || item.CodMatFabricante || `ID: ${item.IdOrdemServicoItem || item.IDOrdemServicoITEM}`}
@@ -118,7 +118,7 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  <main className="flex-1 overflow-auto p-4">
  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
  {/* Filtro por data de retorno */}
- <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center gap-3 flex-wrap">
+ <div className="bg-gray-50 px-2 py-1 border-b border-gray-200 flex items-center gap-3 flex-wrap">
  <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Data Retorno:</span>
  <div className="flex items-center gap-1.5">
  <label className="text-[10px] text-gray-400 font-semibold uppercase">De</label>
@@ -148,15 +148,15 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
  <tr>
- <th className="px-3 py-2 text-center">Qtde Usuário</th>
- <th className="px-3 py-2">Situação</th>
- <th className="px-3 py-2">Data Retorno</th>
- <th className="px-3 py-2">Usuário Retorno</th>
- <th className="px-3 py-2">Observação</th>
- <th className="px-3 py-2 text-center">Estorno</th>
+ <th className="px-2 py-1 text-center">Qtde Usuário</th>
+ <th className="px-2 py-1">Situação</th>
+ <th className="px-2 py-1">Data Retorno</th>
+ <th className="px-2 py-1">Usuário Retorno</th>
+ <th className="px-2 py-1">Observação</th>
+ <th className="px-2 py-1 text-center">Estorno</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-100 text-sm">
+ <tbody className="divide-y divide-gray-100 text-xs">
  {loading ? (
  <tr>
  <td colSpan={6} className="px-4 py-10 text-center">
@@ -174,22 +174,22 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  });
  return filtered.length === 0 ? (
  <tr>
- <td colSpan={6} className="px-4 py-10 text-center text-gray-400 italic text-sm">
+ <td colSpan={6} className="px-4 py-10 text-center text-gray-400 italic text-xs">
  {controles.length === 0 ? 'Nenhum registro encontrado para este ID de OS Item.' : 'Nenhum registro no período selecionado.'}
  </td>
  </tr>
  ) : filtered.map((ctrl) => (
  <tr key={ctrl.idromaneioitem ?? ctrl.IdRomaneioItem} className={`hover:bg-gray-50 transition-colors ${ctrl.Situacao === 'ESTORNO' ? 'opacity-60' : ''}`}>
- <td className="px-3 py-1.5 text-center font-bold text-blue-700">{ctrl.qtdeUsuario ?? ctrl.QtdeUsuario ?? '-'}</td>
- <td className="px-3 py-1.5">
+ <td className="px-2 py-0.5 text-center font-bold text-blue-700">{ctrl.qtdeUsuario ?? ctrl.QtdeUsuario ?? '-'}</td>
+ <td className="px-2 py-0.5">
  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${situacaoBadge(ctrl.Situacao)}`}>
  {ctrl.Situacao || 'AGUARDANDO'}
  </span>
  </td>
- <td className="px-3 py-1.5 text-xs font-mono text-gray-500">{ctrl.DataRetorno ? formatToBRDate(ctrl.DataRetorno) : '-'}</td>
- <td className="px-3 py-1.5 text-xs font-medium text-[#32423D]">{ctrl.UsuarioRetorno || ctrl.Usuario || '-'}</td>
- <td className="px-3 py-1.5 text-xs text-gray-500 max-w-[200px] truncate" title={ctrl.Observacao}>{ctrl.Observacao || '-'}</td>
- <td className="px-3 py-1.5 text-center">
+ <td className="px-2 py-0.5 text-xs font-mono text-gray-500">{ctrl.DataRetorno ? formatToBRDate(ctrl.DataRetorno) : '-'}</td>
+ <td className="px-2 py-0.5 text-xs font-medium text-[#32423D]">{ctrl.UsuarioRetorno || ctrl.Usuario || '-'}</td>
+ <td className="px-2 py-0.5 text-xs text-gray-500 max-w-[200px] truncate" title={ctrl.Observacao}>{ctrl.Observacao || '-'}</td>
+ <td className="px-2 py-0.5 text-center">
  {ctrl.Situacao === 'ESTORNO' ? (
  <span className="text-[10px] text-red-400 font-bold">ESTORNADO</span>
  ) : (
@@ -222,7 +222,7 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEstornoModal(null)}>
  <div className="bg-white rounded-md shadow-2xl border border-gray-200 p-6 w-[420px]" onClick={e => e.stopPropagation()}>
- <h3 className="text-sm font-bold text-orange-700 mb-3 flex items-center gap-2">
+ <h3 className="text-xs font-bold text-orange-700 mb-3 flex items-center gap-2">
  <RotateCcw size={15} /> Confirmar Estorno
  </h3>
  <div className="bg-orange-50 rounded-lg p-3 mb-4 text-xs">
@@ -236,7 +236,7 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  onChange={e => setEstornoModal({ ...estornoModal, qtde: e.target.value })}
  autoFocus
  placeholder={`Máx: ${maxQtde}`}
- className={`w-full px-3 py-2 border rounded-lg text-sm outline-none mb-1 transition-colors ${
+ className={`w-full px-2 py-1 border rounded-lg text-xs outline-none mb-1 transition-colors ${
  qtdeInvalida
  ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300'
  : 'border-gray-300 focus:ring-2 focus:ring-orange-400/40'
@@ -253,17 +253,17 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  onChange={e => setEstornoModal({ ...estornoModal, obs: e.target.value })}
  onKeyDown={e => e.key === 'Enter' && handleEstorno()}
  placeholder="Motivo do estorno..."
- className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-400/40 outline-none mb-4"
+ className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-400/40 outline-none mb-4"
  />
  <div className="flex gap-2">
  <button
  onClick={handleEstorno}
  disabled={qtdeInvalida || !estornoModal.qtde}
- className="flex-1 bg-orange-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+ className="flex-1 bg-orange-600 text-white py-2 rounded-lg text-xs font-semibold hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
  >
  Confirmar Estorno
  </button>
- <button onClick={() => setEstornoModal(null)} className="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+ <button onClick={() => setEstornoModal(null)} className="px-2 py-1 rounded-lg border border-gray-300 text-xs text-gray-600 hover:bg-gray-50 transition-colors">
  Cancelar
  </button>
  </div>
@@ -372,7 +372,7 @@ export default function RomaneioRetornoPage() {
  return (
  <div className="flex flex-col flex-1 min-h-0 bg-gray-50 overflow-hidden">
  {/* ── PARTE 1: Filtros compactos ─────────────────────────────── */}
- <header className="bg-white border-b border-gray-200 px-4 py-2 shadow-sm">
+ <header className="bg-white border-b border-gray-200 px-2 py-1 shadow-sm">
  <div className="flex flex-wrap gap-2 items-end">
  <div className="flex-1 min-w-[110px]">
  <label className="block text-[10px] font-semibold text-gray-500 uppercase mb-0.5">Romaneio</label>
@@ -381,7 +381,7 @@ export default function RomaneioRetornoPage() {
  value={filters.romaneio}
  onChange={e => setFilters({ ...filters, romaneio: e.target.value })}
  onKeyDown={e => e.key === 'Enter' && fetchItems()}
- className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
+ className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
  placeholder="Ex: 15"
  />
  </div>
@@ -392,7 +392,7 @@ export default function RomaneioRetornoPage() {
  value={filters.projeto}
  onChange={e => setFilters({ ...filters, projeto: e.target.value })}
  onKeyDown={e => e.key === 'Enter' && fetchItems()}
- className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
+ className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
  />
  </div>
  <div className="flex-1 min-w-[110px]">
@@ -402,7 +402,7 @@ export default function RomaneioRetornoPage() {
  value={filters.tag}
  onChange={e => setFilters({ ...filters, tag: e.target.value })}
  onKeyDown={e => e.key === 'Enter' && fetchItems()}
- className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
+ className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
  />
  </div>
  <div className="flex-1 min-w-[110px]">
@@ -412,7 +412,7 @@ export default function RomaneioRetornoPage() {
  value={filters.numDoc}
  onChange={e => setFilters({ ...filters, numDoc: e.target.value })}
  onKeyDown={e => e.key === 'Enter' && fetchItems()}
- className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
+ className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-[#32423D]/30 outline-none"
  />
  </div>
  <div className="flex items-center gap-1.5 pb-0.5">
@@ -428,7 +428,7 @@ export default function RomaneioRetornoPage() {
  <button
  onClick={fetchItems}
  disabled={loading}
- className="flex items-center gap-1.5 bg-[#32423D] text-white px-4 py-1.5 rounded hover:bg-[#26312D] transition-colors disabled:opacity-50 text-sm font-medium"
+ className="flex items-center gap-1.5 bg-[#32423D] text-white px-4 py-1.5 rounded hover:bg-[#26312D] transition-colors disabled:opacity-50 text-xs font-medium"
  >
  {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
  Pesquisar
@@ -439,7 +439,7 @@ export default function RomaneioRetornoPage() {
  {/* ── PARTE 2: Grid de Itens — denso + coluna IdOrdemServicoItem ── */}
  <main className="flex-1 overflow-hidden p-3 flex flex-col">
  <section className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
- <div className="bg-gray-50 px-3 py-1.5 border-b border-gray-200 flex justify-between items-center">
+ <div className="bg-gray-50 px-2 py-0.5 border-b border-gray-200 flex justify-between items-center">
  <h2 className="text-xs font-bold text-gray-700 flex items-center gap-2">
  <Truck className="w-3.5 h-3.5 text-[#32423D]" />
  ITENS DO ROMANEIO PARA RETORNO
@@ -457,22 +457,22 @@ export default function RomaneioRetornoPage() {
  <table className="w-full text-left border-collapse">
  <thead className="bg-[#567469] text-white text-[11px] uppercase sticky top-0 z-10">
  <tr>
- <th className="px-3 py-1.5">Status</th>
- <th className="px-3 py-1.5">Romaneio</th>
- <th className="px-3 py-1.5">ID OS Item</th>
- <th className="px-3 py-1.5">Projeto</th>
- <th className="px-3 py-1.5">Tag</th>
- <th className="px-3 py-1.5 text-right">Qtde Env.</th>
- <th className="px-3 py-1.5 text-right">Qtde Ret.</th>
- <th className="px-3 py-1.5 text-right">Saldo</th>
- <th className="px-3 py-1.5">Situação</th>
- <th className="px-3 py-1.5 text-center">Histórico</th>
+ <th className="px-2 py-0.5">Status</th>
+ <th className="px-2 py-0.5">Romaneio</th>
+ <th className="px-2 py-0.5">ID OS Item</th>
+ <th className="px-2 py-0.5">Projeto</th>
+ <th className="px-2 py-0.5">Tag</th>
+ <th className="px-2 py-0.5 text-right">Qtde Env.</th>
+ <th className="px-2 py-0.5 text-right">Qtde Ret.</th>
+ <th className="px-2 py-0.5 text-right">Saldo</th>
+ <th className="px-2 py-0.5">Situação</th>
+ <th className="px-2 py-0.5 text-center">Histórico</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-100 text-[12px]">
  {items.length === 0 ? (
  <tr>
- <td colSpan={10} className="px-4 py-10 text-center text-gray-400 italic text-sm">
+ <td colSpan={10} className="px-4 py-10 text-center text-gray-400 italic text-xs">
  {loading
  ? <Loader2 size={20} className="animate-spin text-[#32423D] mx-auto" />
  : 'Nenhum item encontrado. Use os filtros acima para pesquisar.'}
@@ -548,7 +548,7 @@ export default function RomaneioRetornoPage() {
  <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40" onClick={() => { setRetornoPanel(null); setRetornoQtde(''); }}>
  <div className="bg-white rounded-md shadow-2xl border border-gray-200 p-6 w-[400px]" onClick={e => e.stopPropagation()}>
  <div className="flex items-center justify-between mb-4">
- <h3 className="text-sm font-bold text-[#32423D] flex items-center gap-2">
+ <h3 className="text-xs font-bold text-[#32423D] flex items-center gap-2">
  <span>↩</span> Totalizar Retorno
  </h3>
  <button onClick={() => { setRetornoPanel(null); setRetornoQtde(''); }} className="text-gray-400 hover:text-gray-600">✕</button>
@@ -567,17 +567,17 @@ export default function RomaneioRetornoPage() {
  onKeyDown={e => e.key === 'Enter' && handleRegistrarRetorno()}
  autoFocus
  placeholder={'Max: ' + retornoPanel.item.QtdeEnviada}
- className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#32423D]/40 outline-none mb-4"
+ className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40 outline-none mb-4"
  />
  <div className="flex gap-2">
  <button
  onClick={handleRegistrarRetorno}
  disabled={retornoSaving}
- className="flex-1 bg-[#32423D] text-white py-2 rounded-lg text-sm font-semibold hover:bg-[#26312D] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+ className="flex-1 bg-[#32423D] text-white py-2 rounded-lg text-xs font-semibold hover:bg-[#26312D] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
  >
  {retornoSaving ? '...' : '✓ Confirmar Retorno'}
  </button>
- <button onClick={() => { setRetornoPanel(null); setRetornoQtde(''); }} className="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+ <button onClick={() => { setRetornoPanel(null); setRetornoQtde(''); }} className="px-2 py-1 rounded-lg border border-gray-300 text-xs text-gray-600 hover:bg-gray-50 transition-colors">
  Cancelar
  </button>
  </div>
@@ -595,7 +595,7 @@ export default function RomaneioRetornoPage() {
  style={{ top: contextMenu.y, left: contextMenu.x }}
  className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 w-64 overflow-hidden"
  >
- <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+ <div className="px-2 py-0.5 bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
  Ações — Item #{contextMenu.data?.IdRomaneioItem}
  </div>
  {(() => {
@@ -604,13 +604,13 @@ export default function RomaneioRetornoPage() {
  return saldo > 0 ? (
  <button
  onClick={() => { setRetornoPanel({ item: d }); setRetornoQtde(''); setContextMenu(null); }}
- className="w-full flex items-center gap-3 px-4 py-2 hover:bg-green-50 text-sm text-green-700 group transition-colors font-semibold"
+ className="w-full flex items-center gap-3 px-2 py-1 hover:bg-green-50 text-xs text-green-700 group transition-colors font-semibold"
  >
  <span className="w-4 h-4 text-center">↩</span>
  <span>Totalizar Retorno</span>
  </button>
  ) : (
- <div className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-400 cursor-not-allowed" title="Saldo zerado">
+ <div className="w-full flex items-center gap-3 px-2 py-1 text-xs text-gray-400 cursor-not-allowed" title="Saldo zerado">
  <span className="w-4 h-4 text-center">↩</span>
  <span>Totalizar Retorno (sem saldo)</span>
  </div>
@@ -619,7 +619,7 @@ export default function RomaneioRetornoPage() {
  <div className="border-t border-gray-100 my-1" />
  <button
  onClick={() => { setHistoricoItem(contextMenu.data); setContextMenu(null); }}
- className="w-full flex items-center gap-3 px-4 py-2 hover:bg-indigo-50 text-sm text-indigo-700 group transition-colors"
+ className="w-full flex items-center gap-3 px-2 py-1 hover:bg-indigo-50 text-xs text-indigo-700 group transition-colors"
  >
  <History className="w-4 h-4" />
  <span>Ver Histórico de Controle</span>
@@ -631,20 +631,20 @@ export default function RomaneioRetornoPage() {
  handleProcessReturn(d.IdRomaneioItem, Number(d.Saldo) || 0, 'Entrada em lote', 'ENTRADA/RETORNO');
  setContextMenu(null);
  }}
- className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors"
+ className="w-full flex items-center gap-3 px-2 py-1 hover:bg-[#E0E800]/10 text-xs text-gray-700 group transition-colors"
  >
  <FileCheck className="w-4 h-4 text-amber-500" />
  <span>Marcar como Entrada/Retorno</span>
  </button>
- <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
+ <button className="w-full flex items-center gap-3 px-2 py-1 hover:bg-[#E0E800]/10 text-xs text-gray-700 group transition-colors">
  <ArrowLeftCircle className="w-4 h-4 text-orange-600" />
  <span>Marcar como Item Finalizado</span>
  </button>
- <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
+ <button className="w-full flex items-center gap-3 px-2 py-1 hover:bg-[#E0E800]/10 text-xs text-gray-700 group transition-colors">
  <AlertTriangle className="w-4 h-4 text-red-600" />
  <span>Gerar RNC - Pendência Retorno</span>
  </button>
- <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-[#E0E800]/10 text-sm text-gray-700 group transition-colors">
+ <button className="w-full flex items-center gap-3 px-2 py-1 hover:bg-[#E0E800]/10 text-xs text-gray-700 group transition-colors">
  <FileText className="w-4 h-4 text-red-700" />
  <span>Abrir Desenho PDF</span>
  </button>

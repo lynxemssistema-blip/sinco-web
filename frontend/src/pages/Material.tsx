@@ -130,12 +130,13 @@ export default function MaterialPage() {
  );
 
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
- const { name, value } = e.target;
+ const name = e.target.name;
+    const value = name.toLowerCase().includes('desc') ? e.target.value.toUpperCase() : e.target.value;
  const finalValue = (name === 'DescResumo' || name === 'DescDetal') ? value.toUpperCase() : value;
  setFormData(prev => ({ ...prev, [name]: finalValue }));
  };
 
- const inputBaseClass = "w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
+ const inputBaseClass = "w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
  const inputRequired = `${inputBaseClass} border-gray-300 bg-amber-50/30`;
  const inputOptional = `${inputBaseClass} border-gray-200`;
  const selectClass = `${inputOptional} appearance-none bg-white`;
@@ -227,25 +228,25 @@ export default function MaterialPage() {
  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
  <div>
  
- <p className="text-gray-500 text-sm">Gerencie o cadastro de materiais e produtos</p>
+ <p className="text-gray-500 text-xs">Gerencie o cadastro de materiais e produtos</p>
  </div>
  <div className="flex gap-2">
  <motion.button
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={fetchMateriais}
- className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+ className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
  disabled={loading}
  >
- <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+ <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
  </motion.button>
  <motion.button
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
  onClick={() => { resetForm(); setShowForm(true); }}
- className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
+ className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#32423D] text-white font-medium hover:bg-[#3d4f49] transition-colors shadow-sm"
  >
- <Plus size={18} />
+ <Plus size={15} />
  Novo Material
  </motion.button>
  </div>
@@ -256,7 +257,7 @@ export default function MaterialPage() {
  <motion.div
  initial={{ opacity: 0, y: -10 }}
  animate={{ opacity: 1, y: 0 }}
- className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+ className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
  >
  {error}
  </motion.div>
@@ -267,7 +268,7 @@ export default function MaterialPage() {
  {showFilters ? (
  <div className="relative max-w-md flex-1 flex items-center gap-2">
  <div className="relative flex-1">
- <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+ <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input
  type="text"
  placeholder="Buscar por código, descrição, família ou fornecedor..."
@@ -278,7 +279,7 @@ export default function MaterialPage() {
  </div>
  {searchTerm && (
  <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors" title="Limpar pesquisa">
- <X size={18} />
+ <X size={15} />
  </button>
  )}
  </div>
@@ -290,7 +291,7 @@ export default function MaterialPage() {
  onClick={() => {
  setShowFilters(!showFilters);
  }} 
- className="text-[10px] ml-auto flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-3 py-2 rounded transition-colors border border-gray-200 uppercase font-bold"
+ className="text-[10px] ml-auto flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
  >
  <Filter size={14} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
  </button>
@@ -362,21 +363,21 @@ export default function MaterialPage() {
          <span className="text-xs font-semibold text-gray-700 mr-2">Imagem:</span>
          <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Câmera">
            <input type="file" accept="image/*" capture="environment" onChange={handleImageChange} className="hidden" />
-           <Camera size={16} />
+           <Camera size={14} />
          </label>
          <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Galeria">
            <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-           <ImageIcon size={16} />
+           <ImageIcon size={14} />
          </label>
          <button type="button" onClick={() => setShowUrlInput(!showUrlInput)} className={`p-1.5 rounded border transition-colors ${showUrlInput ? 'bg-[#32423D] text-white border-[#32423D]' : 'border-gray-200 hover:bg-gray-50 text-[#32423D]'}`} title="Link Web">
-           <LinkIcon size={16} />
+           <LinkIcon size={14} />
          </button>
          <button type="button" onClick={() => {
            const query = encodeURIComponent((formData.CodMatFabricante || '') + ' ' + (formData.DescResumo || ''));
            window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
            setShowUrlInput(true);
          }} className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 text-[#32423D]" title="Pesquisar WEB">
-           <Globe size={16} />
+           <Globe size={14} />
          </button>
        </div>
        {showUrlInput && (
@@ -386,7 +387,7 @@ export default function MaterialPage() {
    </div>
    {/* Identificação */}
  <div className="border-b border-gray-100 pb-4">
- <h3 className="text-sm font-semibold text-gray-700 mb-3">Identificação</h3>
+ <h3 className="text-xs font-semibold text-gray-700 mb-3">Identificação</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="md:col-span-2">
  <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -417,7 +418,7 @@ export default function MaterialPage() {
 
  {/* Descrição */}
  <div className="border-b border-gray-100 pb-4">
- <h3 className="text-sm font-semibold text-gray-700 mb-3">Descrição</h3>
+ <h3 className="text-xs font-semibold text-gray-700 mb-3">Descrição</h3>
  <div className="space-y-3">
  <div>
  <label className="block text-xs font-medium text-gray-500 mb-1">Descrição Resumo</label>
@@ -531,16 +532,16 @@ export default function MaterialPage() {
  <button
  type="button"
  onClick={resetForm}
- className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors"
+ className="px-2 py-1 border border-gray-200 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-100 transition-colors"
  >
  Cancelar
  </button>
  <button
  type="submit"
  disabled={saving}
- className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] hover:bg-[#E0E800]/100 hover:text-gray-900 text-white font-bold text-sm transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+ className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] hover:bg-[#E0E800]/100 hover:text-gray-900 text-white font-bold text-xs transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
  >
- {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+ {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
  {isEditing ? 'Atualizar' : 'Salvar'}
  </button>
  </div>
@@ -555,7 +556,7 @@ export default function MaterialPage() {
  {loading ? (
  <div className="p-12 flex flex-col items-center justify-center gap-3 text-gray-400">
  <Loader2 size={32} className="animate-spin" />
- <p className="text-sm">Carregando dados...</p>
+ <p className="text-xs">Carregando dados...</p>
  </div>
  ) : (
  <div className="overflow-auto flex-1">
@@ -577,10 +578,10 @@ export default function MaterialPage() {
  <td colSpan={7} className="px-4 py-12 text-center">
  <div className="flex flex-col items-center gap-3 text-gray-400">
  <Package size={40} strokeWidth={1.5} />
- <p className="text-sm">Nenhum material encontrado</p>
+ <p className="text-xs">Nenhum material encontrado</p>
  <button
  onClick={() => setShowForm(true)}
- className="text-[#32423D] font-medium text-sm hover:underline"
+ className="text-[#32423D] font-medium text-xs hover:underline"
  >
  Cadastrar novo material
  </button>
@@ -606,7 +607,7 @@ export default function MaterialPage() {
  className="w-full h-full object-cover"
  />
  ) : (
- <Package size={16} className="text-gray-400" />
+ <Package size={14} className="text-gray-400" />
  )}
  </div>
  </td>
@@ -615,18 +616,18 @@ export default function MaterialPage() {
  <div className="w-8 h-8 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">
  <Package size={14} />
  </div>
- <span className="text-sm font-medium text-gray-900 truncate max-w-[150px]">
+ <span className="text-xs font-medium text-gray-900 truncate max-w-[150px]">
  {material.CodMatFabricante || '-'}
  </span>
  </div>
  </td>
- <td className="px-3 py-3 text-sm text-gray-600 truncate max-w-[200px]">
+ <td className="px-3 py-3 text-xs text-gray-600 truncate max-w-[200px]">
  {material.DescResumo || material.DescDetal?.substring(0, 50) || '-'}
  </td>
- <td className="px-3 py-3 text-sm text-gray-600">
+ <td className="px-3 py-3 text-xs text-gray-600">
  {material.DescFamilia || '-'}
  </td>
- <td className="px-3 py-3 text-sm text-gray-600 truncate max-w-[150px]">
+ <td className="px-3 py-3 text-xs text-gray-600 truncate max-w-[150px]">
  {material.Fornecedor || '-'}
  </td>
  <td className="px-3 py-3">
@@ -636,14 +637,14 @@ export default function MaterialPage() {
  className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
  title="Editar"
  >
- <Edit2 size={16} />
+ <Edit2 size={14} />
  </button>
  <button
  onClick={() => material.IdMaterial && handleDelete(material.IdMaterial)}
  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
  title="Excluir"
  >
- <Trash2 size={16} />
+ <Trash2 size={14} />
  </button>
  </div>
  </td>
@@ -657,7 +658,7 @@ export default function MaterialPage() {
 
  {/* Table Footer */}
  {!loading && (
- <div className="px-3 py-1.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+ <div className="px-2 py-0.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
  <p className="text-xs text-gray-500">
  Mostrando <span className="font-medium">{filteredMateriais.length}</span> de <span className="font-medium">{materiais.length}</span> materiais
  </p>

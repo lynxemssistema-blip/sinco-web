@@ -269,11 +269,11 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   return (
     <div className="h-full flex flex-col min-h-0 bg-gray-50">
       {/* HEADER */}
-      <div className="bg-white border-b border-gray-200 px-4 py-2 shrink-0">
+      <div className="bg-white border-b border-gray-200 px-2 py-1 shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5">
-            <Package size={16} className="text-[#32423D]"/>
-            <span className="text-sm font-bold text-[#32423D] uppercase tracking-wide">Produto</span>
+            <Package size={14} className="text-[#32423D]"/>
+            <span className="text-xs font-bold text-[#32423D] uppercase tracking-wide">Produto</span>
           </div>
 
           {!modocriar && (
@@ -287,7 +287,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             {showDrop&&results.length>0&&(
               <div className="absolute top-full left-0 z-50 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
                 {results.map(r=>(
-                  <div key={r.IdMaterial} onClick={()=>selectPiece(r)} className="px-3 py-1.5 cursor-pointer hover:bg-blue-50 flex flex-col border-b border-gray-50 last:border-0">
+                  <div key={r.IdMaterial} onClick={()=>selectPiece(r)} className="px-2 py-0.5 cursor-pointer hover:bg-blue-50 flex flex-col border-b border-gray-50 last:border-0">
                     <span className="text-[11px] font-bold text-[#32423D]">{r.CodMatFabricante}</span>
                     <span className="text-[10px] text-gray-500 truncate">{r.DescResumo}</span>
                   </div>
@@ -350,12 +350,12 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
 
           {/* Header Grid 1 */}
           {modocriar ? (
-            <div className="px-3 py-2 bg-emerald-50 border-b border-emerald-200 shrink-0 flex items-center justify-between">
+            <div className="px-2 py-1 bg-emerald-50 border-b border-emerald-200 shrink-0 flex items-center justify-between">
               <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">Desenhos Disponíveis</span>
               <span className="text-[9px] text-emerald-600">{desenhos.length} item(ns)</span>
             </div>
           ) : (
-            <div className="px-3 py-2 bg-blue-50/70 border-b border-blue-100 shrink-0 flex items-center justify-between">
+            <div className="px-2 py-1 bg-blue-50/70 border-b border-blue-100 shrink-0 flex items-center justify-between">
               <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">Composição Atual</span>
               <span className="text-[9px] text-blue-600">{comp.length} item(ns)</span>
             </div>
@@ -376,7 +376,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
           <div className="flex-1 overflow-auto">
             {modocriar ? (
               loadingD ? (
-                <div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={18}/></div>
+                <div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={15}/></div>
               ) : desenhosFiltrados.length === 0 ? (
                 <div className="p-4 text-center text-[10px] text-gray-400">Nenhum desenho encontrado</div>
               ) : (
@@ -437,7 +437,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
 
           {modocriar ? (<>
             {/* Header Grid 2 - Materiais para ComposiÃ§Ã£o */}
-            <div className="px-3 py-2 bg-indigo-50 border-b border-indigo-200 shrink-0 flex items-center gap-2 flex-wrap">
+            <div className="px-2 py-1 bg-indigo-50 border-b border-indigo-200 shrink-0 flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wide">Materiais para Composição</span>
               {dezenhoSel && <span className="text-[9px] text-indigo-500 font-mono">Desenho: {dezenhoSel.CodMatFabricante}</span>}
               <span className="text-[9px] text-indigo-400 ml-auto">{selecionados.size} selecionado(s) / {materiais2.length} item(ns)</span>
@@ -459,7 +459,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               {!dezenhoSel ? (
                 <div className="p-6 text-center text-[11px] text-gray-400">â† Selecione um desenho no Grid 1</div>
               ) : loadingM2 ? (
-                <div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={18}/></div>
+                <div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={15}/></div>
               ) : materiais2.length===0 ? (
                 <div className="p-4 text-center text-[10px] text-gray-400">Nenhum material disponível</div>
               ) : (
@@ -514,7 +514,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
           </>) : (<>
 
             {/* Header do Grid 2 - modo normal */}
-            <div className="px-3 py-2 bg-teal-50/70 border-b border-teal-100 shrink-0 flex items-center gap-2">
+            <div className="px-2 py-1 bg-teal-50/70 border-b border-teal-100 shrink-0 flex items-center gap-2">
               <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wide">Processos de Fabricação</span>
               <span className="text-[9px] text-teal-600">{staging.length} processo(s)</span>
               {piece&&<button onClick={()=>fetchProcs(piece.CodMatFabricante)} className="p-0.5 text-teal-500 hover:text-teal-700" title="Atualizar"><RefreshCw size={11}/></button>}
@@ -522,7 +522,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
 
             {/* TOP: Lista de processos */}
             <div className="flex-1 overflow-auto border-b border-gray-200">
-              {loadingP?(<div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={18}/></div>)
+              {loadingP?(<div className="flex justify-center p-4"><Loader2 className="animate-spin text-gray-400" size={15}/></div>)
               :!piece?(<div className="p-4 text-center text-[10px] text-gray-400">Selecione uma peça</div>)
               :staging.length===0?(<div className="p-4 text-center text-[10px] text-gray-400">Nenhum processo cadastrado</div>):(
                 <table className="w-full text-left">
@@ -556,7 +556,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             </div>
 
             {/* BOTTOM: Form de manutenção */}
-            <div className="px-3 py-2 bg-amber-50/60 border-t border-amber-100 shrink-0">
+            <div className="px-2 py-1 bg-amber-50/60 border-t border-amber-100 shrink-0">
               <div className="flex gap-2 items-end flex-wrap">
                 <div className="flex flex-col flex-1 min-w-[140px]">
                   <span className="text-[8.5px] text-gray-400 uppercase font-semibold mb-0.5">Recurso</span>

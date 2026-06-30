@@ -24,7 +24,7 @@ const PowerBuildRevision: React.FC = () => {
  <ShieldAlert className="w-4 h-4" />
  Funcionalidades Previstas
  </div>
- <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+ <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-600">
  <li className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
  Comparativo Delta (Rev N vs Rev N-1)

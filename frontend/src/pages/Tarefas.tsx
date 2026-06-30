@@ -308,30 +308,30 @@ export default function TarefasPage() {
 
  {/* Topbar of Form */}
  <div 
- className="bg-[#f8fafc] border-b border-slate-200 px-4 py-2.5 flex justify-between items-center cursor-pointer select-none"
+ className="bg-[#f8fafc] border-b border-slate-200 px-2 py-1.5 flex justify-between items-center cursor-pointer select-none"
  onClick={() => setFormAberto(!formAberto)}
  >
- <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
- {rncForm.idRnc ? <Edit3 className="text-amber-500" size={16} /> : <Plus className="text-[#32423D]" size={16} />}
+ <h2 className="text-xs font-bold text-slate-800 flex items-center gap-2">
+ {rncForm.idRnc ? <Edit3 className="text-amber-500" size={14} /> : <Plus className="text-[#32423D]" size={14} />}
  {rncForm.idRnc ? `Editando Tarefa #${rncForm.idRnc}` : 'Cadastrar Nova Tarefa'}
  </h2>
  
  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
  <button 
  onClick={() => { setRncForm({ ...limpo }); setFormAberto(true); }}
- className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+ className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg shadow-sm transition-colors"
  >
  Limpar / Novo
  </button>
  <button 
  onClick={salvarNovaTarefa} 
  disabled={!rncForm.descricao.trim() || rncForm.estatus === 'TarefaFinalizada'}
- className="bg-[#32423D] hover:bg-[#32423D]/80 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+ className="bg-[#32423D] hover:bg-[#32423D]/80 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
  >
  <Save size={14} /> Salvar Dados
  </button>
  <button 
- className="ml-2 flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-slate-200 transition-colors shadow-sm"
+ className="ml-2 flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border border-slate-200 transition-colors shadow-sm"
  onClick={() => setFormAberto(!formAberto)}
  >
  {formAberto ? 'Ocultar' : 'Exibir'}
@@ -393,9 +393,9 @@ export default function TarefasPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 block mb-0.5">Descrição / Notas da Tarefa <span className="text-red-500">*</span></label>
- <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-md px-3 py-2 text-xs text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium shadow-inner disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
+ <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descricao} onChange={e => setRncForm(prev => ({...prev, descricao: e.target.value.toUpperCase()}))} rows={2} placeholder="Descreva a tarefa..." className="w-full border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 outline-none focus:border-[#32423D] resize-none font-medium shadow-inner disabled:bg-slate-50 disabled:cursor-not-allowed transition-colors" />
  </div>
- {msg && <div className={`px-3 py-1.5 rounded-md text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D] border border-blue-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>{msg.t}</div>}
+ {msg && <div className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold text-center ${msg.ok ? 'bg-[#E0E800]/40 text-[#32423D] border border-blue-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>{msg.t}</div>}
  </div>
  )}
  </div>
@@ -404,8 +404,8 @@ export default function TarefasPage() {
  {rncForm.idRnc && (
  <div className={`bg-emerald-50 rounded-md shadow-sm border border-emerald-200 mb-4 shrink-0 flex flex-col relative overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${rncForm.estatus === 'TarefaFinalizada' ? 'opacity-80' : ''}`}>
  <div className="bg-emerald-100/50 border-b border-emerald-200 px-5 py-3 flex justify-between items-center">
- <h3 className="font-bold text-emerald-800 flex items-center gap-2 text-sm uppercase tracking-wide">
- <CheckCircle size={18} className="text-emerald-600" /> 
+ <h3 className="font-bold text-emerald-800 flex items-center gap-2 text-xs uppercase tracking-wide">
+ <CheckCircle size={15} className="text-emerald-600" /> 
  {rncForm.estatus === 'TarefaFinalizada' ? `Tarefa Finalizada - ID #${rncForm.idRnc}` : `Área de Finalização - ID #${rncForm.idRnc}`}
  </h3>
  {rncForm.estatus !== 'TarefaFinalizada' && (
@@ -419,7 +419,7 @@ export default function TarefasPage() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Resp. pela Finalização</label>
- <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.usuarioFin} onChange={e => setRncForm(prev => ({...prev, usuarioFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-3 py-2 text-sm font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75">
+ <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.usuarioFin} onChange={e => setRncForm(prev => ({...prev, usuarioFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-2 py-1 text-xs font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75">
  <option value="">Selecione...</option>
  {rncForm.usuarioFin && !(usuarios || []).find(u => u.NomeCompleto === rncForm.usuarioFin) && <option value={rncForm.usuarioFin}>{rncForm.usuarioFin}</option>}
  {(usuarios || []).map(u => <option key={`fin_${u.IdUsuario}`} value={u.NomeCompleto}>{u.NomeCompleto}</option>)}
@@ -427,11 +427,11 @@ export default function TarefasPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Data de Finalização</label>
- <input disabled={rncForm.estatus === 'TarefaFinalizada'} type="date" value={rncForm.dataFin} onChange={e => setRncForm(prev => ({...prev, dataFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-3 py-2 text-sm font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75" />
+ <input disabled={rncForm.estatus === 'TarefaFinalizada'} type="date" value={rncForm.dataFin} onChange={e => setRncForm(prev => ({...prev, dataFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-2 py-1 text-xs font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75" />
  </div>
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Setor de Acerto</label>
- <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-3 py-2 text-sm font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75">
+ <select disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.setorFin} onChange={e => setRncForm(prev => ({...prev, setorFin: e.target.value}))} className="w-full border border-emerald-200 bg-white rounded-lg px-2 py-1 text-xs font-semibold text-emerald-900 outline-none focus:border-emerald-400 disabled:opacity-75">
  {SECTORS.filter(s => visibleSetores.includes(s.k.toLowerCase())).map(s => <option key={`fin_${s.k}`} value={s.k}>{s.k}</option>)}
  <option value="Expedição">Expedição</option><option value="Manutenção">Manutenção</option><option value="Qualidade">Qualidade</option><option value="Projetos">Projetos</option><option value="Administrativo">Administrativo</option><option value="Comercial">Comercial</option><option value="Isométrico">Isométrico</option><option value="Medição">Medição</option>
  {rncForm.setorFin && !SECTORS.find(s=>s.k===rncForm.setorFin) && !['Expedição','Manutenção','Qualidade','Projetos','Administrativo','Comercial','Isométrico','Medição'].includes(rncForm.setorFin) && <option value={rncForm.setorFin}>{rncForm.setorFin}</option>}
@@ -440,7 +440,7 @@ export default function TarefasPage() {
  </div>
  <div>
  <label className="text-[10px] font-bold text-emerald-700 uppercase ml-1 block mb-1">Resumo Ocorrido / Resolução</label>
- <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={2} placeholder="Detalhes da finalização..." className="w-full border border-emerald-200 bg-white rounded-lg px-4 py-2 text-sm text-emerald-900 outline-none focus:border-emerald-400 resize-none font-medium shadow-inner disabled:opacity-75" />
+ <textarea disabled={rncForm.estatus === 'TarefaFinalizada'} value={rncForm.descFin} onChange={e => setRncForm(prev => ({...prev, descFin: e.target.value.toUpperCase()}))} rows={2} placeholder="Detalhes da finalização..." className="w-full border border-emerald-200 bg-white rounded-lg px-2 py-1 text-xs text-emerald-900 outline-none focus:border-emerald-400 resize-none font-medium shadow-inner disabled:opacity-75" />
  </div>
  </div>
  </div>
@@ -448,9 +448,9 @@ export default function TarefasPage() {
 
  {/* SEÇÃO DA TABELA (GRID) */}
  <div className="bg-white p-4 rounded-t-xl shadow-sm border border-slate-200 border-b-0 flex items-center justify-between shrink-0 flex-wrap gap-4">
- <h3 className="font-bold text-slate-700 flex items-center gap-2"><ListTodo className="text-slate-400" size={18} /> Histórico de Tarefas</h3>
+ <h3 className="font-bold text-slate-700 flex items-center gap-2"><ListTodo className="text-slate-400" size={15} /> Histórico de Tarefas</h3>
  <div className="flex items-center gap-2">
- <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200">
+ <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-2 py-0.5 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200">
  <input 
  type="checkbox" 
  checked={showFinalized} 
@@ -459,7 +459,7 @@ export default function TarefasPage() {
  />
  <span className="text-[11px] font-bold text-slate-600 uppercase">Consultar Finalizadas</span>
  </label>
- <button onClick={handleExportExcel} className="flex items-center gap-2 cursor-pointer bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-200 font-bold uppercase text-[11px]">
+ <button onClick={handleExportExcel} className="flex items-center gap-2 cursor-pointer bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-200 font-bold uppercase text-[11px]">
  <FileSpreadsheet size={14} /> Relatório Excel
  </button>
  </div>
@@ -478,18 +478,18 @@ export default function TarefasPage() {
  <table className="w-full text-left text-[11px] whitespace-nowrap">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white bg-[#567469] text-white font-bold uppercase tracking-wider text-[9px] sticky top-0 z-20 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
  <tr>
- <th className="px-3 py-2 w-16">ID</th>
- <th className="px-3 py-2">Situação</th>
- <th className="px-3 py-2">Projeto</th>
- <th className="px-3 py-2">Empresa</th>
- <th className="px-3 py-2">Tag</th>
- <th className="px-3 py-2">Cód. Mat.</th>
- <th className="px-3 py-2">OS</th>
- <th className="px-3 py-2">Item OS</th>
- <th className="px-3 py-2 min-w-[200px]">Descrição/Pendência</th>
- <th className="px-3 py-2">Resp. Setor</th>
- <th className="px-3 py-2">Usuário Resp.</th>
- <th className="px-3 py-2">Criado Em</th>
+ <th className="px-2 py-1 w-16">ID</th>
+ <th className="px-2 py-1">Situação</th>
+ <th className="px-2 py-1">Projeto</th>
+ <th className="px-2 py-1">Empresa</th>
+ <th className="px-2 py-1">Tag</th>
+ <th className="px-2 py-1">Cód. Mat.</th>
+ <th className="px-2 py-1">OS</th>
+ <th className="px-2 py-1">Item OS</th>
+ <th className="px-2 py-1 min-w-[200px]">Descrição/Pendência</th>
+ <th className="px-2 py-1">Resp. Setor</th>
+ <th className="px-2 py-1">Usuário Resp.</th>
+ <th className="px-2 py-1">Criado Em</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -502,24 +502,24 @@ export default function TarefasPage() {
  )}
  {items.map(item => (
  <tr key={item.IdOrdemServicoItemPendencia} onClick={() => openEditMode(item)} className={`cursor-pointer group hover:bg-[#E0E800]/10 transition-colors ${item.Status === 'Finalizada' ? 'bg-[#fafcfd] opacity-70' : 'bg-white'}`}>
- <td className="px-3 py-2 font-mono text-slate-600 font-bold flex items-center gap-1.5"><Edit3 size={10} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" /> #{item.IdOrdemServicoItemPendencia}</td>
- <td className="px-3 py-2">
+ <td className="px-2 py-1 font-mono text-slate-600 font-bold flex items-center gap-1.5"><Edit3 size={10} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" /> #{item.IdOrdemServicoItemPendencia}</td>
+ <td className="px-2 py-1">
  {item.Status === 'TarefaAberta' ? (
  <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 rounded text-[9px] font-bold">ABERTA</span>
  ) : (
  <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded text-[9px] font-bold">FINALIZADA</span>
  )}
  </td>
- <td className="px-3 py-2 font-bold text-slate-700 truncate max-w-[150px]">{item.Projeto || '—'}</td>
- <td className="px-3 py-2 truncate max-w-[150px]" title={item.DescEmpresa}>{item.DescEmpresa || '—'}</td>
- <td className="px-3 py-2 font-bold text-[#32423D] truncate max-w-[120px]">{item.Tag || '—'}</td>
- <td className="px-3 py-2 font-mono truncate max-w-[120px]" title={item.CodMatFabricante}>{item.CodMatFabricante || '—'}</td>
- <td className="px-3 py-2 font-mono">{item.IdOrdemServico || '—'}</td>
- <td className="px-3 py-2 font-mono">{item.IdOrdemServicoItem || '—'}</td>
- <td className="px-3 py-2 truncate max-w-[300px] font-medium text-slate-800" title={item.DescricaoPendencia}>{item.DescricaoPendencia}</td>
- <td className="px-3 py-2 text-slate-600 font-medium">{item.SetorResponsavel || '—'}</td>
- <td className="px-3 py-2 text-slate-600">{item.UsuarioResponsavel || '—'}</td>
- <td className="px-3 py-2 text-slate-500 font-mono text-[10px]">{item.DataCriacao}</td>
+ <td className="px-2 py-1 font-bold text-slate-700 truncate max-w-[150px]">{item.Projeto || '—'}</td>
+ <td className="px-2 py-1 truncate max-w-[150px]" title={item.DescEmpresa}>{item.DescEmpresa || '—'}</td>
+ <td className="px-2 py-1 font-bold text-[#32423D] truncate max-w-[120px]">{item.Tag || '—'}</td>
+ <td className="px-2 py-1 font-mono truncate max-w-[120px]" title={item.CodMatFabricante}>{item.CodMatFabricante || '—'}</td>
+ <td className="px-2 py-1 font-mono">{item.IdOrdemServico || '—'}</td>
+ <td className="px-2 py-1 font-mono">{item.IdOrdemServicoItem || '—'}</td>
+ <td className="px-2 py-1 truncate max-w-[300px] font-medium text-slate-800" title={item.DescricaoPendencia}>{item.DescricaoPendencia}</td>
+ <td className="px-2 py-1 text-slate-600 font-medium">{item.SetorResponsavel || '—'}</td>
+ <td className="px-2 py-1 text-slate-600">{item.UsuarioResponsavel || '—'}</td>
+ <td className="px-2 py-1 text-slate-500 font-mono text-[10px]">{item.DataCriacao}</td>
  </tr>
  ))}
  </tbody>
