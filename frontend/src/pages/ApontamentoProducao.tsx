@@ -2301,9 +2301,9 @@ export default function ApontamentoProducaoPage() {
  </p>
  </div>
  </div>
- <button onClick={() => setReposicaoModalOpen(false)} className="p-1 rounded-full hover:bg-white/20">
- <X size={20} />
- </button>
+ <button onClick={() => setReposicaoModalOpen(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  </div>
 
@@ -2396,9 +2396,9 @@ export default function ApontamentoProducaoPage() {
  <h2 className="font-bold text-lg">Gerar Pendência (RNC)</h2>
  </div>
  </div>
- <button onClick={() => setPendenciaModalOpen(false)} className="p-2 rounded-full hover:bg-white/20 transition-colors">
- <X size={20} />
- </button>
+ <button onClick={() => setPendenciaModalOpen(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  </div>
 

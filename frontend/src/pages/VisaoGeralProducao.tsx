@@ -1152,7 +1152,7 @@ export default function VisaoGeralProducaoPage() {
  {createPortal(
  <>
  {showDetailsModal && selProj && (
- <div className="fixed inset-0 z-40 bg-slate-900/60 flex items-center justify-center sm:p-4">
+ <div className="fixed inset-0 z-[60] bg-slate-900/60 flex items-center justify-center sm:p-4">
  <div className="bg-white w-full max-w-[100vw] sm:max-w-[95vw] h-full sm:h-[95vh] sm:rounded-md shadow-2xl flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
  
  {/* Header Modal */}
@@ -1509,11 +1509,13 @@ export default function VisaoGeralProducaoPage() {
  {/* ══ MODAIS AÇÃO ══ */}
  {/* Modal Datas Simples (Projeto ou Tag Previsao) */}
  {(actionModal === 'dateProj' || actionModal === 'dateTagGlobal') && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
  <div className="flex justify-between items-start mb-4">
  <div><h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={15} className="text-[#32423D]" /> Editar Data Previsão</h3><p className="text-[11px] font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 mt-1.5 rounded-md text-slate-600 inline-block">{actionModal === 'dateTagGlobal' ? `Tag: ${selTag?.Tag}` : `${selProj?.Projeto}`}</p></div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1 rounded-md"><X size={15} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)} className="w-full border-2 border-slate-200 hover:border-blue-300 rounded-md px-2 py-0.5 text-slate-700 outline-none focus:border-[#32423D] transition mb-4 font-bold" />
  
@@ -1534,11 +1536,13 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Modal Editar Multiplas Datas Planejadas (Tags) */}
  {actionModal === 'dateTagSetores' && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4">
  <div className="bg-white rounded-md w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
  <div><h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={15} className="text-[#32423D]" /> Planejamento de Setores</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
@@ -1586,7 +1590,9 @@ export default function VisaoGeralProducaoPage() {
  <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><CalendarDays size={20} className="text-indigo-600" /> Planejamento em Lote (Projeto)</h3>
  <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Projeto: {selProj.Projeto} - Descrição: {selProj.DescProjeto}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
 
  <div className="bg-amber-50 border-b border-amber-200 p-4 shrink-0">
@@ -1635,14 +1641,16 @@ export default function VisaoGeralProducaoPage() {
  
  {/* Modal Planejar Projetista / Engenharia */}
  {actionModal === 'planejarProjetista' && selTag && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4">
  <div className="bg-white rounded-md w-full max-w-2xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
  <div>
  <h3 className="font-black text-slate-800 flex items-center gap-2 text-lg"><Edit3 size={15} className="text-indigo-600" /> Planejar Projetista / Engenharia</h3>
  <p className="text-[11px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={15} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
@@ -1684,14 +1692,16 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Modal Alterar Qtde Liberada */}
  {actionModal === 'alterarQtdeLiberada' && selTag && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4">
  <div className="bg-white rounded-md w-full max-w-sm max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
  <div>
  <h3 className="font-black text-slate-800 flex items-center gap-2 text-base"><Edit3 size={14} className="text-emerald-600" /> Alterar Qtde Liberada</h3>
  <p className="text-[10px] font-bold bg-white shadow-sm border border-slate-200 px-2 py-0.5 mt-1 rounded-md text-slate-600 inline-block uppercase">Tag: {selTag.Tag}</p>
  </div>
- <button onClick={() => setActionModal(null)} className="text-slate-400 bg-white shadow-sm hover:bg-slate-100 p-2 rounded-lg border border-slate-200 transition-colors"><X size={14} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
@@ -1730,7 +1740,7 @@ export default function VisaoGeralProducaoPage() {
  
  {/* Modal Finalizar Tag */}
  {actionModal === 'finTag' && selTag && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
  <div className="flex flex-col items-center text-center mb-4">
  <CheckCircle size={36} className="text-emerald-500 mb-2" />
@@ -1757,7 +1767,7 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Modal Finalizar Projeto */}
  {(actionModal === 'fin' || actionModal === 'cancelFin') && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
  <div className="flex flex-col items-center text-center mb-4">
  {actionModal === 'fin' ? <CheckCircle size={36} className="text-emerald-500 mb-2" /> : <RotateCcw size={36} className="text-orange-500 mb-2" />}
@@ -1778,7 +1788,7 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Modal Nova Pendência (RNC) - FULL MANAGER */}
  {actionModal === 'addRnc' && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  
  {/* HEADER DA MODAL */}
@@ -1795,7 +1805,9 @@ export default function VisaoGeralProducaoPage() {
  &larr; Voltar
  </button>
  )}
- <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  </div>
 
@@ -1966,7 +1978,7 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Modal Agendar Tarefa */}
  {actionModal === 'addTask' && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md p-5 w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  
  {/* HEADER DA MODAL */}
@@ -1983,7 +1995,9 @@ export default function VisaoGeralProducaoPage() {
  &larr; Voltar
  </button>
  )}
- <button onClick={() => setActionModal(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><X size={20} /></button>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  </div>
 
@@ -2156,7 +2170,7 @@ export default function VisaoGeralProducaoPage() {
 
  {/* Painel RNC */}
  {rncPanel && selProj && (
- <div className="fixed inset-0 z-[60] flex justify-end bg-slate-900/40 ">
+ <div className="fixed inset-0 z-[70] flex justify-end bg-slate-900/40 ">
  <div className="absolute inset-0" onClick={() => { setRncPanel(false); if (showDetailsModal) setShowDetailsModal(true); }} />
  <div className="w-[450px] max-w-full bg-slate-50 relative flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
  <div className="bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 shadow-sm"><div className="flex flex-col"><div className="flex items-center gap-2 font-black text-red-600 text-base"><ShieldAlert size={15} /> Ocorrências (RNC)</div><div className="text-[10px] font-bold text-slate-500 mt-0.5 truncate max-w-[300px]">{selProj.Projeto}</div></div><button className="bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md text-slate-600 transition-colors" onClick={() => { setRncPanel(false); }}><X size={14} /></button></div>
@@ -2183,16 +2197,16 @@ export default function VisaoGeralProducaoPage() {
  )}
 
  {osDetailsModal && (
- <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4">
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 p-4">
  <div className="bg-white rounded-md shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
  <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
  <div>
  <h3 className="font-black text-slate-800 text-lg">Ordens de Serviço</h3>
  <p className="text-xs text-slate-500 mt-0.5">Lista de O.S {osDetailsModal.type === 'tag' ? 'da Tag selecionada' : 'do Projeto selecionado'}</p>
  </div>
- <button onClick={() => setOsDetailsModal(null)} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-full transition-colors">
- <X size={20} />
- </button>
+ <button onClick={() => setOsDetailsModal(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  <div className="p-4 overflow-y-auto min-h-[150px] relative">
  {loadOsDetails ? (

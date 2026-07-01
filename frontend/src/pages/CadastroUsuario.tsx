@@ -604,7 +604,9 @@ export default function CadastroUsuarioPage() {
  <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
  <Settings size={12} /> Processos de Fabricação — {form.NomeCompleto}
  </span>
- <button onClick={() => setShowProcessos(false)} className="p-0.5 text-white/60 hover:text-white rounded"><X size={14} /></button>
+ <button onClick={() => setShowProcessos(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  <div className="flex gap-3 p-3">
  {/* Grid 1: Todos os processos — carregado no mount, independente de usuário */}

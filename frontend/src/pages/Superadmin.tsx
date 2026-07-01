@@ -45,6 +45,8 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
 
  // Users State
  const [users, setUsers] = useState<Record<string, unknown>[]>([]);
+ const [userSearchLogin, setUserSearchLogin] = useState('');
+ const [userSearchTenant, setUserSearchTenant] = useState('');
 
  // Login Audit State
  const [auditLogs, setAuditLogs] = useState<Record<string, unknown>[]>([]);
@@ -650,6 +652,28 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  activeTab === 'users' && (
  <div className="space-y-6 animate-fade-in bg-white p-6 rounded-md shadow-sm border border-gray-200">
  <h3 className="text-lg font-semibold mb-4 text-gray-800">Usuários Globais (Centralizados)</h3>
+ 
+ <div className="flex flex-col sm:flex-row gap-4 mb-4">
+ <div className="relative flex-1">
+ <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+ <input type="text" placeholder="Filtrar por Login..." value={userSearchLogin} onChange={(e) => setUserSearchLogin(e.target.value)} className="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D]" />
+ {userSearchLogin && (
+ <button onClick={() => setUserSearchLogin('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+ <X size={14} />
+ </button>
+ )}
+ </div>
+ <div className="relative flex-1">
+ <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+ <input type="text" placeholder="Filtrar por Tenant (Banco)..." value={userSearchTenant} onChange={(e) => setUserSearchTenant(e.target.value)} className="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D]" />
+ {userSearchTenant && (
+ <button onClick={() => setUserSearchTenant('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+ <X size={14} />
+ </button>
+ )}
+ </div>
+ </div>
+
  <div className="overflow-auto flex-1">
  <table className="w-full text-xs text-left text-gray-500">
  <thead className="bg-[#567469] text-white bg-[#567469] text-white text-xs text-white uppercase bg-[#567469]">
@@ -662,7 +686,13 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  </tr>
  </thead>
  <tbody>
- {users.map(user => (
+ {users.filter(user => {
+ const loginStr = String(user.login || '').toLowerCase();
+ const tenantStr = user.id_conexao_banco ? `${user.nome_cliente} ${user.db_name}`.toLowerCase() : 'global';
+ const matchesLogin = !userSearchLogin || loginStr.includes(userSearchLogin.toLowerCase());
+ const matchesTenant = !userSearchTenant || tenantStr.includes(userSearchTenant.toLowerCase());
+ return matchesLogin && matchesTenant;
+ }).map(user => (
  <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
  
  <td className="px-2 py-1 font-medium text-gray-900">{user.login}</td>

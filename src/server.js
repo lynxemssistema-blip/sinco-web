@@ -4042,6 +4042,24 @@ app.get('/api/material', async (req, res) => {
     }
 });
 
+// BUSCAR por CodMatFabricante
+app.get('/api/material/busca-cod', async (req, res) => {
+    try {
+        const search = req.query.q;
+        if (!search) return res.json({ success: true, data: [] });
+        const [rows] = await pool.execute(`
+            SELECT * FROM material 
+            WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') 
+              AND CodMatFabricante = ?
+            LIMIT 1
+        `, [search]);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error in material search:', error);
+        res.status(500).json({ success: false, message: 'Erro na busca de material' });
+    }
+});
+
 // GET ONE (Read Single)
 app.get('/api/material/:id', async (req, res) => {
     try {
@@ -6445,6 +6463,53 @@ app.get('/api/ordemservico/busca-item', async (req, res) => {
     } catch (error) {
         console.error('Error searching items:', error);
         res.status(500).json({ success: false, message: 'Erro na busca' });
+    }
+});
+
+// CREATE Ordem de Serviço
+app.post('/api/ordemservico', tenantMiddleware, async (req, res) => {
+    const data = req.body;
+    if (!data.IdProjeto || !data.IdTag) {
+        return res.status(400).json({ success: false, message: 'Projeto e Tag são obrigatórios' });
+    }
+    try {
+        const now = getCurrentDateTimeBR();
+        
+        const [result] = await pool.execute(
+            `INSERT INTO ordemservico (
+                Projeto, Tag, DescTag, Descricao, IdEmpresa, IdProjeto, IdTag, DescEmpresa,
+                EnderecoOrdemServico, CriadoPor, DataCriacao, Estatus, DataPrevisao,
+                ProdutoPadrao, CodDesenhoProduto, DescricaoProduto, ProdutoCriadoPor, DataCriacaoProduto,
+                Fator, TipoLiberacaoOrdemServico, IdMatriz
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                data.Projeto || '',
+                data.Tag || '',
+                data.DescTag || '',
+                data.Descricao || '',
+                data.IdEmpresa || 0,
+                data.IdProjeto || 0,
+                data.IdTag || 0,
+                data.DescEmpresa || '',
+                data.EnderecoOrdemServico || '',
+                data.CriadoPor || 'Sistema',
+                data.DataCriacao || now,
+                data.Estatus || 'A',
+                data.DataPrevisao || null,
+                data.ProdutoPadrao || '',
+                data.CodDesenhoProduto || '',
+                data.DescricaoProduto || '',
+                data.ProdutoCriadoPor || '',
+                data.DataCriacaoProduto || null,
+                data.Fator || 1,
+                data.TipoLiberacaoOrdemServico || 'Total',
+                data.IdMatriz || 0
+            ]
+        );
+        res.json({ success: true, message: 'OS cadastrada', id: result.insertId });
+    } catch (error) {
+        console.error('Error creating ordemservico:', error);
+        res.status(500).json({ success: false, message: 'Erro ao cadastrar OS: ' + error.message });
     }
 });
 

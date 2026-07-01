@@ -279,9 +279,9 @@ export default function UsuarioPage() {
  {editingUsuario ? <Edit2 size={20} className="text-[#32423D]" /> : <Plus size={20} className="text-[#32423D]" />}
  {editingUsuario ? 'Editar Usuário' : 'Novo Usuário'}
  </h2>
- <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
- <X size={24} />
- </button>
+ <button onClick={() => setShowModal(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
 
  <form onSubmit={handleSubmit} className="p-6 space-y-4">

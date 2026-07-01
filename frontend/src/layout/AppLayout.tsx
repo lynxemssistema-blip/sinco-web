@@ -192,7 +192,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden bg-secondary/30 rounded-md mt-1"
+                            className="overflow-hidden bg-transparent rounded-md mt-1"
                         >
                             {item.children!.map(child => renderMenuItem(child, depth + 1, isMobile, isCollapsed))}
                         </motion.ul>
@@ -391,7 +391,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 4, scale: 0.97 }}
                                                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                                                className="absolute top-full left-0 mt-2 z-[100] w-80 pointer-events-none"
+                                                className="absolute top-full left-0 mt-2 z-[100] w-[450px] pointer-events-none"
                                             >
                                                 <div className="bg-[#32423D] text-white rounded-xl shadow-2xl border border-white/10 overflow-hidden">
                                                     {/* Header do tooltip */}
@@ -399,11 +399,11 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                                                         {pageHelp.icon && (
                                                             <span className="text-base leading-none">{pageHelp.icon}</span>
                                                         )}
-                                                        <span className="text-[11px] font-bold uppercase tracking-widest text-[#E0E800]">Objetivo desta Tela</span>
+                                                        <span className="text-[11px] font-bold uppercase tracking-widest text-[#E0E800]">Objetivo e Operação</span>
                                                     </div>
                                                     {/* Body do tooltip */}
                                                     <div className="px-4 py-3">
-                                                        <p className="text-[13px] leading-relaxed text-white/90 font-medium">
+                                                        <p className="text-[13px] leading-relaxed text-white/90 font-medium whitespace-pre-line">
                                                             {pageHelp.description}
                                                         </p>
                                                     </div>

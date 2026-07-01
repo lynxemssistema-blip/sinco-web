@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { MenuItem } from './utils/iconMap';
 import { defaultMenuItems } from './utils/constants'; // Import default structure
+import { getMergedMenu } from './utils/menuUtils';
 import { AppLayout } from './layout/AppLayout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
@@ -50,6 +51,7 @@ import PowerBuildImportPage from './pages/BlockSet/PowerBuildImport';
 import PowerBuildRevisionPage from './pages/BlockSet/PowerBuildRevision';
 import PowerBuildAgglutinationPage from './pages/BlockSet/PowerBuildAgglutination';
 import MontaPecaManufaturadaPage from './pages/MontaPecaManufaturada';
+import CriarOrdemServicoPage from './pages/CriarOrdemServico';
 
 function AppContent() {
   const { user, logout, token } = useAuth();
@@ -81,121 +83,7 @@ function AppContent() {
           if (data.success && data.menu) {
           let savedMenu: MenuItem[] = data.menu;
 
-          // FORCE override href for Peça Manufaturada regardless of what the DB says
-          const fixPecaHref = (items: MenuItem[]) => {
-            items.forEach(item => {
-              if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada' || item.id === 'group_1781618991422' || item.id === 'peça-manufaturada') {
-                 item.href = '/peca-manufaturada';
-              }
-              if (item.children) fixPecaHref(item.children);
-            });
-          };
-          fixPecaHref(savedMenu);
-
-
-          const itemExists = (items: MenuItem[], id: string): boolean => {
-            return items.some(item => item.id === id || (item.children && itemExists(item.children, id)));
-          };
-
-          // SuperAdmin: independente do banco, se for admin tem acesso completo
-          const isSuperUser =
-            user.isSuperadmin === true ||
-            user.superadmin === 'S' ||
-            user.login?.toLowerCase() === 'superadmin';
-
-          // Force add 'romaneio' parent if missing
-          if (!savedMenu.find(item => item.id === 'romaneio')) {
-            const romaneioItem = defaultMenuItems.find(item => item.id === 'romaneio');
-            if (romaneioItem) {
-              savedMenu = [romaneioItem, ...savedMenu];
-            }
-          }
-
-          // Force add 'visao-geral-producao' if missing
-          if (!savedMenu.find(item => item.id === 'visao-geral-producao')) {
-            const vgItem = defaultMenuItems.find(item => item.id === 'visao-geral-producao');
-            if (vgItem) {
-              const apontIdx = savedMenu.findIndex(item => item.id === 'apontamento');
-              if (apontIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, apontIdx + 1), vgItem, ...savedMenu.slice(apontIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, vgItem];
-              }
-            }
-          }
-
-          // Force add 'acompanhamento-geral' if missing
-          if (!savedMenu.find(item => item.id === 'acompanhamento-geral')) {
-            const agItem = defaultMenuItems.find(item => item.id === 'acompanhamento-geral');
-            if (agItem) {
-              const vgIdx = savedMenu.findIndex(item => item.id === 'visao-geral-producao');
-              if (vgIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, vgIdx + 1), agItem, ...savedMenu.slice(vgIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, agItem];
-              }
-            }
-          }
-
-          // Force add 'acompanhamento-etapas' if missing
-          if (!savedMenu.find(item => item.id === 'acompanhamento-etapas')) {
-            const aeItem = defaultMenuItems.find(item => item.id === 'acompanhamento-etapas');
-            if (aeItem) {
-              const agIdx = savedMenu.findIndex(item => item.id === 'acompanhamento-geral');
-              if (agIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, agIdx + 1), aeItem, ...savedMenu.slice(agIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, aeItem];
-              }
-            }
-          }
-
-          // Force add 'visao-geral-engenharia' if missing
-          if (!savedMenu.find(item => item.id === 'visao-geral-engenharia')) {
-            const veItem = defaultMenuItems.find(item => item.id === 'visao-geral-engenharia');
-            if (veItem) {
-              const vgIdx = savedMenu.findIndex(item => item.id === 'visao-geral-producao');
-              if (vgIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, vgIdx + 1), veItem, ...savedMenu.slice(vgIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, veItem];
-              }
-            }
-          }
-
-          // Force add 'plano-corte' se missing
-          if (!savedMenu.find(item => item.id === 'plano-corte')) {
-            const pcItem = defaultMenuItems.find(item => item.id === 'plano-corte');
-            if (pcItem) {
-              const osIdx = savedMenu.findIndex(item => item.id === 'ordens-servico');
-              if (osIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, osIdx + 1), pcItem, ...savedMenu.slice(osIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, pcItem];
-              }
-            }
-          }
-
-                    // Force add 'controle-expedicao'
-          if (!savedMenu.find(item => item.id === 'controle-expedicao')) {
-            const ceItem = defaultMenuItems.find(item => item.id === 'controle-expedicao');
-            if (ceItem) {
-              const vgIdx = savedMenu.findIndex(item => item.id === 'visao-geral-engenharia');
-              if (vgIdx >= 0) {
-                savedMenu = [...savedMenu.slice(0, vgIdx + 1), ceItem, ...savedMenu.slice(vgIdx + 1)];
-              } else {
-                savedMenu = [...savedMenu, ceItem];
-              }
-            }
-          }
-
-                    // Force add 'teste-final-montagem'
-          if (!savedMenu.find(item => item.id === 'teste-final-montagem')) {
-            const tfmItem = defaultMenuItems.find(item => item.id === 'teste-final-montagem');
-            if (tfmItem) {
-               savedMenu = [...savedMenu, tfmItem];
-            }
-          }
+          savedMenu = getMergedMenu(savedMenu);
 
           // Force add 'power-build' (Power Build) dependendo apenas da configuração mostrarPowerBuild
           if (mostrarPowerBuild) {
@@ -435,6 +323,8 @@ function AppContent() {
         return <MotoristaPage />;
       case 'ordens-servico':
         return <OrdemServicoPage />;
+      case 'criar-ordem-servico':
+        return <CriarOrdemServicoPage />;
       case 'montagem-plano-corte':
         return <MontagemPlanoCortePage />;
       case 'producao-plano-corte':

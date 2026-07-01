@@ -460,7 +460,9 @@ export default function ListaReposicaoPage() {
  </h3>
  <p className="text-xs text-slate-500 flex gap-2 font-mono mt-1">OSI: <strong className="text-slate-700">{selectedItem.IdOrdemServicoItem}</strong></p>
  </div>
- <button onClick={() => setSelectedItem(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded transition-colors"><X size={15} /></button>
+ <button onClick={() => setSelectedItem(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
 
  <div className="table-container flex flex-col gap-4">
@@ -551,9 +553,9 @@ export default function ListaReposicaoPage() {
  <Target className="text-emerald-500" size={20} />
  Apontar Reposição
  </h3>
- <button onClick={() => setApontamentoModalOpen(false)} className="text-slate-400 hover:text-slate-700 transition-colors relative z-10">
- <X size={20} />
- </button>
+ <button onClick={() => setApontamentoModalOpen(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
  </div>
  <div className="p-5 flex flex-col gap-4">
  <div className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded border border-slate-100">

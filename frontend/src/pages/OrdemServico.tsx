@@ -2780,10 +2780,9 @@ function OrdemServicoContent() {
                                         <p className="text-xs text-gray-500">Selecione os itens a adicionar. Itens já presentes são excluídos da lista.</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setShowModalIncluirItens(null)}
-                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <X size={20} />
-                                </button>
+                                <button onClick={() => setShowModalIncluirItens(null)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
                             </div>
 
                             {/* Search + select-all bar */}
@@ -3046,9 +3045,9 @@ function OrdemServicoContent() {
                                     <ShieldAlert size={24} />
                                     <h2 className="text-lg font-bold">Gerar Pendência (RNC)</h2>
                                 </div>
-                                <button onClick={() => setPendenciaModalOpen(false)} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                                    <X size={20} />
-                                </button>
+                                <button onClick={() => setPendenciaModalOpen(false)} className="bg-white border border-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-slate-600 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+            <X size={14} /> Fechar
+        </button>
                             </div>
 
                             {/* Body */}
