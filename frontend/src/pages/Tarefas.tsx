@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, ListTodo, CheckCircle, Edit3, Loader, Plus, Save, FileSpreadsheet, ChevronUp, ChevronDown, X } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 
 const API_BASE = '/api';
 
@@ -268,23 +268,95 @@ export default function TarefasPage() {
  }
 
  const dataToExport = items.map(item => ({
- "ID OS Item Pendência": (item.IdOrdemServicoItemPendencia || '').toString().trim().toUpperCase(),
- "Projeto": (item.Projeto || '').toString().trim().toUpperCase(),
- "Empresa": (item.DescEmpresa || '').toString().trim().toUpperCase(),
- "Tag": (item.Tag || '').toString().trim().toUpperCase(),
- "Desc Tag": (item.DescTag || '').toString().trim().toUpperCase(),
- "Tipo Tarefa": (item.TipoTarefa || '').toString().trim().toUpperCase(),
- "Descrição Pendência": (item.DescricaoPendencia || '').toString().trim().toUpperCase(),
- "Data Execução": (item.DataExecucao || '').toString().trim().toUpperCase(),
- "Usuário Responsável": (item.UsuarioResponsavel || '').toString().trim().toUpperCase(),
- "Status": (item.Status || '').toString().trim().toUpperCase()
+ "CÓD. (ID)": (item.IdOrdemServicoItemPendencia || '').toString().trim().toUpperCase(),
+ "SITUAÇÃO": item.Status === 'TarefaAberta' ? 'ABERTA' : 'FINALIZADA',
+ "PROJETO": (item.Projeto || '').toString().trim().toUpperCase(),
+ "EMPRESA": (item.DescEmpresa || '').toString().trim().toUpperCase(),
+ "TAG": (item.Tag || '').toString().trim().toUpperCase(),
+ "CÓD. MAT.": (item.CodMatFabricante || '').toString().trim().toUpperCase(),
+ "OS": (item.IdOrdemServico || '').toString().trim(),
+ "ITEM OS": (item.IdOrdemServicoItem || '').toString().trim(),
+ "TIPO TAREFA": (item.TipoTarefa || '').toString().trim().toUpperCase(),
+ "DESCRIÇÃO/PENDÊNCIA": (item.DescricaoPendencia || '').toString().trim().toUpperCase(),
+ "RESP. SETOR": (item.SetorResponsavel || '').toString().trim().toUpperCase(),
+ "USUÁRIO RESP.": (item.UsuarioResponsavel || '').toString().trim().toUpperCase(),
+ "DATA PREVISTA": (item.DataExecucao || '').toString().trim().toUpperCase(),
+ "CRIADO EM": (item.DataCriacao || '').toString().trim().toUpperCase(),
+ "FINALIZADO POR": (item.FinalizadoPorUsuarioSetor || '').toString().trim().toUpperCase(),
+ "DATA FINALIZAÇÃO": (item.Data_Correcao || '').toString().trim().toUpperCase(),
+ "SETOR ACERTO": (item.SetorResponsavelFinalizacao || '').toString().trim().toUpperCase(),
+ "RESUMO/RESOLUÇÃO": (item.DescricaoFinalizacao || '').toString().trim().toUpperCase()
  }));
 
- const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+ let userName = '';
+ let dbName = 'lynxlocal';
+ try {
+ const userDataStr = localStorage.getItem('sinco_user');
+ if (userDataStr) {
+ const user = JSON.parse(userDataStr);
+ userName = user.nome || '';
+ dbName = user.dbName || 'lynxlocal';
+ }
+ } catch (e) {
+ console.error("Failed to parse sinco_user from localStorage");
+ }
+
+ const worksheet = XLSX.utils.aoa_to_sheet([
+ ["RELATÓRIO DE TAREFAS"],
+ [`Data de Emissão: ${new Date().toLocaleString('pt-BR')}   |   Empresa: ${dbName}   |   Responsável pela Emissão: ${userName}`],
+ []
+ ]);
+
+ XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: "A4" });
+ 
+ // Mesclar as células do cabeçalho para centralizar o texto
+ worksheet['!merges'] = [
+ { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } }, // Título
+ { s: { r: 1, c: 0 }, e: { r: 1, c: 17 } }, // Informações na mesma linha
+ ];
+
+ // Aplicar estilos ao cabeçalho (Centralizado)
+ if (worksheet['A1']) worksheet['A1'].s = { font: { bold: true, sz: 14, color: { rgb: "567469" } }, alignment: { horizontal: "center", vertical: "center" } };
+ if (worksheet['A2']) worksheet['A2'].s = { font: { italic: true }, alignment: { horizontal: "center", vertical: "center" } };
+
+ // Aplicar coloração no cabeçalho da tabela de dados (Linha 4)
+ const headerCols = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'];
+ headerCols.forEach(col => {
+ if (worksheet[`${col}4`]) {
+ worksheet[`${col}4`].s = {
+ font: { bold: true, color: { rgb: "FFFFFF" } },
+ fill: { fgColor: { rgb: "567469" } },
+ alignment: { horizontal: "center", vertical: "center" }
+ };
+ }
+ });
+ 
+ // Definir larguras das colunas para melhor visualização no Excel (responsividade)
+ worksheet['!cols'] = [
+ { wch: 10 }, // CÓD. (ID)
+ { wch: 15 }, // SITUAÇÃO
+ { wch: 25 }, // PROJETO
+ { wch: 20 }, // EMPRESA
+ { wch: 15 }, // TAG
+ { wch: 15 }, // CÓD. MAT.
+ { wch: 10 }, // OS
+ { wch: 10 }, // ITEM OS
+ { wch: 20 }, // TIPO TAREFA
+ { wch: 50 }, // DESCRIÇÃO/PENDÊNCIA
+ { wch: 15 }, // RESP. SETOR
+ { wch: 20 }, // USUÁRIO RESP.
+ { wch: 15 }, // DATA PREVISTA
+ { wch: 15 }, // CRIADO EM
+ { wch: 20 }, // FINALIZADO POR
+ { wch: 15 }, // DATA FINALIZAÇÃO
+ { wch: 15 }, // SETOR ACERTO
+ { wch: 40 }  // RESUMO/RESOLUÇÃO
+ ];
+
  const workbook = XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(workbook, worksheet, "Tarefas_RNC");
  
- XLSX.writeFile(workbook, `ListaTarefasRNC_${new Date().toISOString().slice(0,10).replace(/-/g, '')}.xlsx`);
+ XLSX.writeFile(workbook, `ListaTarefas_${new Date().toISOString().slice(0,10).replace(/-/g, '')}.xlsx`);
  };
 
  return (
