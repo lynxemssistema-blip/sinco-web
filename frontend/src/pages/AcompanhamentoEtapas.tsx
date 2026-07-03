@@ -435,21 +435,21 @@ export default function AcompanhamentoEtapas() {
  <label className="block text-[10px] uppercase font-semibold text-gray-500 mb-1">Projeto (Doc)</label>
  <div className="relative flex items-center">
  <input type="text" name="projeto" value={filters.projeto} onChange={handleFilterChange} className="w-full text-xs p-1.5 pr-6 border rounded focus:border-[#03624C] focus:ring-1 focus:ring-[#03624C] outline-none uppercase" />
- {filters.projeto && <button type="button" onClick={() => clearFilter('projeto')} className="absolute right-1 text-gray-400 hover:text-red-500"><X size={12}/></button>}
+ {filters.projeto && <button type="button" onClick={() => clearFilter('projeto')} className="absolute right-1 text-red-500 hover:text-red-700"><X size={12}/></button>}
  </div>
  </div>
  <div>
  <label className="block text-[10px] uppercase font-semibold text-gray-500 mb-1">Cliente / Obra</label>
  <div className="relative flex items-center">
  <input type="text" name="cliente" value={filters.cliente} onChange={handleFilterChange} className="w-full text-xs p-1.5 pr-6 border rounded focus:border-[#03624C] focus:ring-1 focus:ring-[#03624C] outline-none uppercase" />
- {filters.cliente && <button type="button" onClick={() => clearFilter('cliente')} className="absolute right-1 text-gray-400 hover:text-red-500"><X size={12}/></button>}
+ {filters.cliente && <button type="button" onClick={() => clearFilter('cliente')} className="absolute right-1 text-red-500 hover:text-red-700"><X size={12}/></button>}
  </div>
  </div>
  <div>
  <label className="block text-[10px] uppercase font-semibold text-gray-500 mb-1">Estado Origem</label>
  <div className="relative flex items-center">
  <input type="text" name="estadoOrigem" value={filters.estadoOrigem} onChange={handleFilterChange} className="w-full text-xs p-1.5 pr-6 border rounded focus:border-[#03624C] focus:ring-1 focus:ring-[#03624C] outline-none uppercase" />
- {filters.estadoOrigem && <button type="button" onClick={() => clearFilter('estadoOrigem')} className="absolute right-1 text-gray-400 hover:text-red-500"><X size={12}/></button>}
+ {filters.estadoOrigem && <button type="button" onClick={() => clearFilter('estadoOrigem')} className="absolute right-1 text-red-500 hover:text-red-700"><X size={12}/></button>}
  </div>
  </div>
  </div>
@@ -464,14 +464,14 @@ export default function AcompanhamentoEtapas() {
  <span className="text-[9px] text-gray-400 mb-0.5">De</span>
  <div className="relative">
  <input type="date" name="dataPrevisaoInicio" value={filters.dataPrevisaoInicio} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataPrevisaoInicio && <button type="button" onClick={() => clearFilter('dataPrevisaoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataPrevisaoInicio && <button type="button" onClick={() => clearFilter('dataPrevisaoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  <div className="flex flex-col flex-1">
  <span className="text-[9px] text-gray-400 mb-0.5">Até</span>
  <div className="relative">
  <input type="date" name="dataPrevisaoFim" value={filters.dataPrevisaoFim} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataPrevisaoFim && <button type="button" onClick={() => clearFilter('dataPrevisaoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataPrevisaoFim && <button type="button" onClick={() => clearFilter('dataPrevisaoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  </div>
@@ -484,14 +484,14 @@ export default function AcompanhamentoEtapas() {
  <span className="text-[9px] text-gray-400 mb-0.5">De</span>
  <div className="relative">
  <input type="date" name="dataFinalInicio" value={filters.dataFinalInicio} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataFinalInicio && <button type="button" onClick={() => clearFilter('dataFinalInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataFinalInicio && <button type="button" onClick={() => clearFilter('dataFinalInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  <div className="flex flex-col flex-1">
  <span className="text-[9px] text-gray-400 mb-0.5">Até</span>
  <div className="relative">
  <input type="date" name="dataFinalFim" value={filters.dataFinalFim} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataFinalFim && <button type="button" onClick={() => clearFilter('dataFinalFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataFinalFim && <button type="button" onClick={() => clearFilter('dataFinalFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  </div>
@@ -504,14 +504,14 @@ export default function AcompanhamentoEtapas() {
  <span className="text-[9px] text-gray-400 mb-0.5">De</span>
  <div className="relative">
  <input type="date" name="dataPlanejamentoInicio" value={filters.dataPlanejamentoInicio} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataPlanejamentoInicio && <button type="button" onClick={() => clearFilter('dataPlanejamentoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataPlanejamentoInicio && <button type="button" onClick={() => clearFilter('dataPlanejamentoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  <div className="flex flex-col flex-1">
  <span className="text-[9px] text-gray-400 mb-0.5">Até</span>
  <div className="relative">
  <input type="date" name="dataPlanejamentoFim" value={filters.dataPlanejamentoFim} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataPlanejamentoFim && <button type="button" onClick={() => clearFilter('dataPlanejamentoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataPlanejamentoFim && <button type="button" onClick={() => clearFilter('dataPlanejamentoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  </div>
@@ -524,21 +524,21 @@ export default function AcompanhamentoEtapas() {
  <span className="text-[9px] text-gray-400 mb-0.5">De</span>
  <div className="relative">
  <input type="date" name="dataRealizadoInicio" value={filters.dataRealizadoInicio} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataRealizadoInicio && <button type="button" onClick={() => clearFilter('dataRealizadoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataRealizadoInicio && <button type="button" onClick={() => clearFilter('dataRealizadoInicio')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  <div className="flex flex-col flex-1">
  <span className="text-[9px] text-gray-400 mb-0.5">Até</span>
  <div className="relative">
  <input type="date" name="dataRealizadoFim" value={filters.dataRealizadoFim} onChange={handleFilterChange} className="w-full text-xs p-1 border rounded outline-none focus:border-[#03624C]" />
- {filters.dataRealizadoFim && <button type="button" onClick={() => clearFilter('dataRealizadoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"><X size={10}/></button>}
+ {filters.dataRealizadoFim && <button type="button" onClick={() => clearFilter('dataRealizadoFim')} className="absolute right-6 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700"><X size={10}/></button>}
  </div>
  </div>
  </div>
  </div>
  </div>
  <div className="mt-3 flex justify-between items-center">
- <button type="button" onClick={clearAllFilters} className="text-xs text-gray-500 hover:text-red-500 flex items-center gap-1 border border-gray-300 px-2 py-0.5 rounded hover:border-red-300 transition-colors">
+ <button type="button" onClick={clearAllFilters} className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 border border-gray-300 px-2 py-0.5 rounded hover:border-red-300 transition-colors">
  <X size={12}/> Limpar Todos
  </button>
  <button type="submit" className="bg-[#03624C] hover:bg-[#024a3a] text-white px-4 py-1.5 rounded-md text-xs font-medium shadow-sm flex items-center gap-2 transition-colors">

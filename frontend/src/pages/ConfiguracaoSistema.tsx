@@ -209,7 +209,7 @@ export default function ConfiguracaoSistemaPage() {
  />
  </div>
  {searchTerm && (
- <button onClick={() => handleSearch('')} className="p-2.5 rounded-md border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+ <button onClick={() => handleSearch('')} className="p-2.5 rounded-md border border-gray-200 text-red-500 hover:text-red-700 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
  <X size={20} />
  </button>
  )}

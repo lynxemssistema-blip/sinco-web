@@ -857,7 +857,7 @@ export default function RomaneioPage() {
  className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchId && (
- <button onClick={() => setSearchId('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+ <button onClick={() => setSearchId('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors">
  <X size={13} />
  </button>
  )}
@@ -873,7 +873,7 @@ export default function RomaneioPage() {
  className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchCliente && (
- <button onClick={() => setSearchCliente('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+ <button onClick={() => setSearchCliente('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors">
  <X size={13} />
  </button>
  )}
@@ -889,7 +889,7 @@ export default function RomaneioPage() {
  className="w-full pl-7 pr-7 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {searchDescricao && (
- <button onClick={() => setSearchDescricao('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+ <button onClick={() => setSearchDescricao('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors">
  <X size={13} />
  </button>
  )}
@@ -1941,7 +1941,7 @@ export default function RomaneioPage() {
  <div className="flex items-center gap-4">
  <button
  onClick={() => setView('list')}
- className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-gray-100 transition-colors"
+ className="p-2 rounded-lg text-blue-500 hover:text-blue-700 hover:bg-gray-100 transition-colors"
  title="Voltar para Lista"
  >
  <ArrowLeft size={24} />

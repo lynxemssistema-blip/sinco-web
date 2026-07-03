@@ -8988,6 +8988,7 @@ app.get('/api/apontamentos-parciais', async (req, res) => {
             INNER JOIN ordemservicoitem i ON c.IdOrdemServicoItem = i.IdOrdemServicoItem
             INNER JOIN ordemservico os ON c.IdOrdemServico = os.IdOrdemServico
             WHERE c.TipoApontamento = 'Parcial'
+              AND c.QtdeProduzida < c.QtdeTotal
               AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E = '')
             ORDER BY c.DataCriacao DESC
         `);
@@ -9646,7 +9647,8 @@ async function ensureConfigColumns(poolRef) {
         { name: 'PlanoCorteFiltroDC',                   def: `VARCHAR(20) DEFAULT 'corte'` },
         { name: 'MaxRegistros',                         def: `INT DEFAULT 500` },
         { name: 'MenuStructure',                        def: `LONGTEXT DEFAULT NULL` },
-        { name: 'PermitirRealizadoSemPlanejamento',     def: `VARCHAR(10) DEFAULT 'Sim'` }
+        { name: 'PermitirRealizadoSemPlanejamento',     def: `VARCHAR(10) DEFAULT 'Sim'` },
+        { name: 'EnderecoSalvarCNHMotorista',           def: `VARCHAR(255) DEFAULT ''` }
     ];
 
     // 1. Garante que a tabela existe com estrutura mínima (seguro em qualquer banco)
@@ -9793,9 +9795,31 @@ app.get('/api/config', tenantMiddleware, async (req, res) => {
 });
 
 // PUT /api/config - Salva em QUALQUER banco ativo (auto-migra schema se necessário)
+
+// Validar caminho da CNH
+app.post('/api/config/validar-caminho', tenantMiddleware, async (req, res) => {
+    const { caminho } = req.body;
+    try {
+        if (!caminho) return res.json({ success: false, message: 'Caminho não fornecido' });
+        
+        // Verifica se é um diretório acessível
+        const stats = require('fs').statSync(caminho, { throwIfNoEntry: false });
+        if (!stats) {
+            // Tenta criar se não existe
+            require('fs').mkdirSync(caminho, { recursive: true });
+        } else if (!stats.isDirectory()) {
+            return res.json({ success: false, message: 'O caminho existe mas não é uma pasta' });
+        }
+        
+        return res.json({ success: true, message: 'Caminho válido e acessível' });
+    } catch (error) {
+        return res.json({ success: false, message: 'O caminho especificado é inválido ou você não tem permissão de acesso.' });
+    }
+});
+
 app.put('/api/config', tenantMiddleware, async (req, res) => {
     try {
-        const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento } = req.body;
+        const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento, enderecoSalvarCNHMotorista } = req.body;
 
         await ensureConfigColumns(pool);
 
@@ -14294,7 +14318,28 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
 // Static: landing page assets (root)
 app.use(express.static(path.join(__dirname, '../')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
-app.use('/fotosfuncionarios', express.static('C:\\fotosfuncionarios'));
+// Rota dinâmica para fotos de funcionários (CNH) baseada no tenant
+app.get('/fotosfuncionarios/:filename', tenantMiddleware, async (req, res) => {
+    let baseDir = 'C:\\fotosfuncionarios';
+    try {
+        if (req.tenantDbPool) {
+            const [rows] = await req.tenantDbPool.execute('SELECT EnderecoSalvarCNHMotorista FROM configuracaosistema LIMIT 1');
+            if (rows.length > 0 && rows[0].EnderecoSalvarCNHMotorista) {
+                baseDir = rows[0].EnderecoSalvarCNHMotorista;
+            }
+        }
+    } catch (e) {
+        console.error('Erro ao buscar diretório da CNH para servir:', e);
+    }
+    const filepath = require('path').join(baseDir, req.params.filename);
+    if (require('fs').existsSync(filepath)) {
+        res.sendFile(filepath);
+    } else {
+        res.status(404).send('Arquivo não encontrado');
+    }
+});
+
+
 app.use('/css', express.static(path.join(__dirname, '../public/css')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 // Static: React app assets (assets/, etc.)

@@ -750,7 +750,7 @@ export default function VisaoGeralEngenharia() {
                                             <span className="flex items-center gap-1">
                                                 {isExpProj
                                                     ? <ChevronDown size={11} className="text-[#32423D] shrink-0" />
-                                                    : <ChevronRight size={11} className="text-gray-400 group-hover:text-[#32423D] shrink-0" />}
+                                                    : <ChevronRight size={11} className="text-blue-500 group-hover:text-blue-700 shrink-0" />}
                                                 <span className="font-semibold">{t.Projeto}</span>
                                             </span>
                                         </td>

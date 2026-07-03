@@ -2031,16 +2031,21 @@ function OrdemServicoContent() {
                         </div>
                         <div className="text-xs text-gray-500 truncate flex items-center gap-2">
                             <span className="truncate">{os.Projeto} • {os.DescTag || 'Sem descrição'}</span>
-                            {os.DataPrevisao && (
-                                <>
-                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                    <span className="flex items-center gap-1 text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-medium" title="Data de Previsão">
-                                        <Calendar size={10} />
-                                        Prev: {formatDateBR(os.DataPrevisao)}
-                                    </span>
-                                </>
-                            )}
+                            
                         </div>
+                    </div>
+
+                    
+                    {/* Data de Previsão */}
+                    <div className="hidden sm:flex flex-col items-center justify-center w-24 min-w-0" title="Data de Previsão">
+                        {os.DataPrevisao ? (
+                            <span className="flex items-center gap-1 text-[10px] text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-bold border border-orange-100 shadow-sm">
+                                <Calendar size={10} />
+                                {formatDateBR(os.DataPrevisao)}
+                            </span>
+                        ) : (
+                            <span className="text-xs text-gray-400 font-medium">-</span>
+                        )}
                     </div>
 
                     {/* Descrição da OS */}
@@ -2178,7 +2183,7 @@ function OrdemServicoContent() {
                             )}
                         </div>
                         {searchTerm && (
-                            <button onClick={() => { setSearchTerm(''); setTimeout(() => fetchOrdens(1), 100); }} className="p-2.5 rounded-xl border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+                            <button onClick={() => { setSearchTerm(''); setTimeout(() => fetchOrdens(1), 100); }} className="p-2.5 rounded-xl border border-gray-200 text-red-500 hover:text-red-700 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
                                 <X size={20} />
                             </button>
                         )}
@@ -2422,6 +2427,7 @@ function OrdemServicoContent() {
                             <div className="sticky top-0 z-20 flex items-center gap-3 px-2 py-1 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
                                 <span className="w-6 shrink-0" />
                                 <span className="flex-1 min-w-0">OS / Tag / Projeto</span>
+                                <span className="hidden sm:block w-24 text-center">Data Prev.</span>
                                 <span className="hidden md:block w-16 text-center">Itens</span>
                                 <span className="hidden md:block w-20 text-center">Progresso</span>
                                 <span className="hidden sm:block w-24 text-center">Status</span>
@@ -2449,6 +2455,7 @@ function OrdemServicoContent() {
                             <div className="sticky top-0 z-20 flex items-center gap-3 px-2 py-1 bg-[#32423D] text-white text-[11px] font-semibold uppercase tracking-wide border-b border-[#32423D]/40 shadow-sm rounded-t-xl">
                                 <span className="w-6 shrink-0" />
                                 <span className="flex-1 min-w-0">OS / Tag / Projeto</span>
+                                <span className="hidden sm:block w-24 text-center">Data Prev.</span>
                                 <span className="hidden lg:block w-44">Descrição OS</span>
                                 <span className="hidden xl:block w-36">Empresa</span>
                                 <span className="hidden md:block w-16 text-center">Itens</span>

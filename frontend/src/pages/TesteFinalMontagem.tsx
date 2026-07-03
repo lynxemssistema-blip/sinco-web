@@ -92,9 +92,10 @@ interface LancarModalProps {
 }
 
 function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
- const execar = Number(item.MontagemTotalExecutar) || 0;
  const exec = Number(item.MontagemTotalExecutado) || 0;
- const [qtde, setQtde] = useState<string>(String(execar || item.QtdeTotal));
+ const qtdeTotal = Number(item.QtdeTotal) || 0;
+ const aExecutarCalc = Math.max(0, qtdeTotal - exec);
+ const [qtde, setQtde] = useState<string>(String(aExecutarCalc));
  const [confirmando, setConfirmando] = useState(false);
  const [salvando, setSalvando] = useState(false);
  const [erro, setErro] = useState('');
@@ -105,11 +106,11 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  // Finalização ocorre SOMENTE quando o total executado atingir a quantidade total do item
  const seraFinal = novoExec >= item.QtdeTotal;
 
- const podeConfirmar = qtdeNum > 0 && qtdeNum <= item.QtdeTotal;
+ const podeConfirmar = qtdeNum > 0 && qtdeNum <= aExecutarCalc;
 
  const handleClick = () => {
  setErro('');
- if (!podeConfirmar) { setErro('Valor inválido. Deve ser > 0 e ≤ ' + item.QtdeTotal); return; }
+ if (!podeConfirmar) { setErro('Valor inválido. Deve ser > 0 e ≤ ' + aExecutarCalc); return; }
  if (seraFinal) { setConfirmando(true); return; }
  enviar();
  };
@@ -168,7 +169,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <div><span className="text-slate-400">Projeto:</span> {item.Projeto}</div>
  <div className="flex gap-6 pt-1 border-t border-slate-200 mt-2">
  <span><span className="text-slate-400">Executado:</span> <strong className="text-emerald-700">{exec}</strong></span>
- <span><span className="text-slate-400">A Executar:</span> <strong className="text-amber-700">{execar}</strong></span>
+ <span><span className="text-slate-400">A Executar:</span> <strong className="text-amber-700">{aExecutarCalc}</strong></span>
  <span><span className="text-slate-400">Total:</span> <strong>{item.QtdeTotal}</strong></span>
  </div>
  </div>
@@ -182,7 +183,7 @@ function LancarModal({ item, onClose, onSuccess }: LancarModalProps) {
  <input
  type="number"
  min={1}
- max={item.QtdeTotal}
+ max={aExecutarCalc}
  value={qtde}
  onChange={e => { setQtde(e.target.value); setErro(''); }}
  className="w-full border-2 border-indigo-200 rounded-md px-2 py-0.5 text-xl font-black text-center text-indigo-700 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
@@ -484,7 +485,7 @@ export default function TesteFinalMontagemPage() {
  </td>
  <td className="px-2 py-0.5 text-center font-bold text-indigo-600 bg-indigo-50/60">{item.QtdeTotal}</td>
  <td className="px-2 py-0.5 text-right font-semibold text-emerald-700">{item.MontagemTotalExecutado ?? '—'}</td>
- <td className="px-2 py-0.5 text-right font-semibold text-amber-700">{item.MontagemTotalExecutar ?? '—'}</td>
+ <td className="px-2 py-0.5 text-right font-semibold text-amber-700">{Math.max(0, Number(item.QtdeTotal) - (Number(item.MontagemTotalExecutado) || 0))}</td>
  <td className="px-2 py-0.5 text-center">
  <span className="inline-flex items-center gap-1.5 font-bold text-[11px]">
  {/* executado / total */}

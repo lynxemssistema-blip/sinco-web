@@ -179,7 +179,7 @@ export default function SetorPage() {
  <button
  type="button"
  onClick={() => setShowFilters(!showFilters)}
- className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+ className="text-[10px] flex items-center gap-1.5 text-blue-500 hover:text-blue-700 hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
  >
  <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
  </button>
@@ -205,7 +205,7 @@ export default function SetorPage() {
  <div className="flex justify-end mt-2">
  <button
  onClick={() => setSearchNome('')}
- className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
+ className="px-3 py-1 text-red-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-700 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
  >
  <X size={11} /> Limpar Filtro
  </button>
@@ -386,14 +386,14 @@ export default function SetorPage() {
  <div className="flex items-center justify-end gap-0.5">
  <button
  onClick={() => handleEdit(setor)}
- className="p-1 rounded text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+ className="p-1 rounded text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/20 transition-colors"
  title="Editar"
  >
  <Edit2 size={13} />
  </button>
  <button
  onClick={() => setor.idSetor && handleDelete(setor.idSetor)}
- className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+ className="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
  title="Excluir"
  >
  <Trash2 size={13} />

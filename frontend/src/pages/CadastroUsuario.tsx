@@ -376,14 +376,7 @@ export default function CadastroUsuarioPage() {
  className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${!isNewMode && form.idUsuario ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
  <Trash2 size={14} /> Excluir
  </button>
- {!isNewMode && form.idUsuario && (
- <button onClick={handleToggleProcessos}
- className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-sm transition-colors ${showProcessos ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'}`}>
- <Settings size={14} />
- {showProcessos ? 'Ocultar' : 'Ver Processos'}
- {showProcessos ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
- </button>
- )}
+ {/* Ver Processos button moved to header */}
  <div className="w-px h-6 bg-slate-200 mx-1" />
  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 focus-within:border-indigo-400 shadow-inner">
  <Search size={12} className="text-slate-400" />
@@ -430,19 +423,20 @@ export default function CadastroUsuarioPage() {
  {isNewMode ? <><Plus size={12} /> Novo Usuário</> : <><User size={12} /> Dados — ID {form.idUsuario}</>}
  </span>
  <div className="flex items-center gap-1.5">
- <button onClick={() => setIsFormMaximized(v => !v)} className="p-0.5 text-white/70 hover:text-white rounded transition-colors" title={isFormMaximized ? 'Minimizar' : 'Maximizar'}>
- {isFormMaximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+ {!isNewMode && form.idUsuario && (
+ <button onClick={handleToggleProcessos}
+ className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-black shadow-sm transition-colors ${showProcessos ? 'bg-amber-500 text-white hover:bg-amber-600' : 'bg-white/20 text-white border border-white/30 hover:bg-white/30'}`}>
+ <Settings size={12} />
+ {showProcessos ? 'Ocultar Processos' : 'Ver Processos'}
  </button>
- <button onClick={() => { setShowForm(false); setSelectedId(null); setIsNewMode(false); setShowProcessos(false); }} className="p-0.5 text-white/60 hover:text-white rounded"><X size={14} /></button>
+ )}
+ <button onClick={() => { setShowForm(false); setSelectedId(null); setIsNewMode(false); setShowProcessos(false); }} className="p-0.5 text-white/60 hover:text-white rounded ml-1"><X size={14} /></button>
  </div>
  </div>
  <div className="flex gap-4 p-3">
  {/* Col 1: Avatar + Tipo */}
  <div className="flex flex-col items-center gap-2 pr-4 border-r border-slate-100 min-w-[110px]">
- <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-black text-2xl border-2 border-indigo-200 shadow-sm">
- {form.NomeCompleto?.charAt(0)?.toUpperCase() || '?'}
- </div>
- <p className="text-[10px] font-black text-slate-700 text-center leading-tight max-w-[100px] truncate">{form.NomeCompleto || 'Novo'}</p>
+ 
  <div className="flex flex-col gap-1 w-full">
  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tipo</label>
  <div className="flex gap-1">
@@ -457,7 +451,7 @@ export default function CadastroUsuarioPage() {
  </div>
 
  {/* Col 2: Dados Pessoais */}
- <div className="flex-1 grid grid-cols-4 gap-x-4 gap-y-1.5 min-w-0">
+ <div className="flex-1 grid grid-cols-[2fr_1fr_1fr_1.5fr] gap-x-4 gap-y-1.5 min-w-0">
 
  <EditableField icon={<User size={12} />} label="Nome Completo" value={form.NomeCompleto} onChange={v => updateField('NomeCompleto', v)} />
 

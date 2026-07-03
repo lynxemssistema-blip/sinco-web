@@ -210,7 +210,7 @@ export default function ApontamentosParciaisPage() {
  <span className="text-gray-400 text-xs">até</span>
  <input type="date" value={dataFinal} onChange={e => setDataFinal(e.target.value)} className="w-[105px] bg-transparent text-xs outline-none border-l border-gray-200 pl-1.5 text-gray-500" />
  {(fOS || fProj || fTag || fPC || dataInicial || dataFinal) && (
- <button onClick={limparFiltros} className="p-0.5 text-gray-400 hover:text-red-500 transition-colors border-l border-gray-200 pl-1.5" title="Limpar Filtros"><X size={13}/></button>
+ <button onClick={limparFiltros} className="p-0.5 text-red-500 hover:text-red-700 transition-colors border-l border-gray-200 pl-1.5" title="Limpar Filtros"><X size={13}/></button>
  )}
  </div>
 

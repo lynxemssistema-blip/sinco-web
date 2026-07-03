@@ -206,7 +206,7 @@ export default function RecursoFabricacaoPage() {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+            className="text-[10px] flex items-center gap-1.5 text-blue-500 hover:text-blue-700 hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
           >
             <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
           </button>
@@ -232,7 +232,7 @@ export default function RecursoFabricacaoPage() {
               <div className="flex justify-end mt-2">
                 <button
                   onClick={() => setSearchNome('')}
-                  className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
+                  className="px-3 py-1 text-red-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-700 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
                 >
                   <X size={11} /> Limpar Filtro
                 </button>
@@ -421,7 +421,7 @@ export default function RecursoFabricacaoPage() {
                   <th className="px-2 py-0.5 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Data Liberada</th>
                   <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell">Setup (min)</th>
                   <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell">T. Padrão (min)</th>
-                  <th className="px-2 py-0.5 text-left text-[9px] font-semibold text-white uppercase tracking-wider hidden lg:table-cell">Criado Por</th>
+                  
                   <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
@@ -472,22 +472,19 @@ export default function RecursoFabricacaoPage() {
                       <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">
                         {recurso.TempoPadrao ?? '-'}
                       </td>
-                      <td className="px-3 py-1 text-[11px] text-gray-600 hidden lg:table-cell">
-                        <p className="font-medium">{recurso.CriadoPor || '-'}</p>
-                        <p className="text-[10px] text-gray-400">{recurso.DataCriacao || ''}</p>
-                      </td>
+                      
                       <td className="px-3 py-1">
                         <div className="flex items-center justify-end gap-0.5">
                           <button
                             onClick={() => handleEdit(recurso)}
-                            className="p-1 rounded text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+                            className="p-1 rounded text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/20 transition-colors"
                             title="Editar"
                           >
                             <Edit2 size={13} />
                           </button>
                           <button
                             onClick={() => recurso.IdProcessoFabricacao && handleDelete(recurso.IdProcessoFabricacao)}
-                            className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                             title="Excluir"
                           >
                             <Trash2 size={13} />

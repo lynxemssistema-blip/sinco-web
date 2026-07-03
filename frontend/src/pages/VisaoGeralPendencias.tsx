@@ -318,34 +318,22 @@ export default function VisaoGeralPendenciasPage() {
  <th className="px-2 py-0.5">Projeto</th>
  <th className="px-2 py-0.5">Tag</th>
  <th className="px-2 py-0.5">Empresa</th>
- <th className="px-2 py-0.5">ID Material</th>
  <th className="px-2 py-0.5">Cód Mat Fab</th>
- <th className="px-2 py-0.5">Desc Resumo</th>
  <th className="px-2 py-0.5">Desc Detalhe</th>
  <th className="px-2 py-0.5">Espessura / Plano de Corte</th>
  <th className="px-2 py-0.5">Material SW</th>
- <th className="px-2 py-0.5">Endereço Arquivo</th>
  <th className="px-2 py-0.5 min-w-[200px]">Desc Pendência</th>
  <th className="px-2 py-0.5">Usuário</th>
  <th className="px-2 py-0.5">Criado Por</th>
  <th className="px-2 py-0.5">Data Criação</th>
- {sv('corte') && <th className="px-2 py-0.5">Corte</th>}
- {sv('dobra') && <th className="px-2 py-0.5">Dobra</th>}
- {sv('solda') && <th className="px-2 py-0.5">Solda</th>}
- {sv('pintura') && <th className="px-2 py-0.5">Pintura</th>}
- {sv('montagem') && <th className="px-2 py-0.5">Montagem</th>}
- <th className="px-2 py-0.5">Data Acerto Proj</th>
- <th className="px-2 py-0.5">RNC Imagens</th>
  <th className="px-2 py-0.5">Setor Resp.</th>
  <th className="px-2 py-0.5">Tp Cadastro</th>
  <th className="px-2 py-0.5">Data Exec.</th>
- <th className="px-2 py-0.5">Controle Email</th>
  <th className="px-2 py-0.5">Email Resp.</th>
  <th className="px-2 py-0.5">Usuário Resp. (Final)</th>
  <th className="px-2 py-0.5">Tipo Tarefa / Registro</th>
  <th className="px-2 py-0.5">Desc. Finalização</th>
  <th className="px-2 py-0.5">Setor Fin.</th>
- <th className="px-2 py-0.5">Ações</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -384,31 +372,20 @@ export default function VisaoGeralPendenciasPage() {
  <td className="px-2 py-0.5 font-bold text-slate-700 truncate max-w-[150px]" title={item.Projeto}>{item.Projeto || item.IdProjeto || '—'}</td>
  <td className="px-2 py-0.5 font-bold text-[#32423D] truncate max-w-[150px]" title={item.Tag}>{item.Tag || item.IdTag || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-500 truncate max-w-[150px]" title={item.DescEmpresa}>{item.DescEmpresa || '—'}</td>
- <td className="px-2 py-0.5 font-mono text-slate-600">{item.IdMaterial || '—'}</td>
  <td className="px-2 py-0.5 font-mono text-[10px] text-slate-500 truncate max-w-[150px]" title={item.CodMatFabricante}>{item.CodMatFabricante || '—'}</td>
- <td className="px-2 py-0.5 text-[10px] text-slate-800 truncate max-w-[150px]" title={item.DescResumo}>{item.DescResumo || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-500 truncate max-w-[150px]" title={item.DescDetal}>{item.DescDetal || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600">
  Esp: {item.Espessura || '—'}<br/>
  Plano: {item.IdPLanodeCorte || '—'}
  </td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.MaterialSW || '—'}</td>
- <td className="px-2 py-0.5 text-[10px] text-[#32423D] max-w-[100px] truncate" title={item.EnderecoArquivo}>{item.EnderecoArquivo ? 'Sim' : '—'}</td>
  <td className="px-2 py-0.5 font-medium text-slate-800 truncate max-w-[200px]" title={item.DescricaoPendencia}>{item.DescricaoPendencia || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600 truncate max-w-[100px]" title={item.Usuario}>{item.Usuario || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.CriadoPorSetor || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-500 font-mono">{item.DataCriacao || '—'}</td>
- {sv('corte') && <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.txtCorte || '—'}</td>}
- {sv('dobra') && <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.txtdobra || '—'}</td>}
- {sv('solda') && <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.txtSolda || '—'}</td>}
- {sv('pintura') && <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.txtPintura || '—'}</td>}
- {sv('montagem') && <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.txtMontagem || '—'}</td>}
- <td className="px-2 py-0.5 text-[10px] text-slate-500 font-mono">{item.DataAcertoProjeto || '—'}</td>
- <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.RNCImagens ? 'Tem img' : '—'}</td>
  <td className="px-2 py-0.5 text-[10px] font-bold text-slate-700">{item.SetorResponsavel || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.TipoCadastro || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-500 font-mono">{item.DataExecucao || '—'}</td>
- <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.ControleEnvioEmail || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-600">{item.EmailResponsavelPelaTarefa || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-700">
  Atu: {item.UsuarioResponsavel || '—'}<br/>
@@ -420,11 +397,6 @@ export default function VisaoGeralPendenciasPage() {
  </td>
  <td className="px-2 py-0.5 text-[10px] text-slate-500 truncate max-w-[150px]" title={item.DescricaoFinalizacao}>{item.DescricaoFinalizacao || '—'}</td>
  <td className="px-2 py-0.5 text-[10px] text-slate-700">{item.SetorResponsavelFinalizacao || '—'}</td>
- <td className="px-2 py-0.5 text-right">
- <button className="text-[#32423D] hover:text-[#32423D]/70 transition-colors p-1.5 rounded hover:bg-[#E0E800]/10 opacity-0 group-hover:opacity-100" title="Acessar Apontamento/Detalhes">
- <Eye size={14} />
- </button>
- </td>
  </tr>
  ))}
  </tbody>

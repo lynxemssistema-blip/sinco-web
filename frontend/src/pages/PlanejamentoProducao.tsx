@@ -158,7 +158,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  className="w-full pl-9 pr-8 py-2.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all shadow-sm" 
  />
  {osPesquisa && (
- <button onClick={() => setOsPesquisa('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
+ <button onClick={() => setOsPesquisa('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors" title="Limpar">
  <X size={14} />
  </button>
  )}
@@ -218,7 +218,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  className="w-full px-2 py-1.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
  />
  {planFimDe && (
- <button onClick={() => setPlanFimDe('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
+ <button onClick={() => setPlanFimDe('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors" title="Limpar">
  <X size={13} />
  </button>
  )}
@@ -236,7 +236,7 @@ export default function PlanejamentoProducao({ fromGlobal, onBack }: { fromGloba
  className="w-full px-2 py-1.5 text-[13px] border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-[#E0E800]/50 outline-none transition-all"
  />
  {planFimAte && (
- <button onClick={() => setPlanFimAte('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors" title="Limpar">
+ <button onClick={() => setPlanFimAte('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors" title="Limpar">
  <X size={13} />
  </button>
  )}

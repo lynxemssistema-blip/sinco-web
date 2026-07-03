@@ -196,7 +196,7 @@ export default function UnidadeMedidaPage() {
  />
  </div>
  {searchTerm && (
- <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors" title="Limpar pesquisa">
+ <button onClick={() => setSearchTerm('')} className="p-2.5 rounded-lg border border-gray-200 text-red-500 hover:text-red-700 hover:bg-red-50 hover:border-red-200 transition-colors" title="Limpar pesquisa">
  <X size={15} />
  </button>
  )}
@@ -353,14 +353,14 @@ export default function UnidadeMedidaPage() {
  <div className="flex items-center justify-end gap-1">
  <button
  onClick={() => unidade.IdMedida && handleEdit(unidade.IdMedida)}
- className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+ className="p-2 rounded-lg text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/20 transition-colors"
  title="Editar"
  >
  <Edit2 size={14} />
  </button>
  <button
  onClick={() => unidade.IdMedida && handleDelete(unidade.IdMedida)}
- className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+ className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
  title="Excluir"
  >
  <Trash2 size={14} />

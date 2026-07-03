@@ -23,6 +23,7 @@ interface ProjetoAcomp {
  Observacao: string | null;
  StatusProj: string;
  DescStatus: string | null;
+ QtdeTags: number;
  DataPrevisao: string | null;
  liberado: string | null;
  Finalizado: string | null;
@@ -1025,6 +1026,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <tr className="bg-[#0B3A2D] text-white border-b border-[#0B3A2D]">
  <th className="px-2 py-1 text-left font-black tracking-wider uppercase border-r border-[#155A47]">Projeto / Cliente</th>
  <th className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-24">Data Previsao</th>
+  <th className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-20">Qtde Tags</th>
  {setoresAtivos.map(s => (
  <th key={s.key} className="px-2 py-2 text-center font-black tracking-wider uppercase border-r border-[#155A47] w-28">
  {s.label}
@@ -1106,8 +1108,11 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  </span>
  )}
  </div>
- </td>
- {setoresAtivos.map(s => (
+  </td>
+  <td className="px-2 py-2 text-center border-r border-slate-100 font-black text-slate-700">
+    {p.QtdeTags || 0}
+  </td>
+  {setoresAtivos.map(s => (
  <td key={s.key} className="px-1 py-1.5">
  <SetorCell
  total={Number((p as Record<string, unknown>)[`Total${s.key}`]) || 0}

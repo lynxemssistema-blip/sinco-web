@@ -343,7 +343,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  {fromGlobal ? (
  <button
  onClick={() => window.location.href = '/visao-geral-pendencias'}
- className="inline-flex items-center gap-2 text-gray-500 hover:text-[#32423D] font-medium transition-colors"
+ className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-700 font-medium transition-colors"
  >
  <ArrowLeft size={20} />
  Voltar para Pendências Globais
@@ -351,7 +351,7 @@ export default function PendenciaRomaneioPage({ onNavigate, idRomaneioItem }: Pe
  ) : (
  <button
  onClick={() => onNavigate('romaneio')}
- className="inline-flex items-center gap-2 text-gray-500 hover:text-[#32423D] font-medium transition-colors"
+ className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-700 font-medium transition-colors"
  >
  <ArrowLeft size={20} />
  Voltar para Romaneios

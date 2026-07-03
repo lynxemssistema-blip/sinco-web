@@ -1661,10 +1661,11 @@ function PainelPlanosCorte({ refreshTrigger, externalOnGerarRnc }: { refreshTrig
 
  <button
  onClick={() => setExibirConcluidos(!exibirConcluidos)}
- className={`p-2.5 rounded-lg transition-colors border shadow-sm ${exibirConcluidos ? 'bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+ className={`px-3 py-1.5 flex items-center gap-1.5 rounded-lg transition-colors border shadow-sm font-bold text-[10px] uppercase ${exibirConcluidos ? 'bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
  title={exibirConcluidos ? 'Exibindo todos os planos — clique para só pendentes' : 'Exibindo apenas pendentes — clique para ver todos'}
  >
- <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+ <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+ {exibirConcluidos ? 'Ocultar Concluídos' : 'Exibir Todos'}
  </button>
  </div>
  </div>

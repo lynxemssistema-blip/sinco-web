@@ -420,9 +420,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
                         </div>
                         <div id="page-actions-portal" className="flex items-center gap-2 empty:hidden">
                             
-                            <button onClick={() => setIsAppMaximized(!isAppMaximized)} className="p-2 bg-card border border-border hover:bg-secondary rounded-md text-foreground/80 hover:text-foreground transition-colors" title={isAppMaximized ? "Restaurar Tamanho" : "Maximizar Tela"}>
-                                {isAppMaximized ? <Minimize size={18} /> : <Maximize size={18} />}
-                            </button>
+                            
                             <DatabaseSwitcher />
                         </div>
                     </div>

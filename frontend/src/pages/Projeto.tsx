@@ -854,7 +854,7 @@ export default function ProjetoPage() {
  <button
  type="button"
  onClick={() => setShowFilters(!showFilters)}
- className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+ className="text-[10px] flex items-center gap-1.5 text-blue-500 hover:text-blue-700 hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
  >
  <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
  </button>
@@ -992,7 +992,7 @@ export default function ProjetoPage() {
  setSearchFilters(emptyFilters);
  fetchProjetos(emptyFilters);
  }}
- className="px-2 py-0.5 text-gray-500 font-semibold text-xs tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5"
+ className="px-2 py-0.5 text-red-500 font-semibold text-xs tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-700 hover:border-red-200 transition-colors flex items-center gap-1.5"
  >
  <X size={13} />
  Limpar
@@ -1391,34 +1391,7 @@ export default function ProjetoPage() {
 
  {/* 4-tab form – same for all matrices */}
  <div className="flex flex-col">
- {/* Tab bar */}
- <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
- {([
- { icon: <FolderKanban size={14} />, label: 'Projeto' },
- { icon: <Building2 size={14} />, label: 'Faturamento' },
- { icon: <Truck size={14} />, label: 'Entrega / Cobrança' },
- { icon: <Banknote size={14} />, label: 'Fornecimento' },
- ] as { icon: React.ReactNode; label: string }[]).map((tab, i) => {
- const isDisabled = i > 0;
- return (
- <button 
- key={i} 
- type="button"
- disabled={isDisabled}
- onClick={() => !isDisabled && setActiveTab(i as 0 | 1 | 2 | 3)}
- className={`flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors 
- ${activeTab === i 
- ? 'border-[#32423D] text-[#32423D] bg-white' 
- : isDisabled 
- ? 'border-transparent text-gray-300 cursor-not-allowed opacity-50' 
- : 'border-transparent text-gray-500 hover:text-gray-700'}`}
- title={isDisabled ? "Em breve" : ""}
- >
- {tab.icon}{tab.label}
- </button>
- );
- })}
- </div>
+ 
  <div className="p-6">
  {/* TAB 0 – PROJETO */}
  {activeTab === 0 && (

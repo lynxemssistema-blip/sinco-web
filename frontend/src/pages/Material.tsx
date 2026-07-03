@@ -365,7 +365,7 @@ export default function MaterialPage() {
         <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className="text-[10px] flex items-center gap-1.5 text-gray-500 hover:text-[#32423D] hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
+            className="text-[10px] flex items-center gap-1.5 text-blue-500 hover:text-blue-700 hover:bg-gray-50 px-2 py-1 rounded transition-colors border border-gray-200 uppercase font-bold"
         >
             <Filter size={11} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
         </button>
@@ -406,7 +406,7 @@ export default function MaterialPage() {
         <div className="flex justify-end mt-1">
             <button
                 onClick={() => { setSearchCodigo(''); setSearchDesc(''); setSearchFamilia(''); setSearchFornecedor(''); }}
-                className="px-3 py-1 text-gray-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-500 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
+                className="px-3 py-1 text-red-500 font-semibold text-[10px] tracking-wide rounded border border-gray-200 hover:bg-gray-50 hover:text-red-700 hover:border-red-200 transition-colors flex items-center gap-1.5 uppercase"
             >
                 <X size={11} /> Limpar Filtros
             </button>
@@ -449,7 +449,7 @@ export default function MaterialPage() {
  </button>
  </div>
 
- <div className="p-5 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
+ <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
  {/* ID Field (readonly when editing) */}
  {isEditing && (
  <div className="grid grid-cols-3 gap-4">
@@ -485,14 +485,8 @@ export default function MaterialPage() {
       <div className="flex-1 flex flex-col gap-2">
        <div className="flex flex-row gap-2 items-center">
          <span className="text-xs font-semibold text-gray-700 mr-2">Imagem:</span>
-         <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Câmera">
-           <input type="file" accept="image/*" capture="environment" onChange={handleImageChange} className="hidden" />
-           <Camera size={14} />
-         </label>
-         <label className="p-1.5 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer text-[#32423D]" title="Galeria">
-           <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-           <ImageIcon size={14} />
-         </label>
+         
+         
          <button type="button" onClick={() => setShowUrlInput(!showUrlInput)} className={`p-1.5 rounded border transition-colors ${showUrlInput ? 'bg-[#32423D] text-white border-[#32423D]' : 'border-gray-200 hover:bg-gray-50 text-[#32423D]'}`} title="Link Web">
            <LinkIcon size={14} />
          </button>
@@ -575,7 +569,7 @@ export default function MaterialPage() {
  {/* Descrição */}
  <div className="border-b border-gray-100 pb-4">
  <h3 className="text-xs font-semibold text-gray-700 mb-3">Descrição</h3>
- <div className="space-y-3">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div>
  <label className="block text-xs font-medium text-gray-500 mb-1">Descrição Resumo</label>
  <input
@@ -592,7 +586,7 @@ export default function MaterialPage() {
  name="DescDetal"
  value={formData.DescDetal || ''}
  onChange={handleInputChange}
- rows={3}
+ rows={1}
  className={inputOptional}
  />
  </div>
@@ -768,14 +762,9 @@ export default function MaterialPage() {
  </div>
  </td>
  <td className="px-2 py-1.5">
- <div className="flex items-center gap-2">
- <div className="w-8 h-8 rounded-lg bg-[#32423D]/10 text-[#32423D] flex items-center justify-center">
- <Package size={14} />
- </div>
  <span className="text-[11px] font-medium text-gray-900 truncate max-w-[150px]">
  {material.CodMatFabricante || '-'}
  </span>
- </div>
  </td>
  <td className="px-2 py-1.5 text-[11px] text-gray-600 truncate max-w-[200px]">
  {material.DescResumo || material.DescDetal?.substring(0, 50) || '-'}
@@ -790,21 +779,21 @@ export default function MaterialPage() {
  <div className="flex items-center justify-end gap-1">
  <button
  onClick={() => material.IdMaterial && handleEdit(material.IdMaterial)}
- className="p-2 rounded-lg text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/20 transition-colors"
+ className="p-2 rounded-lg text-[#32423D] bg-[#E0E800]/20 hover:bg-[#E0E800]/40 transition-colors"
  title="Editar"
  >
  <Edit2 size={14} />
    </button>
    <button
    onClick={() => material.IdMaterial && handleOpenPDF(material.IdMaterial)}
-   className="p-2 rounded-lg text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+   className="p-2 rounded-lg text-blue-500 bg-blue-50 hover:bg-blue-100 transition-colors"
    title="Abrir PDF"
    >
    <FileText size={14} />
    </button>
  <button
  onClick={() => material.IdMaterial && handleDelete(material.IdMaterial)}
- className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+ className="p-2 rounded-lg text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
  title="Excluir"
  >
  <Trash2 size={14} />

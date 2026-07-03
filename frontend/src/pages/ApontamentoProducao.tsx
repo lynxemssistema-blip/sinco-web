@@ -563,7 +563,7 @@ export default function ApontamentoProducaoPage() {
 
  setSubmitting(true);
  try {
- const isTotal = modalSetor === 'mapa' || qProduzir === itemDetails.qtdeFaltante;
+ const isTotal = modalSetor === 'mapa' || (qProduzir === itemDetails.qtdeFaltante && itemDetails.totalProduzido === 0);
  const finalQtde = isTotal ? itemDetails.qtdeFaltante : qProduzir;
  const finalTipoApontamento = isTotal ? 'Total' : 'Parcial';
 
@@ -1015,7 +1015,7 @@ export default function ApontamentoProducaoPage() {
  </div>
  </div>
  {planoCorteFilter && (
- <button onClick={() => setPlanoCorteFilter('')} className="p-1.5 rounded border border-gray-200 text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
+ <button onClick={() => setPlanoCorteFilter('')} className="p-1.5 rounded border border-gray-200 text-red-500 hover:text-red-700 hover:bg-red-50 hover:border-red-200 bg-white shadow-sm transition-colors" title="Limpar pesquisa">
  <X size={14} />
  </button>
  )}
@@ -1179,15 +1179,6 @@ export default function ApontamentoProducaoPage() {
  Planejamento
  </button>
  
- {/* Expand/Collapse Button */}
- <button
- onClick={() => setIsExpanded(!isExpanded)}
- className="p-1.5 text-gray-500 hover:text-[#03624C] transition-colors rounded border bg-gray-50 shadow-sm"
- title={isExpanded ? "Restaurar tela" : "Maximizar tela"}
- >
- {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
- </button>
-
  {/* Search Button */}
  <button
  onClick={handleSearch}
@@ -1768,7 +1759,7 @@ export default function ApontamentoProducaoPage() {
  selectItem(item);
  setHistoryModalOpen(true);
  }}
- className="p-1.5 text-gray-400 hover:text-[#32423D] hover:bg-[#E0E800]/10 rounded-full transition-colors"
+ className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/10 rounded-full transition-colors"
  title="Histórico"
  >
  <History size={14} />
@@ -1830,7 +1821,7 @@ export default function ApontamentoProducaoPage() {
  onClick={() => window.location.href = '/visao-geral-pendencias'}
  className="group flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 hover:text-[#32423D] hover:border-blue-200 transition-all font-medium shadow-sm active:scale-95 z-10"
  >
- <ArrowLeft size={15} className="text-gray-400 group-hover:text-[#32423D] transition-colors" />
+ <ArrowLeft size={15} className="text-blue-500 group-hover:text-blue-700 transition-colors" />
  Voltar para Todas as Pendências
  </button>
  

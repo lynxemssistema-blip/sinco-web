@@ -82,15 +82,15 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  };
 
  return (
- <div className="flex-1 flex flex-col min-h-0 bg-gray-50">
+ <div className="flex flex-col bg-white border border-indigo-200 rounded-lg shadow-inner overflow-hidden mb-2 relative">
  {/* Cabeçalho da sub-view */}
- <header className="bg-white border-b border-gray-200 px-2 py-0.5 shadow-sm flex items-center gap-3">
+ <header className="bg-indigo-50 border-b border-indigo-100 px-3 py-2 flex items-center gap-3">
  <button
  onClick={onBack}
- className="flex items-center gap-2 px-2 py-0.5 rounded-lg bg-[#32423D] text-white text-xs font-medium hover:bg-[#26312D] transition-colors"
+ className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-indigo-200 text-indigo-700 text-[10px] font-bold hover:bg-indigo-100 transition-colors"
  >
- <ArrowLeft size={14} />
- Voltar
+ <X size={12} />
+ Fechar
  </button>
  <div className="h-5 w-px bg-gray-300" />
  <div>
@@ -115,7 +115,7 @@ function HistoricoControleView({ item, onBack }: { item: Record<string, unknown>
  </header>
 
  {/* Tabela romaneioitemcontrole */}
- <main className="flex-1 overflow-auto p-4">
+ <main className="max-h-[350px] overflow-auto p-3">
  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
  {/* Filtro por data de retorno */}
  <div className="bg-gray-50 px-2 py-1 border-b border-gray-200 flex items-center gap-3 flex-wrap">
@@ -315,9 +315,9 @@ export default function RomaneioRetornoPage() {
  const handleRegistrarRetorno = async () => {
  if (!retornoPanel) return;
  const qtde = Number(retornoQtde);
- const maxQ = Number(retornoPanel.item.QtdeEnviada) || 0;
+ const maxQ = Number(retornoPanel.item.Saldo) || 0;
  if (!qtde || qtde <= 0) { addAlert('Informe uma quantidade válida.', 'warning'); return; }
- if (qtde > maxQ) { addAlert(`Quantidade (${qtde}) não pode ser maior que a enviada (${maxQ}).`, 'warning'); return; }
+ if (qtde > maxQ) { addAlert(`Quantidade (${qtde}) não pode ser maior que o saldo atual (${maxQ}).`, 'warning'); return; }
  setRetornoSaving(true);
  try {
  const res = await fetch(`${API_BASE}/registrar-retorno`, {
@@ -364,10 +364,7 @@ export default function RomaneioRetornoPage() {
  return () => window.removeEventListener('click', handleClick);
  }, []);
 
- // Se estiver na sub-view de histórico, renderiza ela
- if (historicoItem) {
- return <HistoricoControleView item={historicoItem} onBack={() => setHistoricoItem(null)} />;
- }
+ // Removido o early return do histórico para renderização inline
 
  return (
  <div className="flex flex-col flex-1 min-h-0 bg-gray-50 overflow-hidden">
@@ -479,8 +476,8 @@ export default function RomaneioRetornoPage() {
  </td>
  </tr>
  ) : items.map((item) => (
+ <React.Fragment key={item.IdRomaneioItem}>
  <tr
- key={item.IdRomaneioItem}
  onClick={() => setSelectedItem(selectedItem?.IdRomaneioItem === item.IdRomaneioItem ? null : item)}
  onContextMenu={(e) => handleContextMenu(e, item)}
  className={`hover:bg-[#E0E800]/10 cursor-pointer transition-colors border-l-4 ${selectedItem?.IdRomaneioItem === item.IdRomaneioItem
@@ -506,7 +503,7 @@ export default function RomaneioRetornoPage() {
  </td>
  <td className="px-3 py-1 text-center" onClick={e => e.stopPropagation()}>
  <div className="flex items-center gap-1 justify-center flex-wrap">
- {selectedItem?.IdRomaneioItem === item.IdRomaneioItem && (() => {
+ {(() => {
  const saldo = Number(item.Saldo) || 0;
  return saldo > 0 ? (
  <button
@@ -536,7 +533,29 @@ export default function RomaneioRetornoPage() {
  </div>
  </td>
  </tr>
+
+ {historicoItem?.IdRomaneioItem === item.IdRomaneioItem && (
+
+   <tr>
+
+     <td colSpan={10} className="p-0 bg-gray-100/50 border-b-2 border-indigo-200">
+
+       <div className="p-2 animate-in slide-in-from-top-2 duration-200">
+
+         <HistoricoControleView item={historicoItem} onBack={() => setHistoricoItem(null)} />
+
+       </div>
+
+     </td>
+
+   </tr>
+
+ )}
+
+ </React.Fragment>
+
  ))}
+
  </tbody>
  </table>
  </div>
@@ -561,12 +580,12 @@ export default function RomaneioRetornoPage() {
  </div>
  <label className="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Quantidade que retornou</label>
  <input
- type="number" min={1} max={Number(retornoPanel.item.QtdeEnviada)}
+ type="number" min={1} max={Number(retornoPanel.item.Saldo) || 0}
  value={retornoQtde}
  onChange={e => setRetornoQtde(e.target.value)}
  onKeyDown={e => e.key === 'Enter' && handleRegistrarRetorno()}
  autoFocus
- placeholder={'Max: ' + retornoPanel.item.QtdeEnviada}
+ placeholder={'Max: ' + (Number(retornoPanel.item.Saldo) || 0)}
  className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/40 outline-none mb-4"
  />
  <div className="flex gap-2">

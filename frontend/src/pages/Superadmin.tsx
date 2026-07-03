@@ -590,7 +590,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  className="w-full pl-9 pr-8 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] transition-all"
  />
  {tenantSearch && (
- <button onClick={() => setTenantSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+ <button onClick={() => setTenantSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700">
  <X size={14} />
  </button>
  )}
@@ -658,7 +658,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input type="text" placeholder="Filtrar por Login..." value={userSearchLogin} onChange={(e) => setUserSearchLogin(e.target.value)} className="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D]" />
  {userSearchLogin && (
- <button onClick={() => setUserSearchLogin('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+ <button onClick={() => setUserSearchLogin('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700">
  <X size={14} />
  </button>
  )}
@@ -667,7 +667,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
  <input type="text" placeholder="Filtrar por Tenant (Banco)..." value={userSearchTenant} onChange={(e) => setUserSearchTenant(e.target.value)} className="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D]" />
  {userSearchTenant && (
- <button onClick={() => setUserSearchTenant('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+ <button onClick={() => setUserSearchTenant('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700">
  <X size={14} />
  </button>
  )}

@@ -15,10 +15,15 @@ export const getMergedMenu = (savedMenu: MenuItem[]): MenuItem[] => {
   };
   fixPecaHref(menu);
 
-  // Force add 'romaneio' parent if missing
-  if (!menu.find(item => item.id === 'romaneio')) {
-    const romaneioItem = defaultMenuItems.find(item => item.id === 'romaneio');
-    if (romaneioItem) menu = [romaneioItem, ...menu];
+  // Force add or replace 'romaneio' parent to ensure it has its submenus
+  const romaneioIdx = menu.findIndex(item => item.id === 'romaneio');
+  const romaneioItem = defaultMenuItems.find(item => item.id === 'romaneio');
+  if (romaneioItem) {
+    if (romaneioIdx >= 0) {
+      menu[romaneioIdx] = romaneioItem;
+    } else {
+      menu = [romaneioItem, ...menu];
+    }
   }
 
   // Force add 'visao-geral-producao' if missing

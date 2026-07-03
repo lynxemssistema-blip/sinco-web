@@ -223,12 +223,17 @@ export const helpContents: Record<string, HelpContent> = {
     },
     'cadastro-de-usuario': {
         title: 'Cadastro de Usuário',
-        description: '🎯 Objetivo: Criar um novo perfil com permissões seguras.\n\n⚙️ Como Trabalhar:\n• Preencha CPF e dados pessoais corretos.\n• Associe a pessoa a um "Setor" para que o tablet do chão de fábrica saiba quais máquinas ele tem direito a apontar produção.',
+        description: '🎯 Objetivo: Criar um novo perfil com permissões seguras.\n\n⚙️ Como Trabalhar:\n• Preencha CPF e dados pessoais corretos.\n• Associe a pessoa a um "Setor" para que o tablet da fábrica saiba quais operações ele acessa.\n• Para atribuir permissões de maquinário, selecione um usuário, clique no botão "Ver Processos" (no cabeçalho roxo dos dados) e marque as caixinhas (ex: Corte, Dobra, Solda) que o colaborador tem autorização para operar.',
         icon: '👤'
     },
     'cadastro-usuario': {
         title: 'Cadastro de Usuário',
-        description: '🎯 Objetivo: Criar um novo perfil com permissões seguras.\n\n⚙️ Como Trabalhar:\n• Preencha CPF e dados pessoais corretos.\n• Associe a pessoa a um "Setor" para que o tablet da fábrica saiba quais operações ele acessa.',
+        description: '🎯 Objetivo: Criar um novo perfil com permissões seguras.\n\n⚙️ Como Trabalhar:\n• Preencha CPF e dados pessoais corretos.\n• Associe a pessoa a um "Setor" para que o tablet da fábrica saiba quais operações ele acessa.\n• Para atribuir permissões de maquinário, selecione um usuário, clique no botão "Ver Processos" (no cabeçalho roxo dos dados) e marque as caixinhas (ex: Corte, Dobra, Solda) que o colaborador tem autorização para operar.',
+        icon: '👤'
+    },
+    'group_1775495483371': {
+        title: 'Cadastro de Usuário',
+        description: '🎯 Objetivo: Criar um novo perfil com permissões seguras.\n\n⚙️ Como Trabalhar:\n• Preencha CPF e dados pessoais corretos.\n• Associe a pessoa a um "Setor" para que o tablet da fábrica saiba quais operações ele acessa.\n• Para atribuir permissões de maquinário, selecione um usuário, clique no botão "Ver Processos" (no cabeçalho roxo dos dados) e marque as caixinhas (ex: Corte, Dobra, Solda) que o colaborador tem autorização para operar.',
         icon: '👤'
     },
     'config': {

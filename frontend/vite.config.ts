@@ -34,7 +34,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/api/]
+        navigateFallbackDenylist: [/^\/api/],
+        maximumFileSizeToCacheInBytes: 5000000
       }
     })
   ],
@@ -43,6 +44,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/fotosfuncionarios': {
         target: 'http://127.0.0.1:3000',
         changeOrigin: true,
         secure: false,

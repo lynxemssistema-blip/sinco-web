@@ -240,6 +240,24 @@ export default function ConfiguracaoPage() {
  };
 
  const handleSaveRegras = async () => {
+ // Verificar caminho CNH se preenchido
+ if (enderecoSalvarCNHMotorista) {
+     try {
+         const valRes = await fetch(`${API_BASE}/config/validar-caminho`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+             body: JSON.stringify({ caminho: enderecoSalvarCNHMotorista })
+         });
+         const valData = await valRes.json();
+         if (!valData.success) {
+             addToast({ type: 'error', title: 'Erro de Validação', message: valData.message });
+             return; // Stop saving
+         }
+     } catch (e) {
+         addToast({ type: 'error', title: 'Erro', message: 'Erro ao validar o endereço da CNH' });
+         return;
+     }
+ }
  // 1. Salva preferências no localStorage (sempre, como fallback robusto)
  saveLocalPrefs({ 
  planoCorteFiltroDC, 
@@ -264,7 +282,8 @@ export default function ConfiguracaoPage() {
  restringirApontamento,
  processosVisiveis: JSON.stringify(processosVisiveis),
  maxRegistros,
- permitirRealizadoSemPlanejamento
+ permitirRealizadoSemPlanejamento,
+ enderecoSalvarCNHMotorista
  })
  });
  const data = await res.json();
