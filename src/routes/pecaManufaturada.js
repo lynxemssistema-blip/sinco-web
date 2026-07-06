@@ -93,12 +93,27 @@ router.get('/composicao/:idMaterialPeca', async (req, res) => {
 router.delete('/composicao/:idMontaPeca', async (req, res) => {
     try {
         const { idMontaPeca } = req.params;
-        const { usuario } = req.body;
-        await db(req).execute(
-            `UPDATE montapeca SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = NOW(), UsuarioD_E_L_E_T_E = ?
+        const { usuario, idMatriz } = req.body;
+        const pool = db(req);
+        const [rows] = await pool.execute(`SELECT IdMaterialPeca FROM montapeca WHERE IdMontaPeca = ?`, [idMontaPeca]);
+        const idMaterialPeca = rows[0]?.IdMaterialPeca;
+
+        await pool.execute(
+            `UPDATE montapeca SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = NOW(), UsuarioD_E_L_E_T_E = ?, IdMatriz = COALESCE(?, IdMatriz)
              WHERE IdMontaPeca = ?`,
-            [usuario || 'Sistema', idMontaPeca]
+            [usuario || 'Sistema', idMatriz || null, idMontaPeca]
         );
+
+        if (idMaterialPeca) {
+            const [rem] = await pool.execute(
+                `SELECT COUNT(*) as qtd FROM montapeca WHERE IdMaterialPeca = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+                [idMaterialPeca]
+            );
+            if (rem[0].qtd === 0) {
+                await pool.execute(`UPDATE material SET PecaManufat = '' WHERE IdMaterial = ?`, [idMaterialPeca]);
+            }
+        }
+
         res.json({ success: true, message: 'Material removido da composição.' });
     } catch (error) {
         console.error('[PecaManufaturada] DELETE /composicao:', error.message);
@@ -172,13 +187,15 @@ router.post('/composicao-lote', async (req, res) => {
 // ────────────────────────────────────────────────────────────────────────────────
 router.get('/desenhos-criar', async (req, res) => {
     try {
-        const { q } = req.query;
+        const { q, cod, desc } = req.query;
         let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,
                           EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, PecaManufat
                    FROM material
                    WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
         const params = [];
         if (q) { sql += ` AND (CodMatFabricante LIKE ? OR DescResumo LIKE ?)`; params.push(`%${q}%`, `%${q}%`); }
+        if (cod) { sql += ` AND CodMatFabricante LIKE ?`; params.push(`%${cod}%`); }
+        if (desc) { sql += ` AND DescResumo LIKE ?`; params.push(`%${desc}%`); }
         sql += ` ORDER BY CodMatFabricante LIMIT 200`;
         const [rows] = await db(req).execute(sql, params);
         res.json({ success: true, data: rows });
@@ -194,9 +211,9 @@ router.get('/desenhos-criar', async (req, res) => {
 // ────────────────────────────────────────────────────────────────────────────────
 router.get('/materiais-criar', async (req, res) => {
     try {
-        const { q, idDesenho } = req.query;
+        const { q, idDesenho, cod, desc } = req.query;
         let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,
-                          EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal
+                          EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal, PecaManufat, AreaPintura, Unidade, Altura, Largura, Qtde
                    FROM material
                    WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`;
         const params = [];
@@ -208,6 +225,8 @@ router.get('/materiais-criar', async (req, res) => {
             params.push(idDesenho);
         }
         if (q) { sql += ` AND (CodMatFabricante LIKE ? OR DescResumo LIKE ? OR DescDetal LIKE ?)`; params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
+        if (cod) { sql += ` AND CodMatFabricante LIKE ?`; params.push(`%${cod}%`); }
+        if (desc) { sql += ` AND (DescResumo LIKE ? OR DescDetal LIKE ?)`; params.push(`%${desc}%`, `%${desc}%`); }
         sql += ` ORDER BY CodMatFabricante LIMIT 300`;
         const [rows] = await db(req).execute(sql, params);
         res.json({ success: true, data: rows });

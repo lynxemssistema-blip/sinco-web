@@ -318,7 +318,7 @@ export default function MaterialPage() {
  return (
  <div className="space-y-6 h-full flex flex-col min-h-0">
  {/* Page Header */}
- <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+ <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
  <div>
  
  <p className="text-gray-500 text-xs">Gerencie o cadastro de materiais e produtos</p>
@@ -449,16 +449,16 @@ export default function MaterialPage() {
  </button>
  </div>
 
- <div className="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+ <div className="p-4 space-y-1.5 overflow-y-auto flex-1 custom-scrollbar">
  {/* ID Field (readonly when editing) */}
  {isEditing && (
- <div className="grid grid-cols-3 gap-4">
+ <div className="grid grid-cols-3 gap-3">
  
  </div>
  )}
 
  {/* Image Upload Action Area */}
-   <div className="flex flex-row items-center gap-4 mb-4">
+   <div className="flex flex-row items-center gap-3 mb-2">
      <div className="w-16 h-16 rounded bg-gray-100 border border-gray-200 flex items-center justify-center relative group shrink-0">
         {formData.ImagemProduto ? (
           <>
@@ -536,9 +536,9 @@ export default function MaterialPage() {
      </div>
    </div>
    {/* Identificação */}
- <div className="border-b border-gray-100 pb-4">
- <h3 className="text-xs font-semibold text-gray-700 mb-3">Identificação</h3>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+ <div className="border-b border-gray-100 pb-2">
+ <h3 className="text-xs font-semibold text-gray-700 mb-1.5">Identificação</h3>
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
  <div className="md:col-span-2">
  <label className="block text-xs font-medium text-gray-600 mb-1">
  Código Material <span className="text-red-500 font-bold">*</span>
@@ -567,8 +567,8 @@ export default function MaterialPage() {
  </div>
 
  {/* Descrição */}
- <div className="border-b border-gray-100 pb-4">
- <h3 className="text-xs font-semibold text-gray-700 mb-3">Descrição</h3>
+ <div className="border-b border-gray-100 pb-2">
+ <h3 className="text-xs font-semibold text-gray-700 mb-1.5">Descrição</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div>
  <label className="block text-xs font-medium text-gray-500 mb-1">Descrição Resumo</label>
