@@ -106,7 +106,7 @@ const setores: { id: Setor; label: string; icon: typeof Scissors; color: string 
  { id: 'mapaproducao', label: 'Mapa Produção', icon: Map, color: 'bg-indigo-600' },
 ];
 
-export default function ApontamentoProducaoPage() {
+export default function ApontamentoProducaoRecursoPage() {
  const { addToast } = useToast();
  const { user } = useAuth();
 
@@ -116,7 +116,21 @@ export default function ApontamentoProducaoPage() {
  const visibleSetores: string[] = processosVisiveis;
  // filteredSetores: the tabs to show (always include 'mapa' + 'mapaproducao', filter sectors by config)
  const filteredSetores = setores.filter(s => s.id === 'mapa' || s.id === 'mapaproducao' || s.id === 'planejamento' || processosVisiveis.includes(s.id));
- const [setorAtivo, setSetorAtivo] = useState<Setor>('mapa');
+ const [recursosList, setRecursosList] = useState<any[]>([]);
+const [setorAtivo, setSetorAtivo] = useState<any>('usinagem');
+
+useEffect(() => {
+    fetch('/api/recursos')
+      .then(res => res.json())
+      .then(data => {
+         if(data.success) {
+            const list = data.data.filter((r: any) => r.Fabrica === 'SIM' || r.Fabrica === '1');
+            setRecursosList(list);
+            if(list.length > 0) setSetorAtivo(list[0].processofabricacao.toLowerCase().replace(/\s+/g, ''));
+         }
+      })
+      .catch(console.error);
+}, []);
  const [itens, setItens] = useState<ApontamentoItem[]>([]);
  const abortControllerRef = useRef<AbortController | null>(null);
  const [loading, setLoading] = useState(false);
@@ -145,7 +159,7 @@ export default function ApontamentoProducaoPage() {
  const [dataPlanejamentoFilter, setDataPlanejamentoFilter] = useState('');
  const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('pendente');
  const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
- const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
+ const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: any) => {
  if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
  
  const sequence: Setor[] = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
@@ -192,7 +206,7 @@ export default function ApontamentoProducaoPage() {
  // const [tipoApontamento, setTipoApontamento] = useState<'Total' | 'Parcial'>('Total');
  const [submitting, setSubmitting] = useState(false);
  const [confirmingMapa, setConfirmingMapa] = useState(false);
- const [modalSetor, setModalSetor] = useState<Setor>('mapa');
+ const [modalSetor, setModalSetor] = useState<any>('mapa');
  const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
  // Reposicao Modal
@@ -921,36 +935,27 @@ export default function ApontamentoProducaoPage() {
 
  {/* Setor Tabs */}
  <AnimatePresence>
- {showTabs && (
- <motion.div
- initial={{ opacity: 0, height: 0 }}
- animate={{ opacity: 1, height: 'auto' }}
- exit={{ opacity: 0, height: 0 }}
- className="bg-white rounded-md shadow-sm border border-gray-100 p-2 overflow-hidden"
- >
- <div className="flex flex-wrap gap-2">
- {filteredSetores.map((setor) => {
- const Icon = setor.icon;
- const isActive = setorAtivo === setor.id;
- return (
- <motion.button
- key={setor.id}
- whileHover={{ scale: 1.02 }}
- whileTap={{ scale: 0.98 }}
- onClick={() => setSetorAtivo(setor.id)}
- className={`flex-1 min-w-[100px] flex items-center justify-center gap-2 px-2 py-1.5 rounded-lg font-medium transition-all text-xs ${isActive
- ? `${setor.color} text-white shadow-lg`
- : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
- }`}
- >
- <Icon size={14} />
- {setor.label}
- </motion.button>
- );
- })}
- </div>
- </motion.div>
- )}
+{showTabs && (
+      <div className="bg-white rounded-md shadow-sm border border-gray-100 p-2 overflow-hidden mb-2">
+        <div className="flex items-center gap-3 bg-gray-50/50 p-2 rounded-lg border border-gray-100">
+          <label className="text-xs font-semibold text-gray-700 uppercase">Recurso de Fabricação:</label>
+          <select
+              value={setorAtivo}
+              onChange={(e) => {
+                  setSetorAtivo(e.target.value);
+                  setPage(1);
+                  setHasSearched(false);
+              }}
+              className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-[#567469] focus:ring-1 focus:ring-[#567469]"
+          >
+              {recursosList.map((r, idx) => {
+                  const val = r.processofabricacao.toLowerCase().replace(/\s+/g, '');
+                  return <option key={idx} value={val}>{r.processofabricacao}</option>;
+              })}
+          </select>
+        </div>
+      </div>
+    )}
  </AnimatePresence>
  </>
  )}
@@ -2732,8 +2737,8 @@ export default function ApontamentoProducaoPage() {
  </td>
  <td className="px-2 py-1 text-center font-medium bg-gray-50">{p.IDRNC}</td>
  <td className="px-2 py-1 font-bold truncate max-w-[120px]" title={p.CodMatFabricante}>{p.CodMatFabricante}</td>
- <td className="px-2 py-1 font-medium bg-gray-50">{p.IdOrdemServico || selectedItem?.IdOrdemServico || '-'}</td>
- <td className="px-2 py-1 font-medium bg-gray-50">{p.IdOrdemServicoItem || selectedItem?.IdOrdemServicoItem || '-'}</td>
+ <td className="px-2 py-1 font-medium bg-gray-50 text-center">{p.IdOrdemServico || selectedItem?.IdOrdemServico || '-'}</td>
+ <td className="px-2 py-1 font-medium bg-gray-50 text-center">{p.IdOrdemServicoItem || selectedItem?.IdOrdemServicoItem || '-'}</td>
  <td className="px-2 py-1 truncate max-w-[100px]" title={p.Projeto}>{p.Projeto}</td>
  <td className="px-2 py-1 truncate max-w-[100px]" title={p.Tag}>{p.Tag}</td>
  <td className="px-2 py-1 truncate max-w-[120px]" title={p.DescResumo}>{p.DescResumo}</td>

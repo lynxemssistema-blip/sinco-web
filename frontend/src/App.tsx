@@ -22,6 +22,7 @@ import RecursoFabricacaoPage from './pages/RecursoFabricacao';
 import MotoristaPage from './pages/Motorista';
 import OrdemServicoPage from './pages/OrdemServico';
 import ApontamentoProducaoPage from './pages/ApontamentoProducao';
+import ApontamentoProducaoRecursoPage from './pages/ApontamentoProducaoRecurso';
 import ApontamentosParciaisPage from './pages/ApontamentosParciais';
 import ConfiguracaoPage from './pages/Configuracao';
 import ConfiguracaoSistemaPage from './pages/ConfiguracaoSistema';
@@ -331,6 +332,8 @@ function AppContent() {
         return <ProducaoPlanoCortePage />;
       case 'apontamento':
         return <ApontamentoProducaoPage />;
+      case 'apontamento-producao-recurso':
+        return <ApontamentoProducaoRecursoPage />;
       case 'apontamentos-parciais':
         return <ApontamentosParciaisPage />;
       case 'acompanhamento-geral':

@@ -23,8 +23,8 @@ interface Recurso {
 const emptyForm: Recurso = {
   processofabricacao: '',
   CodigoProcessoFabricacao: '',
-  Fabrica: 'NAO',
-  DataLiberada: 'NAO',
+  Fabrica: 'NÂO',
+  DataLiberada: 'NÂO',
   Setup: 0,
   TempoPadrao: 0
 };
@@ -32,8 +32,10 @@ const emptyForm: Recurso = {
 export default function RecursoFabricacaoPage() {
   const { token } = useAuth();
   const [recursos, setRecursos] = useState<Recurso[]>([]);
-  const [formData, setFormData] = useState<Recurso>(emptyForm);
-  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState<Recurso>(emptyForm); // For modal (NEW)
+  const [editFormData, setEditFormData] = useState<Recurso>(emptyForm); // For inline (EDIT)
+  const [editingId, setEditingId] = useState<number | null>(null);
+  
   const [searchNome, setSearchNome] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -46,7 +48,7 @@ export default function RecursoFabricacaoPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/recursos`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE}/recursos?t=${new Date().getTime()}`, { headers: { 'Authorization': `Bearer ${token}` } });
       const json = await res.json();
       if (json.success) {
         setRecursos(json.data);
@@ -75,7 +77,13 @@ export default function RecursoFabricacaoPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const inputBaseClass = "w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all";
+  const handleInputInline = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const name = e.target.name;
+    const value = (name === 'processofabricacao' || name === 'CodigoProcessoFabricacao') ? e.target.value.toUpperCase() : e.target.value;
+    setEditFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const inputBaseClass = `w-full px-2 py-1 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#E0E800]/50 focus:border-[#E0E800] transition-all`;
   const inputRequired = `${inputBaseClass} border-gray-300 bg-amber-50/30`;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,8 +91,7 @@ export default function RecursoFabricacaoPage() {
     
     // Duplication check
     const isDuplicate = recursos.some(r => 
-      r.processofabricacao.toUpperCase().trim() === formData.processofabricacao.toUpperCase().trim() && 
-      r.IdProcessoFabricacao !== formData.IdProcessoFabricacao
+      r.processofabricacao.toUpperCase().trim() === formData.processofabricacao.toUpperCase().trim()
     );
 
     if (isDuplicate) {
@@ -96,8 +103,8 @@ export default function RecursoFabricacaoPage() {
     setError(null);
 
     try {
-      const url = isEditing ? `${API_BASE}/recursos/${formData.IdProcessoFabricacao}` : `${API_BASE}/recursos`;
-      const method = isEditing ? 'PUT' : 'POST';
+      const url = `${API_BASE}/recursos`;
+      const method = 'POST';
 
       const res = await fetch(url, {
         method,
@@ -111,12 +118,48 @@ export default function RecursoFabricacaoPage() {
       const json = await res.json();
       if (json.success) {
         await fetchRecursos();
-        if (!isEditing) {
-          // Keep form open for next inclusion
-          setFormData(emptyForm);
-        } else {
-          resetForm();
-        }
+        setFormData(emptyForm);
+        setShowForm(false);
+      } else {
+        setError(json.message || 'Erro ao salvar');
+      }
+    } catch (err) {
+      setError('Erro ao salvar. Verifique a conexão.');
+      console.error('Save error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateInline = async () => {
+    // Duplication check
+    const isDuplicate = recursos.some(r => 
+      r.processofabricacao.toUpperCase().trim() === editFormData.processofabricacao.toUpperCase().trim() && 
+      r.IdProcessoFabricacao !== editFormData.IdProcessoFabricacao
+    );
+
+    if (isDuplicate) {
+      setError('Já existe um processo cadastrado com este nome.');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_BASE}/recursos/${editFormData.IdProcessoFabricacao}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        await fetchRecursos();
+        handleCancelInline();
       } else {
         setError(json.message || 'Erro ao salvar');
       }
@@ -129,9 +172,15 @@ export default function RecursoFabricacaoPage() {
   };
 
   const handleEdit = (recurso: Recurso) => {
-    setFormData(recurso);
-    setIsEditing(true);
-    setShowForm(true);
+    setEditFormData(recurso);
+    setEditingId(recurso.IdProcessoFabricacao || null);
+    setError(null);
+  };
+
+  const handleCancelInline = () => {
+    setEditingId(null);
+    setEditFormData(emptyForm);
+    setError(null);
   };
 
   const handleDelete = async (id: number) => {
@@ -155,7 +204,6 @@ export default function RecursoFabricacaoPage() {
 
   const resetForm = () => {
     setFormData(emptyForm);
-    setIsEditing(false);
     setShowForm(false);
     setError(null);
   };
@@ -191,9 +239,10 @@ export default function RecursoFabricacaoPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
+          className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex justify-between items-center"
         >
-          {error}
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-red-700 hover:bg-red-100 rounded p-1"><X size={14}/></button>
         </motion.div>
       )}
 
@@ -242,7 +291,7 @@ export default function RecursoFabricacaoPage() {
         )}
       </div>
 
-      {/* Form Modal */}
+      {/* Form Modal (Only for inserts now) */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -264,7 +313,7 @@ export default function RecursoFabricacaoPage() {
                     <Briefcase size={20} />
                   </div>
                   <h2 className="text-lg font-semibold text-[#32423D]">
-                    {isEditing ? 'Editar Processo' : 'Novo Processo'}
+                    Novo Processo
                   </h2>
                 </div>
                 <button
@@ -394,7 +443,7 @@ export default function RecursoFabricacaoPage() {
                     disabled={saving}
                   >
                     {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                    {isEditing ? 'Atualizar' : 'Salvar'}
+                    Salvar
                   </motion.button>
                 </div>
               </form>
@@ -413,16 +462,15 @@ export default function RecursoFabricacaoPage() {
         ) : (
           <div className="overflow-auto flex-1">
             <table className="w-full">
-              <thead className="bg-[#567469] text-white">
+              <thead className="bg-[#567469] text-white sticky top-0 z-10">
                 <tr className="border-b border-white/20">
-                  <th className="px-2 py-0.5 text-left text-[9px] font-semibold text-white uppercase tracking-wider">Processo</th>
-                  <th className="px-2 py-0.5 text-left text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Código</th>
-                  <th className="px-2 py-0.5 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Fábrica</th>
-                  <th className="px-2 py-0.5 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Data Liberada</th>
-                  <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell">Setup (min)</th>
-                  <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell">T. Padrão (min)</th>
-                  
-                  <th className="px-2 py-0.5 text-right text-[9px] font-semibold text-white uppercase tracking-wider">Ações</th>
+                  <th className="px-2 py-1 text-left text-[9px] font-semibold text-white uppercase tracking-wider">Processo</th>
+                  <th className="px-2 py-1 text-left text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Código</th>
+                  <th className="px-2 py-1 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Fábrica</th>
+                  <th className="px-2 py-1 text-center text-[9px] font-semibold text-white uppercase tracking-wider hidden md:table-cell">Data Liberada</th>
+                  <th className="px-2 py-1 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell w-20">Setup</th>
+                  <th className="px-2 py-1 text-right text-[9px] font-semibold text-white uppercase tracking-wider hidden sm:table-cell w-20">T. Padrão</th>
+                  <th className="px-2 py-1 text-right text-[9px] font-semibold text-white uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -447,50 +495,139 @@ export default function RecursoFabricacaoPage() {
                       key={recurso.IdProcessoFabricacao}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      transition={{ delay: idx * 0.01 }}
+                      className={`${editingId === recurso.IdProcessoFabricacao ? 'bg-amber-50/40' : 'hover:bg-gray-50/50'} transition-colors`}
                     >
-                      <td className="px-3 py-1">
-                        <p className="font-medium text-[#32423D] text-[11px]">{recurso.processofabricacao}</p>
-                      </td>
-                      <td className="px-3 py-1 hidden md:table-cell text-[11px] text-gray-600">
-                        {recurso.CodigoProcessoFabricacao || '-'}
-                      </td>
-                      <td className="px-3 py-1 text-center hidden md:table-cell">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${recurso.Fabrica === 'SIM' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                          {recurso.Fabrica}
-                        </span>
-                      </td>
-                      <td className="px-3 py-1 text-center hidden md:table-cell">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${recurso.DataLiberada === 'SIM' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}`}>
-                          {recurso.DataLiberada}
-                        </span>
-                      </td>
-                      <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">
-                        {recurso.Setup ?? '-'}
-                      </td>
-                      <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">
-                        {recurso.TempoPadrao ?? '-'}
-                      </td>
-                      
-                      <td className="px-3 py-1">
-                        <div className="flex items-center justify-end gap-0.5">
-                          <button
-                            onClick={() => handleEdit(recurso)}
-                            className="p-1 rounded text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/20 transition-colors"
-                            title="Editar"
-                          >
-                            <Edit2 size={13} />
-                          </button>
-                          <button
-                            onClick={() => recurso.IdProcessoFabricacao && handleDelete(recurso.IdProcessoFabricacao)}
-                            className="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                            title="Excluir"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
+                      {editingId === recurso.IdProcessoFabricacao ? (
+                        <>
+                          {/* INLINE EDIT MODE */}
+                          <td className="px-2 py-1">
+                            <input 
+                              type="text" 
+                              name="processofabricacao" 
+                              value={editFormData.processofabricacao || ''} 
+                              className="w-full px-1.5 py-1 rounded border border-transparent bg-transparent font-medium text-[#32423D] text-[11px] uppercase outline-none cursor-default" 
+                              disabled
+                            />
+                          </td>
+                          <td className="px-2 py-1 hidden md:table-cell">
+                            <input 
+                              type="text" 
+                              name="CodigoProcessoFabricacao" 
+                              value={editFormData.CodigoProcessoFabricacao || ''} 
+                              onChange={handleInputInline} 
+                              className="w-full px-1.5 py-1 rounded border border-gray-300 text-[10px] uppercase focus:border-[#32423D] outline-none" 
+                            />
+                          </td>
+                          <td className="px-2 py-1 text-center hidden md:table-cell w-20">
+                            <select 
+                              name="Fabrica" 
+                              value={editFormData.Fabrica} 
+                              onChange={handleInputInline} 
+                              className="w-full px-1 py-1 rounded border border-gray-300 text-[10px] focus:border-[#32423D] outline-none"
+                            >
+                              <option value="SIM">SIM</option>
+                              <option value="NÂO">NÃO</option>
+                            </select>
+                          </td>
+                          <td className="px-2 py-1 text-center hidden md:table-cell w-20">
+                            <select 
+                              name="DataLiberada" 
+                              value={editFormData.DataLiberada} 
+                              onChange={handleInputInline} 
+                              className="w-full px-1 py-1 rounded border border-gray-300 text-[10px] focus:border-[#32423D] outline-none"
+                            >
+                              <option value="SIM">SIM</option>
+                              <option value="NÂO">NÃO</option>
+                            </select>
+                          </td>
+                          <td className="px-2 py-1 text-right hidden sm:table-cell">
+                            <input 
+                              type="number" 
+                              step="0.01" 
+                              name="Setup" 
+                              value={editFormData.Setup === undefined ? '' : editFormData.Setup} 
+                              onChange={handleInputInline} 
+                              className="w-full px-1.5 py-1 rounded border border-gray-300 text-[10px] text-right focus:border-[#32423D] outline-none" 
+                            />
+                          </td>
+                          <td className="px-2 py-1 text-right hidden sm:table-cell">
+                            <input 
+                              type="number" 
+                              step="0.01" 
+                              name="TempoPadrao" 
+                              value={editFormData.TempoPadrao === undefined ? '' : editFormData.TempoPadrao} 
+                              onChange={handleInputInline} 
+                              className="w-full px-1.5 py-1 rounded border border-gray-300 text-[10px] text-right focus:border-[#32423D] outline-none" 
+                            />
+                          </td>
+                          <td className="px-2 py-1">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={handleUpdateInline}
+                                disabled={saving}
+                                className="px-2 py-1 rounded text-white bg-green-500 hover:bg-green-600 transition-colors flex items-center justify-center shadow-sm disabled:opacity-50"
+                                title="Salvar"
+                              >
+                                {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                              </button>
+                              <button
+                                onClick={handleCancelInline}
+                                disabled={saving}
+                                className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600 transition-colors flex items-center justify-center shadow-sm disabled:opacity-50"
+                                title="Cancelar"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          {/* NORMAL READ-ONLY MODE */}
+                          <td className="px-3 py-1">
+                            <p className="font-medium text-[#32423D] text-[11px]">{recurso.processofabricacao}</p>
+                          </td>
+                          <td className="px-3 py-1 hidden md:table-cell text-[11px] text-gray-600">
+                            {recurso.CodigoProcessoFabricacao || '-'}
+                          </td>
+                          <td className="px-3 py-1 text-center hidden md:table-cell">
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${recurso.Fabrica === 'SIM' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                              {recurso.Fabrica}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1 text-center hidden md:table-cell">
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${recurso.DataLiberada === 'SIM' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}`}>
+                              {recurso.DataLiberada}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">
+                            {recurso.Setup ?? '-'}
+                          </td>
+                          <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">
+                            {recurso.TempoPadrao ?? '-'}
+                          </td>
+                          
+                          <td className="px-3 py-1">
+                            <div className="flex items-center justify-end gap-0.5">
+                              <button
+                                onClick={() => handleEdit(recurso)}
+                                className="p-1 rounded text-blue-500 hover:text-blue-700 hover:bg-[#E0E800]/20 transition-colors"
+                                title="Editar Inline"
+                              >
+                                <Edit2 size={13} />
+                              </button>
+                              <button
+                                onClick={() => recurso.IdProcessoFabricacao && handleDelete(recurso.IdProcessoFabricacao)}
+                                className="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                                title="Excluir"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
                     </motion.tr>
                   ))
                 )}

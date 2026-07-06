@@ -5,6 +5,7 @@ export const defaultMenuItems: MenuItem[] = [
     { id: 'acompanhamento-geral', icon: 'MonitorPlay', label: 'Acompanhamento Geral', href: '/acompanhamento-geral' },
     { id: 'acompanhamento-etapas', icon: 'Briefcase', label: 'Visão Geral Engenharia', href: '/acompanhamento-etapas' },
     { id: 'apontamento', icon: 'Factory', label: 'Apontamento Produção', href: '/apontamento' },
+    { id: 'apontamento-producao-recurso', icon: 'Activity', label: 'Apontamento Produção Recurso', href: '/apontamento-producao-recurso' },
     { id: 'apontamentos-parciais', icon: 'PieChart', label: 'Apontamentos Parciais', href: '/apontamentos-parciais' },
     {
         id: 'cadastro-usuarios',

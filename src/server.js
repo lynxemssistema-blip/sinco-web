@@ -8586,13 +8586,16 @@ app.get('/api/apontamento/planejamento/diario', async (req, res) => {
 
 app.get('/api/apontamento/:setor', async (req, res) => {
     const setor = req.params.setor.toLowerCase();
-    const setorConfig = setorColumns[setor];
+    let setorConfig = setorColumns[setor];
 
     if (!setorConfig) {
-        return res.status(400).json({
-            success: false,
-            message: 'Setor inválido. Use: corte, dobra, solda, pintura ou montagem'
-        });
+        const cap = setor.charAt(0).toUpperCase() + setor.slice(1);
+        setorConfig = {
+            txt: 'txt'+cap, percentual: cap+'Percentual', status: 'sttxt'+cap,
+            total: cap+'TotalExecutado', executar: cap+'TotalExecutar',
+            inicio: 'RealizadoInicio'+cap, final: 'RealizadoFinal'+cap,
+            userInicio: 'UsuarioRealizadoInicio'+cap, userFinal: 'UsuarioRealizadoFinal'+cap
+        };
     }
 
     const { projeto, tag, os, item, search, status, codMatFabricante, dataPlanejamento, page = 1, limit = 50 } = req.query;
@@ -8878,7 +8881,18 @@ AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*')
 app.get('/api/apontamento/item/:id/:processo', async (req, res) => {
     const { id, processo } = req.params;
     const isAll = processo.toLowerCase() === 'all';
-    const setorConfig = setorColumns[processo.toLowerCase()] || setorColumns['mapa']; // Default to mapa if all
+    let setorConfig = setorColumns[processo.toLowerCase()];
+    if (!setorConfig && !isAll) {
+        const cap = processo.charAt(0).toUpperCase() + processo.slice(1).toLowerCase();
+        setorConfig = {
+            txt: 'txt'+cap, percentual: cap+'Percentual', status: 'sttxt'+cap,
+            total: cap+'TotalExecutado', executar: cap+'TotalExecutar',
+            inicio: 'RealizadoInicio'+cap, final: 'RealizadoFinal'+cap,
+            userInicio: 'UsuarioRealizadoInicio'+cap, userFinal: 'UsuarioRealizadoFinal'+cap
+        };
+    } else if (!setorConfig) {
+        setorConfig = setorColumns['mapa'];
+    }
 
     try {
         console.log(`[API] Fetching item details for ID: ${id}, Processo: ${processo} `);
