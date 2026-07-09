@@ -14370,7 +14370,7 @@ app.get('/login', (req, res) => {
 });
 
 // React SPA — todas as rotas internas
-app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|superadmin).*/, (req, res) => {
+app.get(/^\/(dashboard|app|admin|projetos|tags|os|romaneio|producao|material|apontamento|pendencia|tarefa|blockset|powerbuild|relatorio|configuracao|superadmin|peca-manufaturada|recursos-fabricacao|motorista|pessoa-juridica|unidades-medida|familia|acabamento|tipos-produto|setor|camera|usuarios|cadastro-usuario).*/, (req, res) => {
     const devPath = path.join(__dirname, '../frontend/dist/index.html');
     const prodPath = path.join(__dirname, '../index.html');
     const fs = require('fs');
