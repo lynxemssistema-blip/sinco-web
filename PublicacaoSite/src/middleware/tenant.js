@@ -9,6 +9,8 @@ const tenantMiddleware = async (req, res, next) => {
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
+    } else if (req.query.token) {
+        token = req.query.token;
     }
 
     // Public routes that don't need tenant context (e.g., login)

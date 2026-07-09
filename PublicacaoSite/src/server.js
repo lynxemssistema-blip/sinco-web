@@ -12,6 +12,7 @@ const blocksetRoutes = require('./routes/blocksetRoutes');
 const pecaManufaturadaRoutes = require('./routes/pecaManufaturada');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const multer = require('multer');
+const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 const { exec } = require('child_process');
@@ -4041,6 +4042,24 @@ app.get('/api/material', async (req, res) => {
     }
 });
 
+// BUSCAR por CodMatFabricante
+app.get('/api/material/busca-cod', async (req, res) => {
+    try {
+        const search = req.query.q;
+        if (!search) return res.json({ success: true, data: [] });
+        const [rows] = await pool.execute(`
+            SELECT * FROM material 
+            WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') 
+              AND CodMatFabricante = ?
+            LIMIT 1
+        `, [search]);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error in material search:', error);
+        res.status(500).json({ success: false, message: 'Erro na busca de material' });
+    }
+});
+
 // GET ONE (Read Single)
 app.get('/api/material/:id', async (req, res) => {
     try {
@@ -6447,6 +6466,53 @@ app.get('/api/ordemservico/busca-item', async (req, res) => {
     }
 });
 
+// CREATE Ordem de Serviço
+app.post('/api/ordemservico', tenantMiddleware, async (req, res) => {
+    const data = req.body;
+    if (!data.IdProjeto || !data.IdTag) {
+        return res.status(400).json({ success: false, message: 'Projeto e Tag são obrigatórios' });
+    }
+    try {
+        const now = getCurrentDateTimeBR();
+        
+        const [result] = await pool.execute(
+            `INSERT INTO ordemservico (
+                Projeto, Tag, DescTag, Descricao, IdEmpresa, IdProjeto, IdTag, DescEmpresa,
+                EnderecoOrdemServico, CriadoPor, DataCriacao, Estatus, DataPrevisao,
+                ProdutoPadrao, CodDesenhoProduto, DescricaoProduto, ProdutoCriadoPor, DataCriacaoProduto,
+                Fator, TipoLiberacaoOrdemServico, IdMatriz
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                data.Projeto || '',
+                data.Tag || '',
+                data.DescTag || '',
+                data.Descricao || '',
+                data.IdEmpresa || 0,
+                data.IdProjeto || 0,
+                data.IdTag || 0,
+                data.DescEmpresa || '',
+                data.EnderecoOrdemServico || '',
+                data.CriadoPor || 'Sistema',
+                data.DataCriacao || now,
+                data.Estatus || 'A',
+                data.DataPrevisao || null,
+                data.ProdutoPadrao || '',
+                data.CodDesenhoProduto || '',
+                data.DescricaoProduto || '',
+                data.ProdutoCriadoPor || '',
+                data.DataCriacaoProduto || null,
+                data.Fator || 1,
+                data.TipoLiberacaoOrdemServico || 'Total',
+                data.IdMatriz || 0
+            ]
+        );
+        res.json({ success: true, message: 'OS cadastrada', id: result.insertId });
+    } catch (error) {
+        console.error('Error creating ordemservico:', error);
+        res.status(500).json({ success: false, message: 'Erro ao cadastrar OS: ' + error.message });
+    }
+});
+
 // LIST Ordens de ServiÃ¯Â¿Â½o com paginaÃ¯Â¿Â½Ã¯Â¿Â½o e filtros
 app.get('/api/ordemservico', async (req, res) => {
     try {
@@ -8520,13 +8586,16 @@ app.get('/api/apontamento/planejamento/diario', async (req, res) => {
 
 app.get('/api/apontamento/:setor', async (req, res) => {
     const setor = req.params.setor.toLowerCase();
-    const setorConfig = setorColumns[setor];
+    let setorConfig = setorColumns[setor];
 
     if (!setorConfig) {
-        return res.status(400).json({
-            success: false,
-            message: 'Setor inválido. Use: corte, dobra, solda, pintura ou montagem'
-        });
+        const cap = setor.charAt(0).toUpperCase() + setor.slice(1);
+        setorConfig = {
+            txt: 'txt'+cap, percentual: cap+'Percentual', status: 'sttxt'+cap,
+            total: cap+'TotalExecutado', executar: cap+'TotalExecutar',
+            inicio: 'RealizadoInicio'+cap, final: 'RealizadoFinal'+cap,
+            userInicio: 'UsuarioRealizadoInicio'+cap, userFinal: 'UsuarioRealizadoFinal'+cap
+        };
     }
 
     const { projeto, tag, os, item, search, status, codMatFabricante, dataPlanejamento, page = 1, limit = 50 } = req.query;
@@ -8812,7 +8881,18 @@ AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '' OR osi.D_E_L_E_T_E != '*')
 app.get('/api/apontamento/item/:id/:processo', async (req, res) => {
     const { id, processo } = req.params;
     const isAll = processo.toLowerCase() === 'all';
-    const setorConfig = setorColumns[processo.toLowerCase()] || setorColumns['mapa']; // Default to mapa if all
+    let setorConfig = setorColumns[processo.toLowerCase()];
+    if (!setorConfig && !isAll) {
+        const cap = processo.charAt(0).toUpperCase() + processo.slice(1).toLowerCase();
+        setorConfig = {
+            txt: 'txt'+cap, percentual: cap+'Percentual', status: 'sttxt'+cap,
+            total: cap+'TotalExecutado', executar: cap+'TotalExecutar',
+            inicio: 'RealizadoInicio'+cap, final: 'RealizadoFinal'+cap,
+            userInicio: 'UsuarioRealizadoInicio'+cap, userFinal: 'UsuarioRealizadoFinal'+cap
+        };
+    } else if (!setorConfig) {
+        setorConfig = setorColumns['mapa'];
+    }
 
     try {
         console.log(`[API] Fetching item details for ID: ${id}, Processo: ${processo} `);
@@ -8922,6 +9002,7 @@ app.get('/api/apontamentos-parciais', async (req, res) => {
             INNER JOIN ordemservicoitem i ON c.IdOrdemServicoItem = i.IdOrdemServicoItem
             INNER JOIN ordemservico os ON c.IdOrdemServico = os.IdOrdemServico
             WHERE c.TipoApontamento = 'Parcial'
+              AND c.QtdeProduzida < c.QtdeTotal
               AND (c.D_E_L_E_T_E IS NULL OR c.D_E_L_E_T_E = '')
             ORDER BY c.DataCriacao DESC
         `);
@@ -9580,7 +9661,8 @@ async function ensureConfigColumns(poolRef) {
         { name: 'PlanoCorteFiltroDC',                   def: `VARCHAR(20) DEFAULT 'corte'` },
         { name: 'MaxRegistros',                         def: `INT DEFAULT 500` },
         { name: 'MenuStructure',                        def: `LONGTEXT DEFAULT NULL` },
-        { name: 'PermitirRealizadoSemPlanejamento',     def: `VARCHAR(10) DEFAULT 'Sim'` }
+        { name: 'PermitirRealizadoSemPlanejamento',     def: `VARCHAR(10) DEFAULT 'Sim'` },
+        { name: 'EnderecoSalvarCNHMotorista',           def: `VARCHAR(255) DEFAULT ''` }
     ];
 
     // 1. Garante que a tabela existe com estrutura mínima (seguro em qualquer banco)
@@ -9727,9 +9809,31 @@ app.get('/api/config', tenantMiddleware, async (req, res) => {
 });
 
 // PUT /api/config - Salva em QUALQUER banco ativo (auto-migra schema se necessário)
+
+// Validar caminho da CNH
+app.post('/api/config/validar-caminho', tenantMiddleware, async (req, res) => {
+    const { caminho } = req.body;
+    try {
+        if (!caminho) return res.json({ success: false, message: 'Caminho não fornecido' });
+        
+        // Verifica se é um diretório acessível
+        const stats = require('fs').statSync(caminho, { throwIfNoEntry: false });
+        if (!stats) {
+            // Tenta criar se não existe
+            require('fs').mkdirSync(caminho, { recursive: true });
+        } else if (!stats.isDirectory()) {
+            return res.json({ success: false, message: 'O caminho existe mas não é uma pasta' });
+        }
+        
+        return res.json({ success: true, message: 'Caminho válido e acessível' });
+    } catch (error) {
+        return res.json({ success: false, message: 'O caminho especificado é inválido ou você não tem permissão de acesso.' });
+    }
+});
+
 app.put('/api/config', tenantMiddleware, async (req, res) => {
     try {
-        const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento } = req.body;
+        const { restringirApontamento, processosVisiveis, maxRegistros, permitirRealizadoSemPlanejamento, enderecoSalvarCNHMotorista } = req.body;
 
         await ensureConfigColumns(pool);
 
@@ -10466,6 +10570,91 @@ app.get('/api/rnc/sectors', tenantMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error fetching sectors:', error);
         res.status(500).json({ success: false, message: 'Erro ao buscar setores' });
+    }
+});
+
+
+// --- RECURSOS (PROCESSOS DE FABRICACAO) CRUD ---
+
+// Helper function to auto-create missing fields in processofabricacao
+const ensureProcessoFieldsAndRetry = async (pool, query, params) => {
+    try {
+        return await pool.execute(query, params);
+    } catch (error) {
+        if (error.code === 'ER_BAD_FIELD_ERROR' && (error.message.includes('Setup') || error.message.includes('TempoPadrao'))) {
+            console.log('Missing fields in processofabricacao detected, attempting to create Setup and TempoPadrao...');
+            try { await pool.execute('ALTER TABLE processofabricacao ADD COLUMN Setup DECIMAL(10,2) NULL'); } catch(e) {}
+            try { await pool.execute('ALTER TABLE processofabricacao ADD COLUMN TempoPadrao DECIMAL(10,2) NULL'); } catch(e) {}
+            console.log('Retrying the original query...');
+            return await pool.execute(query, params);
+        }
+        throw error;
+    }
+};
+
+
+// GET /api/recursos - Listar todos os recursos
+app.get('/api/recursos', tenantMiddleware, async (req, res) => {
+    try {
+        const query = "SELECT IdProcessoFabricacao, processofabricacao, CodigoProcessoFabricacao, DataLiberada, Fabrica, Setup, TempoPadrao, DataCriacao, CriadoPor FROM processofabricacao WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY processofabricacao ASC";
+        const [rows] = await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, []);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching recursos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar recursos' });
+    }
+});
+
+// POST /api/recursos - Criar novo recurso
+app.post('/api/recursos', tenantMiddleware, async (req, res) => {
+    const { processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao } = req.body;
+    const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const idMatriz = req.tenantUser?.tenantId || null;
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    try {
+        const query = "INSERT INTO processofabricacao (processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao, CriadoPor, DataCriacao, IdMatriz) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, usuario, nowFormat, idMatriz];
+        await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
+        res.json({ success: true, message: 'Recurso criado com sucesso' });
+    } catch (error) {
+        console.error('Error creating recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao criar recurso' });
+    }
+});
+
+// PUT /api/recursos/:id - Atualizar recurso
+app.put('/api/recursos/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao } = req.body;
+    try {
+        const query = "UPDATE processofabricacao SET processofabricacao = ?, CodigoProcessoFabricacao = ?, Fabrica = ?, DataLiberada = ?, Setup = ?, TempoPadrao = ? WHERE IdProcessoFabricacao = ?";
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, id];
+        await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
+        res.json({ success: true, message: 'Recurso atualizado com sucesso' });
+    } catch (error) {
+        console.error('Error updating recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar recurso' });
+    }
+});
+
+// DELETE /api/recursos/:id - Excluir recurso
+app.delete('/api/recursos/:id', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const usuario = req.tenantUser?.login || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    try {
+        await req.tenantDbPool.execute(
+            "UPDATE processofabricacao SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdProcessoFabricacao = ?",
+            [nowFormat, usuario, id]
+        );
+        res.json({ success: true, message: 'Recurso excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting recurso:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir recurso' });
     }
 });
 
@@ -14143,7 +14332,28 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
 // Static: landing page assets (root)
 app.use(express.static(path.join(__dirname, '../')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
-app.use('/fotosfuncionarios', express.static('C:\\fotosfuncionarios'));
+// Rota dinâmica para fotos de funcionários (CNH) baseada no tenant
+app.get('/fotosfuncionarios/:filename', tenantMiddleware, async (req, res) => {
+    let baseDir = 'C:\\fotosfuncionarios';
+    try {
+        if (req.tenantDbPool) {
+            const [rows] = await req.tenantDbPool.execute('SELECT EnderecoSalvarCNHMotorista FROM configuracaosistema LIMIT 1');
+            if (rows.length > 0 && rows[0].EnderecoSalvarCNHMotorista) {
+                baseDir = rows[0].EnderecoSalvarCNHMotorista;
+            }
+        }
+    } catch (e) {
+        console.error('Erro ao buscar diretório da CNH para servir:', e);
+    }
+    const filepath = require('path').join(baseDir, req.params.filename);
+    if (require('fs').existsSync(filepath)) {
+        res.sendFile(filepath);
+    } else {
+        res.status(404).send('Arquivo não encontrado');
+    }
+});
+
+
 app.use('/css', express.static(path.join(__dirname, '../public/css')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 // Static: React app assets (assets/, etc.)
@@ -14281,32 +14491,32 @@ app.get('/api/acompanhamento-etapas', async (req, res) => {
                 p.StatusProj as StatusProj,
                 p.liberado as liberado,
                 COUNT(t.IdTag) as TotalTags,
-                SUM(CASE WHEN t.RealizadoFinalMedicao IS NULL OR TRIM(t.RealizadoFinalMedicao) = '' THEN 1 ELSE 0 END) as FaltaMedicao,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.RealizadoFinalMedicao IS NULL OR TRIM(t.RealizadoFinalMedicao) = '') THEN 1 ELSE 0 END) as FaltaMedicao,
                 SUM(CASE WHEN t.RealizadoFinalMedicao IS NOT NULL AND TRIM(t.RealizadoFinalMedicao) != '' THEN 1 ELSE 0 END) as OkMedicao,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioMedicao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanMedicao,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalMedicao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealMedicao,
                 
-                SUM(CASE WHEN t.RealizadoFinalIsometrico IS NULL OR TRIM(t.RealizadoFinalIsometrico) = '' THEN 1 ELSE 0 END) as FaltaIsometrico,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.RealizadoFinalIsometrico IS NULL OR TRIM(t.RealizadoFinalIsometrico) = '') THEN 1 ELSE 0 END) as FaltaIsometrico,
                 SUM(CASE WHEN t.RealizadoFinalIsometrico IS NOT NULL AND TRIM(t.RealizadoFinalIsometrico) != '' THEN 1 ELSE 0 END) as OkIsometrico,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioIsometrico),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanIsometrico,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalIsometrico),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealIsometrico,
                 
-                SUM(CASE WHEN t.RealizadoFinalEngenharia IS NULL OR TRIM(t.RealizadoFinalEngenharia) = '' THEN 1 ELSE 0 END) as FaltaEngenharia,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.RealizadoFinalEngenharia IS NULL OR TRIM(t.RealizadoFinalEngenharia) = '') THEN 1 ELSE 0 END) as FaltaEngenharia,
                 SUM(CASE WHEN t.RealizadoFinalEngenharia IS NOT NULL AND TRIM(t.RealizadoFinalEngenharia) != '' THEN 1 ELSE 0 END) as OkEngenharia,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioEngenharia),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanEngenharia,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalEngenharia),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealEngenharia,
                 
-                SUM(CASE WHEN t.RealizadoFinalAprovacao IS NULL OR TRIM(t.RealizadoFinalAprovacao) = '' THEN 1 ELSE 0 END) as FaltaAprovacao,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.RealizadoFinalAprovacao IS NULL OR TRIM(t.RealizadoFinalAprovacao) = '') THEN 1 ELSE 0 END) as FaltaAprovacao,
                 SUM(CASE WHEN t.RealizadoFinalAprovacao IS NOT NULL AND TRIM(t.RealizadoFinalAprovacao) != '' THEN 1 ELSE 0 END) as OkAprovacao,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioAprovacao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanAprovacao,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalAprovacao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealAprovacao,
                 
-                SUM(CASE WHEN t.RealizadoFinalAcabamento IS NULL OR TRIM(t.RealizadoFinalAcabamento) = '' THEN 1 ELSE 0 END) as FaltaAcabamento,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.RealizadoFinalAcabamento IS NULL OR TRIM(t.RealizadoFinalAcabamento) = '') THEN 1 ELSE 0 END) as FaltaAcabamento,
                 SUM(CASE WHEN t.RealizadoFinalAcabamento IS NOT NULL AND TRIM(t.RealizadoFinalAcabamento) != '' THEN 1 ELSE 0 END) as OkAcabamento,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioAcabamento),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanAcabamento,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.RealizadoFinalAcabamento),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealAcabamento,
                 
-                SUM(CASE WHEN t.realizadoFinalExpedicao IS NULL OR TRIM(t.realizadoFinalExpedicao) = '' THEN 1 ELSE 0 END) as FaltaExpedicao,
+                SUM(CASE WHEN t.IdTag IS NOT NULL AND (t.realizadoFinalExpedicao IS NULL OR TRIM(t.realizadoFinalExpedicao) = '') THEN 1 ELSE 0 END) as FaltaExpedicao,
                 SUM(CASE WHEN t.realizadoFinalExpedicao IS NOT NULL AND TRIM(t.realizadoFinalExpedicao) != '' THEN 1 ELSE 0 END) as OkExpedicao,
                 DATE_FORMAT(MIN(STR_TO_DATE(NULLIF(TRIM(t.PlanejadoInicioExpedicao),''), '%d/%m/%Y')), '%d/%m/%Y') as PlanExpedicao,
                 DATE_FORMAT(MAX(STR_TO_DATE(NULLIF(TRIM(t.realizadoFinalExpedicao),''),  '%d/%m/%Y')), '%d/%m/%Y') as RealExpedicao
@@ -14873,5 +15083,106 @@ app.post('/api/manutencao/update-endereco-arquivo', async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     } finally {
         if (conn) await conn.end();
+    }
+});
+
+
+// --- MATERIAIS ARQUIVOS (PDF) CRUD ---
+
+const ensureMaterialArquivosTable = async (pool) => {
+    try {
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS material_arquivos (
+                idArquivo INT AUTO_INCREMENT PRIMARY KEY,
+                IdMaterial INT NOT NULL,
+                NomeArquivo VARCHAR(255) NOT NULL,
+                TipoArquivo VARCHAR(100) NOT NULL,
+                Tamanho INT NOT NULL,
+                Dados LONGBLOB NOT NULL,
+                DataCriacao DATETIME NOT NULL,
+                CriadoPor VARCHAR(100)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+    } catch (error) {
+        console.error('Error creating material_arquivos table:', error);
+    }
+};
+
+// GET /api/materiais/:id/arquivos - Listar arquivos do material (sem os dados blob)
+app.get('/api/materiais/:id/arquivos', tenantMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT idArquivo, IdMaterial, NomeArquivo, TipoArquivo, Tamanho, DataCriacao, CriadoPor FROM material_arquivos WHERE IdMaterial = ? ORDER BY DataCriacao DESC",
+            [id]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching material arquivos:', error);
+        res.status(500).json({ success: false, message: 'Erro ao buscar arquivos do material' });
+    }
+});
+
+// POST /api/materiais/:id/arquivos - Fazer upload de um arquivo
+app.post('/api/materiais/:id/arquivos', tenantMiddleware, uploadMemory.single('arquivo'), async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+    if (!file) return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
+
+    const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const now = new Date();
+    const nowFormat = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        await req.tenantDbPool.execute(
+            "INSERT INTO material_arquivos (IdMaterial, NomeArquivo, TipoArquivo, Tamanho, Dados, DataCriacao, CriadoPor) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [id, file.originalname, file.mimetype, file.size, file.buffer, nowFormat, usuario]
+        );
+        res.json({ success: true, message: 'Arquivo salvo com sucesso' });
+    } catch (error) {
+        console.error('Error uploading material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao salvar arquivo' });
+    }
+});
+
+// GET /api/materiais/arquivos/:idArquivo/download - Baixar/Visualizar o arquivo
+app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (req, res) => {
+    const { idArquivo } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Arquivo não encontrado' });
+        }
+
+        const file = rows[0];
+        res.setHeader('Content-Disposition', `inline; filename="${file.NomeArquivo}"`);
+        res.setHeader('Content-Type', file.TipoArquivo);
+        res.send(file.Dados);
+    } catch (error) {
+        console.error('Error downloading material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao baixar arquivo' });
+    }
+});
+
+// DELETE /api/materiais/arquivos/:idArquivo - Excluir arquivo
+app.delete('/api/materiais/arquivos/:idArquivo', tenantMiddleware, async (req, res) => {
+    const { idArquivo } = req.params;
+    try {
+        await ensureMaterialArquivosTable(req.tenantDbPool);
+        await req.tenantDbPool.execute(
+            "DELETE FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+        res.json({ success: true, message: 'Arquivo excluído com sucesso' });
+    } catch (error) {
+        console.error('Error deleting material arquivo:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir arquivo' });
     }
 });
