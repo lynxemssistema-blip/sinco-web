@@ -582,7 +582,13 @@ export default function RomaneioRetornoPage() {
  <input
  type="number" min={1} max={Number(retornoPanel.item.Saldo) || 0}
  value={retornoQtde}
- onChange={e => setRetornoQtde(e.target.value)}
+ onChange={e => {
+  const max = Number(retornoPanel.item.Saldo) || 0;
+  const val = e.target.value;
+  if (val === '') setRetornoQtde('');
+  else if (Number(val) > max) setRetornoQtde(String(max));
+  else setRetornoQtde(val);
+ }}
  onKeyDown={e => e.key === 'Enter' && handleRegistrarRetorno()}
  autoFocus
  placeholder={'Max: ' + (Number(retornoPanel.item.Saldo) || 0)}
