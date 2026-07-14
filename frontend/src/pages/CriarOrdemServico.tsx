@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Plus, Loader2 } from 'lucide-react';
+import { Save, Plus, Loader2, PackagePlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ModalIncluirMaterialOS from '../components/ModalIncluirMaterialOS';
 
 const API_BASE = '/api';
 
@@ -17,6 +18,9 @@ export default function CriarOrdemServicoPage() {
   const [tags, setTags] = useState<Option[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newOsId, setNewOsId] = useState<number>(0);
+  const [newOsContext, setNewOsContext] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     IdProjeto: '',
@@ -39,6 +43,7 @@ export default function CriarOrdemServicoPage() {
   });
 
   const [message, setMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+  const [saveAction, setSaveAction] = useState<'com_itens' | 'sem_itens'>('com_itens');
 
   useEffect(() => {
     fetchProjetos();
@@ -110,7 +115,7 @@ export default function CriarOrdemServicoPage() {
 
   const handleProjetoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idProjeto = e.target.value;
-    const projeto = projetos.find(p => p.id.toString() === idProjeto)?.label || '';
+    const projeto = projetos.find(p => (p.value || p.id)?.toString() === idProjeto)?.label || '';
     setFormData(prev => ({ ...prev, IdProjeto: idProjeto, Projeto: projeto, IdTag: '', Tag: '', DescTag: '', DataPrevisao: '' }));
     setTags([]);
     if (idProjeto) fetchTags(idProjeto);
@@ -118,7 +123,7 @@ export default function CriarOrdemServicoPage() {
 
   const handleTagChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idTag = e.target.value;
-    const tag = tags.find(t => t.id.toString() === idTag)?.label || '';
+    const tag = tags.find(t => (t.value || t.id)?.toString() === idTag)?.label || '';
     setFormData(prev => ({ ...prev, IdTag: idTag, Tag: tag }));
     if (idTag) fetchTagDetails(idTag);
   };
@@ -132,6 +137,29 @@ export default function CriarOrdemServicoPage() {
     if (formData.ProdutoPadrao) {
       fetchMaterialByCod(formData.ProdutoPadrao);
     }
+  };
+
+  const getWorkingDays = (endDateStr: string) => {
+    if (!endDateStr) return null;
+    const end = new Date(endDateStr);
+    // Para resolver fuso horario com strings YYYY-MM-DD
+    const endLocal = new Date(end.getTime() + end.getTimezoneOffset() * 60000);
+    const start = new Date();
+    if (isNaN(endLocal.getTime())) return null;
+    
+    start.setHours(0, 0, 0, 0);
+    endLocal.setHours(0, 0, 0, 0);
+    
+    if (endLocal < start) return 0;
+    
+    let count = 0;
+    let curr = new Date(start);
+    while (curr <= endLocal) {
+      const dayOfWeek = curr.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+      curr.setDate(curr.getDate() + 1);
+    }
+    return count;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -168,14 +196,20 @@ export default function CriarOrdemServicoPage() {
       
       const json = await res.json();
       if (json.success) {
-        setMessage({ type: 'success', text: 'Ordem de Serviço criada com sucesso!' });
-        setFormData({
-          IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
-          IdEmpresa: '', DescEmpresa: '', EnderecoOrdemServico: '', DataPrevisao: '',
-          ProdutoPadrao: '', CodDesenhoProduto: '', DescricaoProduto: '', ProdutoCriadoPor: '',
-          DataCriacaoProduto: '', Fator: '1', TipoLiberacaoOrdemServico: 'Total'
-        });
-        setTags([]);
+        if (saveAction === 'com_itens') {
+          setNewOsId(json.id);
+          setNewOsContext(payload);
+          setShowModal(true);
+        } else {
+          setMessage({ type: 'success', text: 'Ordem de Serviço criada com sucesso!' });
+          setFormData({
+            IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
+            IdEmpresa: '', DescEmpresa: '', EnderecoOrdemServico: '', DataPrevisao: '',
+            ProdutoPadrao: '', CodDesenhoProduto: '', DescricaoProduto: '', ProdutoCriadoPor: '',
+            DataCriacaoProduto: '', Fator: '1', TipoLiberacaoOrdemServico: 'Total'
+          });
+          setTags([]);
+        }
       } else {
         setMessage({ type: 'error', text: json.message || 'Erro ao salvar.' });
       }
@@ -184,6 +218,19 @@ export default function CriarOrdemServicoPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  
+  const handleModalSuccess = () => {
+    setMessage({ type: 'success', text: 'Ordem de Serviço criada e itens incluídos com sucesso!' });
+    setFormData({
+      IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
+      IdEmpresa: '', DescEmpresa: '', EnderecoOrdemServico: '', DataPrevisao: '',
+      ProdutoPadrao: '', CodDesenhoProduto: '', DescricaoProduto: '', ProdutoCriadoPor: '',
+      DataCriacaoProduto: '', Fator: '1', TipoLiberacaoOrdemServico: 'Total'
+    });
+    setTags([]);
+    setShowModal(false);
   };
 
   const inputClass = "w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-[#32423D] bg-white";
@@ -212,14 +259,14 @@ export default function CriarOrdemServicoPage() {
               <label className="block text-xs font-medium text-gray-500 mb-1">Projeto <span className="text-red-500">*</span></label>
               <select name="IdProjeto" value={formData.IdProjeto} onChange={handleProjetoChange} className={inputClass} required>
                 <option value="">Selecione um projeto...</option>
-                {projetos.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                {projetos.map(p => <option key={p.value || p.id} value={p.value || p.id}>{p.label}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Tag <span className="text-red-500">*</span></label>
               <select name="IdTag" value={formData.IdTag} onChange={handleTagChange} className={inputClass} required disabled={!formData.IdProjeto}>
                 <option value="">Selecione uma tag...</option>
-                {tags.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                {tags.map(t => <option key={t.value || t.id} value={t.value || t.id}>{t.label}</option>)}
               </select>
             </div>
             <div className="col-span-2">
@@ -243,9 +290,18 @@ export default function CriarOrdemServicoPage() {
               <label className="block text-xs font-medium text-gray-500 mb-1">Endereço da Ordem de Serviço</label>
               <input type="text" name="EnderecoOrdemServico" value={formData.EnderecoOrdemServico} onChange={handleInputChange} className={inputClass} />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Data de Previsão (Tag)</label>
-              <input type="date" name="DataPrevisao" value={formData.DataPrevisao?.substring(0, 10) || ''} onChange={handleInputChange} className={inputClass} readOnly />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-gray-500 mb-1">Data de Previsão (Tag)</label>
+                <input type="date" name="DataPrevisao" value={formData.DataPrevisao?.substring(0, 10) || ''} onChange={handleInputChange} className={inputClass} />
+              </div>
+              <div className="flex-1 flex items-end pb-0">
+                {formData.DataPrevisao && (
+                  <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded border border-blue-200">
+                    Restam {getWorkingDays(formData.DataPrevisao)} dias úteis
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -271,29 +327,56 @@ export default function CriarOrdemServicoPage() {
 
         {/* Parte 6 e 7 */}
         <section>
-          <h3 className="text-sm font-semibold text-gray-700 border-b pb-1 mb-3">4. Configurações de Liberação</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Fator <span className="text-red-500">*</span></label>
-              <input type="number" step="0.01" min="0.01" name="Fator" value={formData.Fator} onChange={handleInputChange} className={inputClass} required />
+          <h3 className="text-sm font-semibold text-gray-700 border-b pb-1 mb-3">4. Configurações de Liberação e Salvar</h3>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="flex gap-4 flex-1">
+              <div className="w-1/3">
+                <label className="block text-xs font-medium text-gray-500 mb-1">Fator <span className="text-red-500">*</span></label>
+                <input type="number" step="0.01" min="0.01" name="Fator" value={formData.Fator} onChange={handleInputChange} className={inputClass} required />
+              </div>
+              <div className="w-1/3">
+                <label className="block text-xs font-medium text-gray-500 mb-1">Tipo de Liberação</label>
+                <select name="TipoLiberacaoOrdemServico" value={formData.TipoLiberacaoOrdemServico} onChange={handleInputChange} className={inputClass}>
+                  <option value="Total">Total</option>
+                  <option value="Parcial">Parcial</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Tipo de Liberação</label>
-              <select name="TipoLiberacaoOrdemServico" value={formData.TipoLiberacaoOrdemServico} onChange={handleInputChange} className={inputClass}>
-                <option value="Total">Total</option>
-                <option value="Parcial">Parcial</option>
-              </select>
+            <div className="flex gap-2">
+              <button 
+                type="submit" 
+                onClick={() => setSaveAction('sem_itens')}
+                disabled={saving} 
+                className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-1.5 rounded font-bold text-xs transition-colors whitespace-nowrap border border-gray-300"
+              >
+                {saving && saveAction === 'sem_itens' ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                Salvar (Vazio)
+              </button>
+              <button 
+                type="submit" 
+                onClick={() => setSaveAction('com_itens')}
+                disabled={saving} 
+                className="flex items-center gap-2 bg-[#32423D] hover:bg-[#E0E800]/100 hover:text-black text-white px-5 py-1.5 rounded font-bold text-xs transition-colors whitespace-nowrap"
+              >
+                {saving && saveAction === 'com_itens' ? <Loader2 size={15} className="animate-spin" /> : <PackagePlus size={15} />}
+                Salvar e Compor Itens
+              </button>
             </div>
           </div>
         </section>
-
-        <div className="flex justify-end border-t pt-4">
-          <button type="submit" disabled={saving} className="flex items-center gap-2 bg-[#32423D] hover:bg-[#E0E800]/100 hover:text-black text-white px-5 py-2 rounded font-bold text-xs transition-colors">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-            Salvar Registro
-          </button>
-        </div>
       </form>
+      <ModalIncluirMaterialOS 
+        isOpen={showModal} 
+        onClose={() => {
+          setShowModal(false);
+          // Opcional: Se o usuário fechar o modal sem incluir, limpa o form também.
+          handleModalSuccess();
+        }}
+        osId={newOsId}
+        osContext={newOsContext}
+        onSuccess={handleModalSuccess}
+        token={token}
+      />
     </div>
   );
 }
