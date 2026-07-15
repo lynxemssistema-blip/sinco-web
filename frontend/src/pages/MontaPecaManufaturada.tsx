@@ -132,7 +132,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     setSelMat1(null);
     setComp2([]);
     setStaging([]);
-    setShowGrid3(false);
+
   };
 
   const fetchComp2 = useCallback(async (idMat: number) => {
@@ -185,7 +185,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     setSelecionados3(new Set());
     setQuantidades3({});
     setEditSq(null);
-    setShowGrid3(false);
+
     clearForm();
 
     fetchComp2(m.IdMaterial);
@@ -400,7 +400,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
         fetchComp2(selMat1.IdMaterial);
         setSelecionados3(new Set());
         setQuantidades3({});
-        setShowGrid3(false); // Fecha o grid 3 após adicionar com sucesso
+
       } else { 
         alert('Erro: ' + j.message); 
       }
@@ -612,7 +612,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
         {/* =========================================
             GRID 2: PROCESSOS E RECURSOS
             ========================================= */}
-        <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 ${showGrid3 ? 'max-w-[32%]' : 'max-w-[64%]'}`}>
+        <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%]`}>
           <div className="px-3 py-2 bg-gradient-to-r from-teal-50 to-teal-100/30 border-b border-teal-100 shrink-0 flex justify-between items-center">
             <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
               <Clock size={13} /> 2. Processos de Fabricação
