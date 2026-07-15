@@ -53,6 +53,8 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [staging, setStaging] = useState<Proc[]>([]);
   const [loadingP, setLoadingP] = useState(false);
   const [selId, setSelId] = useState<number|''>('');
+  const [procSearch, setProcSearch] = useState('');
+  const [procTableFiltro, setProcTableFiltro] = useState('');
   const [seq, setSeq] = useState('');
   const [estMinStr,setEstMinStr]=useState('');
   const [padMinStr,setPadMinStr]=useState('');
@@ -68,8 +70,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [inlineSeq, setInlineSeq] = useState('');
 
   // Grid 3: Inclusão de Novos Itens
-  const [showGrid3, setShowGrid3] = useState(false);
-  const [materiais3, setMateriais3] = useState<MatRow[]>([]);
+    const [materiais3, setMateriais3] = useState<MatRow[]>([]);
   const [loading3, setLoading3] = useState(false);
   const [fCod3, setFCod3] = useState('');
   const [fDesc3, setFDesc3] = useState('');
@@ -232,10 +233,26 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     }
   };
 
-  const clearForm = () => { setSelId(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
+  const clearForm = () => { setSelId(''); setProcSearch(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
   const nextSeq = () => lastAutoSeq + 10;
 
-  const handleAddProc = () => {
+    const saveProcs = async (newStaging) => {
+    if(!piece) return;
+    setSaving(true);
+    try{
+      const body={ processos:newStaging.map(s=>({IdProcesso:s.IdProcesso,SequenciaExecucao:s.seq,TempoEstimadoMin:s.estMin,TempoPadraoMin:s.padMin,Observacao:s.obs})),
+        codmatFabricante:piece.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
+      const r=await fetch(`${API}/material-processo`,{method:'POST',headers:{...authHdr(), 'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const j=await r.json();
+      if(j.success) {
+        setStaging(newStaging);
+        fetchProcs(piece.CodMatFabricante);
+      }
+      else showAlert('Erro: '+j.message, "error");
+    }finally{ setSaving(false); }
+  };
+
+  const handleAddProc = async () => {
     if (!selId) return;
     const tipo = tipos.find(t => t.IdProcessoFabricacao === selId);
     const estMinV = estMinStr ? (parseInt(estMinStr) || null) : null;
@@ -249,14 +266,16 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     if (staging.some(s => s.seq === seqN)) { alert(`Sequência ${seqN} já existe`); return; }
     
     if (!userTyped) setLastAutoSeq(seqN);
-    setStaging(prev => [...prev, { seq: seqN, IdProcesso: Number(selId), nome: tipo?.ProcessoFabricacao || '', estMin: estMinV, padMin: padMinV, obs: ob }].sort((a, b) => a.seq - b.seq));
+    const updated = [...staging, { seq: seqN, IdProcesso: Number(selId), nome: tipo?.ProcessoFabricacao || '', estMin: estMinV, padMin: padMinV, obs: ob }].sort((a, b) => a.seq - b.seq);
+    await saveProcs(updated);
     
     clearForm();
   };
 
-  const delProc = (sq: number) => { 
-    if (!confirm(`Excluir processo da sequência ${sq}?`)) return; 
-    setStaging(prev => prev.filter(s => s.seq !== sq)); 
+  const delProc = async (sq: number) => { 
+    if (!await window.sysConfirm(`Excluir processo da sequência ${sq}?`)) return; 
+    const updated = staging.filter(s => s.seq !== sq);
+    await saveProcs(updated); 
   };
 
   const startInlineEdit = (s: Proc) => {
@@ -267,7 +286,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     setInlineSeq(String(s.seq));
   };
 
-  const saveInlineEdit = () => {
+  const saveInlineEdit = async () => {
     if (editSq === null) return;
     const estMinV = inlineEstMin ? (parseInt(inlineEstMin) || null) : null;
     const padMinV = inlinePadMin ? parseInt(inlinePadMin) : null;
@@ -277,14 +296,12 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     if (isNaN(newSeq) || newSeq <= 0) { alert('Sequência inválida'); return; }
 
     let isValid = true;
-    setStaging(prev => {
-      if (newSeq !== editSq && prev.some(p => p.seq === newSeq)) {
-        isValid = false;
-        return prev;
-      }
-      const updated = prev.map(s => s.seq === editSq ? { ...s, seq: newSeq, estMin: estMinV, padMin: padMinV, obs: inlineOb } : s);
-      return updated.sort((a, b) => a.seq - b.seq);
-    });
+    if (newSeq !== editSq && staging.some(p => p.seq === newSeq)) {
+      isValid = false;
+    } else {
+      const updated = staging.map(s => s.seq === editSq ? { ...s, seq: newSeq, estMin: estMinV, padMin: padMinV, obs: inlineOb } : s).sort((a, b) => a.seq - b.seq);
+      await saveProcs(updated);
+    }
 
     if (isValid) {
       setEditSq(null);
@@ -333,10 +350,10 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   }, []);
 
   useEffect(() => {
-    if (!showGrid3 || !selMat1) return;
+    if (!selMat1) return;
     const t = setTimeout(() => fetchMateriais3(fCod3, fDesc3), 400);
     return () => clearTimeout(t);
-  }, [fCod3, fDesc3, showGrid3, selMat1, fetchMateriais3]);
+  }, [fCod3, fDesc3, selMat1, fetchMateriais3]);
 
   // Filtrar do grid 3 os materiais que JÁ ESTÃO na composição (como filhos diretos ou como si mesmo)
   const materiais3Filtrados = materiais3.filter(m => {
@@ -510,7 +527,14 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                   {(selMat1 ? [selMat1] : materiais1).map(m => (
                     <tr key={m.IdMaterial} onClick={() => selectMat1(m)}
                       className={`cursor-pointer transition-all ${selMat1?.IdMaterial === m.IdMaterial ? 'bg-emerald-100/70 border-l-[3px] border-emerald-500 shadow-sm' : 'hover:bg-gray-100 border-l-[3px] border-transparent'}`}>
-                      <td className={`${cellCls} font-bold text-[#32423D] max-w-[80px]`} title={m.CodMatFabricante}>{m.CodMatFabricante}</td>
+                      <td className={`${cellCls} font-bold text-[#32423D] max-w-[80px] flex items-center gap-1`} title={m.CodMatFabricante}>
+                        {m.EnderecoArquivo && (
+                          <button onClick={(e) => { e.stopPropagation(); abrirPdf(m.EnderecoArquivo!); }} className="p-0.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded border border-red-100 shadow-sm transition-colors" title="Abrir PDF">
+                            <FileText size={10}/>
+                          </button>
+                        )}
+                        <span className="truncate">{m.CodMatFabricante}</span>
+                      </td>
                       <td className={`${cellCls} text-gray-600 max-w-[130px]`} title={m.DescResumo || m.DescDetal}>{m.DescResumo || m.DescDetal || '-'}</td>
                       <td className={`${cellCls} text-center font-bold text-gray-700`}>
                         {m.PecaManufat === 'S' ? 'S' : '-'}
@@ -595,9 +619,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
             </span>
             <div className="flex gap-2 items-center">
               {selMat1 && <button onClick={()=>fetchProcs(selMat1.CodMatFabricante)} className="p-0.5 text-teal-500 hover:text-teal-700 bg-white rounded shadow-sm border border-teal-200" title="Atualizar"><RefreshCw size={11}/></button>}
-              <button onClick={() => setShowGrid3(!showGrid3)} disabled={!selMat1} className={`flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold rounded shadow-sm transition-colors ${showGrid3 ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'} disabled:opacity-40`}>
-                 <PlusCircle size={11}/> {showGrid3 ? 'Fechar Painel de Materiais' : 'Incluir Material na Peça'}
-              </button>
+              
             </div>
           </div>
           
@@ -673,7 +695,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {staging.map(s => (
+                  {staging.filter(s => !procTableFiltro || s.nome.toLowerCase().includes(procTableFiltro.toLowerCase())).map(s => (
                     <tr key={s.seq} className={`hover:bg-teal-50/40 transition-colors ${editSq === s.seq ? 'bg-amber-50' : ''}`}>
                       <td className="p-1.5 px-2 text-center">
                         {editSq === s.seq ? (
@@ -730,13 +752,13 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
         {/* =========================================
             GRID 3: INCLUSÃO DE NOVOS MATERIAIS
             ========================================= */}
-        {showGrid3 && (
+        
           <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%] border-l border-indigo-100 animate-in slide-in-from-right-10 duration-200">
             <div className="px-3 py-2 bg-gradient-to-r from-indigo-50 to-indigo-100/40 border-b border-indigo-100 shrink-0 flex justify-between items-center">
               <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider flex items-center gap-1.5">
                 <PlusCircle size={13} /> 3. Incluir Materiais
               </span>
-              <button onClick={() => setShowGrid3(false)} className="text-indigo-400 hover:text-indigo-600 bg-white rounded p-0.5 shadow-sm"><X size={12}/></button>
+              
             </div>
 
             <div className="p-2 border-b border-gray-100 shrink-0 flex flex-col gap-2 bg-gray-50/30">
@@ -797,7 +819,6 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               )}
             </div>
           </div>
-        )}
 
       </div>
     </div>
