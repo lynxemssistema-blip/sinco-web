@@ -122,31 +122,6 @@ router.delete('/composicao/:idMontaPeca', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────────────────────────
-// PUT /composicao-qtde/:idMontaPeca — Atualiza a quantidade de um insumo na composição
-// ────────────────────────────────────────────────────────────────────────────────
-router.put('/composicao-qtde/:idMontaPeca', async (req, res) => {
-    try {
-        const { idMontaPeca } = req.params;
-        const { PecaQtde } = req.body;
-        
-        if (PecaQtde === undefined || PecaQtde === null) {
-            return res.status(400).json({ success: false, message: 'Quantidade não informada.' });
-        }
-
-        const pool = db(req);
-        await pool.execute(
-            `UPDATE montapeca SET PecaQtde = ? WHERE IdMontaPeca = ?`,
-            [Number(PecaQtde), idMontaPeca]
-        );
-
-        res.json({ success: true, message: 'Quantidade atualizada.' });
-    } catch (error) {
-        console.error('[PecaManufaturada] PUT /composicao-qtde:', error.message);
-        res.status(500).json({ success: false, message: 'Erro ao atualizar quantidade: ' + error.message });
-    }
-});
-
-// ────────────────────────────────────────────────────────────────────────────────
 // POST /composicao-lote — Cria peça manufaturada adicionando múltiplos insumos
 // ────────────────────────────────────────────────────────────────────────────────
 router.post('/composicao-lote', async (req, res) => {
@@ -317,7 +292,7 @@ router.post('/material-processo', async (req, res) => {
         const { processos, codmatFabricante, idMatriz, usuarioCriacao, replace } = req.body;
         const tenantPool = db(req);
 
-        if (!Array.isArray(processos)) {
+        if (!Array.isArray(processos) || processos.length === 0) {
             return res.status(400).json({ success: false, message: 'Nenhum processo informado.' });
         }
 

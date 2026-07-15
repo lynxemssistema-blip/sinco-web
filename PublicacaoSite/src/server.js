@@ -8291,15 +8291,6 @@ app.post('/api/ordemservico/:id/incluir-materiais-dinamico', async (req, res) =>
         for (const item of itensSelecionados) {
             const { codmatfabricante, qtde, acabamento } = item;
             
-            // Verifica duplicidade na OS
-            const [existRows] = await conn.execute(
-                `SELECT IdOrdemServicoItem FROM ordemservicoitem WHERE IdOrdemServico = ? AND CodMatFabricante = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') LIMIT 1`,
-                [osId, codmatfabricante]
-            );
-            if (existRows.length > 0) {
-                throw new Error(`O item ${codmatfabricante} já está incluído nesta Ordem de Serviço. Não é permitida duplicidade.`);
-            }
-
             const [matRows] = await conn.execute(
                 `SELECT * FROM material WHERE CodMatFabricante = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') LIMIT 1`,
                 [codmatfabricante]
@@ -8315,40 +8306,7 @@ app.post('/api/ordemservico/:id/incluir-materiais-dinamico', async (req, res) =>
                 WHERE mp.codmatFabricante = ? AND mp.Ativo = 1 AND (pf.Fabrica = 'S' OR pf.Fabrica = 'SIM')
             `, [codmatfabricante]);
             
-            const deParaProcessos = {
-                'CORTE': 'Corte',
-                'CORTE A LASER': 'CorteaLaser',
-                'CORTE LASER': 'CorteaLaser',
-                'CORTE PUNCIONADEIRA': 'CortePuncionadeira',
-                'CORTE SERRA DE FITA': 'CorteSerradeFita',
-                'DOBRA': 'Dobra',
-                'SOLDA': 'Solda',
-                'SOLDA A LASER': 'SoldaaLaser',
-                'SOLDA MIG': 'SoldaMig',
-                'SOLDA TIG': 'SoldaTg',
-                'SOLDA TG': 'SoldaTg',
-                'PINTURA': 'Pintura',
-                'MONTAGEM': 'Montagem',
-                'USINAGEM': 'Usinagem',
-                'MEDIÇÃO': 'MEDICAO',
-                'MEDICAO': 'MEDICAO',
-                'ISOMETRICO': 'ISOMETRICO',
-                'ENGENHARIA': 'ENGENHARIA',
-                'ACABAMENTO': 'ACABAMENTO',
-                'APROVACAO': 'APROVACAO',
-                'APROVAÇÃO': 'APROVACAO',
-                'PUNCIONADEIRA': 'PUNCIONADEIRA',
-                'SERRA DE FITA': 'SERRADEFITA',
-                'CALDEIRARIA': 'CALDEIRARIA',
-                'SERRALHERIA': 'SERRALHERIA',
-                'EMBALAGENS': 'EMBALAGENS',
-                'TESTE': 'Teste'
-            };
-
-            const processosNomes = procRows.map(r => {
-                const rawName = (r.processofabricacao || '').trim().toUpperCase();
-                return deParaProcessos[rawName] || rawName.replace(/\s+/g, '');
-            });
+            const processosNomes = procRows.map(r => (r.processofabricacao || '').trim().replace(/\s+/g, ''));
             const colunasDinamicasVals = {};
 
             for (const procName of processosNomes) {
@@ -10854,37 +10812,7 @@ app.put('/api/recursos/:id', tenantMiddleware, async (req, res) => {
             const newFabrica = Fabrica || 'NAO';
             
             if (oldFabrica !== newFabrica) {
-                const dePara = {
-                    'CORTE': 'Corte',
-                    'CORTE A LASER': 'CorteaLaser',
-                    'CORTE LASER': 'CorteaLaser',
-                    'CORTE PUNCIONADEIRA': 'CortePuncionadeira',
-                    'CORTE SERRA DE FITA': 'CorteSerradeFita',
-                    'DOBRA': 'Dobra',
-                    'SOLDA': 'Solda',
-                    'SOLDA A LASER': 'SoldaaLaser',
-                    'SOLDA MIG': 'SoldaMig',
-                    'SOLDA TIG': 'SoldaTg',
-                    'SOLDA TG': 'SoldaTg',
-                    'PINTURA': 'Pintura',
-                    'MONTAGEM': 'Montagem',
-                    'USINAGEM': 'Usinagem',
-                    'MEDIÇÃO': 'MEDICAO',
-                    'MEDICAO': 'MEDICAO',
-                    'ISOMETRICO': 'ISOMETRICO',
-                    'ENGENHARIA': 'ENGENHARIA',
-                    'ACABAMENTO': 'ACABAMENTO',
-                    'APROVACAO': 'APROVACAO',
-                    'APROVAÇÃO': 'APROVACAO',
-                    'PUNCIONADEIRA': 'PUNCIONADEIRA',
-                    'SERRA DE FITA': 'SERRADEFITA',
-                    'CALDEIRARIA': 'CALDEIRARIA',
-                    'SERRALHERIA': 'SERRALHERIA',
-                    'EMBALAGENS': 'EMBALAGENS',
-                    'TESTE': 'Teste'
-                };
-                const rawNameVal = (oldProc.processofabricacao || '').trim().toUpperCase();
-                const procNameFormatado = dePara[rawNameVal] || rawNameVal.replace(/\s+/g, '');
+                const procNameFormatado = (oldProc.processofabricacao || '').trim().replace(/\s+/g, '');
                 if (procNameFormatado) {
                     const colName = `txt${procNameFormatado}`;
                     const [cols] = await req.tenantDbPool.execute(`SHOW COLUMNS FROM ordemservicoitem LIKE ?`, [colName]);
@@ -14470,7 +14398,7 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
                                     COALESCE(CASE WHEN IFNULL(oi.TxtMontagem, '')='1' THEN oi.MontagemTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtMedicao, '')='1' THEN oi.MEDICAOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtAcabamento, '')='1' THEN oi.ACABAMENTOTotalExecutado ELSE 999999999 END, 999999999),
-                                    
+                                    COALESCE(CASE WHEN IFNULL(oi.txtAprovacao, '')='1' THEN oi.APROVAÇÃOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtIsometrico, '')='1' THEN oi.ISOMETRICOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtEngenharia, '')='1' THEN oi.ENGENHARIATotalExecutado ELSE 999999999 END, 999999999)
                                 ) >= 999999999 THEN 0
@@ -14482,7 +14410,7 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
                                     COALESCE(CASE WHEN IFNULL(oi.TxtMontagem, '')='1' THEN oi.MontagemTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtMedicao, '')='1' THEN oi.MEDICAOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtAcabamento, '')='1' THEN oi.ACABAMENTOTotalExecutado ELSE 999999999 END, 999999999),
-                                    
+                                    COALESCE(CASE WHEN IFNULL(oi.txtAprovacao, '')='1' THEN oi.APROVAÇÃOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtIsometrico, '')='1' THEN oi.ISOMETRICOTotalExecutado ELSE 999999999 END, 999999999),
                                     COALESCE(CASE WHEN IFNULL(oi.txtEngenharia, '')='1' THEN oi.ENGENHARIATotalExecutado ELSE 999999999 END, 999999999)
                                 )
