@@ -8303,7 +8303,7 @@ app.post('/api/ordemservico/:id/incluir-materiais-dinamico', async (req, res) =>
                 SELECT pf.processofabricacao 
                 FROM material_processo mp
                 JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
-                WHERE mp.codmatFabricante = ? AND mp.Ativo = 1 AND (pf.Fabrica = 'S' OR pf.Fabrica = 'SIM')
+                WHERE mp.codmatFabricante = ? AND mp.Ativo IN ('1', 'A')
             `, [codmatfabricante]);
             
             const processosNomes = procRows.map(r => (r.processofabricacao || '').trim().replace(/\s+/g, ''));
@@ -10789,8 +10789,14 @@ app.post('/api/recursos', tenantMiddleware, async (req, res) => {
     const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     
     try {
+        const parseNum = (v) => v ? String(v).replace(',', '.') : null;
+        const finalSetup = parseNum(Setup);
+        const finalTempoPadrao = parseNum(TempoPadrao);
+        const finalFabrica = (Fabrica || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
+        const finalDataLiberada = (DataLiberada || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
+
         const query = "INSERT INTO processofabricacao (processofabricacao, CodigoProcessoFabricacao, Fabrica, DataLiberada, Setup, TempoPadrao, CriadoPor, DataCriacao, IdMatriz) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, usuario, nowFormat, idMatriz];
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', finalFabrica, finalDataLiberada, finalSetup, finalTempoPadrao, usuario, nowFormat, idMatriz];
         await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
         res.json({ success: true, message: 'Recurso criado com sucesso' });
     } catch (error) {
@@ -10808,14 +10814,14 @@ app.put('/api/recursos/:id', tenantMiddleware, async (req, res) => {
         const [oldRows] = await req.tenantDbPool.execute('SELECT processofabricacao, Fabrica FROM processofabricacao WHERE IdProcessoFabricacao = ?', [id]);
         if (oldRows.length > 0) {
             const oldProc = oldRows[0];
-            const oldFabrica = oldProc.Fabrica || 'NAO';
-            const newFabrica = Fabrica || 'NAO';
+            const oldFabrica = (oldProc.Fabrica || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
+            const newFabrica = (Fabrica || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
             
             if (oldFabrica !== newFabrica) {
                 const procNameFormatado = (oldProc.processofabricacao || '').trim().replace(/\s+/g, '');
                 if (procNameFormatado) {
                     const colName = `txt${procNameFormatado}`;
-                    const [cols] = await req.tenantDbPool.execute(`SHOW COLUMNS FROM ordemservicoitem LIKE ?`, [colName]);
+                    const [cols] = await req.tenantDbPool.execute(`SHOW COLUMNS FROM ordemservicoitem LIKE '${colName}'`);
                     if (cols.length > 0) {
                         const [usage] = await req.tenantDbPool.execute(`SELECT 1 FROM ordemservicoitem WHERE \`${colName}\` = '1' LIMIT 1`);
                         if (usage.length > 0) {
@@ -10827,8 +10833,14 @@ app.put('/api/recursos/:id', tenantMiddleware, async (req, res) => {
         }
         // --- END VALIDATION ---
 
+        const parseNum = (v) => v ? String(v).replace(',', '.') : null;
+        const finalSetup = parseNum(Setup);
+        const finalTempoPadrao = parseNum(TempoPadrao);
+        const finalFabrica = (Fabrica || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
+        const finalDataLiberada = (DataLiberada || 'NAO').toUpperCase().replace('NÂO', 'NAO').replace('NÃO', 'NAO');
+
         const query = "UPDATE processofabricacao SET processofabricacao = ?, CodigoProcessoFabricacao = ?, Fabrica = ?, DataLiberada = ?, Setup = ?, TempoPadrao = ? WHERE IdProcessoFabricacao = ?";
-        const params = [processofabricacao, CodigoProcessoFabricacao || '', Fabrica || 'NAO', DataLiberada || 'NAO', Setup || null, TempoPadrao || null, id];
+        const params = [processofabricacao, CodigoProcessoFabricacao || '', finalFabrica, finalDataLiberada, finalSetup, finalTempoPadrao, id];
         await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, params);
         res.json({ success: true, message: 'Recurso atualizado com sucesso' });
     } catch (error) {
@@ -10845,6 +10857,24 @@ app.delete('/api/recursos/:id', tenantMiddleware, async (req, res) => {
     const nowFormat = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
     try {
+        // --- START VALIDATION ---
+        const [oldRows] = await req.tenantDbPool.execute('SELECT processofabricacao FROM processofabricacao WHERE IdProcessoFabricacao = ?', [id]);
+        if (oldRows.length > 0) {
+            const oldProc = oldRows[0];
+            const procNameFormatado = (oldProc.processofabricacao || '').trim().replace(/\s+/g, '');
+            if (procNameFormatado) {
+                const colName = `txt${procNameFormatado}`;
+                const [cols] = await req.tenantDbPool.execute(`SHOW COLUMNS FROM ordemservicoitem LIKE '${colName}'`);
+                if (cols.length > 0) {
+                    const [usage] = await req.tenantDbPool.execute(`SELECT 1 FROM ordemservicoitem WHERE \`${colName}\` = '1' LIMIT 1`);
+                    if (usage.length > 0) {
+                        return res.status(400).json({ success: false, message: 'Não é possível excluir este recurso porque ele já está montado em um item de Ordem de Serviço.' });
+                    }
+                }
+            }
+        }
+        // --- END VALIDATION ---
+
         await req.tenantDbPool.execute(
             "UPDATE processofabricacao SET D_E_L_E_T_E = '*', DataD_E_L_E_T_E = ?, UsuarioD_E_L_E_T_E = ? WHERE IdProcessoFabricacao = ?",
             [nowFormat, usuario, id]
