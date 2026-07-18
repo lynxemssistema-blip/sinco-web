@@ -4683,6 +4683,8 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
         } else if (modo === 'nao_liberados') {
             condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = '' OR TRIM(COALESCE(p.liberado,'')) = 'N')`);
             condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
+        } else if (modo === 'nao_finalizados') {
+            condicoes.push(`TRIM(COALESCE(p.Finalizado,'')) != 'C'`);
         } else {
             // 'liberados' (default)
             condicoes.push(`(TRIM(COALESCE(p.liberado,'')) = 'S' OR TRIM(COALESCE(p.liberado,'')) = 'SIM')`);
@@ -9457,22 +9459,24 @@ osi.*,
                 }
             }
 
-            const totalExecutarLimit = isFirstActiveSector
-                ? qtdeTotal - totalExecutadoDb
+            const capacidadeSetor = isFirstActiveSector
+                ? qtdeTotal
                 : (parseFloat(item[sConfig.executar]) || 0);
+
+            const saldoAExecutar = capacidadeSetor - totalExecutadoDb;
 
             if (!isMapa) {
                 // 1. Validação de Saldo a Executar Normal
-                if (totalExecutarLimit <= 0) {
+                if (saldoAExecutar <= 0) {
                     await conn.rollback();
                     return res.status(400).json({ success: false, message: `Não há saldo a executar para o setor ${sName}.` });
                 }
 
-                if (currentInputQty > totalExecutarLimit) {
+                if (currentInputQty > saldoAExecutar) {
                     await conn.rollback();
                     return res.status(400).json({
                         success: false,
-                        message: `Quantidade informada(${currentInputQty}) excede o saldo a executar(${totalExecutarLimit}) no setor ${sName} !`
+                        message: `Quantidade informada(${currentInputQty}) excede o saldo a executar(${saldoAExecutar}) no setor ${sName} !`
                     });
                 }
 
@@ -9505,7 +9509,7 @@ osi.*,
             }
 
             const novoTotalExecutado = isMapa ? qtdeTotal : totalExecutadoDb + currentInputQty;
-            const novoTotalExecutar = isMapa ? 0 : Math.max(0, totalExecutarLimit - currentInputQty);
+            const novoTotalExecutar = isMapa ? qtdeTotal : capacidadeSetor; // NUNCA MOVIDO! Apenas preservado.
             const novoPercentual = isMapa ? 100 : (qtdeTotal > 0 ? Math.min(100, Math.round((novoTotalExecutado / qtdeTotal) * 100)) : 0);
             const finalizado = novoTotalExecutado >= qtdeTotal;
 
