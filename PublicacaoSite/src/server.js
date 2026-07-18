@@ -4709,7 +4709,7 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 /* -- Tags / Pecas nativos da tabela Projetos -- */
                 COUNT(t.IdTag) AS QtdeTags,
                 COALESCE(p.QtdeTagsExecutadas, 0) AS QtdeTagsExecutadas,
-                COALESCE(p.QtdePecasTags, 0) AS QtdePecasTags,
+                COALESCE((SELECT SUM(os.QtdeTotalItens) FROM ordemservico os WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL)) AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdePecasTags,
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
 
                 /* -- OS Count -- */
@@ -4873,8 +4873,9 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
         const [rows] = await queryPool.execute(`
             SELECT
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
-                QtdeOS, QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
-                (SELECT COALESCE(SUM(os.QtdeTotalPecas), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as QtdeTotalPecas,
+                (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS QtdeOS,
+                QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
+                (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
                   (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagCorte,
                   (SELECT MAX(CASE WHEN osi.txtDobra = '1' OR osi.txtDobra = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagDobra,
@@ -8056,9 +8057,18 @@ app.post('/api/ordemservico/liberar', async (req, res) => {
 app.get('/api/visao-geral/tag/:id/ordens-servico', async (req, res) => {
     try {
         const [rows] = await pool.execute(`
-            SELECT IdOrdemServico, Descricao 
+            SELECT 
+                IdOrdemServico, Descricao, Finalizada, Liberado_Engenharia, QtdeTotalItens,
+                CorteTotalExecutar, CorteTotalExecutado,
+                DobraTotalExecutar, DobraTotalExecutado,
+                SoldaTotalExecutar, SoldaTotalExecutado,
+                PinturaTotalExecutar, PinturaTotalExecutado,
+                MontagemTotalExecutar, MontagemTotalExecutado,
+                CorteaLaserTotalExecutar, CorteaLaserTotalExecutado,
+                PULSIONADEIRATotalExecutar, PULSIONADEIRATotalExecutado,
+                GALVANIZARTotalExecutar, GALVANIZARTotalExecutado
             FROM ordemservico 
-            WHERE IdTag = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')
+            WHERE IdTag = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')
             ORDER BY IdOrdemServico
         `, [req.params.id]);
         res.json({ success: true, data: rows });
@@ -8080,7 +8090,16 @@ app.get('/api/visao-geral/projeto/:id/ordens-servico', async (req, res) => {
 
         // 2. Fetch the OSes matching either IdProjeto OR Projeto
         let sql = `
-            SELECT IdOrdemServico, Descricao 
+            SELECT 
+                IdOrdemServico, Descricao, Finalizada, Liberado_Engenharia, QtdeTotalItens,
+                CorteTotalExecutar, CorteTotalExecutado,
+                DobraTotalExecutar, DobraTotalExecutado,
+                SoldaTotalExecutar, SoldaTotalExecutado,
+                PinturaTotalExecutar, PinturaTotalExecutado,
+                MontagemTotalExecutar, MontagemTotalExecutado,
+                CorteaLaserTotalExecutar, CorteaLaserTotalExecutado,
+                PULSIONADEIRATotalExecutar, PULSIONADEIRATotalExecutado,
+                GALVANIZARTotalExecutar, GALVANIZARTotalExecutado
             FROM ordemservico 
             WHERE (IdProjeto = ? `;
         let params = [projId];
