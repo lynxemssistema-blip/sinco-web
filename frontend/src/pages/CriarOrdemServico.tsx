@@ -67,7 +67,14 @@ export default function CriarOrdemServicoPage() {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       const json = await res.json();
-      if (json.success) setTags(json.data);
+      if (json.success) {
+        setTags(json.data);
+        if (json.data.length === 1) {
+          const singleTag = json.data[0];
+          setFormData(prev => ({ ...prev, IdTag: (singleTag.value || singleTag.id).toString(), Tag: singleTag.label }));
+          fetchTagDetails((singleTag.value || singleTag.id).toString());
+        }
+      }
     } catch (err) {
       console.error('Error fetching tags:', err);
     }
@@ -222,7 +229,7 @@ export default function CriarOrdemServicoPage() {
 
   
   const handleModalSuccess = () => {
-    setMessage({ type: 'success', text: 'Ordem de Serviço criada e itens incluídos com sucesso!' });
+    setMessage({ type: 'success', text: `Ordem de Serviço ${newOsId} criada e itens incluídos com sucesso!` });
     setFormData({
       IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
       IdEmpresa: '', DescEmpresa: '', EnderecoOrdemServico: '', DataPrevisao: '',

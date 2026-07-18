@@ -72,6 +72,7 @@ router.get('/composicao/:idMaterialPeca', async (req, res) => {
                         mp.CodMatFabricantePeca,
                         COALESCE(m.DescDetal, m.DescResumo, mp.CodMatFabricante) AS DescDetal,
                         mp.PecaQtde,
+                        mp.QtdeUnitaria,
                         m.EnderecoArquivo,
                         m.PecaManufat
                      FROM montapeca mp
@@ -118,6 +119,74 @@ router.delete('/composicao/:idMontaPeca', async (req, res) => {
     } catch (error) {
         console.error('[PecaManufaturada] DELETE /composicao:', error.message);
         res.status(500).json({ success: false, message: 'Erro ao remover da composição: ' + error.message });
+    }
+});
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Função Auxiliar para Atualização Recursiva de Quantidades
+// ────────────────────────────────────────────────────────────────────────────────
+const updateRecursiveQtde = async (pool, idMaterialPecaAtual, multiplicador, visited = new Set()) => {
+    if (visited.has(idMaterialPecaAtual)) {
+        console.warn('[PecaManufaturada] Loop de composição detectado no IdMaterial:', idMaterialPecaAtual);
+        return;
+    }
+    visited.add(idMaterialPecaAtual);
+
+    const [filhos] = await pool.execute(
+        `SELECT IdMontaPeca, IdMaterial, QtdeUnitaria FROM montapeca WHERE IdMaterialPeca = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+        [idMaterialPecaAtual]
+    );
+
+    for (const filho of filhos) {
+        const novaQtde = (Number(filho.QtdeUnitaria) || 1) * multiplicador;
+        await pool.execute(
+            `UPDATE montapeca SET PecaQtde = ? WHERE IdMontaPeca = ?`,
+            [novaQtde, filho.IdMontaPeca]
+        );
+        // Chamada recursiva para os filhos do filho atual
+        if (filho.IdMaterial) {
+            await updateRecursiveQtde(pool, filho.IdMaterial, novaQtde, new Set(visited));
+        }
+    }
+};
+
+// ────────────────────────────────────────────────────────────────────────────────
+// PATCH /composicao-qtde/:idMontaPeca — Atualiza a quantidade de um item na composição
+// ────────────────────────────────────────────────────────────────────────────────
+router.patch('/composicao-qtde/:idMontaPeca', async (req, res) => {
+    try {
+        const { idMontaPeca } = req.params;
+        const { qtde } = req.body;
+        
+        if (qtde === undefined || isNaN(Number(qtde))) {
+            return res.status(400).json({ success: false, message: 'Quantidade inválida.' });
+        }
+        
+        const newQtde = Number(qtde);
+        const pool = db(req);
+        
+        // 1. Atualizar o item editado manualmente
+        await pool.execute(
+            `UPDATE montapeca SET PecaQtde = ?, QtdeUnitaria = ? WHERE IdMontaPeca = ?`,
+            [newQtde, newQtde, idMontaPeca]
+        );
+
+        // 2. Buscar IdMaterial para cascata
+        const [rows] = await pool.execute(
+            `SELECT IdMaterial FROM montapeca WHERE IdMontaPeca = ?`,
+            [idMontaPeca]
+        );
+        
+        if (rows.length > 0 && rows[0].IdMaterial) {
+            const idMaterialEditado = rows[0].IdMaterial;
+            // 3. Cascata: recalcular a arvore de filhos
+            await updateRecursiveQtde(pool, idMaterialEditado, newQtde);
+        }
+
+        res.json({ success: true, message: 'Quantidade atualizada (e cascata aplicada) com sucesso.' });
+    } catch (error) {
+        console.error('[PecaManufaturada] PATCH /composicao-qtde:', error.message);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar quantidade: ' + error.message });
     }
 });
 

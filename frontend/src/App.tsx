@@ -261,7 +261,10 @@ function AppContent() {
   // Helper to find item label for header
   const getActiveLabel = () => {
     const item = findItemById(menuItems, activePageId);
-    return item ? item.label : 'Dashbaord';
+    if (activePageId === 'peca-manufaturada' || activePageId === 'peça-manufaturada' || activePageId === 'monta-peca-manufaturada') {
+      return 'Montagem Processo Fabricação';
+    }
+    return item ? item.label : 'Dashboard';
   };
 
   const handleSmartLogout = () => {
@@ -415,7 +418,7 @@ function AppContent() {
         return <PowerBuildAgglutinationPage onNavigate={handleNavigate} />;
       case 'peça-manufaturada':
       case 'peca-manufaturada':
-      case 'group_1781618991422':
+
       case 'monta-peca-manufaturada':
         return <MontaPecaManufaturadaPage usuario={user?.nomeCompleto || user?.login} />;
       default:

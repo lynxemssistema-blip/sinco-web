@@ -732,7 +732,16 @@ export default function ProducaoPlanoCorte() {
  min="1"
  max={lancarSaldo}
  value={qtdeApontar}
- onChange={(e) => setQtdeApontar(e.target.value)}
+ onChange={(e) => {
+  let val = e.target.value;
+  if (val !== '') {
+    const num = parseInt(val) || 0;
+    const max = lancarSaldo;
+    if (num > max) val = String(max);
+    else if (num < 0) val = '0';
+  }
+  setQtdeApontar(val);
+}}
  className="flex-1 px-2 py-1 text-xl font-black text-center rounded-lg border-2 border-gray-100 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all bg-white text-gray-800"
  placeholder="0"
  />

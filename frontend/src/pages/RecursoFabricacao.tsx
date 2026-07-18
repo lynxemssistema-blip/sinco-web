@@ -23,8 +23,8 @@ interface Recurso {
 const emptyForm: Recurso = {
   processofabricacao: '',
   CodigoProcessoFabricacao: '',
-  Fabrica: 'NÂO',
-  DataLiberada: 'NÂO',
+  Fabrica: 'NAO',
+  DataLiberada: 'NAO',
   Setup: 0,
   TempoPadrao: 0
 };
@@ -162,9 +162,11 @@ export default function RecursoFabricacaoPage() {
         handleCancelInline();
       } else {
         setError(json.message || 'Erro ao salvar');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
       setError('Erro ao salvar. Verifique a conexão.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       console.error('Save error:', err);
     } finally {
       setSaving(false);
@@ -172,7 +174,11 @@ export default function RecursoFabricacaoPage() {
   };
 
   const handleEdit = (recurso: Recurso) => {
-    setEditFormData(recurso);
+    setEditFormData({
+      ...recurso,
+      Fabrica: recurso.Fabrica === 'NÂO' || recurso.Fabrica === 'NÃO' ? 'NAO' : recurso.Fabrica,
+      DataLiberada: recurso.DataLiberada === 'NÂO' || recurso.DataLiberada === 'NÃO' ? 'NAO' : recurso.DataLiberada
+    });
     setEditingId(recurso.IdProcessoFabricacao || null);
     setError(null);
   };
@@ -196,9 +202,11 @@ export default function RecursoFabricacaoPage() {
         await fetchRecursos();
       } else {
         setError(json.message || 'Erro ao excluir');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch {
       setError('Erro ao excluir. Verifique a conexão.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -527,7 +535,7 @@ export default function RecursoFabricacaoPage() {
                               className="w-full px-1 py-1 rounded border border-gray-300 text-[10px] focus:border-[#32423D] outline-none"
                             >
                               <option value="SIM">SIM</option>
-                              <option value="NÂO">NÃO</option>
+                              <option value="NAO">NÃO</option>
                             </select>
                           </td>
                           <td className="px-2 py-1 text-center hidden md:table-cell w-20">
@@ -538,7 +546,7 @@ export default function RecursoFabricacaoPage() {
                               className="w-full px-1 py-1 rounded border border-gray-300 text-[10px] focus:border-[#32423D] outline-none"
                             >
                               <option value="SIM">SIM</option>
-                              <option value="NÂO">NÃO</option>
+                              <option value="NAO">NÃO</option>
                             </select>
                           </td>
                           <td className="px-2 py-1 text-right hidden sm:table-cell">
@@ -593,12 +601,12 @@ export default function RecursoFabricacaoPage() {
                           </td>
                           <td className="px-3 py-1 text-center hidden md:table-cell">
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${recurso.Fabrica === 'SIM' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                              {recurso.Fabrica}
+                              {recurso.Fabrica === 'NÂO' || recurso.Fabrica === 'NAO' ? 'NÃO' : recurso.Fabrica}
                             </span>
                           </td>
                           <td className="px-3 py-1 text-center hidden md:table-cell">
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${recurso.DataLiberada === 'SIM' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}`}>
-                              {recurso.DataLiberada}
+                              {recurso.DataLiberada === 'NÂO' || recurso.DataLiberada === 'NAO' ? 'NÃO' : recurso.DataLiberada}
                             </span>
                           </td>
                           <td className="px-3 py-1 text-right hidden sm:table-cell text-[11px] text-gray-600 font-medium">

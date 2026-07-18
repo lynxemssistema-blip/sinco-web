@@ -7,8 +7,12 @@ export const getMergedMenu = (savedMenu: MenuItem[]): MenuItem[] => {
   // FORCE override href for Peça Manufaturada regardless of what the DB says
   const fixPecaHref = (items: MenuItem[]) => {
     items.forEach(item => {
-      if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada' || item.id === 'group_1781618991422' || item.id === 'peça-manufaturada') {
+      if (item.id === 'peca-manufaturada' || item.id === 'monta-peca-manufaturada' || item.id === 'peça-manufaturada') {
          item.href = '/peca-manufaturada';
+      }
+      if (item.label && item.label.toLowerCase().includes('apontamento produção recurso')) {
+        item.id = 'apontamento-producao-recurso';
+        item.href = '/apontamento-producao-recurso';
       }
       if (item.children) fixPecaHref(item.children);
     });

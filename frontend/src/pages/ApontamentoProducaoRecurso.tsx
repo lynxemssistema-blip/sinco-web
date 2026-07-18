@@ -159,41 +159,54 @@ useEffect(() => {
  const [dataPlanejamentoFilter, setDataPlanejamentoFilter] = useState('');
  const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('pendente');
  const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
- const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: any) => {
- if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
- 
- const sequence: Setor[] = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
- const currentIndex = sequence.indexOf(currentSetor);
- 
- if (currentIndex <= 0) return { allowed: true }; // Primeiro setor ou não mapeado
+   const checkPredecessorStatus = (item: any, currentSetor: any) => {
+    if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
+    
+    const sequence = ['engenharia', 'isometrico', 'medicao', 'corte', 'cortealaser', 'pulsionadeira', 'puncionadeira', 'usinagem', 'dobra', 'caldeiraria', 'serralheria', 'solda', 'galvanizar', 'pintura', 'acabamento', 'montagem', 'aprovacao'];
+    const currentIndex = sequence.indexOf(String(currentSetor).toLowerCase());
+    
+    if (currentIndex <= 0) return { allowed: true };
 
- // Buscar o predecessor ativo mais próximo
- for (let i = currentIndex - 1; i >= 0; i--) {
- const pred = sequence[i];
- const isActive = 
- (pred === 'corte' && (item.txtCorte === '1' || item.txtcorte === '1')) ||
- (pred === 'dobra' && (item.txtDobra === '1' || item.txtdobra === '1')) ||
- (pred === 'solda' && (item.txtSolda === '1' || item.txtsolda === '1')) ||
- (pred === 'pintura' && (item.txtPintura === '1' || item.txtpintura === '1')) ||
- (pred === 'montagem' && (item.TxtMontagem === '1' || item.txtmontagem === '1'));
+    const itemAny = item as any;
 
- if (isActive) {
- const totalExec = 
- (pred === 'corte' && Number(item.CorteTotalExecutado || item.cortetotalexecutado || 0)) ||
- (pred === 'dobra' && Number(item.DobraTotalExecutado || item.dobratotalexecutado || 0)) ||
- (pred === 'solda' && Number(item.SoldaTotalExecutado || item.soldatotalexecutado || 0)) ||
- (pred === 'pintura' && Number(item.PinturaTotalExecutado || item.pinturatotalexecutado || 0)) ||
- (pred === 'montagem' && Number(item.MontagemTotalExecutado || item.montagemtotalexecutado || 0)) || 0;
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const pred = sequence[i];
+      let base = pred.toUpperCase();
+      if (pred === 'cortealaser') base = 'CorteaLaser';
+      else if (pred === 'corte') base = 'Corte';
+      else if (pred === 'dobra') base = 'Dobra';
+      else if (pred === 'solda') base = 'Solda';
+      else if (pred === 'pintura') base = 'Pintura';
+      else if (pred === 'montagem') base = 'Montagem';
+      else if (pred === 'acabamento') base = 'ACABAMENTO';
+      else if (pred === 'usinagem') base = 'Usinagem';
+      else if (pred === 'caldeiraria') base = 'CALDEIRARIA';
+      else if (pred === 'serralheria') base = 'SERRALHERIA';
 
- return { 
- allowed: totalExec >= Number(item.QtdeTotal || 0), 
- predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
- };
- }
- }
+      const txtField = `txt${base}`;
+      const txtFieldLower = `txt${pred.toLowerCase()}`;
+      const txtFieldAlt = pred === 'montagem' ? 'TxtMontagem' : txtField;
 
- return { allowed: true };
- };
+      const val1 = String(itemAny[txtField] || '').trim();
+      const val2 = String(itemAny[txtFieldLower] || '').trim();
+      const val3 = String(itemAny[txtFieldAlt] || '').trim();
+      
+      const isActive = val1 === '1' || val2 === '1' || val3 === '1' || val1.toUpperCase() === 'S' || val2.toUpperCase() === 'S';
+
+      if (isActive) {
+        const totalField = `${base}TotalExecutado`;
+        const totalFieldLower = `${pred}totalexecutado`;
+        const totalExec = Number(itemAny[totalField] || itemAny[totalFieldLower] || 0);
+
+        return { 
+          allowed: totalExec >= Number(itemAny.QtdeTotal || itemAny.qtdetotal || 0), 
+          predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
+        };
+      }
+    }
+
+    return { allowed: true };
+  };
 
  const [showFilters, setShowFilters] = useState(true);
 
@@ -355,10 +368,17 @@ useEffect(() => {
 
  // Config for visible sectors (fetched via context)
  useEffect(() => {
- if (visibleSetores.length > 0 && !visibleSetores.includes(setorAtivo as Record<string, unknown>) && !['mapa', 'planejamento', 'mapaproducao'].includes(setorAtivo)) {
+ // Permite setores meta-built-in
+ if (['mapa', 'planejamento', 'mapaproducao'].includes(setorAtivo)) return;
+
+ // Verifica se o setorAtivo atual é um recurso válido carregado do banco
+ const isDynamicResource = recursosList.some(r => r.processofabricacao.toLowerCase().replace(/\s+/g, '') === setorAtivo);
+
+ // Se não for meta, não for recurso dinâmico, e não estiver nos visíveis (legado), volta pro mapa
+ if (visibleSetores.length > 0 && !visibleSetores.includes(setorAtivo as string) && !isDynamicResource && recursosList.length > 0) {
  setSetorAtivo('mapa');
  }
- }, [visibleSetores, setorAtivo]);
+ }, [visibleSetores, setorAtivo, recursosList]);
 
  // Ler Query Params caso venha de links globais
  useEffect(() => {
@@ -1975,21 +1995,37 @@ useEffect(() => {
  <span className="text-xs font-black text-blue-800 uppercase tracking-tighter">Próximo Setor:</span>
  </div>
  <span className="text-xs font-black text-blue-900 bg-white px-2 py-1 rounded shadow-sm border border-blue-100 uppercase tracking-wider">
- {(() => {
+  {(() => {
  const sequence = [
- { id: 'corte', field: 'txtCorte', label: 'Corte' },
- { id: 'dobra', field: 'txtDobra', label: 'Dobra' },
- { id: 'solda', field: 'txtSolda', label: 'Solda' },
- { id: 'pintura', field: 'txtPintura', label: 'Pintura' },
- { id: 'montagem', field: 'TxtMontagem', label: 'Montagem' }
+  { id: 'engenharia', field: 'txtENGENHARIA', label: 'Engenharia' },
+  { id: 'isometrico', field: 'txtISOMETRICO', label: 'Isométrico' },
+  { id: 'medicao', field: 'txtMEDICAO', label: 'Medição' },
+  { id: 'corte', field: 'txtCorte', label: 'Corte' },
+  { id: 'cortealaser', field: 'txtCorteaLaser', label: 'Corte a Laser' },
+  { id: 'pulsionadeira', field: 'txtPULSIONADEIRA', label: 'Pulsionadeira' },
+  { id: 'puncionadeira', field: 'txtPUNCIONADEIRA', label: 'Puncionadeira' },
+  { id: 'usinagem', field: 'txtUsinagem', label: 'Usinagem' },
+  { id: 'dobra', field: 'txtDobra', label: 'Dobra' },
+  { id: 'caldeiraria', field: 'txtCALDEIRARIA', label: 'Caldeiraria' },
+  { id: 'serralheria', field: 'txtSERRALHERIA', label: 'Serralheria' },
+  { id: 'solda', field: 'txtSolda', label: 'Solda' },
+  { id: 'galvanizar', field: 'txtGALVANIZAR', label: 'Galvanizar' },
+  { id: 'pintura', field: 'txtPintura', label: 'Pintura' },
+  { id: 'acabamento', field: 'txtACABAMENTO', label: 'Acabamento' },
+  { id: 'montagem', field: 'TxtMontagem', label: 'Montagem' },
+  { id: 'aprovacao', field: 'txtAPROVACAO', label: 'Aprovação' }
  ];
- const currentIndex = sequence.findIndex(s => s.id === modalSetor);
+ const currentIndex = sequence.findIndex(s => s.id === String(modalSetor).toLowerCase());
  if (currentIndex === -1) return '-';
  for (let i = currentIndex + 1; i < sequence.length; i++) {
- const target = sequence[i];
- if (itemDetails.item[target.field as keyof ApontamentoItem] === '1') {
- return target.label;
- }
+   const target = sequence[i];
+   const itemAny = itemDetails.item as any;
+   const val1 = String(itemAny[target.field] || '').trim().toUpperCase();
+   const val2 = String(itemAny[target.field.toLowerCase()] || '').trim().toUpperCase();
+   const isSt = String(itemAny[`st${target.field}`] || '').trim();
+   if (val1 === '1' || val2 === '1' || val1 === 'S' || val2 === 'S' || isSt === '1') {
+     return target.label;
+   }
  }
  return 'Finalizado';
  })()}
@@ -2068,7 +2104,16 @@ useEffect(() => {
  min="1"
  max={itemDetails.qtdeFaltante}
  value={qtdeApontar}
- onChange={(e) => setQtdeApontar(e.target.value)}
+ onChange={(e) => {
+  let val = e.target.value;
+  if (val !== '') {
+    const num = parseInt(val) || 0;
+    const max = itemDetails?.qtdeFaltante || 0;
+    if (num > max) val = String(max);
+    else if (num < 0) val = '0';
+  }
+  setQtdeApontar(val);
+}}
  className="w-full px-2 py-1 text-base font-black text-center rounded-lg border border-gray-200 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all bg-white text-gray-800 h-8"
  placeholder="0"
  />

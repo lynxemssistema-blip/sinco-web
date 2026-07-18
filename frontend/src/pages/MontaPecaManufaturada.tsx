@@ -74,6 +74,8 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   const [loading3, setLoading3] = useState(false);
   const [fCod3, setFCod3] = useState('');
   const [fDesc3, setFDesc3] = useState('');
+  const [filtroCod3, setFiltroCod3] = useState('');
+  const [filtroDesc3, setFiltroDesc3] = useState('');
   const [selecionados3, setSelecionados3] = useState<Set<number>>(new Set());
   const [quantidades3, setQuantidades3] = useState<Record<number, number>>({});
   const [saving3, setSaving3] = useState(false);
@@ -115,7 +117,14 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
       
       const r = await fetch(url, { headers: authHdr() });
       const j = await r.json();
-      if (j.success) setMateriais1(j.data);
+      if (j.success) {
+        setMateriais1(j.data);
+        if (j.data.length === 0) {
+          setSelMat1(null);
+          setComp2([]);
+          setStaging([]);
+        }
+      }
     } finally {
       setLoading1(false);
     }
@@ -170,6 +179,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
   }, []);
 
   const selectMat1 = async (m: MatRow) => {
+    if (selMat1 && selMat1.IdMaterial === m.IdMaterial) return;
     setSelMat1(null);
     try {
       const r = await fetch(`/api/material/${m.IdMaterial}`, { headers: authHdr() });
@@ -225,31 +235,31 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
       if (j.success) {
         if (selMat1) fetchComp2(selMat1.IdMaterial);
       } else {
-        alert(j.message || 'Erro ao remover item');
+        showAlert(j.message || 'Erro ao remover item', 'error');
       }
     } catch (e) {
       console.error(e);
-      alert('Erro de comunicação ao excluir item.');
+      showAlert('Erro de comunicação ao excluir item.', 'error');
     }
   };
 
   const clearForm = () => { setSelId(''); setProcSearch(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
   const nextSeq = () => lastAutoSeq + 10;
 
-    const saveProcs = async (newStaging) => {
-    if(!piece) return;
-    setSaving(true);
+    const saveProcs = async (newStaging: Proc[]) => {
+    if(!selMat1) return;
+    setSavingProc(true);
     try{
       const body={ processos:newStaging.map(s=>({IdProcesso:s.IdProcesso,SequenciaExecucao:s.seq,TempoEstimadoMin:s.estMin,TempoPadraoMin:s.padMin,Observacao:s.obs})),
-        codmatFabricante:piece.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
+        codmatFabricante:selMat1.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
       const r=await fetch(`${API}/material-processo`,{method:'POST',headers:{...authHdr(), 'Content-Type':'application/json'},body:JSON.stringify(body)});
       const j=await r.json();
       if(j.success) {
         setStaging(newStaging);
-        fetchProcs(piece.CodMatFabricante);
+        fetchProcs(selMat1.CodMatFabricante);
       }
       else showAlert('Erro: '+j.message, "error");
-    }finally{ setSaving(false); }
+    }finally{ setSavingProc(false); }
   };
 
   const handleAddProc = async () => {
@@ -257,13 +267,13 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     const tipo = tipos.find(t => t.IdProcessoFabricacao === selId);
     const estMinV = estMinStr ? (parseInt(estMinStr) || null) : null;
     const padMinV = padMinStr ? parseInt(padMinStr) : null;
-    if (padMinV == null) { alert('Tempo Padrão (min) obrigatório'); return; }
+    if (padMinV == null) { showAlert('Tempo Padrão (min) obrigatório', 'error'); return; }
     
     const userTyped = seq.trim() !== '';
     const seqN = userTyped ? (parseInt(seq) || nextSeq()) : nextSeq();
 
-    if (staging.some(s => s.IdProcesso === Number(selId))) { alert(`Recurso já cadastrado nesta peça`); return; }
-    if (staging.some(s => s.seq === seqN)) { alert(`Sequência ${seqN} já existe`); return; }
+    
+    if (staging.some(s => s.seq === seqN)) { showAlert(`Sequência ${seqN} já existe`, 'error'); return; }
     
     if (!userTyped) setLastAutoSeq(seqN);
     const updated = [...staging, { seq: seqN, IdProcesso: Number(selId), nome: tipo?.ProcessoFabricacao || '', estMin: estMinV, padMin: padMinV, obs: ob }].sort((a, b) => a.seq - b.seq);
@@ -290,7 +300,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     if (editSq === null) return;
     const estMinV = inlineEstMin ? (parseInt(inlineEstMin) || null) : null;
     const padMinV = inlinePadMin ? parseInt(inlinePadMin) : null;
-    if (padMinV == null) { alert('Tempo Padrão (min) obrigatório'); return; }
+    if (padMinV == null) { showAlert('Tempo Padrão (min) obrigatório', 'error'); return; }
 
     const newSeq = parseInt(inlineSeq);
     if (isNaN(newSeq) || newSeq <= 0) { alert('Sequência inválida'); return; }
@@ -310,27 +320,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
     }
   };
 
-  const saveAllProcs = async () => {
-    if (!selMat1 || staging.length === 0) return;
-    setSavingProc(true);
-    try {
-      const body = { 
-        processos: staging.map(s => ({ IdProcesso: s.IdProcesso, SequenciaExecucao: s.seq, TempoEstimadoMin: s.estMin, TempoPadraoMin: s.padMin, Observacao: s.obs })),
-        codmatFabricante: selMat1.CodMatFabricante, idMatriz, usuarioCriacao: uCriacao, replace: true 
-      };
-      const r = await fetch(`${API}/material-processo`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHdr() }, body: JSON.stringify(body) });
-      const j = await r.json();
-      if (j.success) {
-        alert("Processos gravados com sucesso!");
-        fetchProcs(selMat1.CodMatFabricante);
-      } else {
-        alert('Erro: ' + j.message);
-      }
-    } finally { 
-      setSavingProc(false); 
-    }
-  };
-
+  
   // GRID 3 Logic
   const fetchMateriais3 = useCallback(async (cod: string, desc: string) => {
     setLoading3(true);
@@ -471,23 +461,12 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
 
   return (
     <div className="h-screen flex flex-col min-h-0 bg-gray-100 font-sans">
-      
-      {/* HEADER */}
-      <div className="bg-[#32423D] border-b border-[#25322e] px-4 py-2 shrink-0 flex items-center justify-between shadow-sm z-10 text-white">
-        <div>
-          <h1 className="text-sm font-bold flex items-center gap-2 tracking-wide uppercase">
-            <Package size={16} className="text-emerald-400" /> Peça Manufaturada
-          </h1>
-          <p className="text-[10px] text-gray-300 mt-0.5 uppercase tracking-widest">Gestão de Estrutura e Processos de Fabricação</p>
-        </div>
-      </div>
-
       <div className="flex-1 flex min-h-0 divide-x divide-gray-200">
         
         {/* =========================================
             GRID 1: PESQUISA, DETALHES E COMPOSIÇÃO 
             ========================================= */}
-        <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[36%]">
+        <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[40%]">
           
           {/* TOPO: PESQUISA */}
           <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border-b border-emerald-100 shrink-0">
@@ -518,7 +497,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               <table className="w-full text-left">
                 <thead className="bg-white sticky top-0 z-10 shadow-sm">
                   <tr>
-                    <th className={colsCls}>Código</th>
+                    <th className={`${colsCls} w-[160px]`}>Código</th>
                     <th className={colsCls}>Descrição</th>
                     <th className={`${colsCls} text-center`}>Peça Manuf.</th>
                   </tr>
@@ -592,7 +571,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                   <thead className="bg-white sticky top-0 z-10 shadow-sm border-b border-gray-200">
                     <tr>
                       <th className="p-1 px-1.5 w-12"></th>
-                      <th className={colsCls}>Código</th>
+                      <th className={`${colsCls} w-[130px]`}>Código</th>
                       <th className={colsCls}>Descrição</th>
                       <th className={`${colsCls} text-center`}>NV</th>
                       <th className={`${colsCls} text-center`}>QTD</th>
@@ -612,7 +591,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
         {/* =========================================
             GRID 2: PROCESSOS E RECURSOS
             ========================================= */}
-        <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%]`}>
+        <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[30%]`}>
           <div className="px-3 py-2 bg-gradient-to-r from-teal-50 to-teal-100/30 border-b border-teal-100 shrink-0 flex justify-between items-center">
             <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
               <Clock size={13} /> 2. Processos de Fabricação
@@ -645,7 +624,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                        }}
                        className="px-2 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500 bg-white">
                        <option value="">- Selecione -</option>
-                       {tipos.filter(t=>!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao)).map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
+                       {tipos.map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
                      </select>
                    </div>
                    <div className="flex flex-col items-center shrink-0">
@@ -687,7 +666,10 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                 <thead className="bg-white sticky top-0 shadow-sm z-10 border-b border-gray-200">
                   <tr>
                     <th className="p-1.5 px-2 text-[9px] font-bold text-gray-500 uppercase tracking-wide w-8">Seq</th>
-                    <th className={colsCls}>Recurso</th>
+                    <th className={colsCls}>
+                      <div className="flex flex-col gap-1">
+                        <span>Recurso</span>
+                        <div className="relative"><input type="text" placeholder="Filtro..." value={procTableFiltro} onChange={e => setProcTableFiltro(e.target.value)} className="w-full px-1 pr-4 py-0.5 text-[9px] font-normal border border-gray-200 rounded focus:outline-none focus:border-teal-500 bg-white" />{procTableFiltro && <button onClick={()=>setProcTableFiltro('')} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500" title="Limpar"><X size={10} /></button>}</div></div></th>
                     <th className={`${colsCls} text-center w-14`}>Setup (m)</th>
                     <th className={`${colsCls} text-center w-14`}>Padrão (m)</th>
                     <th className={colsCls}>Obs.</th>
@@ -740,20 +722,13 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
               </table>
             )}
           </div>
-          
-          {/* BOTÃO SALVAR PROCESSOS */}
-          <div className="p-2 border-t border-gray-200 shrink-0 bg-white flex justify-end">
-             <button onClick={saveAllProcs} disabled={savingProc||!selMat1||staging.length===0} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#32423D] text-white text-[10px] font-bold rounded shadow-sm hover:bg-[#25322e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-               {savingProc?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Gravar Processos
-             </button>
-          </div>
         </div>
 
         {/* =========================================
             GRID 3: INCLUSÃO DE NOVOS MATERIAIS
             ========================================= */}
         
-          <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%] border-l border-indigo-100 animate-in slide-in-from-right-10 duration-200">
+          <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[30%] border-l border-indigo-100 animate-in slide-in-from-right-10 duration-200">
             <div className="px-3 py-2 bg-gradient-to-r from-indigo-50 to-indigo-100/40 border-b border-indigo-100 shrink-0 flex justify-between items-center">
               <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider flex items-center gap-1.5">
                 <PlusCircle size={13} /> 3. Incluir Materiais
@@ -763,8 +738,14 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
 
             <div className="p-2 border-b border-gray-100 shrink-0 flex flex-col gap-2 bg-gray-50/30">
               <div className="flex gap-2">
-                <input value={fCod3} onChange={e=>setFCod3(e.target.value)} disabled={!selMat1} placeholder="Cód..." className="w-[30%] px-2 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"/>
-                <input value={fDesc3} onChange={e=>setFDesc3(e.target.value)} disabled={!selMat1} placeholder="Descrição..." className="w-[40%] px-2 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"/>
+                <div className="relative w-[30%]">
+                  <input value={fCod3} onChange={e=>setFCod3(e.target.value)} disabled={!selMat1} placeholder="Cód..." className="w-full px-2 pr-6 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"/>
+                  {fCod3 && <button onClick={()=>setFCod3('')} disabled={!selMat1} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white rounded p-0.5 shadow-sm" title="Limpar"><X size={12}/></button>}
+                </div>
+                <div className="relative w-[40%]">
+                  <input value={fDesc3} onChange={e=>setFDesc3(e.target.value)} disabled={!selMat1} placeholder="Descrição..." className="w-full px-2 pr-6 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"/>
+                  {fDesc3 && <button onClick={()=>setFDesc3('')} disabled={!selMat1} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white rounded p-0.5 shadow-sm" title="Limpar"><X size={12}/></button>}
+                </div>
                 <button onClick={handleSaveComp3} disabled={!selMat1 || selecionados3.size === 0 || saving3}
                   className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded shadow-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   {saving3 ? <Loader2 size={12} className="animate-spin"/> : <Save size={12}/>} Adicionar ({selecionados3.size})
@@ -784,9 +765,13 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
                       <th className="p-1 px-2 w-8 text-center">
                         <div className="w-3 h-3 border border-gray-300 rounded-sm mx-auto bg-gray-50" title="Selecione individualmente"></div>
                       </th>
-                      <th className={colsCls}>Código</th>
-                      <th className={colsCls}>Descrição</th>
-                      <th className={`${colsCls} text-center w-16`}>Qtde</th>
+                      <th className={colsCls}>
+                        <div className="flex flex-col gap-1">
+                          <span>Código</span>
+                          <div className="relative"><input type="text" placeholder="Filtro Cód..." value={filtroCod3} onChange={e=>setFiltroCod3(e.target.value)} className="w-full px-1 pr-4 py-0.5 text-[9px] font-normal border border-gray-200 rounded focus:outline-none focus:border-indigo-500 bg-white" />{filtroCod3 && <button onClick={()=>setFiltroCod3('')} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500" title="Limpar"><X size={10} /></button>}</div></div></th><th className={colsCls}>
+                        <div className="flex flex-col gap-1">
+                          <span>Descrição</span>
+                          <div className="relative"><input type="text" placeholder="Filtro Desc..." value={filtroDesc3} onChange={e=>setFiltroDesc3(e.target.value)} className="w-full px-1 pr-4 py-0.5 text-[9px] font-normal border border-gray-200 rounded focus:outline-none focus:border-indigo-500 bg-white" />{filtroDesc3 && <button onClick={()=>setFiltroDesc3('')} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500" title="Limpar"><X size={10} /></button>}</div></div></th><th className={`${colsCls} text-center w-16`}>Qtde</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">

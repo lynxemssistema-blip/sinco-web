@@ -145,41 +145,54 @@ export default function ApontamentoProducaoPage() {
  const [dataPlanejamentoFilter, setDataPlanejamentoFilter] = useState('');
  const [statusFilter, setStatusFilter] = useState<'todos' | 'pendente' | 'concluido'>('pendente');
  const [groupBy, setGroupBy] = useState<'os' | 'projeto' | 'tag' | 'cliente' | 'produto_principal'>('os');
- const checkPredecessorStatus = (item: ApontamentoItem, currentSetor: Setor) => {
- if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
- 
- const sequence: Setor[] = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
- const currentIndex = sequence.indexOf(currentSetor);
- 
- if (currentIndex <= 0) return { allowed: true }; // Primeiro setor ou não mapeado
+   const checkPredecessorStatus = (item: any, currentSetor: any) => {
+    if (currentSetor === 'mapa' || currentSetor === 'mapaproducao') return { allowed: true };
+    
+    const sequence = ['engenharia', 'isometrico', 'medicao', 'corte', 'cortealaser', 'pulsionadeira', 'puncionadeira', 'usinagem', 'dobra', 'caldeiraria', 'serralheria', 'solda', 'galvanizar', 'pintura', 'acabamento', 'montagem', 'aprovacao'];
+    const currentIndex = sequence.indexOf(String(currentSetor).toLowerCase());
+    
+    if (currentIndex <= 0) return { allowed: true };
 
- // Buscar o predecessor ativo mais próximo
- for (let i = currentIndex - 1; i >= 0; i--) {
- const pred = sequence[i];
- const isActive = 
- (pred === 'corte' && (item.txtCorte === '1' || item.txtcorte === '1')) ||
- (pred === 'dobra' && (item.txtDobra === '1' || item.txtdobra === '1')) ||
- (pred === 'solda' && (item.txtSolda === '1' || item.txtsolda === '1')) ||
- (pred === 'pintura' && (item.txtPintura === '1' || item.txtpintura === '1')) ||
- (pred === 'montagem' && (item.TxtMontagem === '1' || item.txtmontagem === '1'));
+    const itemAny = item as any;
 
- if (isActive) {
- const totalExec = 
- (pred === 'corte' && Number(item.CorteTotalExecutado || item.cortetotalexecutado || 0)) ||
- (pred === 'dobra' && Number(item.DobraTotalExecutado || item.dobratotalexecutado || 0)) ||
- (pred === 'solda' && Number(item.SoldaTotalExecutado || item.soldatotalexecutado || 0)) ||
- (pred === 'pintura' && Number(item.PinturaTotalExecutado || item.pinturatotalexecutado || 0)) ||
- (pred === 'montagem' && Number(item.MontagemTotalExecutado || item.montagemtotalexecutado || 0)) || 0;
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const pred = sequence[i];
+      let base = pred.toUpperCase();
+      if (pred === 'cortealaser') base = 'CorteaLaser';
+      else if (pred === 'corte') base = 'Corte';
+      else if (pred === 'dobra') base = 'Dobra';
+      else if (pred === 'solda') base = 'Solda';
+      else if (pred === 'pintura') base = 'Pintura';
+      else if (pred === 'montagem') base = 'Montagem';
+      else if (pred === 'acabamento') base = 'ACABAMENTO';
+      else if (pred === 'usinagem') base = 'Usinagem';
+      else if (pred === 'caldeiraria') base = 'CALDEIRARIA';
+      else if (pred === 'serralheria') base = 'SERRALHERIA';
 
- return { 
- allowed: totalExec >= Number(item.QtdeTotal || 0), 
- predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
- };
- }
- }
+      const txtField = `txt${base}`;
+      const txtFieldLower = `txt${pred.toLowerCase()}`;
+      const txtFieldAlt = pred === 'montagem' ? 'TxtMontagem' : txtField;
 
- return { allowed: true };
- };
+      const val1 = String(itemAny[txtField] || '').trim();
+      const val2 = String(itemAny[txtFieldLower] || '').trim();
+      const val3 = String(itemAny[txtFieldAlt] || '').trim();
+      
+      const isActive = val1 === '1' || val2 === '1' || val3 === '1' || val1.toUpperCase() === 'S' || val2.toUpperCase() === 'S';
+
+      if (isActive) {
+        const totalField = `${base}TotalExecutado`;
+        const totalFieldLower = `${pred}totalexecutado`;
+        const totalExec = Number(itemAny[totalField] || itemAny[totalFieldLower] || 0);
+
+        return { 
+          allowed: totalExec >= Number(itemAny.QtdeTotal || itemAny.qtdetotal || 0), 
+          predecessor: pred.charAt(0).toUpperCase() + pred.slice(1) 
+        };
+      }
+    }
+
+    return { allowed: true };
+  };
 
  const [showFilters, setShowFilters] = useState(true);
 
@@ -2063,7 +2076,16 @@ export default function ApontamentoProducaoPage() {
  min="1"
  max={itemDetails.qtdeFaltante}
  value={qtdeApontar}
- onChange={(e) => setQtdeApontar(e.target.value)}
+ onChange={(e) => {
+  let val = e.target.value;
+  if (val !== '') {
+    const num = parseInt(val) || 0;
+    const max = itemDetails?.qtdeFaltante || 0;
+    if (num > max) val = String(max);
+    else if (num < 0) val = '0';
+  }
+  setQtdeApontar(val);
+}}
  className="w-full px-2 py-1 text-base font-black text-center rounded-lg border border-gray-200 hover:border-[#32423D]/40 focus:border-[#32423D] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all bg-white text-gray-800 h-8"
  placeholder="0"
  />

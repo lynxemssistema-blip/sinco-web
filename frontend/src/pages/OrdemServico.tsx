@@ -791,10 +791,10 @@ function OrdemServicoContent() {
                 addToast({ type: 'success', title: 'Sucesso', message: `Ordem de Serviço ${os.IdOrdemServico} liberada! (${tipoLiberacao})` });
                 setOrdens(prev => prev.map(o => o.IdOrdemServico === os.IdOrdemServico ? { ...o, Liberado_Engenharia: 'S', OrdemServicoFinalizado: 'C', Fator: Number(fator) } : o));
             } else {
-                addToast({ type: 'error', title: 'Erro', message: json.message || 'Falha ao liberar Ordem de Serviço.' });
+                Swal.fire({ icon: 'error', title: 'Atenção', text: json.message || 'Falha ao liberar Ordem de Serviço.' });
             }
         } catch (e: any) {
-            addToast({ type: 'error', title: 'Erro', message: 'Falha de comunicação com o servidor.' });
+            Swal.fire({ icon: 'error', title: 'Erro de Conexão', text: 'Falha de comunicação com o servidor.' });
         } finally {
             setLiberandoOS(null);
         }
@@ -1466,7 +1466,12 @@ function OrdemServicoContent() {
                     <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                         <div className="text-right sm:mr-4">
                             <div className="text-xs text-gray-400">Ordem de Serviço</div>
-                            <div className="text-lg font-bold text-primary">OS {os.IdOrdemServico}</div>
+                            <div className="text-lg font-bold text-primary flex items-center justify-end gap-2">
+                                OS {os.IdOrdemServico}
+                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full border border-yellow-200" title="Fator Multiplicador">
+                                    Fator {os.Fator || 1}
+                                </span>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {/* Botão Incluir Itens — apenas se não liberada */}
@@ -1657,7 +1662,8 @@ function OrdemServicoContent() {
                                                 <span className="text-gray-400">Peso Total:</span>
                                                 <span className="text-gray-600 font-semibold">
                                                 {(() => {
-                                                    const pesoCalculado = (ordensItens[os.IdOS] || []).reduce((acc, item) => acc + (parseFloat(String(item.Peso || 0)) || 0), 0);
+                                                    const itensDaOS = ordensItens[os.IdOrdemServico] || [];
+                                                    const pesoCalculado = itensDaOS.reduce((acc, item) => acc + (parseFloat(String(item.Peso || 0)) * (parseFloat(String(item.QtdeTotal || 1))) || 0), 0);
                                                     const pesoFinal = pesoCalculado > 0 ? pesoCalculado : parseFloat(String(os.PesoTotal || 0));
                                                     return pesoFinal > 0 ? `${pesoFinal.toFixed(2)} kg` : '-';
                                                 })()}
@@ -1665,7 +1671,14 @@ function OrdemServicoContent() {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Área Pintura:</span>
-                                                <span className="text-gray-600">{os.AreaPinturaTotal ? `${os.AreaPinturaTotal} m²` : '-'}</span>
+                                                <span className="text-gray-600 font-semibold">
+                                                {(() => {
+                                                    const itensDaOS = ordensItens[os.IdOrdemServico] || [];
+                                                    const areaCalculada = itensDaOS.reduce((acc, item) => acc + (parseFloat(String(item.AreaPintura || 0)) * (parseFloat(String(item.QtdeTotal || 1))) || 0), 0);
+                                                    const areaFinal = areaCalculada > 0 ? areaCalculada : parseFloat(String(os.AreaPinturaTotal || 0));
+                                                    return areaFinal > 0 ? `${areaFinal.toFixed(2)} m²` : '-';
+                                                })()}
+                                                </span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-gray-400">Peças:</span>

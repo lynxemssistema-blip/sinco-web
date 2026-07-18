@@ -9,11 +9,11 @@ const API_BASE = '/api';
 // ─── Interfaces ───
 interface Projeto { IdProjeto: number; Projeto: string; DescProjeto: string; DescEmpresa?: string; DataPrevisao: string; DataCriacao: string; Finalizado: string; liberado: string; QtdeTags: number; QtdeTagsExecutadas: number; PercentualTags: number; QtdePecasTags: number; QtdePecasExecutadas: number; PercentualPecas: number; qtdetotalpecas: number; TotalRnc: number; qtdernc: number; qtderncPendente: number; qtderncFinalizada: number; ExecCorte: number; TotalCorte: number; ExecDobra: number; TotalDobra: number; ExecSolda: number; TotalSolda: number; ExecPintura: number; TotalPintura: number; ExecMontagem: number; TotalMontagem: number; QtdeOS: number; }
 interface Tag { IdTag: number; Tag: string; DescTag: string; DataEntrada: string; DataPrevisao: string; QtdeTag: string; QtdeLiberada: string; SaldoTag: string; ValorTag: string; StatusTag: string; QtdeOS: string; qtdetotal: string; QtdeTotalPecas?: string | number; Finalizado: string; qtdernc: number; 
- PlanejadoInicioCorte: string; PlanejadoFinalCorte: string; RealizadoInicioCorte: string; RealizadoFinalCorte: string; CorteTotalExecutado: string; CorteTotalExecutar: string; CortePercentual: string; 
- PlanejadoInicioDobra: string; PlanejadoFinalDobra: string; RealizadoInicioDobra: string; RealizadoFinalDobra: string; DobraTotalExecutado: string; DobraTotalExecutar: string; DobraPercentual: string; 
- PlanejadoInicioSolda: string; PlanejadoFinalSolda: string; RealizadoInicioSolda: string; RealizadoFinalSolda: string; SoldaTotalExecutado: string; SoldaTotalExecutar: string; SoldaPercentual: string; 
- PlanejadoInicioPintura: string; PlanejadoFinalPintura: string; RealizadoInicioPintura: string; RealizadoFinalPintura: string; PinturaTotalExecutado: string; PinturaTotalExecutar: string; PinturaPercentual: string; 
- PlanejadoInicioMontagem: string; PlanejadoFinalMontagem: string; RealizadoInicioMontagem: string; RealizadoFinalMontagem: string; MontagemTotalExecutado: string; MontagemTotalExecutar: string; MontagemPercentual: string; 
+ PlanejadoInicioCorte: string; PlanejadoFinalCorte: string; RealizadoInicioCorte: string; RealizadoFinalCorte: string; CorteTotalExecutado: string; CorteTotalExecutar: string; CortePercentual: string; flagCorte: number; 
+ PlanejadoInicioDobra: string; PlanejadoFinalDobra: string; RealizadoInicioDobra: string; RealizadoFinalDobra: string; DobraTotalExecutado: string; DobraTotalExecutar: string; DobraPercentual: string; flagDobra: number; 
+ PlanejadoInicioSolda: string; PlanejadoFinalSolda: string; RealizadoInicioSolda: string; RealizadoFinalSolda: string; SoldaTotalExecutado: string; SoldaTotalExecutar: string; SoldaPercentual: string; flagSolda: number; 
+ PlanejadoInicioPintura: string; PlanejadoFinalPintura: string; RealizadoInicioPintura: string; RealizadoFinalPintura: string; PinturaTotalExecutado: string; PinturaTotalExecutar: string; PinturaPercentual: string; flagPintura: number; 
+ PlanejadoInicioMontagem: string; PlanejadoFinalMontagem: string; RealizadoInicioMontagem: string; RealizadoFinalMontagem: string; MontagemTotalExecutado: string; MontagemTotalExecutar: string; MontagemPercentual: string; flagMontagem: number; 
  ProjetistaPlanejado?: string; PlanejadoInicioEngenharia?: string; PlanejadoFinalEngenharia?: string; Observacao?: string;
 }
 interface Rnc { IdRnc: number; Estatus: string; Tag: string; SetorResponsavel: string; DescricaoPendencia: string; DescResumo: string; UsuarioResponsavel: string; TipoTarefa?: string; DataExecucao?: string; DataCriacao: string; DataFinalizacao: string; UsuarioResponsavelFinalizacao?: string; SetorResponsavelFinalizacao?: string; DescricaoFinalizacao?: string; DescEmpresa?: string; DescTag?: string; }
@@ -59,6 +59,9 @@ const SECTORS = [
  { k: 'Corte', ex: 'ExecCorte', t: 'TotalCorte', c: 'bg-[#32423D]' }, { k: 'Dobra', ex: 'ExecDobra', t: 'TotalDobra', c: 'bg-indigo-600' },
  { k: 'Solda', ex: 'ExecSolda', t: 'TotalSolda', c: 'bg-red-600' }, { k: 'Pintura', ex: 'ExecPintura', t: 'TotalPintura', c: 'bg-amber-500' },
  { k: 'Montagem', ex: 'ExecMontagem', t: 'TotalMontagem', c: 'bg-emerald-600' },
+ { k: 'CorteaLaser', ex: 'ExecCorteaLaser', t: 'TotalCorteaLaser', c: 'bg-purple-600' },
+ { k: 'Pulsionadeira', ex: 'ExecPULSIONADEIRA', t: 'TotalPULSIONADEIRA', c: 'bg-pink-600' },
+ { k: 'Galvanizar', ex: 'ExecGALVANIZAR', t: 'TotalGALVANIZAR', c: 'bg-cyan-600' },
 ];
 
 const TAG_SECTORS = [
@@ -72,6 +75,12 @@ const TAG_SECTORS = [
  fields: { pi: 'PlanejadoInicioPintura', pf: 'PlanejadoFinalPintura', ri: 'RealizadoInicioPintura', rf: 'RealizadoFinalPintura' } },
  { k: 'Montagem', ex: 'MontagemTotalExecutado', t: 'MontagemTotalExecutar', p: 'MontagemPercentual', c: 'bg-emerald-500',
  fields: { pi: 'PlanejadoInicioMontagem', pf: 'PlanejadoFinalMontagem', ri: 'RealizadoInicioMontagem', rf: 'RealizadoFinalMontagem' } },
+ { k: 'CorteaLaser', ex: 'CorteaLaserTotalExecutado', t: 'CorteaLaserTotalExecutar', p: 'CorteaLaserPercentual', c: 'bg-purple-500',
+ fields: { pi: 'PlanejadoInicioCorteaLaser', pf: 'PlanejadoFinalCorteaLaser', ri: 'RealizadoInicioCorteaLaser', rf: 'RealizadoFinalCorteaLaser' } },
+ { k: 'Pulsionadeira', ex: 'PULSIONADEIRATotalExecutado', t: 'PULSIONADEIRATotalExecutar', p: 'PULSIONADEIRAPercentual', c: 'bg-pink-500',
+ fields: { pi: 'PlanejadoInicioPULSIONADEIRA', pf: 'PlanejadoFinalPULSIONADEIRA', ri: 'RealizadoInicioPULSIONADEIRA', rf: 'RealizadoFinalPULSIONADEIRA' } },
+ { k: 'Galvanizar', ex: 'GALVANIZARTotalExecutado', t: 'GALVANIZARTotalExecutar', p: 'GALVANIZARPercentual', c: 'bg-cyan-500',
+ fields: { pi: 'PlanejadoInicioGALVANIZAR', pf: 'PlanejadoFinalGALVANIZAR', ri: 'RealizadoInicioGALVANIZAR', rf: 'RealizadoFinalGALVANIZAR' } },
 ];
 
 export default function VisaoGeralProducaoPage() {
@@ -155,8 +164,8 @@ export default function VisaoGeralProducaoPage() {
  const [visibleProcesses, setVisibleProcesses] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
 
  // Filtrar setores dinamicamente
- const filteredSectors = SECTORS.filter(s => visibleProcesses.includes(s.k.toLowerCase()));
- const filteredTagSectors = TAG_SECTORS.filter(s => visibleProcesses.includes(s.k.toLowerCase()));
+ const filteredSectors = SECTORS;
+ const filteredTagSectors = TAG_SECTORS;
 
  // Qdo as rncs carregarem e tiver openRnc na url, abrir diretamente
  useEffect(() => {
@@ -1410,6 +1419,7 @@ export default function VisaoGeralProducaoPage() {
  {/* SETORES */}
  {viewModeTags === 'detailed' ? (
  filteredTagSectors.map(s => {
+ if (t[`flag${s.k}` as keyof Tag] !== 1) return <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 bg-slate-50/50"><div className="flex flex-col items-center justify-center h-full text-slate-300 text-[10px] font-bold"><div className="w-1.5 h-1.5 rounded-full bg-slate-200 mb-1"></div>N/A</div></td>;
  const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
  const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
  const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
@@ -1481,7 +1491,8 @@ export default function VisaoGeralProducaoPage() {
  >
  <CalendarDays size={10} /> Planejar Setores
  </button>
- {filteredTagSectors.map(s => {
+ {filteredTagSectors.filter(s => t[`flag${s.k}` as keyof Tag] === 1).map(s => {
+ if (t[`flag${s.k}` as keyof Tag] !== 1) return <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 bg-slate-50/50"><div className="flex flex-col items-center justify-center h-full text-slate-300 text-[10px] font-bold"><div className="w-1.5 h-1.5 rounded-full bg-slate-200 mb-1"></div>N/A</div></td>;
  const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
  return (
  <div key={s.k} className="flex flex-col gap-1 w-full bg-slate-50/50 p-1.5 rounded border border-slate-100 shadow-sm hover:border-slate-300 transition-colors">
