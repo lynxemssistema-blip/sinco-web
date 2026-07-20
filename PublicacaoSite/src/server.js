@@ -315,6 +315,11 @@ const getCurrentDateBR = () => {
     const d = new Date();
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 };
+const getCurrentDateSQL = () => {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+};
 
 const getCurrentDateTimeBR = () => {
     const d = new Date();
@@ -3436,12 +3441,12 @@ app.post('/api/manutencao/recalcular-qtde-os', async (req, res) => {
                 QtdeOS = (
                     SELECT COUNT(*) FROM ordemservico os
                     WHERE os.IdTag = t.IdTag
-                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
                 ),
                 QtdeOSExecutadas = (
                     SELECT COUNT(*) FROM ordemservico os
                     WHERE os.IdTag = t.IdTag
-                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+                      AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
                       AND TRIM(COALESCE(os.OrdemServicoFinalizado,'')) = 'C'
                 )
             WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
@@ -4714,9 +4719,11 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 COALESCE((SELECT SUM(os.QtdeTotalItens) FROM ordemservico os WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL)) AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdePecasTags,
                 COALESCE(p.QtdePecasExecutadas, 0) AS QtdePecasExecutadas,
 
-                /* -- OS Count -- */
+                /* -- OS Count -- conta apenas OS cujo IdTag pertence a uma tag do projeto */
                 COALESCE((SELECT COUNT(*) FROM ordemservico os 
-                           WHERE (os.IdProjeto = p.IdProjeto OR (os.Projeto = p.Projeto AND p.Projeto IS NOT NULL))
+                           INNER JOIN tags t ON t.IdTag = os.IdTag 
+                            AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
+                           WHERE t.IdProjeto = p.IdProjeto
                              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')), 0) AS QtdeOS,
 
                 /* -- RNC -- */
@@ -4743,78 +4750,78 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
                 COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas,
 
                 /* -- Setor Corte -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalCorte,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecCorte,
-                (SELECT MIN(osi.PlanejadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioCorte, 
-                (SELECT MAX(osi.PlanejadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalCorte,
-                (SELECT MIN(osi.RealizadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioCorte, 
-                (SELECT MAX(osi.RealizadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalCorte,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorte = '1') AS TotalCorte,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorte = '1') AS ExecCorte,
+                (SELECT MIN(osi.PlanejadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioCorte, 
+                (SELECT MAX(osi.PlanejadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalCorte,
+                (SELECT MIN(osi.RealizadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioCorte, 
+                (SELECT MAX(osi.RealizadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalCorte,
 
                 /* -- Setor Dobra -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalDobra,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecDobra,
-                (SELECT MIN(osi.PlanejadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioDobra, 
-                (SELECT MAX(osi.PlanejadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalDobra,
-                (SELECT MIN(osi.RealizadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioDobra, 
-                (SELECT MAX(osi.RealizadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalDobra,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtDobra = '1') AS TotalDobra,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtDobra = '1') AS ExecDobra,
+                (SELECT MIN(osi.PlanejadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioDobra, 
+                (SELECT MAX(osi.PlanejadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalDobra,
+                (SELECT MIN(osi.RealizadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioDobra, 
+                (SELECT MAX(osi.RealizadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalDobra,
 
                 /* -- Setor Solda -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalSolda,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecSolda,
-                (SELECT MIN(osi.PlanejadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioSolda, 
-                (SELECT MAX(osi.PlanejadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalSolda,
-                (SELECT MIN(osi.RealizadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioSolda, 
-                (SELECT MAX(osi.RealizadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalSolda,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtSolda = '1') AS TotalSolda,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtSolda = '1') AS ExecSolda,
+                (SELECT MIN(osi.PlanejadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioSolda, 
+                (SELECT MAX(osi.PlanejadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalSolda,
+                (SELECT MIN(osi.RealizadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioSolda, 
+                (SELECT MAX(osi.RealizadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalSolda,
 
                 /* -- Setor Pintura -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalPintura,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecPintura,
-                (SELECT MIN(osi.PlanejadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioPintura, 
-                (SELECT MAX(osi.PlanejadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalPintura,
-                (SELECT MIN(osi.RealizadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioPintura, 
-                (SELECT MAX(osi.RealizadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalPintura,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPintura = '1') AS TotalPintura,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPintura = '1') AS ExecPintura,
+                (SELECT MIN(osi.PlanejadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioPintura, 
+                (SELECT MAX(osi.PlanejadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalPintura,
+                (SELECT MIN(osi.RealizadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioPintura, 
+                (SELECT MAX(osi.RealizadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalPintura,
 
                 /* -- Setor Montagem -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalMontagem,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecMontagem,
-                (SELECT MIN(osi.PlanejadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioMontagem, 
-                (SELECT MAX(osi.PlanejadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalMontagem,
-                (SELECT MIN(osi.RealizadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioMontagem, 
-                (SELECT MAX(osi.RealizadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalMontagem,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.TxtMontagem = '1') AS TotalMontagem,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.TxtMontagem = '1') AS ExecMontagem,
+                (SELECT MIN(osi.PlanejadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioMontagem, 
+                (SELECT MAX(osi.PlanejadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalMontagem,
+                (SELECT MIN(osi.RealizadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioMontagem, 
+                (SELECT MAX(osi.RealizadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalMontagem,
 
                 /* -- Setor Corte a Laser -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalCorteaLaser,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecCorteaLaser,
-                (SELECT MIN(osi.PlanejadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioCorteaLaser, 
-                (SELECT MAX(osi.PlanejadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalCorteaLaser,
-                (SELECT MIN(osi.RealizadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioCorteaLaser, 
-                (SELECT MAX(osi.RealizadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalCorteaLaser,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorteaLaser = '1') AS TotalCorteaLaser,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorteaLaser = '1') AS ExecCorteaLaser,
+                (SELECT MIN(osi.PlanejadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioCorteaLaser, 
+                (SELECT MAX(osi.PlanejadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalCorteaLaser,
+                (SELECT MIN(osi.RealizadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioCorteaLaser, 
+                (SELECT MAX(osi.RealizadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalCorteaLaser,
 
                 /* -- Setor Pulsionadeira -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalPulsionadeira,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecPulsionadeira,
-                (SELECT MIN(osi.PlanejadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioPulsionadeira, 
-                (SELECT MAX(osi.PlanejadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalPulsionadeira,
-                (SELECT MIN(osi.RealizadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioPulsionadeira, 
-                (SELECT MAX(osi.RealizadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalPulsionadeira,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPULSIONADEIRA = '1') AS TotalPulsionadeira,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPULSIONADEIRA = '1') AS ExecPulsionadeira,
+                (SELECT MIN(osi.PlanejadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioPulsionadeira, 
+                (SELECT MAX(osi.PlanejadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalPulsionadeira,
+                (SELECT MIN(osi.RealizadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioPulsionadeira, 
+                (SELECT MAX(osi.RealizadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalPulsionadeira,
 
                 /* -- Setor Galvanizar -- */
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS TotalGalvanizar,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS ExecGalvanizar,
-                (SELECT MIN(osi.PlanejadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioGalvanizar, 
-                (SELECT MAX(osi.PlanejadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalGalvanizar,
-                (SELECT MIN(osi.RealizadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioGalvanizar, 
-                (SELECT MAX(osi.RealizadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalGalvanizar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtGALVANIZAR = '1') AS TotalGalvanizar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtGALVANIZAR = '1') AS ExecGalvanizar,
+                (SELECT MIN(osi.PlanejadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioGalvanizar, 
+                (SELECT MAX(osi.PlanejadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalGalvanizar,
+                (SELECT MIN(osi.RealizadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioGalvanizar, 
+                (SELECT MAX(osi.RealizadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalGalvanizar,
 
 
-                (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagCorte,
-                (SELECT MAX(CASE WHEN osi.txtDobra = '1' OR osi.txtDobra = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagDobra,
-                (SELECT MAX(CASE WHEN osi.txtSolda = '1' OR osi.txtSolda = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagSolda,
-                (SELECT MAX(CASE WHEN osi.txtPintura = '1' OR osi.txtPintura = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagPintura,
-                (SELECT MAX(CASE WHEN osi.TxtMontagem = '1' OR osi.TxtMontagem = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagMontagem,
-                (SELECT MAX(CASE WHEN osi.txtCorteaLaser = '1' OR osi.txtCorteaLaser = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagCorteaLaser,
-                (SELECT MAX(CASE WHEN osi.txtPULSIONADEIRA = '1' OR osi.txtPULSIONADEIRA = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagPulsionadeira,
-                (SELECT MAX(CASE WHEN osi.txtGALVANIZAR = '1' OR osi.txtGALVANIZAR = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagGalvanizar
+                (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagCorte,
+                (SELECT MAX(CASE WHEN osi.txtDobra = '1' OR osi.txtDobra = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagDobra,
+                (SELECT MAX(CASE WHEN osi.txtSolda = '1' OR osi.txtSolda = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagSolda,
+                (SELECT MAX(CASE WHEN osi.txtPintura = '1' OR osi.txtPintura = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagPintura,
+                (SELECT MAX(CASE WHEN osi.TxtMontagem = '1' OR osi.TxtMontagem = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagMontagem,
+                (SELECT MAX(CASE WHEN osi.txtCorteaLaser = '1' OR osi.txtCorteaLaser = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagCorteaLaser,
+                (SELECT MAX(CASE WHEN osi.txtPULSIONADEIRA = '1' OR osi.txtPULSIONADEIRA = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagPulsionadeira,
+                (SELECT MAX(CASE WHEN osi.txtGALVANIZAR = '1' OR osi.txtGALVANIZAR = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdProjeto = p.IdProjeto AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagGalvanizar
 
             FROM projetos p
             LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto
@@ -4829,9 +4836,9 @@ app.get('/api/acompanhamento/projetos', async (req, res) => {
 
         /* Compute percentages in JS to avoid division-by-zero in SQL */
         const pctNormal = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
-        const pctSetor = (exec, saldo) => {
-            const total = exec + saldo;
-            return total > 0 ? Math.round((exec / total) * 100) : 0;
+        const pctSetor = (exec, sumQtde) => {
+            // sumQtde = SUM(QtdeTotal WHERE txt{Setor}='1') � universo real do setor
+            return sumQtde > 0 ? Math.min(100, Math.round((exec / sumQtde) * 100)) : 0;
         };
         const enriched = rows.map(r => ({
             ...r,
@@ -4879,70 +4886,78 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
                 QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
                 (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
-                  (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagCorte,
-                  (SELECT MAX(CASE WHEN osi.txtDobra = '1' OR osi.txtDobra = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagDobra,
-                  (SELECT MAX(CASE WHEN osi.txtSolda = '1' OR osi.txtSolda = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagSolda,
-                  (SELECT MAX(CASE WHEN osi.txtPintura = '1' OR osi.txtPintura = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagPintura,
-                  (SELECT MAX(CASE WHEN osi.txtMontagem = '1' OR osi.txtMontagem = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagMontagem,
-                  (SELECT MAX(CASE WHEN osi.txtCorteaLaser = '1' OR osi.txtCorteaLaser = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagCorteaLaser,
-                  (SELECT MAX(CASE WHEN osi.txtPULSIONADEIRA = '1' OR osi.txtPULSIONADEIRA = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagPulsionadeira,
-                  (SELECT MAX(CASE WHEN osi.txtGALVANIZAR = '1' OR osi.txtGALVANIZAR = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as flagGalvanizar,
+                  (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagCorte,
+                  (SELECT MAX(CASE WHEN osi.txtDobra = '1' OR osi.txtDobra = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagDobra,
+                  (SELECT MAX(CASE WHEN osi.txtSolda = '1' OR osi.txtSolda = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagSolda,
+                  (SELECT MAX(CASE WHEN osi.txtPintura = '1' OR osi.txtPintura = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagPintura,
+                  (SELECT MAX(CASE WHEN osi.txtMontagem = '1' OR osi.txtMontagem = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagMontagem,
+                  (SELECT MAX(CASE WHEN osi.txtCorteaLaser = '1' OR osi.txtCorteaLaser = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagCorteaLaser,
+                  (SELECT MAX(CASE WHEN osi.txtPULSIONADEIRA = '1' OR osi.txtPULSIONADEIRA = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagPulsionadeira,
+                  (SELECT MAX(CASE WHEN osi.txtGALVANIZAR = '1' OR osi.txtGALVANIZAR = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagGalvanizar,
                 ${observacaoExpr},
-                (SELECT MIN(osi.PlanejadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioCorte,
-                (SELECT MAX(osi.PlanejadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalCorte,
-                (SELECT MIN(osi.RealizadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioCorte,
-                (SELECT MAX(osi.RealizadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalCorte,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS CorteTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS CorteTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioCorte,
+                (SELECT MAX(osi.PlanejadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalCorte,
+                (SELECT MIN(osi.RealizadoInicioCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioCorte,
+                (SELECT MAX(osi.RealizadoFinalCorte) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalCorte,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS CorteTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS CorteTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorte = '1') AS SumQtdeCorte,
                 CortePercentual,
-                (SELECT MIN(osi.PlanejadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioDobra,
-                (SELECT MAX(osi.PlanejadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalDobra,
-                (SELECT MIN(osi.RealizadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioDobra,
-                (SELECT MAX(osi.RealizadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalDobra,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS DobraTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS DobraTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioDobra,
+                (SELECT MAX(osi.PlanejadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalDobra,
+                (SELECT MIN(osi.RealizadoInicioDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioDobra,
+                (SELECT MAX(osi.RealizadoFinalDobra) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalDobra,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS DobraTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS DobraTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtDobra = '1') AS SumQtdeDobra,
                 DobraPercentual,
-                (SELECT MIN(osi.PlanejadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioSolda,
-                (SELECT MAX(osi.PlanejadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalSolda,
-                (SELECT MIN(osi.RealizadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioSolda,
-                (SELECT MAX(osi.RealizadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalSolda,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS SoldaTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS SoldaTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioSolda,
+                (SELECT MAX(osi.PlanejadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalSolda,
+                (SELECT MIN(osi.RealizadoInicioSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioSolda,
+                (SELECT MAX(osi.RealizadoFinalSolda) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalSolda,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS SoldaTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS SoldaTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtSolda = '1') AS SumQtdeSolda,
                 SoldaPercentual,
-                (SELECT MIN(osi.PlanejadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioPintura,
-                (SELECT MAX(osi.PlanejadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalPintura,
-                (SELECT MIN(osi.RealizadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioPintura,
-                (SELECT MAX(osi.RealizadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalPintura,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS PinturaTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS PinturaTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioPintura,
+                (SELECT MAX(osi.PlanejadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalPintura,
+                (SELECT MIN(osi.RealizadoInicioPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioPintura,
+                (SELECT MAX(osi.RealizadoFinalPintura) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalPintura,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS PinturaTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS PinturaTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPintura = '1') AS SumQtdePintura,
                 PinturaPercentual,
-                (SELECT MIN(osi.PlanejadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioMontagem,
-                (SELECT MAX(osi.PlanejadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalMontagem,
-                (SELECT MIN(osi.RealizadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioMontagem,
-                (SELECT MAX(osi.RealizadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalMontagem,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS MontagemTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS MontagemTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioMontagem,
+                (SELECT MAX(osi.PlanejadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalMontagem,
+                (SELECT MIN(osi.RealizadoInicioMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioMontagem,
+                (SELECT MAX(osi.RealizadoFinalMontagem) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalMontagem,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS MontagemTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS MontagemTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.TxtMontagem = '1') AS SumQtdeMontagem,
                 MontagemPercentual,
-                (SELECT MIN(osi.PlanejadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioCorteaLaser,
-                (SELECT MAX(osi.PlanejadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalCorteaLaser,
-                (SELECT MIN(osi.RealizadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioCorteaLaser,
-                (SELECT MAX(osi.RealizadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalCorteaLaser,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS CorteaLaserTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS CorteaLaserTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioCorteaLaser,
+                (SELECT MAX(osi.PlanejadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalCorteaLaser,
+                (SELECT MIN(osi.RealizadoInicioCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioCorteaLaser,
+                (SELECT MAX(osi.RealizadoFinalCorteaLaser) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalCorteaLaser,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS CorteaLaserTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.CorteaLaserTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS CorteaLaserTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtCorteaLaser = '1') AS SumQtdeCorteaLaser,
                 CorteaLaserPercentual,
-                (SELECT MIN(osi.PlanejadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioPULSIONADEIRA,
-                (SELECT MAX(osi.PlanejadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalPULSIONADEIRA,
-                (SELECT MIN(osi.RealizadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioPULSIONADEIRA,
-                (SELECT MAX(osi.RealizadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalPULSIONADEIRA,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS PULSIONADEIRATotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS PULSIONADEIRATotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioPULSIONADEIRA,
+                (SELECT MAX(osi.PlanejadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalPULSIONADEIRA,
+                (SELECT MIN(osi.RealizadoInicioPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioPULSIONADEIRA,
+                (SELECT MAX(osi.RealizadoFinalPULSIONADEIRA) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalPULSIONADEIRA,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS PULSIONADEIRATotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.PULSIONADEIRATotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS PULSIONADEIRATotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtPULSIONADEIRA = '1') AS SumQtdePulsionadeira,
                 PULSIONADEIRAPercentual,
-                (SELECT MIN(osi.PlanejadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoInicioGALVANIZAR,
-                (SELECT MAX(osi.PlanejadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as PlanejadoFinalGALVANIZAR,
-                (SELECT MIN(osi.RealizadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoInicioGALVANIZAR,
-                (SELECT MAX(osi.RealizadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) as RealizadoFinalGALVANIZAR,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS GALVANIZARTotalExecutado,
-                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')) AS GALVANIZARTotalExecutar,
+                (SELECT MIN(osi.PlanejadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoInicioGALVANIZAR,
+                (SELECT MAX(osi.PlanejadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as PlanejadoFinalGALVANIZAR,
+                (SELECT MIN(osi.RealizadoInicioGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoInicioGALVANIZAR,
+                (SELECT MAX(osi.RealizadoFinalGALVANIZAR) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as RealizadoFinalGALVANIZAR,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutado,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS GALVANIZARTotalExecutado,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.GALVANIZARTotalExecutar,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS GALVANIZARTotalExecutar,
+                (SELECT COALESCE(SUM(CAST(NULLIF(osi.QtdeTotal,'') AS DECIMAL(10,2))), 0) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND osi.txtGALVANIZAR = '1') AS SumQtdeGalvanizar,
                 GALVANIZARPercentual,
                 -- Datas dos setores de engenharia (para modo Tag Individual no modal de edição)
                 PlanejadoInicioMedicao,   PlanejadoFinalMedicao,   RealizadoInicioMedicao,   RealizadoFinalMedicao,
@@ -5166,11 +5181,10 @@ app.get('/api/visao-geral-engenharia/tags', async (req, res) => {
                 t.PlanejadoInicioIsometrico, t.PlanejadoFinalIsometrico, t.RealizadoInicioIsometrico, t.RealizadoFinalIsometrico,
                 t.PlanejadoInicioEngenharia, t.PlanejadoFinalEngenharia, t.RealizadoInicioEngenharia, t.RealizadoFinalEngenharia,
                 t.PlanejadoInicioAprovacao, t.PlanejadoFinalAprovacao, t.RealizadoInicioAprovacao, t.RealizadoFinalAprovacao,
-                p.DataTermino
+                p.DataTermino, p.Finalizado AS ProjFinalizado, p.liberado AS ProjLiberado
             FROM tags t
             LEFT JOIN projetos p ON t.IdProjeto = p.IdProjeto
-            WHERE (t.Finalizado IS NULL OR t.Finalizado = '') 
-              AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*')
+            WHERE (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E != '*')
             ORDER BY t.IdProjeto DESC, t.IdTag DESC
         `);
 
@@ -5777,36 +5791,157 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
         const { idTag } = req.params;
         const { field, value } = req.body;
 
+        // Campos permitidos — todos os setores (VARCHAR e DATE)
         const allowedFields = [
-            'PlanejadoInicioCorte', 'PlanejadoFinalCorte',
-            'PlanejadoInicioDobra', 'PlanejadoFinalDobra',
-            'PlanejadoInicioSolda', 'PlanejadoFinalSolda',
-            'PlanejadoInicioPintura', 'PlanejadoFinalPintura',
-            'PlanejadoInicioMontagem', 'PlanejadoFinalMontagem'
+            'PlanejadoInicioCorte',         'PlanejadoFinalCorte',
+            'PlanejadoInicioDobra',         'PlanejadoFinalDobra',
+            'PlanejadoInicioSolda',         'PlanejadoFinalSolda',
+            'PlanejadoInicioPintura',       'PlanejadoFinalPintura',
+            'PlanejadoInicioMontagem',      'PlanejadoFinalMontagem',
+            'PlanejadoInicioCorteaLaser',   'PlanejadoFinalCorteaLaser',
+            'PlanejadoInicioPULSIONADEIRA', 'PlanejadoFinalPULSIONADEIRA',
+            'PlanejadoInicioGALVANIZAR',    'PlanejadoFinalGALVANIZAR',
         ];
 
         if (!allowedFields.includes(field)) {
-            return res.status(400).json({ success: false, message: 'Campo invÃƒÂ¡lido.' });
+            return res.status(400).json({ success: false, message: 'Campo inválido: ' + field });
         }
 
+        // Determinar o setor a partir do nome do campo
+        // Ex: PlanejadoInicioCorte → setor = 'Corte' → flag = 'txtCorte'
+        const sectorFlagMap = {
+                  "Corte": "txtCorte",
+                  "Dobra": "txtDobra",
+                  "Solda": "txtSolda",
+                  "Pintura": "txtPintura",
+                  "Montagem": "TxtMontagem",
+                  "CorteaLaser": "txtCorteaLaser",
+                  "PULSIONADEIRA": "txtPULSIONADEIRA",
+                  "GALVANIZAR": "txtGALVANIZAR"
+        };
+        const sectorName = Object.keys(sectorFlagMap).find(k => field.includes(k));
+        const txtFlag = sectorName ? sectorFlagMap[sectorName] : null;
+
+        // Colunas DATE no banco precisam de YYYY-MM-DD; VARCHAR aceitam DD/MM/YYYY
+        const dateCols = [
+            'PlanejadoInicioCorteaLaser', 'PlanejadoFinalCorteaLaser',
+            'PlanejadoInicioPULSIONADEIRA', 'PlanejadoFinalPULSIONADEIRA',
+            'PlanejadoInicioGALVANIZAR', 'PlanejadoFinalGALVANIZAR',
+        ];
+        const isDateCol = dateCols.includes(field);
+
+        // Converter DD/MM/YYYY → YYYY-MM-DD para colunas DATE
+        let dbValue = value;
+        if (isDateCol && value && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+            const [d, m, y] = value.split('/');
+            dbValue = `${y}-${m}-${d}`;
+        }
+        // Para limpar o campo: value vazio → NULL
+        if (!value || value.trim() === '') dbValue = null;
+
         const queryPool = req.tenantDbPool || pool;
+
+        // 1. Atualizar a TAG
         await queryPool.execute(
             `UPDATE tags SET ${field} = ? WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
-            [value, idTag]
-        );
-        await queryPool.execute(
-            `UPDATE ordemservico SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
-            [value, idTag]
-        );
-        await queryPool.execute(
-            `UPDATE ordemservicoitem SET ${field} = ? WHERE IdTag = ? AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
-            [value, idTag]
+            [dbValue, idTag]
         );
 
         res.json({ success: true, message: 'Data do setor atualizada com sucesso.' });
     } catch (error) {
         console.error('Error updating Tag sector date:', error);
         res.status(500).json({ success: false, message: 'Erro ao atualizar data do setor: ' + error.message });
+    }
+});
+
+// Propagar datas de planejamento da TAG → OS e OSItens respeitando txt{Recurso}='1'
+app.post('/api/visao-geral/tag/:idTag/propagar-datas-os', async (req, res) => {
+    try {
+        const { idTag } = req.params;
+        const { setores } = req.body;
+        // setores = [{ sectorName, piField, pfField, piValue, pfValue }]
+
+        if (!setores || !setores.length) {
+            return res.status(400).json({ success: false, message: 'Nenhum setor informado.' });
+        }
+
+        const sectorFlagMap = {
+                  "Corte": "txtCorte",
+                  "Dobra": "txtDobra",
+                  "Solda": "txtSolda",
+                  "Pintura": "txtPintura",
+                  "Montagem": "TxtMontagem",
+                  "CorteaLaser": "txtCorteaLaser",
+                  "PULSIONADEIRA": "txtPULSIONADEIRA",
+                  "GALVANIZAR": "txtGALVANIZAR"
+        };
+
+        const dateCols = [
+            'PlanejadoInicioCorteaLaser', 'PlanejadoFinalCorteaLaser',
+            'PlanejadoInicioPULSIONADEIRA', 'PlanejadoFinalPULSIONADEIRA',
+            'PlanejadoInicioGALVANIZAR', 'PlanejadoFinalGALVANIZAR',
+        ];
+
+        const toDbVal = (field, value) => {
+            if (!value || value.trim() === '') return null;
+            if (dateCols.includes(field) && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                const [d, m, y] = value.split('/');
+                return `${y}-${m}-${d}`;
+            }
+            return value;
+        };
+
+        const queryPool = req.tenantDbPool || pool;
+        let totalUpdated = 0;
+
+        for (const s of setores) {
+            const { sectorName, piField, pfField, piValue, pfValue } = s;
+            const txtFlag = sectorFlagMap[sectorName];
+            if (!txtFlag) continue;
+
+            const piDb = toDbVal(piField, piValue);
+            const pfDb = toDbVal(pfField, pfValue);
+
+            // Campos a atualizar nas OS e OSItens
+            const setClauses = [];
+            const params = [];
+
+            if (piDb !== undefined && piField) {
+                setClauses.push(`${piField} = ?`);
+                params.push(piDb);
+            }
+            if (pfDb !== undefined && pfField) {
+                setClauses.push(`${pfField} = ?`);
+                params.push(pfDb);
+            }
+
+            if (!setClauses.length) continue;
+
+            // Atualizar ordemservico (OS nesta tag)
+            await queryPool.execute(
+                `UPDATE ordemservico SET ${setClauses.join(', ')} WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
+                [...params, idTag]
+            );
+
+            // Atualizar ordemservicoitem somente onde txt{Recurso}='1'
+            const [result] = await queryPool.execute(
+                `UPDATE ordemservicoitem osi
+                  INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+                  SET ${setClauses.map(c => 'osi.' + c).join(', ')}
+                  WHERE os.IdTag = ?
+                    AND osi.${txtFlag} = '1'
+                    AND (osi.OrdemServicoItemFinalizado IS NULL OR osi.OrdemServicoItemFinalizado != 'C')`,
+                [...params, idTag]
+            );
+
+            totalUpdated += result.affectedRows || 0;
+            console.log(`[PropDatas] Setor ${sectorName}: ${result.affectedRows} itens atualizados`);
+        }
+
+        res.json({ success: true, message: `Datas propagadas para OS: ${totalUpdated} itens atualizados.` });
+    } catch (error) {
+        console.error('Error propagating dates to OS:', error);
+        res.status(500).json({ success: false, message: 'Erro ao propagar datas: ' + error.message });
     }
 });
 
@@ -6586,7 +6721,7 @@ app.get('/api/ordemservico/busca-item', async (req, res) => {
             FROM ordemservicoitem osi
             INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
             WHERE (osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '')
-              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
               AND (osi.CodMatFabricante LIKE ? OR osi.DescResumo LIKE ?)
             ORDER BY osi.CodMatFabricante
             LIMIT 100
@@ -8147,7 +8282,11 @@ app.get('/api/ordemservico/:id/itens', async (req, res) => {
                 txtDobra, sttxtDobra, DobraPercentual,
                 txtSolda, sttxtSolda, SoldaPercentual,
                 txtPintura, sttxtPintura, PinturaPercentual,
-                TxtMontagem, sttxtMontagem, MontagemPercentual
+                TxtMontagem, sttxtMontagem, MontagemPercentual,
+                txtCorteaLaser, CorteaLaserPercentual,
+                txtPULSIONADEIRA, PULSIONADEIRAPercentual,
+                txtGALVANIZAR, GALVANIZARPercentual,
+                Liberado_Engenharia
             FROM ordemservicoitem 
             WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')
             ORDER BY IdOrdemServicoItem
@@ -8421,13 +8560,12 @@ app.post('/api/ordemservico/:id/incluir-materiais-dinamico', async (req, res) =>
             if (matRows.length === 0) continue;
             const mat = matRows[0];
             
-            const [procRows] = await conn.execute(`
-                SELECT pf.processofabricacao 
-                FROM material_processo mp
-                JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
-                WHERE mp.codmatFabricante = ? AND mp.Ativo = 1 AND (pf.Fabrica = 'S' OR pf.Fabrica = 'SIM')
-            `, [codmatfabricante]);
-            
+            const [procRows] = await conn.execute(
+                `SELECT pf.processofabricacao
+                 FROM material_processo mp
+                 JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
+                 WHERE mp.IdMaterial = ? AND mp.Ativo = 'A' AND (pf.D_E_L_E_T_E IS NULL OR pf.D_E_L_E_T_E = '') AND pf.Fabrica = 'SIM'`,
+                [mat.IdMaterial]);
             const processosNomes = procRows.map(r => (r.processofabricacao || '').trim().replace(/\s+/g, ''));
             const colunasDinamicasVals = {};
 
@@ -8524,13 +8662,92 @@ app.post('/api/ordemservico/:id/incluir-materiais-dinamico', async (req, res) =>
 
 // Mapeamento de setores para colunas
 const setorColumns = {
-    corte:    { txt: 'txtCorte',    percentual: 'CortePercentual',    status: 'sttxtCorte',    total: 'CorteTotalExecutado',    executar: 'CorteTotalExecutar',    inicio: 'RealizadoInicioCorte',    final: 'RealizadoFinalCorte',    userInicio: 'UsuarioRealizadoInicioCorte',    userFinal: 'UsuarioRealizadoFinalCorte'    },
-    dobra:    { txt: 'txtDobra',    percentual: 'DobraPercentual',    status: 'sttxtDobra',    total: 'DobraTotalExecutado',    executar: 'DobraTotalExecutar',    inicio: 'RealizadoInicioDobra',    final: 'RealizadoFinalDobra',    userInicio: 'UsuarioRealizadoInicioDobra',    userFinal: 'UsuarioRealizadoFinalDobra'    },
-    solda:    { txt: 'txtSolda',    percentual: 'SoldaPercentual',    status: 'sttxtSolda',    total: 'SoldaTotalExecutado',    executar: 'SoldaTotalExecutar',    inicio: 'RealizadoInicioSolda',    final: 'RealizadoFinalSolda',    userInicio: 'UsuarioRealizadoInicioSolda',    userFinal: 'UsuarioRealizadoFinalSolda'    },
-    pintura:  { txt: 'txtPintura',  percentual: 'PinturaPercentual',  status: 'sttxtPintura',  total: 'PinturaTotalExecutado',  executar: 'PinturaTotalExecutar',  inicio: 'RealizadoInicioPintura',  final: 'RealizadoFinalPintura',  userInicio: 'UsuarioRealizadoInicioPintura',  userFinal: 'UsuarioRealizadoFinalPintura'  },
-    montagem: { txt: 'TxtMontagem', percentual: 'MontagemPercentual', status: 'sttxtMontagem', total: 'MontagemTotalExecutado', executar: 'MontagemTotalExecutar', inicio: 'RealizadoInicioMontagem', final: 'RealizadoFinalMontagem', userInicio: 'UsuarioRealizadoInicioMontagem', userFinal: 'UsuarioRealizadoFinalMontagem' },
-    mapa:     { txt: 'txtCorte',    percentual: 'CortePercentual',    status: 'sttxtCorte',    total: 'CorteTotalExecutado',    executar: 'CorteTotalExecutar',    inicio: 'RealizadoInicioCorte',    final: 'RealizadoFinalCorte',    userInicio: 'UsuarioRealizadoInicioCorte',    userFinal: 'UsuarioRealizadoFinalCorte'    }
+    corte:         { txt: 'txtCorte',         percentual: 'CortePercentual',         status: 'sttxtCorte',         total: 'CorteTotalExecutado',         executar: 'CorteTotalExecutar',         inicio: 'RealizadoInicioCorte',         final: 'RealizadoFinalCorte',         userInicio: 'UsuarioRealizadoInicioCorte',         userFinal: 'UsuarioRealizadoFinalCorte'         },
+    dobra:         { txt: 'txtDobra',         percentual: 'DobraPercentual',         status: 'sttxtDobra',         total: 'DobraTotalExecutado',         executar: 'DobraTotalExecutar',         inicio: 'RealizadoInicioDobra',         final: 'RealizadoFinalDobra',         userInicio: 'UsuarioRealizadoInicioDobra',         userFinal: 'UsuarioRealizadoFinalDobra'         },
+    solda:         { txt: 'txtSolda',         percentual: 'SoldaPercentual',         status: 'sttxtSolda',         total: 'SoldaTotalExecutado',         executar: 'SoldaTotalExecutar',         inicio: 'RealizadoInicioSolda',         final: 'RealizadoFinalSolda',         userInicio: 'UsuarioRealizadoInicioSolda',         userFinal: 'UsuarioRealizadoFinalSolda'         },
+    pintura:       { txt: 'txtPintura',       percentual: 'PinturaPercentual',       status: 'sttxtPintura',       total: 'PinturaTotalExecutado',       executar: 'PinturaTotalExecutar',       inicio: 'RealizadoInicioPintura',       final: 'RealizadoFinalPintura',       userInicio: 'UsuarioRealizadoInicioPintura',       userFinal: 'UsuarioRealizadoFinalPintura'       },
+    montagem:      { txt: 'TxtMontagem',      percentual: 'MontagemPercentual',      status: 'sttxtMontagem',      total: 'MontagemTotalExecutado',      executar: 'MontagemTotalExecutar',      inicio: 'RealizadoInicioMontagem',      final: 'RealizadoFinalMontagem',      userInicio: 'UsuarioRealizadoInicioMontagem',      userFinal: 'UsuarioRealizadoFinalMontagem'      },
+    galvanizar:    { txt: 'txtGALVANIZAR',    percentual: 'GALVANIZARPercentual',    status: 'sttxtGALVANIZAR',    total: 'GALVANIZARTotalExecutado',    executar: 'GALVANIZARTotalExecutar',    inicio: 'RealizadoInicioGALVANIZAR',    final: 'RealizadoFinalGALVANIZAR',    userInicio: 'UsuarioRealizadoInicioGALVANIZAR',    userFinal: 'UsuarioRealizadoFinalGALVANIZAR'    },
+    pulsionadeira: { txt: 'txtPULSIONADEIRA', percentual: 'PULSIONADEIRAPercentual', status: 'sttxtPULSIONADEIRA', total: 'PULSIONADEIRATotalExecutado', executar: 'PULSIONADEIRATotalExecutar', inicio: 'RealizadoInicioPULSIONADEIRA', final: 'RealizadoFinalPULSIONADEIRA', userInicio: 'UsuarioRealizadoInicioPULSIONADEIRA', userFinal: 'UsuarioRealizadoFinalPULSIONADEIRA' },
+    mapa:          { txt: 'txtCorte',         percentual: 'CortePercentual',         status: 'sttxtCorte',         total: 'CorteTotalExecutado',         executar: 'CorteTotalExecutar',         inicio: 'RealizadoInicioCorte',         final: 'RealizadoFinalCorte',         userInicio: 'UsuarioRealizadoInicioCorte',         userFinal: 'UsuarioRealizadoFinalCorte'         }
 };
+
+// -----------------------------------------------------------------------------
+// RESOLU��O DIN�MICA DE RECURSOS
+// Quando um novo recurso � cadastrado no banco, esta fun��o tenta construir
+// o mapeamento de colunas automaticamente a partir do padr�o de nomenclatura.
+// Cache evita m�ltiplas consultas SHOW COLUMNS para o mesmo recurso.
+// -----------------------------------------------------------------------------
+const _setorConfigCache = {};
+
+async function resolveSetorConfig(processo, conn) {
+    const key = String(processo).trim().toUpperCase();
+
+    // 1. Cache hit
+    if (_setorConfigCache[key] !== undefined) {
+        if (_setorConfigCache[key] === null) {
+            console.warn(`[RECURSO_NAO_MAPEADO] Processo '${key}' n�o possui colunas no banco � opera��o ignorada.`);
+        }
+        return _setorConfigCache[key];
+    }
+
+    // 2. Verificar no setorColumns est�tico (chave min�scula)
+    const keyLower = key.toLowerCase();
+    if (setorColumns[keyLower]) {
+        _setorConfigCache[key] = setorColumns[keyLower];
+        return setorColumns[keyLower];
+    }
+
+    // 3. Resolu��o din�mica: verificar se as colunas existem no banco
+    try {
+        const dbConn = conn || pool;
+        const [cols] = await dbConn.execute(
+            "SHOW COLUMNS FROM ordemservicoitem WHERE Field IN (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                `txt${key}`,
+                `sttxt${key}`,
+                `${key}TotalExecutado`,
+                `${key}TotalExecutar`,
+                `${key}Percentual`,
+                `RealizadoInicio${key}`,
+                `RealizadoFinal${key}`,
+                `UsuarioRealizadoInicio${key}`
+            ]
+        );
+
+        const found = cols.map(c => c.Field);
+        const hasTxt         = found.includes(`txt${key}`);
+        const hasTotal       = found.includes(`${key}TotalExecutado`);
+        const hasExecutar    = found.includes(`${key}TotalExecutar`);
+
+        if (hasTotal && hasExecutar) {
+            const config = {
+                txt:        hasTxt ? `txt${key}` : null,
+                percentual: found.includes(`${key}Percentual`)           ? `${key}Percentual`                     : null,
+                status:     found.includes(`sttxt${key}`)                ? `sttxt${key}`                          : null,
+                total:      `${key}TotalExecutado`,
+                executar:   `${key}TotalExecutar`,
+                inicio:     found.includes(`RealizadoInicio${key}`)      ? `RealizadoInicio${key}`                : null,
+                final:      found.includes(`RealizadoFinal${key}`)       ? `RealizadoFinal${key}`                 : null,
+                userInicio: found.includes(`UsuarioRealizadoInicio${key}`)? `UsuarioRealizadoInicio${key}`        : null,
+                userFinal:  null
+            };
+            _setorConfigCache[key] = config;
+            console.log(`[RECURSO_DINAMICO] Processo '${key}' resolvido dinamicamente. Colunas encontradas: ${found.join(', ')}`);
+            return config;
+        }
+
+        // Colunas n�o existem no banco
+        _setorConfigCache[key] = null;
+        console.warn(`[RECURSO_NAO_MAPEADO] Processo '${key}' � colunas ${key}TotalExecutado / ${key}TotalExecutar n�o existem no banco. Opera��o ignorada sem erro.`);
+        return null;
+
+    } catch (err) {
+        _setorConfigCache[key] = null;
+        console.error(`[RECURSO_ERRO] Falha ao resolver dinamicamente o processo '${key}': ${err.message}`);
+        return null;
+    }
+}
 
 /**
  * Após inserir um ordemservicoitem, atualiza o campo TotalExecutar
@@ -9082,7 +9299,7 @@ app.get('/api/apontamento/projetos/options', async (req, res) => {
             SELECT DISTINCT os.Projeto as value, os.Projeto as label 
             FROM ordemservico os
             INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
-WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
 AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '')
               AND os.Projeto IS NOT NULL AND os.Projeto != ''
             ORDER BY os.Projeto
@@ -9101,7 +9318,7 @@ app.get('/api/apontamento/tags/options', async (req, res) => {
             SELECT DISTINCT os.Tag as value, CONCAT(os.Tag, ' - ', os.DescTag) as label 
             FROM ordemservico os
             INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
-WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
 AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '')
               AND os.Tag IS NOT NULL AND os.Tag != ''
     `;
@@ -9130,7 +9347,7 @@ app.get('/api/apontamento/os/options', async (req, res) => {
     CONCAT('OS ', os.IdOrdemServico, ' - ', os.Tag) as label 
             FROM ordemservico os
             INNER JOIN ordemservicoitem osi ON os.IdOrdemServico = osi.IdOrdemServico
-WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')
+WHERE(os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
 AND(osi.D_E_L_E_T_E IS NULL OR osi.D_E_L_E_T_E = '')
     `;
         const params = [];
@@ -9206,7 +9423,6 @@ SELECT
     osi.QtdeTotal,
     osi.Peso,
     osi.txtCorte,
-    osi.txtDobra,
     osi.txtSolda,
     osi.txtPintura,
     osi.TxtMontagem,
@@ -9224,13 +9440,12 @@ WHERE osi.IdOrdemServicoItem = ?
 
         if (itemRows.length === 0) {
             console.log(`[API] Item ${id} not found`);
-            return res.status(404).json({ success: false, message: 'Item nÃ¯Â¿Â½o encontrado' });
+            return res.status(404).json({ success: false, message: 'Item n�o encontrado' });
         }
 
         const item = itemRows[0];
 
-        // Buscar histórico de apontamentos baseando-se na viewordemservicoitemcontrole conforme sistema legado (VB.NET)
-        // Ignoramos a filtragem por processo aqui para manter a compatibilidade com a visualizaÃ¯Â¿Â½Ã¯Â¿Â½o completa
+        // Buscar hist�rico de apontamentos
         const historicoQuery = `
             SELECT
                 idordemservicoitemControle,
@@ -9248,9 +9463,7 @@ WHERE osi.IdOrdemServicoItem = ?
             FROM viewordemservicoitemcontrole
             WHERE IdOrdemServicoItem = ?
             ORDER BY DataCriacao DESC, idordemservicoitemControle DESC
-        `;
-        const queryParams = [id];
-        const [historicoRows] = await pool.execute(historicoQuery, queryParams);
+        `
 
         // Legacy missing quantity logic
         const totalExecutado = parseFloat(item.TotalExecutado) || 0;
@@ -9333,9 +9546,15 @@ app.post('/api/apontamento-parcial', async (req, res) => {
         await conn.beginTransaction();
 
         const now = getCurrentDateTimeBR();
+        const processoKey = String(Processo).trim().toUpperCase();
+        const usuario = CriadoPor || 'Sistema';
 
+        // 1. Buscar dados completos do item
         const [itemRows] = await conn.execute(
-            'SELECT QtdeTotal FROM ordemservicoitem WHERE IdOrdemServicoItem = ?',
+            `SELECT osi.*, os.IdProjeto, os.IdTag
+             FROM ordemservicoitem osi
+             INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+             WHERE osi.IdOrdemServicoItem = ?`,
             [IdOrdemServicoItem]
         );
         if (itemRows.length === 0) {
@@ -9343,23 +9562,102 @@ app.post('/api/apontamento-parcial', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Item nao encontrado' });
         }
 
-        const qtdeTotal = parseFloat(itemRows[0].QtdeTotal) || 0;
-        const usuario = CriadoPor || 'Sistema';
-        const processoNormalizado = String(Processo).trim();
+        const item = itemRows[0];
+        const qtdeTotal = parseFloat(item.QtdeTotal) || 0;
+        const idOS = item.IdOrdemServico || IdOrdemServico;
 
+        // 2. Resolver config do setor (estático ou dinamicamente)
+        const sConfig = await resolveSetorConfig(processoKey, conn);
+
+        if (!sConfig) {
+            // Recurso não mapeado e não existe no banco — registra log e retorna sucesso gracioso
+            console.warn(`[RECURSO_NAO_MAPEADO] Apontamento Parcial ignorado — Processo '${processoKey}' sem colunas no banco. Item=${IdOrdemServicoItem}`);
+            await conn.rollback();
+            return res.json({ success: true, message: `Apontamento registrado (recurso '${processoKey}' ainda não mapeado no sistema — log gerado).` });
+        }
+
+        // 3. Verificar flag txt{Recurso} = '1' — confirma que o recurso está ativo neste item
+        const txtFlag = sConfig.txt ? String(item[sConfig.txt] || '').trim() : null;
+        if (txtFlag !== null && txtFlag !== '1') {
+            console.warn(`[RECURSO_INATIVO] Processo '${processoKey}' não está ativo (txt=${txtFlag}) no Item=${IdOrdemServicoItem}. Apontamento ignorado.`);
+            await conn.rollback();
+            return res.json({ success: true, message: `Recurso '${processoKey}' não está ativo para este item — operação ignorada sem erro.` });
+        }
+
+        // 4. Calcular novo TotalExecutado e Percentual do setor
+        const totalExecutadoAtual = parseFloat(item[sConfig.total]) || 0;
+        const novoTotalExecutado = totalExecutadoAtual + inputQty;
+        const novoPercentual = qtdeTotal > 0 ? Math.min(100, Math.round((novoTotalExecutado / qtdeTotal) * 100)) : 0;
+
+        // 5. Atualizar ordemservicoitem: TotalExecutado + Percentual do setor
+        let updateQuery = `UPDATE ordemservicoitem SET ${sConfig.total} = ?, ${sConfig.percentual || sConfig.total} = ?`;
+        const updateParams = [novoTotalExecutado, novoPercentual];
+
+        // Gravar data de início realizado se for o primeiro apontamento deste setor (coluna pode não existir em setores dinâmicos)
+        if (sConfig.inicio && !item[sConfig.inicio]) {
+            updateQuery += `, ${sConfig.inicio} = ?`;
+            // Gravar data respeitando o tipo da coluna no banco
+            const dateToRecord = (sConfig.dateType === 'date') ? getCurrentDateSQL() : getCurrentDateBR();
+            updateParams.push(dateToRecord);
+            if (sConfig.userInicio) {
+                updateQuery += `, ${sConfig.userInicio} = ?`;
+                updateParams.push(usuario);
+            }
+        }
+        updateQuery += ` WHERE IdOrdemServicoItem = ?`;
+        updateParams.push(IdOrdemServicoItem);
+        await conn.execute(updateQuery, updateParams);
+
+        // 6. Propagar saldo para o próximo setor ativo na cadeia produtiva (Fluxo Push)
+        // Busca todos os recursos ativos do item dinamicamente
+        const allSectorKeys = Object.keys(setorColumns).filter(k => k !== 'mapa');
+        const currentPosInStatic = allSectorKeys.indexOf(processoKey.toLowerCase());
+        let nextSectorName = null;
+
+        if (currentPosInStatic >= 0) {
+            // Recurso é estático — usa sequência conhecida
+            for (let i = currentPosInStatic + 1; i < allSectorKeys.length; i++) {
+                const checkConfig = setorColumns[allSectorKeys[i]];
+                if (checkConfig && checkConfig.txt && NULLIF_TRIM(item[checkConfig.txt]) === '1') {
+                    nextSectorName = allSectorKeys[i];
+                    break;
+                }
+            }
+        } else {
+            // Recurso dinâmico — busca próxima coluna txt* = '1' no item após o atual
+            // Como não há ordem definida, apenas logamos sem propagar
+            console.log(`[RECURSO_DINAMICO] Recurso '${processoKey}' é dinâmico — propagação de saldo para próximo setor não aplicada.`);
+        }
+
+        if (nextSectorName) {
+            const nextConfig = await resolveSetorConfig(nextSectorName.toUpperCase(), conn);
+            if (nextConfig) {
+                await conn.execute(
+                    `UPDATE ordemservicoitem SET ${nextConfig.executar} = COALESCE(${nextConfig.executar}, 0) + ? WHERE IdOrdemServicoItem = ?`,
+                    [inputQty, IdOrdemServicoItem]
+                );
+                console.log(`[API Apontamento Parcial] Propagando ${inputQty} para próximo setor: ${nextSectorName}`);
+            }
+        }
+
+        // 7. Inserir registro de controle (histórico)
         await conn.execute(
-            `INSERT INTO ordemservicoitemcontrole (IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, QtdeTotal, TipoApontamento, Situacao, CriadoPor, DataCriacao) VALUES (?, ?, ?, ?, ?, 'Parcial', 'P', ?, ?)`,
-            [IdOrdemServicoItem, IdOrdemServico || null, processoNormalizado, inputQty, qtdeTotal, usuario, now]
+            `INSERT INTO ordemservicoitemcontrole (IdOrdemServicoItem, IdOrdemServico, Processo, QtdeProduzida, QtdeTotal, TipoApontamento, Situacao, CriadoPor, DataCriacao)
+             VALUES (?, ?, ?, ?, ?, 'Parcial', 'P', ?, ?)`,
+            [IdOrdemServicoItem, idOS || null, processoKey.toLowerCase(), inputQty, qtdeTotal, usuario, now]
         );
 
+        // 8. Recalcular totais em cascata (OS -> Tag -> Projeto)
+        await recalcularQuantidadesTotais(idOS, conn);
+
         await conn.commit();
-        console.log('[API Apontamento Parcial] Item=' + IdOrdemServicoItem + ' | Processo=' + processoNormalizado + ' | Qtde=' + inputQty);
+        console.log(`[API Apontamento Parcial] OK | Item=${IdOrdemServicoItem} | Processo=${processoKey} | Qtde=${inputQty} | NovoExecutado=${novoTotalExecutado}`);
         res.json({ success: true, message: 'Apontamento parcial registrado com sucesso.' });
 
     } catch (error) {
         await conn.rollback();
         console.error('[API Apontamento Parcial] Erro:', error);
-        res.status(500).json({ success: false, message: 'Erro interno ao registrar apontamento parcial.' });
+        res.status(500).json({ success: false, message: 'Erro interno ao registrar apontamento parcial: ' + error.message });
     } finally {
         conn.release();
     }
@@ -9448,7 +9746,8 @@ app.post('/api/apontamento', async (req, res) => {
         await conn.beginTransaction();
 
         const now = getCurrentDateTimeBR();
-        const dateNow = getCurrentDateBR();
+        // Helper: escolhe formato conforme tipo da coluna no banco
+        const getDateForSetor = (sConfig) => (sConfig && sConfig.dateType === 'date') ? getCurrentDateSQL() : getCurrentDateBR();
 
         // 1. Fetch item and details
         const [itemRows] = await conn.execute(`
@@ -9468,14 +9767,13 @@ osi.*,
         const item = itemRows[0];
         const qtdeTotal = parseFloat(item.QtdeTotal) || 0;
 
-        // Sectors to process: If Mapa, process ALL 5 sectors. If individual, only the active one.
         const setoresParaProcessar = isMapa
             ? ['corte', 'dobra', 'solda', 'pintura', 'montagem']
             : [setorAtivo];
 
         if (setoresParaProcessar.length === 0) {
             await conn.rollback();
-            return res.status(400).json({ success: false, message: 'Este item nÃ¯Â¿Â½o possui setores ativos para apontar' });
+            return res.status(400).json({ success: false, message: 'Este item não possui setores ativos para apontar' });
         }
 
         let someSectorFinalized = false;
@@ -9484,13 +9782,12 @@ osi.*,
         let lastFinalizado = false;
 
         const sequence = ['corte', 'dobra', 'solda', 'pintura', 'montagem'];
-        
+
         for (const sName of setoresParaProcessar) {
             const sConfig = setorColumns[sName];
             const totalExecutadoDb = parseFloat(item[sConfig.total]) || 0;
             const statusAtual = item[sConfig.status];
 
-            // If it's already finished in this sector AND NOT in Mapa mode, we skip
             if (statusAtual === 'C' && !isMapa) continue;
 
             const currentInputQty = isMapa ? Math.max(0, qtdeTotal - totalExecutadoDb) : inputQty;
@@ -14627,23 +14924,23 @@ async function recalcularQuantidadesTotais(IdOrdemServico, connection) {
             await connection.execute(`
                 UPDATE tags t
                 SET 
-                    QtdeOS = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    QtdeOSExecutadas = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '') AND TRIM(COALESCE(os.OrdemServicoFinalizado,'')) = 'C'),
-                    QtdePecasOS = (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    QtdePecasExecutadas = (SELECT COALESCE(SUM(os.QtdePecasExecutadas), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    PesoTotal = (SELECT COALESCE(SUM(os.PesoTotal), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    AreaPinturaTotal = (SELECT COALESCE(SUM(os.AreaPinturaTotal), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
+                    QtdeOS = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    QtdeOSExecutadas = (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ') AND TRIM(COALESCE(os.OrdemServicoFinalizado,'')) = 'C'),
+                    QtdePecasOS = (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    QtdePecasExecutadas = (SELECT COALESCE(SUM(os.QtdePecasExecutadas), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    PesoTotal = (SELECT COALESCE(SUM(os.PesoTotal), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    AreaPinturaTotal = (SELECT COALESCE(SUM(os.AreaPinturaTotal), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
                     
-                    CorteTotalExecutado = (SELECT COALESCE(SUM(os.CorteTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    CorteTotalExecutar = (SELECT COALESCE(SUM(os.CorteTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    DobraTotalExecutado = (SELECT COALESCE(SUM(os.DobraTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    DobraTotalExecutar = (SELECT COALESCE(SUM(os.DobraTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    SoldaTotalExecutado = (SELECT COALESCE(SUM(os.SoldaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    SoldaTotalExecutar = (SELECT COALESCE(SUM(os.SoldaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    PinturaTotalExecutado = (SELECT COALESCE(SUM(os.PinturaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    PinturaTotalExecutar = (SELECT COALESCE(SUM(os.PinturaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    MontagemTotalExecutado = (SELECT COALESCE(SUM(os.MontagemTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '')),
-                    MontagemTotalExecutar = (SELECT COALESCE(SUM(os.MontagemTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = ''))
+                    CorteTotalExecutado = (SELECT COALESCE(SUM(os.CorteTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    CorteTotalExecutar = (SELECT COALESCE(SUM(os.CorteTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    DobraTotalExecutado = (SELECT COALESCE(SUM(os.DobraTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    DobraTotalExecutar = (SELECT COALESCE(SUM(os.DobraTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    SoldaTotalExecutado = (SELECT COALESCE(SUM(os.SoldaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    SoldaTotalExecutar = (SELECT COALESCE(SUM(os.SoldaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    PinturaTotalExecutado = (SELECT COALESCE(SUM(os.PinturaTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    PinturaTotalExecutar = (SELECT COALESCE(SUM(os.PinturaTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    MontagemTotalExecutado = (SELECT COALESCE(SUM(os.MontagemTotalExecutado), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')),
+                    MontagemTotalExecutar = (SELECT COALESCE(SUM(os.MontagemTotalExecutar), 0) FROM ordemservico os WHERE os.IdTag = t.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' '))
                 WHERE t.IdTag = ?
             `, [IdTag]);
 
