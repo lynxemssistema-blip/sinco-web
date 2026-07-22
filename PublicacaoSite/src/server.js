@@ -4884,6 +4884,14 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', async (req, res) => {
                 IdTag, Tag, DescTag, DataEntrada, DataPrevisao, QtdeTag, QtdeLiberada, SaldoTag, ValorTag, StatusTag,
                 (SELECT COUNT(*) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) AS QtdeOS,
                 QtdeOSExecutadas, QtdePecasOS, QtdePecasExecutadas, PercentualPecas, PercentualOS,
+                tags.PlanejadoInicioCorte as TagPlanejadoInicioCorte, tags.PlanejadoFinalCorte as TagPlanejadoFinalCorte,
+                tags.PlanejadoInicioDobra as TagPlanejadoInicioDobra, tags.PlanejadoFinalDobra as TagPlanejadoFinalDobra,
+                tags.PlanejadoInicioSolda as TagPlanejadoInicioSolda, tags.PlanejadoFinalSolda as TagPlanejadoFinalSolda,
+                tags.PlanejadoInicioPintura as TagPlanejadoInicioPintura, tags.PlanejadoFinalPintura as TagPlanejadoFinalPintura,
+                tags.PlanejadoInicioMontagem as TagPlanejadoInicioMontagem, tags.PlanejadoFinalMontagem as TagPlanejadoFinalMontagem,
+                tags.PlanejadoInicioCorteaLaser as TagPlanejadoInicioCorteaLaser, tags.PlanejadoFinalCorteaLaser as TagPlanejadoFinalCorteaLaser,
+                tags.PlanejadoInicioPULSIONADEIRA as TagPlanejadoInicioPULSIONADEIRA, tags.PlanejadoFinalPULSIONADEIRA as TagPlanejadoFinalPULSIONADEIRA,
+                tags.PlanejadoInicioGALVANIZAR as TagPlanejadoInicioGALVANIZAR, tags.PlanejadoFinalGALVANIZAR as TagPlanejadoFinalGALVANIZAR,
                 (SELECT COALESCE(SUM(os.QtdeTotalItens), 0) FROM ordemservico os WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as QtdeTotalPecas,
                 qtdetotal, Finalizado, qtdernc, PesoTotal, ProjetistaPlanejado, PlanejadoInicioEngenharia, PlanejadoFinalEngenharia,
                   (SELECT MAX(CASE WHEN osi.txtCorte = '1' OR osi.txtCorte = 'S' THEN 1 ELSE 0 END) FROM ordemservicoitem osi INNER JOIN ordemservico os ON os.IdOrdemServico = osi.IdOrdemServico WHERE os.IdTag = tags.IdTag AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')) as flagCorte,
@@ -5816,27 +5824,13 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
                   "Pintura": "txtPintura",
                   "Montagem": "TxtMontagem",
                   "CorteaLaser": "txtCorteaLaser",
-                  "PULSIONADEIRA": "txtPULSIONADEIRA",
-                  "GALVANIZAR": "txtGALVANIZAR"
+                  "PULSIONADEIRA": "txtPULSIONADEIRA", "GALVANIZAR": "txtGALVANIZAR", "Pulsionadeira": "txtPULSIONADEIRA", "Galvanizar": "txtGALVANIZAR"
         };
         const sectorName = Object.keys(sectorFlagMap).find(k => field.includes(k));
         const txtFlag = sectorName ? sectorFlagMap[sectorName] : null;
 
-        // Colunas DATE no banco precisam de YYYY-MM-DD; VARCHAR aceitam DD/MM/YYYY
-        const dateCols = [
-            'PlanejadoInicioCorteaLaser', 'PlanejadoFinalCorteaLaser',
-            'PlanejadoInicioPULSIONADEIRA', 'PlanejadoFinalPULSIONADEIRA',
-            'PlanejadoInicioGALVANIZAR', 'PlanejadoFinalGALVANIZAR',
-        ];
-        const isDateCol = dateCols.includes(field);
-
-        // Converter DD/MM/YYYY → YYYY-MM-DD para colunas DATE
-        let dbValue = value;
-        if (isDateCol && value && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-            const [d, m, y] = value.split('/');
-            dbValue = `${y}-${m}-${d}`;
-        }
         // Para limpar o campo: value vazio → NULL
+        let dbValue = value;
         if (!value || value.trim() === '') dbValue = null;
 
         const queryPool = req.tenantDbPool || pool;
@@ -5872,22 +5866,11 @@ app.post('/api/visao-geral/tag/:idTag/propagar-datas-os', async (req, res) => {
                   "Pintura": "txtPintura",
                   "Montagem": "TxtMontagem",
                   "CorteaLaser": "txtCorteaLaser",
-                  "PULSIONADEIRA": "txtPULSIONADEIRA",
-                  "GALVANIZAR": "txtGALVANIZAR"
+                  "PULSIONADEIRA": "txtPULSIONADEIRA", "GALVANIZAR": "txtGALVANIZAR", "Pulsionadeira": "txtPULSIONADEIRA", "Galvanizar": "txtGALVANIZAR"
         };
-
-        const dateCols = [
-            'PlanejadoInicioCorteaLaser', 'PlanejadoFinalCorteaLaser',
-            'PlanejadoInicioPULSIONADEIRA', 'PlanejadoFinalPULSIONADEIRA',
-            'PlanejadoInicioGALVANIZAR', 'PlanejadoFinalGALVANIZAR',
-        ];
 
         const toDbVal = (field, value) => {
             if (!value || value.trim() === '') return null;
-            if (dateCols.includes(field) && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-                const [d, m, y] = value.split('/');
-                return `${y}-${m}-${d}`;
-            }
             return value;
         };
 
