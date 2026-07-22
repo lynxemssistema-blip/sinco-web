@@ -1,0 +1,132 @@
+"          {/* Botão Voltar */}\n          {modocriar && (\n            <button onClick={sairModocriar}\n              className=\"flex items-center gap-1 px-2 py-1 text-[11px] text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 ml-2\">\n    
+<truncated 2666 bytes>
+
+
+=== CHUNK ===
+
+
+"  const [savingManut, setSavingManut] = useState(false);\n  const [lastAutoSeqManut, setLastAutoSeqManut] = useState<number>(0);\n\n  const abrirPdf = async (caminho: string) => {"
+
+
+=== CHUNK ===
+
+
+"    const t = setTimeout(()=>fetchMateriaisManut(filtroManut), 300);\n    return()=>clearTimeout(t);\n  },[filtroManut, showModalManutencao, fetchMateriaisManut]);\n\n  const fetchMateriaisManut3 = useCallback(async (q: string) => {\n    setLoadingManut3(
+<truncated 507 bytes>
+
+
+=== CHUNK ===
+
+
+"  const desenhosFiltrados = desenhos.filter(d => {\n    const codMatch = !filtroDCod || (d.CodMatFabricante || '').toLowerCase().includes(filtroDCod.toLowerCase());\n    const descMatch = !filtroDDesc || (d.DescResumo || '').toLowerCase().includes(filtroD
+<truncated 141 bytes>
+
+
+=== CHUNK ===
+
+
+"                <div className=\"px-2 py-1 bg-blue-50/70 border-b border-blue-100 shrink-0 flex items-center justify-between\">\n                  <span className=\"text-xs font-bold text-blue-800 uppercase\">1. Selecione o Material</span>\n              
+<truncated 123 bytes>
+
+
+=== CHUNK ===
+
+
+"                <div className=\"px-3 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between\">\n                  <span className=\"text-xs font-bold text-blue-800 uppercase\">1. Selecione o Material</span>\n                 
+<truncated 120 bytes>
+
+
+=== CHUNK ===
+
+
+"        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,\n                          EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal, PecaManufat\n                   FROM material"
+
+
+=== CHUNK ===
+
+
+"      if (j.success) {\n        alert('Composição salva com sucesso!');\n        setShowGrid3Manut(false);\n        fetchCompManutSel(materialManutSel.IdMaterial);\n        if (piece && piece.IdMaterial === materialManutSel.IdMaterial) {\n          fetc
+<truncated 83 bytes>
+
+
+=== CHUNK ===
+
+
+"      if (cod) params.append('cod', cod);\n      if (desc) params.append('desc', desc);\n      params.append('_t', Date.now().toString());\n      if (params.toString()) url += `?${params.toString()}`;"
+
+
+=== CHUNK ===
+
+
+"        const pool = db(req);\n        const [rows] = await pool.execute(`SELECT IdMaterialPeca FROM montapeca WHERE IdMontaPeca = ?`, [idMontaPeca]);\n        const idMaterialPeca = rows[0]?.IdMaterialPeca;\n\n        await pool.execute(\n            `UP
+<truncated 710 bytes>
+
+
+=== CHUNK ===
+
+
+"  const removeComp=async(id:number)=>{\n    if(!confirm('Excluir item?')) return;\n    try{ const r=await fetch(`${API}/composicao/${id}`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario})}); const j=await r.json()
+<truncated 633 bytes>
+
+
+=== CHUNK ===
+
+
+"                                      {c.EnderecoArquivo && <button onClick={()=>abrirPdf(c.EnderecoArquivo)} className=\"p-0.5 text-red-400 hover:text-red-600 rounded\" title=\"Abrir Desenho PDF\"><FileText size={11}/></button>}\n                        
+<truncated 530 bytes>
+
+
+=== CHUNK ===
+
+
+"  const removeComp=async(id:number)=>{\n    if(!confirm('Excluir item?')) return;\n    try{ \n      const r=await fetch(`${API}/composicao/${id}`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario})}); \n      const 
+<truncated 1280 bytes>
+
+
+=== CHUNK ===
+
+
+"  const handleSaveLoteManut3 = async () => {\n    if (!materialManutSel || selecionadosManut3.size === 0) return;\n    setSavingLoteManut3(true);\n    try {\n      const matsSel = materiaisManut3.filter(m => selecionadosManut3.has(m.IdMaterial)).map(m => 
+<truncated 3712 bytes>
+
+
+=== CHUNK ===
+
+
+"                  <button onClick={() => {\n                      if (!showGrid3Manut) {\n                          setSelecionadosManut3(new Set());\n                          setQuantidadesManut3({});\n                      }\n                      setS
+<truncated 395 bytes>
+
+
+=== CHUNK ===
+
+
+"        const { idMontaPeca } = req.params;\n        const { usuario, idMatriz } = req.body;\n        const pool = db(req);\n        const [rows] = await pool.execute(`SELECT IdMaterialPeca FROM montapeca WHERE IdMontaPeca = ?`, [idMontaPeca]);\n        c
+<truncated 331 bytes>
+
+
+=== CHUNK ===
+
+
+"        let sql = `SELECT IdMaterial, CodMatFabricante, DescResumo, Espessura, MaterialSW,\n                          EnderecoArquivo, TxtTipoDesenho, FamiliaMat, IdEmpresa, Peso, Valor, DescDetal, PecaManufat, AreaPintura, Unidade, Altura, Largura, Qtde\
+<truncated 34 bytes>
+
+
+=== CHUNK ===
+
+
+"interface MatRow { IdMaterial:number; CodMatFabricante:string; DescResumo:string; Espessura:string|null; MaterialSW:string|null; EnderecoArquivo:string|null; TxtTipoDesenho:string|null; FamiliaMat:any; IdEmpresa:any; Peso:any; Valor:any; DescDetal?:string
+<truncated 98 bytes>
+
+
+=== CHUNK ===
+
+
+"                        <tbody className=\"divide-y divide-gray-100\">\n                          {materiaisManutFiltrados.map(m=>(\n                            <tr key={m.IdMaterial}\n                              onClick={()=>selectMaterialManut(m)}\n  
+<truncated 2818 bytes>
+
+
+=== CHUNK ===
+
+
+"                <div className=\"px-2 py-1.5 border-b border-gray-100 shrink-0 relative flex gap-2\">\n                  <div className=\"relative flex-1\">\n                    <input value={filtroManutCod} onChange={e=>{\n                        const v
+<truncated 1993 bytes>

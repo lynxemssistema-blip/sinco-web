@@ -26,6 +26,8 @@ interface TagData {
     DataTermino: string;
     ProjetistaPlanejado: string;
     CaminhoIsometrico: string;
+    ProjFinalizado?: string;
+    ProjLiberado?: string;
 
     PlanejadoInicioMedicao: string;
     PlanejadoFinalMedicao: string;
@@ -156,6 +158,7 @@ export default function VisaoGeralEngenharia() {
     const [expandedProjeto, setExpandedProjeto] = useState<string | null>(null);
     
     // Filters — individual
+    const [fProjStatus, setFProjStatus] = useState<'todos'|'finalizados'|'liberados'|'nao_liberados'>('todos');
     const [fProjeto, setFProjeto] = useState('');
     const [fEmpresa, setFEmpresa] = useState('');
     const [fTag, setFTag] = useState('');
@@ -357,6 +360,9 @@ export default function VisaoGeralEngenharia() {
 
     const filteredTags = useMemo(() => {
         return tags.filter(t => {
+            if (fProjStatus === 'finalizados' && t.ProjFinalizado !== 'C') return false;
+            if (fProjStatus === 'liberados' && t.ProjLiberado !== 'S' && t.ProjLiberado !== 'SIM') return false;
+            if (fProjStatus === 'nao_liberados' && (t.ProjLiberado === 'S' || t.ProjLiberado === 'SIM')) return false;
             if (fProjeto && !(t.Projeto||'').toLowerCase().includes(fProjeto.toLowerCase())) return false;
             if (fEmpresa && !(t.DescEmpresa||'').toLowerCase().includes(fEmpresa.toLowerCase())) return false;
             if (fTag && !(t.Tag||'').toLowerCase().includes(fTag.toLowerCase())) return false;
@@ -378,7 +384,7 @@ export default function VisaoGeralEngenharia() {
             }
             return true;
         });
-    }, [tags, fProjeto, fEmpresa, fTag, fDescTag, fProjetista, fTipo, fPrevIni, fPrevFim]);
+    }, [tags, fProjeto, fEmpresa, fTag, fDescTag, fProjetista, fTipo, fPrevIni, fPrevFim, fProjStatus]);
 
     const summary = useMemo(() => {
         const buildSect = (sect: SectorType) => {
@@ -415,7 +421,7 @@ export default function VisaoGeralEngenharia() {
                         <button type="button" onClick={() => setShowFilters(!showFilters)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-[#03624C] transition-colors border px-2 py-1 rounded bg-gray-50 uppercase font-bold">
                             <Filter size={14} /> {showFilters ? 'Ocultar' : 'Mostrar'}
                         </button>
-                        <button type="button" onClick={() => { setFProjeto(''); setFEmpresa(''); setFTag(''); setFDescTag(''); setFProjetista(''); setFTipo(''); setFPrevIni(''); setFPrevFim(''); }} className="flex items-center gap-1 text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded transition-colors font-bold"><X size={11} /> Limpar Filtros</button>
+                        <button type="button" onClick={() => { setFProjStatus('todos'); setFProjeto(''); setFEmpresa(''); setFTag(''); setFDescTag(''); setFProjetista(''); setFTipo(''); setFPrevIni(''); setFPrevFim(''); }} className="flex items-center gap-1 text-xs px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded transition-colors font-bold"><X size={11} /> Limpar Filtros</button>
                     </div>
                 </div>
                 {showFilters && (
@@ -423,7 +429,17 @@ export default function VisaoGeralEngenharia() {
 
                 {/* Row 1 — Text Filters */}
                 <div className="px-3 pb-3 pt-1 flex flex-col gap-2">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+
+                      <div className="flex flex-col gap-0.5">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Status Projeto</label>
+                          <select value={fProjStatus} onChange={e => setFProjStatus(e.target.value as any)} className="h-7 w-full border border-gray-300 rounded text-xs px-2 outline-none focus:border-[#03624C] focus:ring-1 focus:ring-[#03624C] transition bg-white text-gray-700 font-medium">
+                              <option value="todos">Todos (Ativos)</option>
+                              <option value="finalizados">Finalizados</option>
+                              <option value="liberados">Liberados</option>
+                              <option value="nao_liberados">Não Liberados</option>
+                          </select>
+                      </div>
                     <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Projeto</label>
                         <div className="relative">

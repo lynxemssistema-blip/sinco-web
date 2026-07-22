@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, X, Loader2, Check } from 'lucide-react';
+import { Search, Plus, X, Loader2, Check, CheckCircle } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -22,18 +22,24 @@ interface ModalProps {
 export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContext, onSuccess, token }: ModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Material[]>([]);
+  const [allMaterials, setAllMaterials] = useState<Material[]>([]);
   const [selectedItems, setSelectedItems] = useState<{ [cod: string]: { qtde: number, acabamento: string } }>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [globalAcabamento, setGlobalAcabamento] = useState('');
   const [acabamentos, setAcabamentos] = useState<{ id: string | number, label: string }[]>([]);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [totalAdded, setTotalAdded] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       setSearchTerm('');
       setSearchResults([]);
+      setAllMaterials([]);
       setSelectedItems({});
       setGlobalAcabamento('');
+      setSuccessMsg(null);
+      setTotalAdded(0);
       fetchAcabamentos();
       fetchInitialMaterials();
     }
@@ -47,6 +53,7 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
       });
       const json = await res.json();
       if (json.success) {
+        setAllMaterials(json.data);
         setSearchResults(json.data);
       }
     } catch (e) {
@@ -72,7 +79,11 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
+    if (!searchTerm.trim()) {
+      // Se pesquisa vazia, volta à lista completa
+      setSearchResults(allMaterials);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/material/busca-livre?q=${encodeURIComponent(searchTerm)}`, {
@@ -87,6 +98,12 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
     } finally {
       setLoading(false);
     }
+  };
+
+  // Limpar pesquisa e voltar à lista completa
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setSearchResults(allMaterials);
   };
 
   const toggleSelection = (mat: Material) => {
@@ -121,6 +138,7 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
     }
 
     setSaving(true);
+    setSuccessMsg(null);
     try {
       const res = await fetch(`${API_BASE}/ordemservico/${osId}/incluir-materiais-dinamico`, {
         method: 'POST',
@@ -136,8 +154,17 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
 
       const json = await res.json();
       if (json.success) {
+        const qtdAdded = itensArray.length;
+        setTotalAdded(prev => prev + qtdAdded);
+
+        // ✅ Limpar seleção e pesquisa — retornar à lista completa para novos itens
+        setSelectedItems({});
+        setSearchTerm('');
+        setSearchResults(allMaterials);
+        setSuccessMsg(`✓ ${qtdAdded} material(is) incluído(s) na OS. Selecione mais ou clique em Concluir.`);
+
+        // Notificar parent sem fechar (para atualizar contadores externos se necessário)
         onSuccess();
-        onClose();
       } else {
         alert('Erro: ' + json.message);
       }
@@ -147,6 +174,11 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
     } finally {
       setSaving(false);
     }
+  };
+
+  // Fechar o modal ao concluir (usuário decide quando parar)
+  const handleConcluir = () => {
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -162,12 +194,23 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
             <h2 className="text-lg font-bold flex items-center gap-2">
               <Plus size={20} /> Incluir Materiais na O.S. #{osId}
             </h2>
-            <p className="text-xs text-gray-300 mt-1">Busque os materiais para compor a nova Ordem de Serviço.</p>
+            <p className="text-xs text-gray-300 mt-1">
+              Busque e selecione materiais. Após confirmar, a lista retorna para você incluir mais itens.
+              {totalAdded > 0 && <span className="ml-2 font-bold text-[#E0E800]">({totalAdded} material(is) já incluído(s))</span>}
+            </p>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-white/20 rounded transition-colors">
+          <button onClick={handleConcluir} className="p-1 hover:bg-white/20 rounded transition-colors" title="Fechar">
             <X size={20} />
           </button>
         </div>
+
+        {/* Toast de sucesso */}
+        {successMsg && (
+          <div className="flex items-center gap-2 bg-emerald-50 border-b border-emerald-200 px-4 py-2 text-emerald-700 text-xs font-medium">
+            <CheckCircle size={14} className="shrink-0" />
+            {successMsg}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
@@ -176,13 +219,24 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
           <div className="flex-1 flex flex-col border-r border-gray-200 min-w-0">
             <div className="p-3 border-b bg-gray-50 flex flex-col gap-2">
               <form onSubmit={handleSearch} className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Buscar por código ou descrição..."
-                  className="flex-1 px-3 py-1.5 border rounded text-xs focus:outline-none focus:border-[#32423D]"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Buscar por código ou descrição..."
+                    className="w-full px-3 py-1.5 border rounded text-xs focus:outline-none focus:border-[#32423D] pr-8"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={handleClearSearch}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
                 <button type="submit" className="bg-[#32423D] text-white px-3 py-1.5 rounded hover:bg-[#E0E800]/90 hover:text-black transition-colors">
                   <Search size={16} />
                 </button>
@@ -198,6 +252,15 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
                   {acabamentos.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
                 </select>
               </div>
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="text-xs text-[#32423D] underline text-left hover:text-[#32423D]/70"
+                >
+                  ← Ver todos os materiais
+                </button>
+              )}
             </div>
             
             <div className="flex-1 overflow-auto p-2 bg-gray-50">
@@ -263,7 +326,15 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
                           <span className="text-xs font-bold text-gray-800">{cod}</span>
                           <span className="text-[10px] text-gray-500 ml-2 truncate">{mat.DescResumo}</span>
                         </div>
-                        
+                        <div className="flex items-center gap-2 mt-1">
+                          <label className="text-[10px] text-gray-500">Qtd:</label>
+                          <input
+                            type="number" min="1" step="1"
+                            className="w-14 px-1 py-0.5 border rounded text-[10px] focus:outline-none focus:border-[#32423D]"
+                            value={item.qtde}
+                            onChange={e => updateItem(cod, 'qtde', parseInt(e.target.value) || 1)}
+                          />
+                        </div>
                       </div>
                       <button onClick={() => toggleSelection({ CodMatFabricante: cod } as any)} className="text-red-500 hover:bg-red-100 rounded p-1 shrink-0">
                         <X size={14} />
@@ -275,14 +346,20 @@ export default function ModalIncluirMaterialOS({ isOpen, onClose, osId, osContex
             </div>
             
             {/* Footer Actions */}
-            <div className="p-4 border-t bg-gray-50">
+            <div className="p-4 border-t bg-gray-50 flex flex-col gap-2">
               <button 
                 onClick={handleSubmit} 
                 disabled={saving || totalSelected === 0}
                 className="w-full bg-[#32423D] hover:bg-[#E0E800]/90 hover:text-black text-white py-2 rounded font-bold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                Confirmar Inclusão
+                Confirmar Inclusão ({totalSelected})
+              </button>
+              <button 
+                onClick={handleConcluir}
+                className="w-full border-2 border-[#32423D] text-[#32423D] hover:bg-[#32423D] hover:text-white py-2 rounded font-bold text-sm transition-colors"
+              >
+                {totalAdded > 0 ? `Concluir (${totalAdded} incluído(s))` : 'Fechar'}
               </button>
             </div>
           </div>

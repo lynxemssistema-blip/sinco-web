@@ -1,0 +1,398 @@
+﻿diff --git a/frontend/src/pages/MontaPecaManufaturada.tsx b/frontend/src/pages/MontaPecaManufaturada.tsx
+index 5a238cd..3af5748 100644
+--- a/frontend/src/pages/MontaPecaManufaturada.tsx
++++ b/frontend/src/pages/MontaPecaManufaturada.tsx
+@@ -29,6 +29,7 @@ interface MatRow {
+ 
+ const authHdr = () => ({ 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` });
+ 
++
+ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario?:string}) {
+   const { user, token } = useAuth();
+   const idMatriz = (user as any)?.idMatriz||null;
+@@ -47,6 +48,13 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+   const [subComps, setSubComps] = useState<Record<number, any[]>>({});
+   const [loadingSub, setLoadingSub] = useState<Record<number, boolean>>({});
++  
++  const [showDetails, setShowDetails] = useState(true);
++  const [compFiltroCod, setCompFiltroCod] = useState('');
++  const [compFiltroDesc, setCompFiltroDesc] = useState('');
++  const [editingQtdeId, setEditingQtdeId] = useState<number | null>(null);
++  const [editingQtdeVal, setEditingQtdeVal] = useState<string>('');
++  const [recursoInput, setRecursoInput] = useState('');
+ 
+   // Grid 2: Processos e Recursos
+   const [tipos, setTipos] = useState<any[]>([]);
+@@ -188,6 +196,10 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+ 
+     clearForm();
+ 
++    setCompFiltroCod('');
++    setCompFiltroDesc('');
++    setShowDetails(true);
++
+     fetchComp2(m.IdMaterial);
+     fetchProcs(m.CodMatFabricante);
+   };
+@@ -233,23 +245,23 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+     }
+   };
+ 
+-  const clearForm = () => { setSelId(''); setProcSearch(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
++  const clearForm = () => { setSelId(''); setRecursoInput(''); setProcSearch(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
+   const nextSeq = () => lastAutoSeq + 10;
+ 
+-    const saveProcs = async (newStaging) => {
+-    if(!piece) return;
+-    setSaving(true);
++    const saveProcs = async (newStaging: Proc[]) => {
++    if(!selMat1) return;
++    setSavingProc(true);
+     try{
+       const body={ processos:newStaging.map(s=>({IdProcesso:s.IdProcesso,SequenciaExecucao:s.seq,TempoEstimadoMin:s.estMin,TempoPadraoMin:s.padMin,Observacao:s.obs})),
+-        codmatFabricante:piece.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
++        codmatFabricante:selMat1.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
+       const r=await fetch(`${API}/material-processo`,{method:'POST',headers:{...authHdr(), 'Content-Type':'application/json'},body:JSON.stringify(body)});
+       const j=await r.json();
+       if(j.success) {
+         setStaging(newStaging);
+-        fetchProcs(piece.CodMatFabricante);
++        fetchProcs(selMat1.CodMatFabricante);
+       }
+-      else showAlert('Erro: '+j.message, "error");
+-    }finally{ setSaving(false); }
++      else alert('Erro: '+j.message);
++    }finally{ setSavingProc(false); }
+   };
+ 
+   const handleAddProc = async () => {
+@@ -273,7 +285,7 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+   };
+ 
+   const delProc = async (sq: number) => { 
+-    if (!await window.sysConfirm(`Excluir processo da sequ├¬ncia ${sq}?`)) return; 
++    if (!confirm(`Excluir processo da sequ├¬ncia ${sq}?`)) return; 
+     const updated = staging.filter(s => s.seq !== sq);
+     await saveProcs(updated); 
+   };
+@@ -310,24 +322,22 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+     }
+   };
+ 
+-  const saveAllProcs = async () => {
+-    if (!selMat1 || staging.length === 0) return;
+-    setSavingProc(true);
++  const saveQtde = async (idMontaPeca: number, qtde: number) => {
+     try {
+-      const body = { 
+-        processos: staging.map(s => ({ IdProcesso: s.IdProcesso, SequenciaExecucao: s.seq, TempoEstimadoMin: s.estMin, TempoPadraoMin: s.padMin, Observacao: s.obs })),
+-        codmatFabricante: selMat1.CodMatFabricante, idMatriz, usuarioCriacao: uCriacao, replace: true 
+-      };
+-      const r = await fetch(`${API}/material-processo`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHdr() }, body: JSON.stringify(body) });
++      const r = await fetch(`${API}/composicao-qtde/${idMontaPeca}`, {
++        method: 'PATCH',
++        headers: { ...authHdr(), 'Content-Type': 'application/json' },
++        body: JSON.stringify({ qtde })
++      });
+       const j = await r.json();
+-      if (j.success) {
+-        alert("Processos gravados com sucesso!");
+-        fetchProcs(selMat1.CodMatFabricante);
++      if (j.success && selMat1) {
++         fetchComp2(selMat1.IdMaterial);
+       } else {
+-        alert('Erro: ' + j.message);
++         alert('Erro ao atualizar quantidade: ' + (j.message || ''));
+       }
+-    } finally { 
+-      setSavingProc(false); 
++    } catch (e) {
++      console.error(e);
++      alert('Erro de comunica├º├úo ao atualizar quantidade.');
+     }
+   };
+ 
+@@ -436,30 +446,56 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+                 {c.EnderecoArquivo && <button onClick={()=>abrirPdf(c.EnderecoArquivo)} className="p-0.5 text-red-400 hover:text-red-600 rounded" title="Abrir Desenho PDF"><FileText size={11}/></button>}
+               </div>
+             </td>
+-            <td className="p-1 px-1.5 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[90px]" title={c.CodMatFabricante}>
+-              {level > 0 && <span className="text-blue-400 font-bold mr-0.5">Ôå│</span>}
+-              <span className={level > 0 ? 'text-blue-700' : ''}>{c.CodMatFabricante}</span>
++            <td className="p-1 px-1.5 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[120px]" title={c.CodMatFabricante}>
++              <div className="flex items-center gap-1.5">
++                 <span className={`inline-flex px-1 py-0.5 rounded text-[8px] font-bold ${level === 0 ? 'bg-gray-100 text-gray-600' : level === 1 ? 'bg-blue-100 text-blue-600' : 'bg-indigo-100 text-indigo-600'}`}>
++                   NV {level + 1}
++                 </span>
++                 {level > 0 && <span className="text-blue-400 font-bold">Ôå│</span>}
++                 <span className={level > 0 ? 'text-blue-700' : ''}>{c.CodMatFabricante}</span>
++              </div>
+             </td>
+-            <td className={`p-1 px-1.5 text-[9.5px] truncate max-w-[100px] ${level > 0 ? 'text-blue-600' : 'text-gray-600'}`} title={c.DescDetal}>
++            <td className={`p-1 px-1.5 text-[9.5px] truncate max-w-[120px] ${level > 0 ? 'text-blue-600' : 'text-gray-600'}`} title={c.DescDetal}>
+               {c.DescDetal}
++              {isPeca && <span className="ml-1 text-[8px] text-emerald-600 font-bold uppercase bg-emerald-100 px-1 py-0.5 rounded">Pe├ºa</span>}
+             </td>
+             <td className="p-1 px-1.5 text-center">
+-               <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold ${level === 0 ? 'bg-gray-100 text-gray-600' : level === 1 ? 'bg-blue-100 text-blue-600' : 'bg-indigo-100 text-indigo-600'}`}>
+-                 {level + 1}
+-               </span>
+-               {isPeca && <span className="ml-1 text-[8px] text-emerald-600 font-bold uppercase bg-emerald-100 px-1 py-0.5 rounded">Pe├ºa</span>}
++              {level === 0 ? (
++                 <input 
++                   type="number" 
++                   min="0" 
++                   step="0.01" 
++                   value={editingQtdeId === c.IdMontaPeca ? editingQtdeVal : (c.PecaQtde || 1)}
++                   onChange={(e) => {
++                      setEditingQtdeId(c.IdMontaPeca);
++                      setEditingQtdeVal(e.target.value);
++                   }}
++                   onBlur={() => {
++                      if (editingQtdeId === c.IdMontaPeca) {
++                         const val = Number(editingQtdeVal);
++                         if (!isNaN(val) && val !== c.PecaQtde) saveQtde(c.IdMontaPeca, val);
++                         setEditingQtdeId(null);
++                      }
++                   }}
++                   onKeyDown={(e) => {
++                      if (e.key === 'Enter') e.currentTarget.blur();
++                   }}
++                   className="w-14 px-1 py-0.5 text-center text-[10px] font-bold font-mono border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm"
++                 />
++              ) : (
++                 <span className="text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</span>
++              )}
+             </td>
+-            <td className="p-1 px-1.5 text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</td>
+           </tr>
+           
+           {isExpanded && isLoadingSub && (
+-            <tr><td colSpan={5} className="text-center p-2 text-[9.5px] text-gray-400"><Loader2 size={12} className="animate-spin inline mr-1 text-blue-400"/> Carregando sub-n├¡vel...</td></tr>
++            <tr><td colSpan={4} className="text-center p-2 text-[9.5px] text-gray-400"><Loader2 size={12} className="animate-spin inline mr-1 text-blue-400"/> Carregando sub-n├¡vel...</td></tr>
+           )}
+           
+           {isExpanded && !isLoadingSub && subs.length > 0 && renderRecursiveRows(subs, level + 1)}
+           
+           {isExpanded && !isLoadingSub && subs.length === 0 && (
+-            <tr><td colSpan={5} className="text-center p-2 text-[9px] text-orange-500 bg-orange-50/50">Esta pe├ºa n├úo possui itens na sua composi├º├úo.</td></tr>
++            <tr><td colSpan={4} className="text-center p-2 text-[9px] text-orange-500 bg-orange-50/50">Esta pe├ºa n├úo possui itens na sua composi├º├úo.</td></tr>
+           )}
+         </React.Fragment>
+       );
+@@ -553,23 +589,21 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+               <div className="bg-[#32423D]/[0.02] border-b border-gray-200 p-3 shrink-0 relative shadow-sm">
+                  <div className="text-[9.5px] font-bold text-[#32423D] uppercase tracking-wider mb-2 flex items-center justify-between border-b border-gray-200 pb-1">
+                    <span className="flex items-center gap-1.5"><Package size={12} className="text-emerald-600"/> {selMat1.CodMatFabricante}</span>
++                   <button onClick={() => setShowDetails(!showDetails)} className="p-0.5 text-gray-400 hover:text-gray-600 bg-white rounded shadow-sm border border-gray-200" title={showDetails ? 'Ocultar detalhes' : 'Mostrar detalhes'}>
++                     {showDetails ? <ChevronDown size={12}/> : <ChevronRight size={12}/>}
++                   </button>
+                  </div>
+-                 <div className="grid grid-cols-4 gap-x-2 gap-y-2.5">
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Espessura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Espessura)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">├ürea Pint.</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.AreaPintura)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Peso</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Peso)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Unidade</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Unidade)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Altura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Altura)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Largura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Largura)}</div></div>
+-                   <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Qtde</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Qtde)}</div></div>
+-                   {selMat1.EnderecoArquivo && (
+-                      <div className="col-span-1 flex items-end">
+-                        <button onClick={()=>abrirPdf(selMat1.EnderecoArquivo!)} className="w-full flex items-center justify-center gap-1 px-1 py-0.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded text-[9px] font-bold shadow-sm transition-colors" title="Abrir PDF">
+-                          <FileText size={10}/> PDF
+-                        </button>
+-                      </div>
+-                   )}
+-                 </div>
++                 {showDetails && (
++                   <div className="grid grid-cols-4 gap-x-2 gap-y-2.5">
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Espessura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Espessura)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">├ürea Pint.</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.AreaPintura)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Peso</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Peso)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Unidade</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Unidade)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Altura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Altura)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Largura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Largura)}</div></div>
++                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Qtde</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Qtde)}</div></div>
++                   </div>
++                 )}
+               </div>
+ 
+               {/* BASE: COMPOSI├ç├âO */}
+@@ -578,7 +612,11 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+                   <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                     <Wrench size={12} /> Composi├º├úo do Material
+                   </span>
+-                  <span className="text-[8.5px] font-bold text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded">{comp2.length} itens ra├¡zes</span>
++                  <div className="flex gap-1.5 items-center">
++                    <input value={compFiltroCod} onChange={e=>setCompFiltroCod(e.target.value)} placeholder="Filtro C├│d..." className="w-24 px-2 py-0.5 text-[9px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm" />
++                    <input value={compFiltroDesc} onChange={e=>setCompFiltroDesc(e.target.value)} placeholder="Filtro Desc..." className="w-24 px-2 py-0.5 text-[9px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm" />
++                    <span className="text-[8.5px] font-bold text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded">{comp2.length} itens ra├¡zes</span>
++                  </div>
+                 </div>
+                 <div className="flex-1 overflow-auto">
+                   {loading2 ? (
+@@ -594,12 +632,11 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+                       <th className="p-1 px-1.5 w-12"></th>
+                       <th className={colsCls}>C├│digo</th>
+                       <th className={colsCls}>Descri├º├úo</th>
+-                      <th className={`${colsCls} text-center`}>NV</th>
+-                      <th className={`${colsCls} text-center`}>QTD</th>
++                      <th className={`${colsCls} text-center w-16`}>QTD</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-gray-100">
+-                    {renderRecursiveRows(comp2, 0)}
++                    {renderRecursiveRows(comp2.filter(c => (!compFiltroCod || c.CodMatFabricante.toLowerCase().includes(compFiltroCod.toLowerCase())) && (!compFiltroDesc || (c.DescDetal && c.DescDetal.toLowerCase().includes(compFiltroDesc.toLowerCase())))), 0)}
+                   </tbody>
+                 </table>
+               )}
+@@ -610,147 +647,9 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario
+         </div>
+ 
+         {/* =========================================
+-            GRID 2: PROCESSOS E RECURSOS
++            GRID 2: RECURSOS
+             ========================================= */}
+         <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%]`}>
+-          <div className="px-3 py-2 bg-gradient-to-r from-teal-50 to-teal-100/30 border-b border-teal-100 shrink-0 flex justify-between items-center">
+-            <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+-              <Clock size={13} /> 2. Processos de Fabrica├º├úo
+-            </span>
+-            <div className="flex gap-2 items-center">
+-              {selMat1 && <button onClick={()=>fetchProcs(selMat1.CodMatFabricante)} className="p-0.5 text-teal-500 hover:text-teal-700 bg-white rounded shadow-sm border border-teal-200" title="Atualizar"><RefreshCw size={11}/></button>}
+-              
+-            </div>
+-          </div>
+-          
+-          {/* TOPO: FORMUL├üRIO DE ADI├ç├âO DE PROCESSO */}
+-          <div className="p-3 bg-teal-50/20 border-b border-gray-200 shrink-0">
+-             {!selMat1 ? (
+-               <div className="text-[10px] text-gray-400 text-center italic">Selecione um material no Grid 1 para gerenciar processos</div>
+-             ) : (
+-               <div className="flex flex-col gap-2">
+-                 <div className="flex gap-2 items-end flex-wrap">
+-                   <div className="flex flex-col flex-1 min-w-[120px]">
+-                     <span className="text-[8.5px] text-gray-500 uppercase font-bold tracking-wide mb-0.5">Recurso <span className="text-red-500">*</span></span>
+-                     <select value={selId} onChange={e => {
+-                         const val = e.target.value ? Number(e.target.value) : '';
+-                         setSelId(val);
+-                         if (val !== '') {
+-                           const proc = tipos.find(t => t.IdProcessoFabricacao === val);
+-                           if (proc) {
+-                             setEstMinStr(proc.Setup != null ? String(proc.Setup) : '');
+-                             setPadMinStr(proc.TempoPadrao != null ? String(proc.TempoPadrao) : '');
+-                           }
+-                         } else { setEstMinStr(''); setPadMinStr(''); }
+-                       }}
+-                       className="px-2 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500 bg-white">
+-                       <option value="">- Selecione -</option>
+-                       {tipos.filter(t=>!staging.some(s=>s.IdProcesso===t.IdProcessoFabricacao)).map(t=>(<option key={t.IdProcessoFabricacao} value={t.IdProcessoFabricacao}>{t.ProcessoFabricacao}</option>))}
+-                     </select>
+-                   </div>
+-                   <div className="flex flex-col items-center shrink-0">
+-                     <span className="text-[8.5px] text-gray-500 uppercase font-bold tracking-wide mb-0.5">Seq.</span>
+-                     <input type="number" min="1" step="1" value={seq} onChange={e=>setSeq(e.target.value)} placeholder={String(nextSeq())} className="w-12 px-1 py-1 text-center text-[10px] font-mono border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500"/>
+-                   </div>
+-                   <div className="flex flex-col items-center shrink-0">
+-                     <span className="text-[8.5px] text-gray-500 uppercase font-bold tracking-wide mb-0.5">Setup <span className="text-[7px] text-gray-400 lowercase">(min)</span></span>
+-                     <input type="number" min="0" value={estMinStr} onChange={e=>setEstMinStr(e.target.value)} placeholder="0" className="w-12 px-1 py-1 text-center text-[10px] font-mono border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500"/>
+-                   </div>
+-                   <div className="flex flex-col items-center shrink-0">
+-                     <span className="text-[8.5px] text-gray-500 uppercase font-bold tracking-wide mb-0.5">Padr├úo <span className="text-red-500">*</span></span>
+-                     <input type="number" min="0" value={padMinStr} onChange={e=>setPadMinStr(e.target.value)} placeholder="0" className="w-12 px-1 py-1 text-center text-[10px] font-mono border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500"/>
+-                   </div>
+-                   <div className="flex flex-col flex-1 min-w-[100px]">
+-                     <span className="text-[8.5px] text-gray-500 uppercase font-bold tracking-wide mb-0.5">Observa├º├úo</span>
+-                     <input value={ob} onChange={e=>setOb(e.target.value)} placeholder="..." className="w-full px-2 py-1 text-[10px] border border-gray-300 rounded shadow-sm focus:outline-none focus:border-teal-500"/>
+-                   </div>
+-                   <button onClick={handleAddProc} disabled={!selId} className="flex items-center gap-1 h-6 px-2.5 bg-teal-600 text-white text-[10px] font-bold rounded shadow-sm hover:bg-teal-700 disabled:opacity-40 transition-colors">
+-                     <Plus size={12}/> Adicionar
+-                   </button>
+-                 </div>
+-               </div>
+-             )}
+-          </div>
+-          
+-          {/* BASE: TABELA DE PROCESSOS */}
+-          <div className="flex-1 overflow-auto bg-gray-50/30">
+-            {loadingP ? (
+-              <div className="flex justify-center p-6"><Loader2 className="animate-spin text-teal-500" size={18}/></div>
+-            ) : !selMat1 ? (
+-              <div className="flex flex-col items-center justify-center h-full text-gray-300 p-4 text-center">
+-                 <span className="text-[10px] font-medium">Aguardando sele├º├úo...</span>
+-              </div>
+-            ) : staging.length === 0 ? (
+-              <div className="p-4 text-center text-[10px] text-gray-400">Nenhum processo cadastrado para este material</div>
+-            ) : (
+-              <table className="w-full text-left">
+-                <thead className="bg-white sticky top-0 shadow-sm z-10 border-b border-gray-200">
+-                  <tr>
+-                    <th className="p-1.5 px-2 text-[9px] font-bold text-gray-500 uppercase tracking-wide w-8">Seq</th>
+-                    <th className={colsCls}>Recurso</th>
+-                    <th className={`${colsCls} text-center w-14`}>Setup (m)</th>
+-                    <th className={`${colsCls} text-center w-14`}>Padr├úo (m)</th>
+-                    <th className={colsCls}>Obs.</th>
+-                    <th className="p-1.5 px-2 w-14"></th>
+-                  </tr>
+-                </thead>
+-                <tbody className="divide-y divide-gray-100">
+-                  {staging.filter(s => !procTableFiltro || s.nome.toLowerCase().includes(procTableFiltro.toLowerCase())).map(s => (
+-                    <tr key={s.seq} className={`hover:bg-teal-50/40 transition-colors ${editSq === s.seq ? 'bg-amber-50' : ''}`}>
+-                      <td className="p-1.5 px-2 text-center">
+-                        {editSq === s.seq ? (
+-                          <input type="number" min="1" value={inlineSeq} onChange={e=>setInlineSeq(e.target.value)} className="w-10 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+-                        ) : (
+-                          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-teal-100 text-teal-800 text-[8.5px] font-bold border border-teal-200 shadow-sm">{s.seq}</span>
+-                        )}
+-                      </td>
+-                      <td className={`${cellCls} font-semibold text-[#32423D]`}>{s.nome}</td>
+-                      <td className="p-1.5 px-2 text-center">
+-                        {editSq === s.seq ? (
+-                          <input type="number" min="0" value={inlineEstMin} onChange={e=>setInlineEstMin(e.target.value)} className="w-12 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+-                        ) : (
+-                          <span className="text-[10px] text-gray-600 font-mono">{fmtMin(s.estMin)}</span>
+-                        )}
+-                      </td>
+-                      <td className="p-1.5 px-2 text-center">
+-                        {editSq === s.seq ? (
+-                          <input type="number" min="0" value={inlinePadMin} onChange={e=>setInlinePadMin(e.target.value)} className="w-12 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+-                        ) : (
+-                          <span className="text-[10px] text-gray-600 font-mono font-bold">{fmtMin(s.padMin)}</span>
+-                        )}
+-                      </td>
+-                      <td className="p-1.5 px-2">
+-                        {editSq === s.seq ? (
+-                          <input value={inlineOb} onChange={e=>setInlineOb(e.target.value)} className="w-full px-1.5 py-0.5 text-[10px] border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white shadow-inner" />
+-                        ) : (
+-                          <span className="text-[10px] text-gray-500 truncate max-w-[100px] block" title={s.obs||''}>{s.obs||'-'}</span>
+-                        )}
+-                      </td>
+-                      <td className="p-1.5 px-1 text-right whitespace-nowrap">
+-                        {editSq === s.seq ? (
+-                           <button onClick={saveInlineEdit} className="p-0.5 text-emerald-600 hover:text-emerald-700 bg-emerald-50 rounded border border-emerald-200 mr-1 shadow-sm" title="Confirmar altera├º├úo"><Check size={11}/></button>
+-                        ) : (
+-                           <button onClick={()=>startInlineEdit(s)} className="p-0.5 text-blue-500 hover:text-blue-700 bg-blue-50 rounded border border-blue-200 mr-1 shadow-sm" title="Editar diretamente na linha"><Edit2 size={11}/></button>
+-                        )}
+-                        <button onClick={()=>delProc(s.seq)} disabled={editSq === s.seq} className="p-0.5 text-red-400 hover:text-red-600 bg-red-50 rounded border border-red-200 shadow-sm disabled:opacity-30" title="Excluir"><Trash2 size={11}/></button>
+-                      </td>
+-                    </tr>
+-                  ))}
+-                </tbody>
+-              </table>
+-            )}
+-          </div>
+-          
+-          {/* BOT├âO SALVAR PROCESSOS */}
+-          <div className="p-2 border-t border-gray-200 shrink-0 bg-white flex justify-end">
+-             <button onClick={saveAllProcs} disabled={savingProc||!selMat1||staging.length===0} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#32423D] text-white text-[10px] font-bold rounded shadow-sm hover:bg-[#25322e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+-               {savingProc?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Gravar Processos
+-             </button>
+-          </div>
+-        </div>
+-
+-        {/* =========================================
+-            GRID 3: INCLUS├âO DE NOVOS MATERIAIS
+             ========================================= */}
+         
+           <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%] border-l border-indigo-100 animate-in slide-in-from-right-10 duration-200">

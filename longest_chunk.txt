@@ -1,0 +1,7 @@
+
+
+
+"  const removeComp=async(id:number)=>{\n    if(!confirm('Excluir item?')) return;\n    try{ \n      const r=await fetch(`${API}/composicao/${id}`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario})}); \n      const 
+<truncated 1280 bytes>
+
+

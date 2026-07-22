@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList, Maximize2, Minimize2 } from 'lucide-react';
+import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList, Maximize2, Minimize2 , Share2 } from 'lucide-react';
 import VisaoGeralTagsGlobais from './VisaoGeralTagsGlobais';
 
 const API_BASE = '/api';
@@ -49,7 +49,7 @@ const DateBadge = ({ date, label, onClick, editable = false, showStatus = true }
  <div onClick={editable ? onClick : undefined} className={`flex flex-col ${editable ? 'cursor-pointer group' : ''}`}>
  {label && <span className={`text-[9px] text-slate-400 font-bold uppercase mb-0.5 leading-none ${editable ? 'group-hover:text-[#32423D] transition-colors' : ''}`}>{label}</span>}
  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${editable ? 'group-hover:border-[#32423D]/40 group-hover:bg-[#E0E800]/10 group-hover:text-[#32423D]/70 transition-colors' : color} font-bold leading-none whitespace-nowrap`}>
- <CalendarDays size={10} /> {date} {(showStatus && days === -1) ? '· Atrasado' : ((showStatus && days !== null && days >= 0) ? `· ${days}d` : '')}
+ <CalendarDays size={10} /> {date && date.includes('-') ? isoToBr(date) : date} {(showStatus && days === -1) ? '· Atrasado' : ((showStatus && days !== null && days >= 0) ? `· ${days}d` : '')}
  </span>
  </div>
  );
@@ -101,7 +101,7 @@ export default function VisaoGeralProducaoPage() {
  const [viewMode, setViewMode] = useState<'card' | 'list' | 'tags'>(() => (localStorage.getItem('vgp_viewMode') as 'card' | 'list' | 'tags') || 'list');
  // Filtros sempre iniciam vazios (sem restaurar sessão anterior)
  const [fProj, setFProj] = useState('');
- const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'todos'|null>(null);
+ const [statusFilter, setStatusFilter] = useState<'finalizados'|'liberados'|'nao_liberados'|'todos'|null>(null);
 
  useEffect(() => {
  localStorage.setItem('vgp_viewMode', viewMode);
@@ -150,6 +150,8 @@ export default function VisaoGeralProducaoPage() {
  
  // Estado para editar datas de setor da Tag
  const [tagSectorDates, setTagSectorDates] = useState<{ [key: string]: string }>({});
+ const [propagateSectorDates, setPropagateSectorDates] = useState<{ [key: string]: string }>({});
+  const [initialTagSectorDates, setInitialTagSectorDates] = useState<{ [key: string]: string }>({});
 
  // Estado de Expansão (Maximizado)
  const [isExpanded, setIsExpanded] = useState(false);
@@ -256,15 +258,17 @@ export default function VisaoGeralProducaoPage() {
  dateFiltersRef.current = { fProjPrevIni, fProjPrevFim, fProjCriacaoIni, fProjCriacaoFim };
  }, [fProjPrevIni, fProjPrevFim, fProjCriacaoIni, fProjCriacaoFim]);
 
- const fetchProj = async (sf: 'finalizados' | 'liberados' | 'todos' | null = null) => {
+ const fetchProj = async (sf: 'finalizados' | 'liberados' | 'nao_liberados' | 'todos' | null = null) => {
  setLoad(true); setError(null);
  try {
  const qs = new URLSearchParams();
  if (sf === 'finalizados') {
- qs.set('modo', 'finalizados');
- } else if (sf === 'liberados') {
- qs.set('modo', 'liberados');
- } else if (sf === 'todos') {
+      qs.set('modo', 'finalizados');
+    } else if (sf === 'liberados') {
+      qs.set('modo', 'liberados');
+    } else if (sf === 'nao_liberados') {
+      qs.set('modo', 'nao_liberados');
+    } else if (sf === 'todos') {
  qs.set('modo', 'todos');
  }
 
@@ -435,7 +439,31 @@ export default function VisaoGeralProducaoPage() {
  } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
  };
 
- const salvarDatasBulkTags = async () => {
+ 
+ const propagarDatasOS = async () => {
+ if (!selTag) return; setIsSaving(true); setMsg(null);
+ try {
+ const updates: Record<string, unknown>[] = [];
+ TAG_SECTORS.forEach(s => {
+ const piVal = propagateSectorDates[s.fields.pi];
+ if (piVal !== undefined) updates.push({ field: s.fields.pi, value: isoToBr(piVal) });
+ const pfVal = propagateSectorDates[s.fields.pf];
+ if (pfVal !== undefined) updates.push({ field: s.fields.pf, value: isoToBr(pfVal) });
+ });
+ const r = await (await fetch(`${API_BASE}/visao-geral/tag/${selTag.IdTag}/propagar-datas-os`, {
+ method: 'PUT', headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ updates })
+ })).json();
+ if (r.success) {
+ setMsg({ ok: true, t: 'Ordens de Serviço Atualizadas!' });
+ setTimeout(() => setActionModal(null), 1500);
+ } else {
+ setMsg({ ok: false, t: r.message });
+ }
+ } catch { setMsg({ ok: false, t: 'Erro de conexão.' }); } finally { setIsSaving(false); }
+ };
+
+const salvarDatasBulkTags = async () => {
  if (!selProj) return;
  setIsSaving(true); setMsg(null);
  try {
@@ -754,6 +782,22 @@ export default function VisaoGeralProducaoPage() {
  >
  <Filter size={11} /> Liberados
  </button>
+        {/* Nao Liberados */}
+        <button
+          onClick={() => {
+            const next = statusFilter === 'nao_liberados' ? null : 'nao_liberados';
+            setStatusFilter(next);
+            fetchProj(next);
+          }}
+          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg font-bold text-[10px] transition-all ${
+            statusFilter === 'nao_liberados'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-slate-500 hover:text-amber-700 hover:bg-amber-50'
+          }`}
+        >
+          <Filter size={11} /> Não Liberados
+        </button>
+
  {/* 3 - Todos */}
  <button
  onClick={() => {
@@ -1438,13 +1482,13 @@ export default function VisaoGeralProducaoPage() {
  title={`Criado em: ${selProj?.DataCriacao || '—'} (Clique para editar planejamento)`}
  onClick={() => { 
  setSelTag(t); 
- setTagSectorDates({
- PlanejadoInicioCorte: brToIso(t.PlanejadoInicioCorte), PlanejadoFinalCorte: brToIso(t.PlanejadoFinalCorte),
- PlanejadoInicioDobra: brToIso(t.PlanejadoInicioDobra), PlanejadoFinalDobra: brToIso(t.PlanejadoFinalDobra),
- PlanejadoInicioSolda: brToIso(t.PlanejadoInicioSolda), PlanejadoFinalSolda: brToIso(t.PlanejadoFinalSolda),
- PlanejadoInicioPintura: brToIso(t.PlanejadoInicioPintura), PlanejadoFinalPintura: brToIso(t.PlanejadoFinalPintura),
- PlanejadoInicioMontagem: brToIso(t.PlanejadoInicioMontagem), PlanejadoFinalMontagem: brToIso(t.PlanejadoFinalMontagem),
- });
+ const newDates = TAG_SECTORS.reduce((acc, s) => {
+                                acc[s.fields.pi] = brToIso((t as any)[s.fields.pi] || '');
+                                acc[s.fields.pf] = brToIso((t as any)[s.fields.pf] || '');
+                                return acc;
+                            }, {} as Record<string, string>);
+                            setTagSectorDates(newDates);
+                            setInitialTagSectorDates(newDates);
  setMsg(null); setActionModal('dateTagSetores'); 
  }}
  >
@@ -1478,13 +1522,13 @@ export default function VisaoGeralProducaoPage() {
  <button 
  onClick={() => { 
  setSelTag(t); 
- setTagSectorDates({
- PlanejadoInicioCorte: brToIso(t.PlanejadoInicioCorte), PlanejadoFinalCorte: brToIso(t.PlanejadoFinalCorte),
- PlanejadoInicioDobra: brToIso(t.PlanejadoInicioDobra), PlanejadoFinalDobra: brToIso(t.PlanejadoFinalDobra),
- PlanejadoInicioSolda: brToIso(t.PlanejadoInicioSolda), PlanejadoFinalSolda: brToIso(t.PlanejadoFinalSolda),
- PlanejadoInicioPintura: brToIso(t.PlanejadoInicioPintura), PlanejadoFinalPintura: brToIso(t.PlanejadoFinalPintura),
- PlanejadoInicioMontagem: brToIso(t.PlanejadoInicioMontagem), PlanejadoFinalMontagem: brToIso(t.PlanejadoFinalMontagem),
- });
+ const newDates = TAG_SECTORS.reduce((acc, s) => {
+                                acc[s.fields.pi] = brToIso((t as any)[s.fields.pi] || '');
+                                acc[s.fields.pf] = brToIso((t as any)[s.fields.pf] || '');
+                                return acc;
+                            }, {} as Record<string, string>);
+                            setTagSectorDates(newDates);
+                            setInitialTagSectorDates(newDates);
  setMsg(null); setActionModal('dateTagSetores'); 
  }}
  className="w-full text-[9px] bg-slate-100 hover:bg-[#32423D] hover:text-white border border-slate-200 text-slate-500 font-bold py-1.5 rounded flex items-center justify-center gap-1 transition-colors mb-1"
@@ -1557,8 +1601,8 @@ export default function VisaoGeralProducaoPage() {
  </div>
  
  <div className="p-6 overflow-auto bg-white flex-1 relative">
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(filteredTagSectors.length, 3)}, minmax(0, 1fr))` }}>
- {filteredTagSectors.map(s => (
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(filteredTagSectors.filter(s => (selTag as any)['flag'+s.k] === 1).length, 3)}, minmax(0, 1fr))` }}>
+                {filteredTagSectors.filter(s => (selTag as any)['flag'+s.k] === 1).map(s => (
  <div key={s.k} className="bg-slate-50 border border-slate-200 rounded-md p-4">
  <div className="font-black text-slate-700 uppercase tracking-widest text-xs mb-4 pb-2 border-b border-slate-200 border-dashed flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${s.c}`}></div> Setor: {s.k}</div>
  <div className="flex flex-col gap-3">
@@ -1583,7 +1627,7 @@ export default function VisaoGeralProducaoPage() {
  <div className="flex gap-3">
  {msg && <div className={`px-2 py-1.5 rounded-lg text-xs uppercase font-bold flex items-center ${msg.ok ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>{msg.t}</div>}
  <button onClick={() => setActionModal(null)} className="px-5 py-2.5 rounded-md text-xs font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
- <button onClick={salvarDatasTagSetores} disabled={isSaving} className="px-6 py-2.5 rounded-md text-xs font-bold bg-[#32423D] hover:bg-[#32423D]/80 text-white shadow-md shadow-blue-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+ <button onClick={salvarDatasTagSetores} disabled={isSaving || !Object.keys(tagSectorDates).some(k => tagSectorDates[k] !== initialTagSectorDates[k])} className="px-6 py-2.5 rounded-md text-xs font-bold bg-[#32423D] hover:bg-[#32423D]/80 text-white shadow-md shadow-[#32423D]/30 flex items-center gap-2 transition-all disabled:opacity-50">
  {isSaving ? <Loader className="animate-spin" size={14} /> : 'Salvar Todos os Setores'}
  </button>
  </div>
@@ -1593,7 +1637,60 @@ export default function VisaoGeralProducaoPage() {
  )}
 
  {/* Modal Planejamento em Lote */}
- {actionModal === 'bulkDateTags' && selProj && (
+ 
+ {actionModal === 'propagateOS' && (
+ <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4">
+ <div className="bg-white rounded-md w-full max-w-4xl max-h-[90vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col">
+ <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-emerald-50 rounded-t-2xl shrink-0">
+ <div><h3 className="font-black text-emerald-800 flex items-center gap-2 text-lg"><Share2 size={15} /> Propagar Datas para Ordens de Serviço</h3><p className="text-[11px] font-bold bg-white shadow-sm border border-emerald-200 px-2 py-0.5 mt-1 rounded-md text-emerald-700 inline-block uppercase">Tag: {selTag?.Tag}</p></div>
+ <button onClick={() => setActionModal(null)} className="bg-white border border-emerald-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 px-3 py-1.5 rounded-lg text-emerald-700 transition-colors shadow-sm flex items-center gap-1.5 font-bold text-xs shrink-0">
+ <X size={14} /> Não Propagar (Fechar)
+ </button>
+ </div>
+ 
+ <div className="bg-emerald-50 border-b border-emerald-200 p-4 shrink-0">
+ <p className="text-xs text-emerald-800 font-medium leading-relaxed flex items-center gap-2">
+ <ShieldAlert size={14} /> As datas gravadas na Tag podem ser automaticamente copiadas para as OS desta Tag ou você pode alterar setores livremente antes de propagar.
+ </p>
+ </div>
+ 
+ <div className="p-6 overflow-auto bg-white flex-1 relative">
+ {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-20 flex items-center justify-center"><Loader className="animate-spin text-emerald-600" size={42} /></div>}
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(filteredTagSectors.filter(s => (selTag as any)['flag'+s.k] === 1).length, 3)}, minmax(0, 1fr))` }}>
+ {filteredTagSectors.filter(s => (selTag as any)['flag'+s.k] === 1).map(s => (
+ <div key={`prop_${s.k}`} className="bg-slate-50 border border-slate-200 rounded-md p-4 shadow-sm">
+ <div className="font-black text-slate-700 uppercase tracking-widest text-xs mb-4 pb-2 border-b border-slate-200 border-dashed flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${s.c}`}></div> Setor: {s.k}</div>
+ <div className="flex flex-col gap-3">
+ <div>
+ <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Inicial</label>
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-emerald-500 outline-none transition-colors" 
+ value={propagateSectorDates[s.fields.pi] || ''} onChange={(e) => setPropagateSectorDates(prev => ({...prev, [s.fields.pi]: e.target.value}))}/>
+ </div>
+ <div>
+ <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Plan. Final</label>
+ <input type="date" className="mt-1 w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:border-emerald-500 outline-none transition-colors" 
+ value={propagateSectorDates[s.fields.pf] || ''} onChange={(e) => setPropagateSectorDates(prev => ({...prev, [s.fields.pf]: e.target.value}))}/>
+ </div>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ 
+ <div className="p-5 border-t border-slate-200 bg-white rounded-b-2xl shrink-0 flex items-center justify-between">
+ <span className="text-xs font-medium text-slate-500">Deixe em branco para limpar a data.</span>
+ <div className="flex items-center gap-3">
+ {msg && <span className={`text-xs font-bold px-3 py-1.5 rounded-md ${msg.ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{msg.t}</span>}
+ <button onClick={propagarDatasOS} disabled={isSaving} className="px-6 py-2.5 rounded-md text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/30 flex items-center gap-2 transition-all disabled:opacity-50">
+ {isSaving ? <Loader className="animate-spin" size={14} /> : 'Atualizar Ordens de Serviço'}
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+ )}
+
+{actionModal === 'bulkDateTags' && selProj && (
  <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/50 p-4">
  <div className="bg-white rounded-md w-full max-w-4xl max-h-[95vh] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl shrink-0">
@@ -1615,8 +1712,8 @@ export default function VisaoGeralProducaoPage() {
  <div className="p-6 overflow-auto bg-white flex-1 relative">
  {isSaving && <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-20 flex items-center justify-center"><Loader className="animate-spin text-indigo-600" size={42} /></div>}
  
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
- {filteredTagSectors.map(s => (
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" style={{ gridTemplateColumns: `repeat(${Math.min(filteredTagSectors.filter(s => (selProj as any)['flag'+s.k] === 1).length, 3)}, minmax(0, 1fr))` }}>
+                {filteredTagSectors.filter(s => (selProj as any)['flag'+s.k] === 1).map(s => (
  <div key={`bulk_${s.k}`} className="bg-slate-50 border border-slate-200 rounded-md p-4 shadow-sm">
  <div className="font-black text-slate-700 uppercase tracking-widest text-xs mb-4 pb-2 border-b border-slate-200 border-dashed flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${s.c}`}></div> Setor: {s.k}</div>
  <div className="flex flex-col gap-3">

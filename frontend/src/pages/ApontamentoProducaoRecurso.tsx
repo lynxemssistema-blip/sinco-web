@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
  Search, RefreshCw, Loader2, FileText, CheckCircle, Clock, X, ArrowLeft,
  Scissors, Wrench, Flame, Paintbrush, Settings2, Plus, History, AlertCircle, Filter, XCircle, Map,
- PenTool, Box, AlertTriangle, Calendar, Maximize2, Minimize2
+ PenTool, Box, AlertTriangle, Calendar, Maximize2, Minimize2, Zap
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -208,6 +208,29 @@ useEffect(() => {
     return { allowed: true };
   };
 
+  // Retorna o primeiro setor ativo na cascata de produção do item
+  const getFirstRecurso = (item: any): string => {
+    const cascade = ['corte', 'cortealaser', 'pulsionadeira', 'puncionadeira', 'usinagem', 'dobra', 'caldeiraria', 'serralheria', 'solda', 'galvanizar', 'pintura', 'acabamento', 'montagem'];
+    for (const s of cascade) {
+      let base = s;
+      if (s === 'cortealaser') base = 'CorteaLaser';
+      else if (s === 'corte') base = 'Corte';
+      else if (s === 'dobra') base = 'Dobra';
+      else if (s === 'solda') base = 'Solda';
+      else if (s === 'pintura') base = 'Pintura';
+      else if (s === 'montagem') base = 'Montagem';
+      const txtField = s === 'montagem' ? 'TxtMontagem' : `txt${base}`;
+      const txtFieldAlt = `txt${s.toLowerCase()}`;
+      const v1 = String(item[txtField] || '').trim();
+      const v2 = String(item[txtFieldAlt] || '').trim();
+      if (v1 === '1' || v2 === '1' || v1.toUpperCase() === 'S' || v2.toUpperCase() === 'S') {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+    }
+    return '-';
+  };
+
+
  const [showFilters, setShowFilters] = useState(true);
 
  // Modal
@@ -227,6 +250,11 @@ useEffect(() => {
  const [qtdeReposicao, setQtdeReposicao] = useState('');
  const [motivoReposicao, setMotivoReposicao] = useState('');
  const [submittingReposicao, setSubmittingReposicao] = useState(false);
+ const [parcialModalOpen, setParcialModalOpen] = useState(false);
+ const [parcialItem, setParcialItem] = useState<any>(null);
+ const [qtdeParcial, setQtdeParcial] = useState('');
+ const [submittingParcial, setSubmittingParcial] = useState(false);
+ const [parcialRecurso, setParcialRecurso] = useState('');
 
  // Pendencia Modal (Novo modelo RNC completo)
  const [pendenciaModalOpen, setPendenciaModalOpen] = useState(false);
@@ -620,7 +648,7 @@ useEffect(() => {
  setTimeout(() => {
  fetchItens();
  }, 300); // Small delay to ensure DB propagation and UI smoothness
- // addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento registrado com sucesso!' });
+  addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento registrado com sucesso!' });
  } else {
  addToast({
  type: 'error',
@@ -1406,27 +1434,32 @@ useEffect(() => {
  {/* Mapa Action Button (Apontar) */}
  <div className="w-16 shrink-0 flex justify-center">
  {(() => {
- const allDone = (!passaCorte || corteStatus.pct >= 100) &&
- (!passaDobra || dobraStatus.pct >= 100) &&
- (!passaSolda || soldaStatus.pct >= 100) &&
- (!passaPintura || pinturaStatus.pct >= 100) &&
- (!passaMontagem || montagemStatus.pct >= 100);
+  const allDone = (!passaCorte || corteStatus.pct >= 100) &&
+  (!passaDobra || dobraStatus.pct >= 100) &&
+  (!passaSolda || soldaStatus.pct >= 100) &&
+  (!passaPintura || pinturaStatus.pct >= 100) &&
+  (!passaMontagem || montagemStatus.pct >= 100);
+  const semSaldoMapa = (Number(item.QtdeTotal) || 0) <= 0;
 
- return allDone ? (
- <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
- <CheckCircle size={10} />
- OK
- </div>
- ) : (
- <button
- onClick={(e) => { e.stopPropagation(); setSetorAtivo('mapa'); openModal(item, 'mapa'); }}
- className={`w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-[#32423D] text-white text-[10px] font-bold hover:bg-[#32423D]/90 transition-all active:scale-95`}
- >
- <Plus size={10} />
- Apontar
- </button>
- );
- })()}
+  return allDone ? (
+  <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
+  <CheckCircle size={10} />
+  OK
+  </div>
+  ) : semSaldoMapa ? (
+  <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-gray-100 text-gray-400 text-[10px] font-bold border border-gray-200 cursor-not-allowed" title="Sem saldo a executar">
+  <span className="text-[8px]">S/S</span>
+  </div>
+  ) : (
+  <button
+  onClick={(e) => { e.stopPropagation(); setSetorAtivo('mapa'); openModal(item, 'mapa'); }}
+  className={`w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-[#32423D] text-white text-[10px] font-bold hover:bg-[#32423D]/90 transition-all active:scale-95`}
+  >
+  <Plus size={10} />
+  Apontar
+  </button>
+  );
+  })()}
  </div>
 
  <span className="w-10 shrink-0 text-center font-black text-[#32423D] text-[11px]">
@@ -1510,6 +1543,26 @@ useEffect(() => {
  </div>
 
  <div className="flex gap-0.5 border-l border-gray-200 pl-1">
+ {/* Apontamento Parcial */}
+ <button
+ onClick={(e) => {
+ e.stopPropagation();
+ if ((Number(item.QtdeTotal) || 0) <= 0) return;
+  setParcialItem(item);
+  setParcialRecurso(setorAtivo);
+  setQtdeParcial('');
+  setParcialModalOpen(true);
+  }}
+  disabled={(Number(item.QtdeTotal) || 0) <= 0}
+ className={`flex items-center justify-center w-6 h-6 rounded transition-colors border ${
+ (Number(item.QtdeTotal) || 0) <= 0
+ ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+ : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200'
+ }`}
+ title={(Number(item.QtdeTotal) || 0) <= 0 ? 'Sem saldo a executar' : 'Apontamento Parcial'}
+ >
+ <Zap size={12} />
+ </button>
  <button
  onClick={(e) => {
  e.stopPropagation();
@@ -1633,6 +1686,8 @@ useEffect(() => {
  <div className="w-16 shrink-0 flex justify-center">
  {(() => {
  const { allowed, predecessor } = checkPredecessorStatus(item, setorAtivo as Setor);
+ const semSaldo = qtdeTotal <= 0;
+ const bloqueado = !allowed || semSaldo;
  return concluido ? (
  <div className="w-full flex items-center justify-center gap-1 px-1 py-1 rounded bg-green-50 text-green-600 text-[10px] font-black border border-green-200">
  <CheckCircle size={10} />
@@ -1640,20 +1695,20 @@ useEffect(() => {
  </div>
  ) : (
  <button
- disabled={!allowed}
+ disabled={bloqueado}
  onClick={(e) => {
  e.stopPropagation();
- openModal(item, setorAtivo as Record<string, unknown>);
+ if (!bloqueado) openModal(item, setorAtivo as Record<string, unknown>);
  }}
  className={`w-full flex items-center justify-center gap-0.5 px-1 py-1 rounded text-[10px] font-bold transition-all shadow-sm ${
- !allowed 
- ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+ bloqueado
+ ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
  : `${setorInfo.color} text-white hover:opacity-90 active:scale-95`
  }`}
- title={!allowed ? `Aguardando setor ${predecessor}` : 'Apontar'}
+ title={semSaldo ? 'Sem saldo a executar' : !allowed ? `Aguardando setor ${predecessor}` : 'Apontar'}
  >
- {!allowed ? <Clock size={10} /> : <Plus size={10} />}
- {allowed ? 'Apontar' : 'Bloq.'}
+ {semSaldo ? <span className="text-[8px]">S/S</span> : !allowed ? <Clock size={10} /> : <Plus size={10} />}
+ {semSaldo ? 'S/S' : allowed ? 'Apontar' : 'Bloq.'}
  </button>
  );
  })()}
@@ -1735,6 +1790,26 @@ useEffect(() => {
  </div>
 
  <div className="flex gap-0.5 border-l border-gray-200 pl-1">
+ {/* Apontamento Parcial */}
+ <button
+ onClick={(e) => {
+ e.stopPropagation();
+ if ((Number(item.QtdeTotal) || 0) <= 0) return;
+  setParcialItem(item);
+  setParcialRecurso(setorAtivo);
+  setQtdeParcial('');
+  setParcialModalOpen(true);
+  }}
+ disabled={(Number(item.QtdeTotal) || 0) <= 0}
+ className={`flex items-center justify-center w-6 h-6 rounded transition-colors border ${
+ (Number(item.QtdeTotal) || 0) <= 0
+ ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'
+ : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200'
+ }`}
+ title={(Number(item.QtdeTotal) || 0) <= 0 ? 'Sem saldo a executar' : 'Apontamento Parcial'}
+ >
+ <Zap size={12} />
+ </button>
  <button
  onClick={(e) => {
  e.stopPropagation();
@@ -2411,7 +2486,57 @@ useEffect(() => {
  )}
  </AnimatePresence>
 
- {/* Modal de Gerar Pendência */}
+  {/* Modal de Apontamento Parcial (Excecao) */}
+  <AnimatePresence>
+  {parcialModalOpen && parcialItem && (
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
+  onClick={() => setParcialModalOpen(false)}>
+  <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+  className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+  <div className="bg-blue-600 px-4 py-3 text-white flex items-center justify-between">
+  <div className="flex items-center gap-2"><Zap size={20} />
+  <div><h2 className="font-bold text-sm">Apontamento Parcial</h2>
+  <p className="text-[10px] text-white/80">OS {parcialItem.IdOrdemServico} — Item #{parcialItem.IdOrdemServicoItem}</p></div></div>
+  <button onClick={() => setParcialModalOpen(false)} className="bg-white/20 hover:bg-white/30 p-1.5 rounded-lg transition-colors"><X size={14} /></button>
+  </div>
+  <div className="p-5 space-y-4">
+  <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs">
+  <p className="font-black text-[#32423D]">{parcialItem.CodMatFabricante || '-'}</p>
+  <p className="text-gray-600 mt-0.5 truncate">{parcialItem.DescResumo || '-'}</p>
+  <div className="mt-2 flex items-center gap-2">
+  <span className="bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[9px] font-bold uppercase">{parcialRecurso}</span>
+  <span className="text-gray-500 text-[10px]">Qt. Total: <strong>{parcialItem.QtdeTotal}</strong></span>
+  </div></div>
+  <div><label className="block text-xs font-bold text-gray-700 mb-1.5">Quantidade a Apontar</label>
+  <input type="number" min="1" max={parcialItem.QtdeTotal} value={qtdeParcial}
+  onChange={(e) => { let v = e.target.value; if (v !== '' && Number(v) > Number(parcialItem.QtdeTotal)) v = String(parcialItem.QtdeTotal); setQtdeParcial(v); }}
+  className="w-full px-3 py-2 text-2xl font-black text-center rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+  placeholder="0" autoFocus />
+  <div className="flex gap-2 mt-2">
+  <button onClick={() => setQtdeParcial(String(parcialItem.QtdeTotal))} className="flex-1 py-1.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Total ({parcialItem.QtdeTotal})</button>
+  <button onClick={() => setQtdeParcial('1')} className="flex-1 py-1.5 text-[10px] font-bold bg-gray-50 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">Unid (1)</button>
+  </div></div></div>
+  <div className="px-5 py-3 bg-gray-50 flex gap-2 border-t">
+  <button onClick={() => setParcialModalOpen(false)} className="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 font-medium text-sm">Cancelar</button>
+  <button disabled={submittingParcial || !qtdeParcial || parseInt(qtdeParcial) <= 0}
+  onClick={async () => {
+  if (!qtdeParcial || parseInt(qtdeParcial) <= 0) return;
+  setSubmittingParcial(true);
+  try {
+  const resp = await fetch(`${API_BASE}/apontamento-parcial`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ IdOrdemServicoItem: parcialItem.IdOrdemServicoItem, IdOrdemServico: parcialItem.IdOrdemServico, Processo: parcialRecurso, QtdeProduzida: parseInt(qtdeParcial), CriadoPor: (user as any)?.NomeCompleto || (user as any)?.name || 'Sistema' }) });
+  const json = await resp.json();
+  if (json.success) { setParcialModalOpen(false); setTimeout(() => { fetchItens(); }, 300); addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento parcial registrado!' }); }
+  else { addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao registrar' }); }
+  } catch { addToast({ type: 'error', title: 'Erro', message: 'Erro de conexao' }); } finally { setSubmittingParcial(false); }
+  }}
+  className={`flex-1 py-2 rounded-lg font-bold text-white flex items-center justify-center gap-2 text-sm transition-colors ${submittingParcial || !qtdeParcial || parseInt(qtdeParcial) <= 0 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-md'}`}>
+  {submittingParcial ? <><Loader2 size={14} className="animate-spin" /> Registrando...</> : <><Zap size={14} /> Confirmar Parcial</>}
+  </button></div>
+  </motion.div></motion.div>)}
+  </AnimatePresence>
+
+  {/* Modal de Gerar Pendência */}
  <AnimatePresence>
  {pendenciaModalOpen && selectedItem && (
  <motion.div

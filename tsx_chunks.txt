@@ -1,0 +1,38 @@
+
+
+
+"    const t = setTimeout(()=>fetchMateriaisManut(filtroManut), 300);\n    return()=>clearTimeout(t);\n  },[filtroManut, showModalManutencao, fetchMateriaisManut]);\n\n  const fetchMateriaisManut3 = useCallback(async (q: string) => {\n    setLoadingManut3(
+<truncated 507 bytes>
+
+
+
+
+--- NEXT CHUNK ---
+
+
+
+
+"                <div className=\"px-2 py-1 bg-blue-50/70 border-b border-blue-100 shrink-0 flex items-center justify-between\">\n                  <span className=\"text-xs font-bold text-blue-800 uppercase\">1. Selecione o Material</span>\n              
+<truncated 123 bytes>
+
+
+
+
+--- NEXT CHUNK ---
+
+
+
+
+"                <div className=\"px-3 py-2 bg-blue-50 border-b border-blue-100 shrink-0 flex items-center justify-between\">\n                  <span className=\"text-xs font-bold text-blue-800 uppercase\">1. Selecione o Material</span>\n                 
+<truncated 120 bytes>
+
+
+
+
+--- NEXT CHUNK ---
+
+
+
+
+"                <div className=\"px-2 py-1.5 border-b border-gray-100 shrink-0 relative flex gap-2\">\n                  <div className=\"relative flex-1\">\n                    <input value={filtroManutCod} onChange={e=>{\n                        const v
+<truncated 1993 bytes>

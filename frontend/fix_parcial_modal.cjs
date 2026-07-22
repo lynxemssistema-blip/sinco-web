@@ -1,0 +1,43 @@
+const fs = require('fs');
+let file = fs.readFileSync('c:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/ApontamentoProducaoRecurso.tsx', 'utf8');
+
+// ── 1. Add state declarations after reposicaoModalOpen states ──────────────────
+const stateAnchor = 'const [reposicaoModalOpen, setReposicaoModalOpen] = useState(false);\r\n  const [qtdeReposicao, setQtdeReposicao] = useState(\'\');\r\n  const [motivoReposicao, setMotivoReposicao] = useState(\'\');\r\n  const [submittingReposicao, setSubmittingReposicao] = useState(false);';
+
+const stateIdx = file.indexOf(stateAnchor);
+if (stateIdx >= 0) {
+  const newStates = `\r\n\r\n  // Parcial Exception Modal\r\n  const [parcialModalOpen, setParcialModalOpen] = useState(false);\r\n  const [parcialItem, setParcialItem] = useState<any>(null);\r\n  const [qtdeParcial, setQtdeParcial] = useState('');\r\n  const [submittingParcial, setSubmittingParcial] = useState(false);\r\n  const [parcialRecurso, setParcialRecurso] = useState('');`;
+  file = file.substring(0, stateIdx + stateAnchor.length) + newStates + file.substring(stateIdx + stateAnchor.length);
+  console.log('✅ States added');
+} else {
+  console.log('❌ State anchor not found');
+}
+
+// ── 2. Update the Zap button (list view) to open parcialModal ──────────────────
+const zapOld = `  {/* Apontamento Parcial */}\n  <button\n  onClick={(e) => {\n  e.stopPropagation();\n  if ((Number(item.QtdeTotal) || 0) <= 0) return;\n  setSelectedItem(item);\n  setModalSetor(setorAtivo);\n  setModalOpen(true);\n  setLoadingDetails(true);\n  setQtdeApontar('');\n  setConfirmingMapa(false);\n  fetch(\`\${API_BASE}/apontamento/item/\${item.IdOrdemServicoItem}/\${setorAtivo}\`)\n  .then(r => r.json())\n  .then(json => { if (json.success) setItemDetails(json.data); })\n  .catch(console.error)\n  .finally(() => setLoadingDetails(false));\n  }}\n  disabled={(Number(item.QtdeTotal) || 0) <= 0}\n  className={\`flex items-center justify-center w-6 h-6 rounded transition-colors border \${\n  (Number(item.QtdeTotal) || 0) <= 0\n  ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'\n  : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200'\n  }\`}\n  title={(Number(item.QtdeTotal) || 0) <= 0 ? 'Sem saldo a executar' : 'Apontamento Parcial'}\n  >\n  <Zap size={12} />\n  </button>`;
+
+const zapNew = `  {/* Apontamento Parcial */}\n  <button\n  onClick={(e) => {\n  e.stopPropagation();\n  const temSaldo = (Number(item.QtdeTotal) || 0) > 0;\n  if (!temSaldo) return;\n  setParcialItem(item);\n  setParcialRecurso(setorAtivo);\n  setQtdeParcial('');\n  setParcialModalOpen(true);\n  }}\n  disabled={(Number(item.QtdeTotal) || 0) <= 0}\n  className={\`flex items-center justify-center w-6 h-6 rounded transition-colors border \${\n  (Number(item.QtdeTotal) || 0) <= 0\n  ? 'bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed'\n  : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200'\n  }\`}\n  title={(Number(item.QtdeTotal) || 0) <= 0 ? 'Sem saldo a executar' : 'Apontamento Parcial'}\n  >\n  <Zap size={12} />\n  </button>`;
+
+// Find ALL occurrences of the old zap block and replace
+let count = 0;
+while (file.includes(zapOld)) {
+  file = file.replace(zapOld, zapNew);
+  count++;
+}
+console.log(`✅ Zap button updated (${count} occurrences)`);
+
+// ── 3. Add parcial modal JSX before </AnimatePresence> after reposicao modal ────
+const parcialModalAnchor = `  {/* Modal de Gerar Pendência */}\r\n  <AnimatePresence>`;
+const parcialModalIdx = file.indexOf(parcialModalAnchor);
+
+const parcialModal = `  {/* Modal de Apontamento Parcial (Exceção) */}\r\n  <AnimatePresence>\r\n  {parcialModalOpen && parcialItem && (\r\n  <motion.div\r\n  initial={{ opacity: 0 }}\r\n  animate={{ opacity: 1 }}\r\n  exit={{ opacity: 0 }}\r\n  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"\r\n  onClick={() => setParcialModalOpen(false)}\r\n  >\r\n  <motion.div\r\n  initial={{ scale: 0.9, opacity: 0, y: 20 }}\r\n  animate={{ scale: 1, opacity: 1, y: 0 }}\r\n  exit={{ scale: 0.9, opacity: 0, y: 20 }}\r\n  className="bg-white rounded-md shadow-2xl w-full max-w-sm overflow-hidden"\r\n  onClick={e => e.stopPropagation()}\r\n  >\r\n  {/* Header */}\r\n  <div className="bg-blue-600 px-4 py-2 text-white">\r\n  <div className="flex items-center justify-between">\r\n  <div className="flex items-center gap-2">\r\n  <Zap size={20} />\r\n  <div>\r\n  <h2 className="font-bold text-sm">Apontamento Parcial</h2>\r\n  <p className="text-[10px] text-white/80">OS {parcialItem.IdOrdemServico} — Item #{parcialItem.IdOrdemServicoItem}</p>\r\n  </div>\r\n  </div>\r\n  <button onClick={() => setParcialModalOpen(false)} className="bg-white/20 hover:bg-white/30 px-2 py-1 rounded text-white text-xs font-bold flex items-center gap-1 transition-colors">\r\n  <X size={12} /> Fechar\r\n  </button>\r\n  </div>\r\n  </div>\r\n  {/* Body */}\r\n  <div className="p-5 space-y-3">\r\n  <div className="bg-blue-50 border border-blue-100 rounded p-3 text-xs text-blue-800">\r\n  <p className="font-bold mb-0.5">{parcialItem.CodMatFabricante || '-'}</p>\r\n  <p className="text-gray-600 truncate">{parcialItem.DescResumo || '-'}</p>\r\n  <p className="mt-1 font-bold text-blue-700">Recurso: <span className="uppercase">{parcialRecurso}</span> | Qt. Total: {parcialItem.QtdeTotal}</p>\r\n  </div>\r\n  <div>\r\n  <label className="block text-xs font-bold text-gray-700 mb-1">Quantidade a Apontar</label>\r\n  <input\r\n  type="number"\r\n  min="1"\r\n  max={parcialItem.QtdeTotal}\r\n  value={qtdeParcial}\r\n  onChange={(e) => {\r\n  let v = e.target.value;\r\n  if (v !== '' && Number(v) > Number(parcialItem.QtdeTotal)) v = String(parcialItem.QtdeTotal);\r\n  setQtdeParcial(v);\r\n  }}\r\n  className="w-full px-3 py-2 text-xl font-black text-center rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"\r\n  placeholder="0"\r\n  autoFocus\r\n  />\r\n  <div className="flex gap-2 mt-2">\r\n  <button onClick={() => setQtdeParcial(String(parcialItem.QtdeTotal))} className="flex-1 py-1 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 transition-colors">Total ({parcialItem.QtdeTotal})</button>\r\n  <button onClick={() => setQtdeParcial('1')} className="flex-1 py-1 text-[10px] font-bold bg-gray-50 text-gray-600 border border-gray-200 rounded hover:bg-gray-100 transition-colors">Unid (1)</button>\r\n  </div>\r\n  </div>\r\n  </div>\r\n  {/* Footer */}\r\n  <div className="px-4 py-3 bg-gray-50 flex gap-2">\r\n  <button onClick={() => setParcialModalOpen(false)} className="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 font-medium text-sm">Cancelar</button>\r\n  <button\r\n  disabled={submittingParcial || !qtdeParcial || parseInt(qtdeParcial) <= 0}\r\n  onClick={async () => {\r\n  if (!qtdeParcial || parseInt(qtdeParcial) <= 0) return;\r\n  setSubmittingParcial(true);\r\n  try {\r\n  const resp = await fetch(\`\${API_BASE}/apontamento-parcial\`, {\r\n  method: 'POST',\r\n  headers: { 'Content-Type': 'application/json' },\r\n  body: JSON.stringify({\r\n  IdOrdemServicoItem: parcialItem.IdOrdemServicoItem,\r\n  IdOrdemServico: parcialItem.IdOrdemServico,\r\n  Processo: parcialRecurso,\r\n  QtdeProduzida: parseInt(qtdeParcial),\r\n  CriadoPor: user?.name || user?.NomeCompleto || 'Sistema'\r\n  })\r\n  });\r\n  const json = await resp.json();\r\n  if (json.success) {\r\n  addToast({ type: 'success', title: 'Sucesso', message: 'Apontamento parcial registrado!' });\r\n  setParcialModalOpen(false);\r\n  } else {\r\n  addToast({ type: 'error', title: 'Erro', message: json.message || 'Erro ao registrar' });\r\n  }\r\n  } catch { addToast({ type: 'error', title: 'Erro', message: 'Erro de conexão' }); }\r\n  finally { setSubmittingParcial(false); }\r\n  }}\r\n  className={\`flex-1 py-2 rounded-lg font-bold text-white flex items-center justify-center gap-2 text-sm transition-colors \${submittingParcial || !qtdeParcial || parseInt(qtdeParcial) <= 0 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-md'}\`}\r\n  >\r\n  {submittingParcial ? <><Loader2 size={14} className="animate-spin" /> Registrando...</> : <><Zap size={14} /> Confirmar Parcial</>}\r\n  </button>\r\n  </div>\r\n  </motion.div>\r\n  </motion.div>\r\n  )}\r\n  </AnimatePresence>\r\n\r\n  `;
+
+if (parcialModalIdx >= 0) {
+  file = file.substring(0, parcialModalIdx) + parcialModal + file.substring(parcialModalIdx);
+  console.log('✅ Parcial modal inserted');
+} else {
+  console.log('❌ Parcial modal anchor not found');
+}
+
+fs.writeFileSync('c:/SincoWeb/SINCO-WEB/SINCO-WEB/frontend/src/pages/ApontamentoProducaoRecurso.tsx', file);
+console.log('\n✅ File saved');

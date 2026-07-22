@@ -1453,6 +1453,39 @@ function OrdemServicoContent() {
     const renderOSDetail = (os: OrdemServico) => {
         const itens = ordensItens[os.IdOrdemServico] || [];
         const isLoadingItens = loadingItens.has(os.IdOrdemServico);
+
+        // ── Setores dinâmicos ─────────────────────────────────────────────
+        // Mapa completo de todos os setores possíveis (chave txt → meta)
+        const ALL_SETORES_MAP: Array<{
+            key: string;          // chave única (lowercase)
+            txtField: string;     // campo txt no item
+            label: string;        // label exibido
+            labelShort: string;   // label curto para header
+            percentField: string; // campo de percentual no item
+            planInicioOS: string; // campo planejado início na OS
+            planFimOS: string;    // campo planejado fim na OS
+            realInicioOS: string; // campo realizado início na OS
+            realFimOS: string;    // campo realizado fim na OS
+        }> = [
+            { key: 'corte',        txtField: 'txtCorte',        label: 'Corte',        labelShort: 'Corte',   percentField: 'CortePercentual',        planInicioOS: 'PlanejadoInicioCorte',        planFimOS: 'PlanejadoFinalCorte',        realInicioOS: 'RealizadoInicioCorte',        realFimOS: 'RealizadoFinalCorte'        },
+            { key: 'dobra',        txtField: 'txtDobra',        label: 'Dobra',        labelShort: 'Dobra',   percentField: 'DobraPercentual',        planInicioOS: 'PlanejadoInicioDobra',        planFimOS: 'PlanejadoFinalDobra',        realInicioOS: 'RealizadoInicioDobra',        realFimOS: 'RealizadoFinalDobra'        },
+            { key: 'solda',        txtField: 'txtSolda',        label: 'Solda',        labelShort: 'Solda',   percentField: 'SoldaPercentual',        planInicioOS: 'PlanejadoInicioSolda',        planFimOS: 'PlanejadoFinalSolda',        realInicioOS: 'RealizadoInicioSolda',        realFimOS: 'RealizadoFinalSolda'        },
+            { key: 'pintura',      txtField: 'txtPintura',      label: 'Pintura',      labelShort: 'Pint.',   percentField: 'PinturaPercentual',      planInicioOS: 'PlanejadoInicioPintura',      planFimOS: 'PlanejadoFinalPintura',      realInicioOS: 'RealizadoInicioPintura',      realFimOS: 'RealizadoFinalPintura'      },
+            { key: 'montagem',     txtField: 'TxtMontagem',     label: 'Montagem',     labelShort: 'Mont.',   percentField: 'MontagemPercentual',     planInicioOS: 'PlanejadoInicioMontagem',     planFimOS: 'PlanejadoFinalMontagem',     realInicioOS: 'RealizadoInicioMontagem',     realFimOS: 'RealizadoFinalMontagem'     },
+            { key: 'cortealasar',  txtField: 'txtCorteaLaser',  label: 'Corte Laser',  labelShort: 'Laser',   percentField: 'CorteaLaserPercentual',  planInicioOS: 'PlanejadoInicioCorteaLaser',  planFimOS: 'PlanejadoFinalCorteaLaser',  realInicioOS: 'RealizadoInicioCorteaLaser',  realFimOS: 'RealizadoFinalCorteaLaser'  },
+            { key: 'pulsionadeira',txtField: 'txtPULSIONADEIRA',label: 'Pulsionadeira',labelShort: 'Pulsi.',  percentField: 'PULSIONADEIRAPercentual',planInicioOS: 'PlanejadoInicioPULSIONADEIRA',planFimOS: 'PlanejadoFinalPULSIONADEIRA',realInicioOS: 'RealizadoInicioPULSIONADEIRA',realFimOS: 'RealizadoFinalPULSIONADEIRA'},
+            { key: 'galvanizar',   txtField: 'txtGALVANIZAR',   label: 'Galvanizar',   labelShort: 'Galv.',   percentField: 'GALVANIZARPercentual',   planInicioOS: 'PlanejadoInicioGALVANIZAR',   planFimOS: 'PlanejadoFinalGALVANIZAR',   realInicioOS: 'RealizadoInicioGALVANIZAR',   realFimOS: 'RealizadoFinalGALVANIZAR'   },
+        ];
+
+        // Derivar setores ativos: apenas os que têm txt='1' em pelo menos 1 item
+        const setoresAtivosOS = new Set<string>();
+        for (const s of ALL_SETORES_MAP) {
+            const ativo = itens.some(it => String((it as any)[s.txtField] ?? '') === '1');
+            if (ativo) setoresAtivosOS.add(s.key);
+        }
+        // Filtrar array para renderização (mantém ordem)
+        const setoresParaRender = ALL_SETORES_MAP.filter(s => setoresAtivosOS.has(s.key));
+        // ─────────────────────────────────────────────────────────────────
         return (
             
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-4">
@@ -1697,13 +1730,18 @@ function OrdemServicoContent() {
                                     Cronograma por Setor
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-                                    <SetorDatas nome="Engenharia" planejadoInicio={os.PlanejadoInicioENGENHARIA} planejadoFim={os.PlanejadoFinalENGENHARIA} realizadoInicio={os.RealizadoInicioENGENHARIA} realizadoFim={os.RealizadoFinalENGENHARIA} />
-                                    {visibleSetores.includes('corte') && <SetorDatas nome="Corte" planejadoInicio={os.PlanejadoInicioCorte} planejadoFim={os.PlanejadoFinalCorte} realizadoInicio={os.RealizadoInicioCorte} realizadoFim={os.RealizadoFinalCorte} />}
-                                    {visibleSetores.includes('dobra') && <SetorDatas nome="Dobra" planejadoInicio={os.PlanejadoInicioDobra} planejadoFim={os.PlanejadoFinalDobra} realizadoInicio={os.RealizadoInicioDobra} realizadoFim={os.RealizadoFinalDobra} />}
-                                    {visibleSetores.includes('solda') && <SetorDatas nome="Solda" planejadoInicio={os.PlanejadoInicioSolda} planejadoFim={os.PlanejadoFinalSolda} realizadoInicio={os.RealizadoInicioSolda} realizadoFim={os.RealizadoFinalSolda} />}
-                                    {visibleSetores.includes('pintura') && <SetorDatas nome="Pintura" planejadoInicio={os.PlanejadoInicioPintura} planejadoFim={os.PlanejadoFinalPintura} realizadoInicio={os.RealizadoInicioPintura} realizadoFim={os.RealizadoFinalPintura} />}
-                                    {visibleSetores.includes('montagem') && <SetorDatas nome="Montagem" planejadoInicio={os.PlanejadoInicioMontagem} planejadoFim={os.PlanejadoFinalMontagem} realizadoInicio={os.RealizadoInicioMontagem} realizadoFim={os.RealizadoFinalMontagem} />}
-                                    <SetorDatas nome="Acabamento" planejadoInicio={os.PlanejadoInicioACABAMENTO} planejadoFim={os.PlanejadoFinalACABAMENTO} realizadoInicio={os.RealizadoInicioACABAMENTO} realizadoFim={os.RealizadoFinalACABAMENTO} />
+                                    <SetorDatas nome="Engenharia" planejadoInicio={(os as any).PlanejadoInicioENGENHARIA} planejadoFim={(os as any).PlanejadoFinalENGENHARIA} realizadoInicio={(os as any).RealizadoInicioENGENHARIA} realizadoFim={(os as any).RealizadoFinalENGENHARIA} />
+                                    {setoresParaRender.map(s => (
+                                        <SetorDatas
+                                            key={s.key}
+                                            nome={s.label}
+                                            planejadoInicio={(os as any)[s.planInicioOS]}
+                                            planejadoFim={(os as any)[s.planFimOS]}
+                                            realizadoInicio={(os as any)[s.realInicioOS]}
+                                            realizadoFim={(os as any)[s.realFimOS]}
+                                        />
+                                    ))}
+                                    <SetorDatas nome="Acabamento" planejadoInicio={(os as any).PlanejadoInicioACABAMENTO} planejadoFim={(os as any).PlanejadoFinalACABAMENTO} realizadoInicio={(os as any).RealizadoInicioACABAMENTO} realizadoFim={(os as any).RealizadoFinalACABAMENTO} />
                                 </div>
                             </div>
 
@@ -1739,11 +1777,7 @@ function OrdemServicoContent() {
                                         <span className="flex-1">Descrição</span>
                                         <span className="w-12 text-center">Qtde</span>
                                         <span className="w-14 text-center">Peso</span>
-                                        {visibleSetores.includes('corte') && <span className="w-16 hidden lg:block text-center">Corte</span>}
-                                        {visibleSetores.includes('dobra') && <span className="w-16 hidden lg:block text-center">Dobra</span>}
-                                        {visibleSetores.includes('solda') && <span className="w-16 hidden lg:block text-center">Solda</span>}
-                                        {visibleSetores.includes('pintura') && <span className="w-16 hidden lg:block text-center">Pintura</span>}
-                                        {visibleSetores.includes('montagem') && <span className="w-16 hidden lg:block text-center">Mont.</span>}
+                                        {setoresParaRender.map(s => <span key={s.key} className="w-16 hidden lg:block text-center">{s.labelShort}</span>)}
                                         <span className="w-10 ml-auto mr-2"></span>
                                     </div>
 
@@ -1765,11 +1799,7 @@ function OrdemServicoContent() {
                                             {/* Peso Skeleton */}
                                             <div className="w-10 h-4 rounded bg-gray-100 mx-2" />
                                             {/* Progress Skeletons */}
-                                            {visibleSetores.includes('corte') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
-                                            {visibleSetores.includes('dobra') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
-                                            {visibleSetores.includes('solda') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
-                                            {visibleSetores.includes('pintura') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
-                                            {visibleSetores.includes('montagem') && <div className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />}
+                                            {setoresParaRender.map(s => <div key={s.key} className="w-12 h-1.5 rounded-full bg-gray-100 hidden lg:block mx-2" />)}
                                         </div>
                                     ))}
 
@@ -1819,11 +1849,7 @@ function OrdemServicoContent() {
                                             <span className="w-12 text-center" title="Fator Multiplicador">Fator</span>
                                             <span className="w-12 text-center">Qtde</span>
                                             <span className="w-14 text-center">Peso</span>
-                                            {visibleSetores.includes('corte') && <span className="w-16 hidden lg:block text-center">Corte</span>}
-                                            {visibleSetores.includes('dobra') && <span className="w-16 hidden lg:block text-center">Dobra</span>}
-                                            {visibleSetores.includes('solda') && <span className="w-16 hidden lg:block text-center">Solda</span>}
-                                            {visibleSetores.includes('pintura') && <span className="w-16 hidden lg:block text-center">Pintura</span>}
-                                            {visibleSetores.includes('montagem') && <span className="w-16 hidden lg:block text-center">Mont.</span>}
+                                            {setoresParaRender.map(s => <span key={s.key} className="w-16 hidden lg:block text-center">{s.labelShort}</span>)}
                                              {/* Spacers p/ alinhar botões RNC e Excluir */}
                                              <span className="w-8 shrink-0"></span>
                                              <span className="w-8 shrink-0 mr-2"></span>
@@ -1977,11 +2003,11 @@ function OrdemServicoContent() {
                                                 )}
                                                 <span className="w-12 text-xs text-gray-600 text-center">{item.QtdeTotal || '-'}</span>
                                                 <span className="w-14 text-xs text-gray-600 text-center">{item.Peso ? `${parseFloat(String(item.Peso)).toFixed(2)}kg` : '-'}</span>
-                                                {visibleSetores.includes('corte') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.CortePercentual} label="Corte" /></div>}
-                                                {visibleSetores.includes('dobra') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.DobraPercentual} label="Dobra" /></div>}
-                                                {visibleSetores.includes('solda') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.SoldaPercentual} label="Solda" /></div>}
-                                                {visibleSetores.includes('pintura') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.PinturaPercentual} label="Pintura" /></div>}
-                                                {visibleSetores.includes('montagem') && <div className="hidden lg:flex w-16 justify-center"><ProgressBar value={item.MontagemPercentual} label="Montagem" /></div>}
+                                                {setoresParaRender.map(s => (
+                                                    <div key={s.key} className="hidden lg:flex w-16 justify-center">
+                                                        <ProgressBar value={(item as any)[s.percentField]} label={s.label} />
+                                                    </div>
+                                                ))}
                                                 
                                                 {/* Botão Gerar Pendência (RNC) - sempre visível */}
                                                 <button

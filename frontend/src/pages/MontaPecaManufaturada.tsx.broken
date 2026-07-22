@@ -1,0 +1,771 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, Loader2, Trash2, Save, Package, PlusCircle, ChevronLeft, Wrench, ChevronRight, ChevronDown, X, Edit2, Clock, Check, Plus, RefreshCw, FileText } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
+const API = '/api/peca-manufaturada';
+
+interface Proc { seq:number; IdProcesso:number; nome:string; estMin:number|null; padMin:number|null; obs:string; }
+interface MatRow { 
+  IdMaterial:number; 
+  CodMatFabricante:string; 
+  DescResumo:string; 
+  Espessura:string|null; 
+  MaterialSW:string|null; 
+  EnderecoArquivo:string|null; 
+  TxtTipoDesenho:string|null; 
+  FamiliaMat:any; 
+  IdEmpresa:any; 
+  Peso:any; 
+  Valor:any; 
+  DescDetal?:string; 
+  PecaManufat?:string; 
+  AreaPintura?:any;
+  Unidade?:string;
+  Altura?:any;
+  Largura?:any;
+  Qtde?:any;
+  PecaQtde?:number;
+}
+
+const authHdr = () => ({ 'Authorization': `Bearer ${localStorage.getItem('sinco_token')}` });
+
+
+export default function MontaPecaManufaturadaPage({ usuario='Sistema' }:{usuario?:string}) {
+  const { user, token } = useAuth();
+  const idMatriz = (user as any)?.idMatriz||null;
+  const uCriacao = (user as any)?.nome||usuario;
+
+  // Grid 1: Pesquisa de Materiais
+  const [materiais1, setMateriais1] = useState<MatRow[]>([]);
+  const [loading1, setLoading1] = useState(false);
+  const [fCod1, setFCod1] = useState('');
+  const [fDesc1, setFDesc1] = useState('');
+  const [selMat1, setSelMat1] = useState<MatRow|null>(null);
+
+  // Grid 1 (Base): Composição da Peça Selecionada
+  const [comp2, setComp2] = useState<any[]>([]);
+  const [loading2, setLoading2] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+  const [subComps, setSubComps] = useState<Record<number, any[]>>({});
+  const [loadingSub, setLoadingSub] = useState<Record<number, boolean>>({});
+  
+  const [showDetails, setShowDetails] = useState(true);
+  const [compFiltroCod, setCompFiltroCod] = useState('');
+  const [compFiltroDesc, setCompFiltroDesc] = useState('');
+  const [editingQtdeId, setEditingQtdeId] = useState<number | null>(null);
+  const [editingQtdeVal, setEditingQtdeVal] = useState<string>('');
+  const [recursoInput, setRecursoInput] = useState('');
+
+  // Grid 2: Processos e Recursos
+  const [tipos, setTipos] = useState<any[]>([]);
+  const [staging, setStaging] = useState<Proc[]>([]);
+  const [loadingP, setLoadingP] = useState(false);
+  const [selId, setSelId] = useState<number|''>('');
+  const [procSearch, setProcSearch] = useState('');
+  const [procTableFiltro, setProcTableFiltro] = useState('');
+  const [seq, setSeq] = useState('');
+  const [estMinStr,setEstMinStr]=useState('');
+  const [padMinStr,setPadMinStr]=useState('');
+  const [ob,setOb]=useState('');
+  const [savingProc,setSavingProc]=useState(false);
+  const [lastAutoSeq,setLastAutoSeq]=useState<number>(0);
+  
+  // Grid 2 Inline Edição
+  const [editSq,setEditSq]=useState<number|null>(null);
+  const [inlineEstMin, setInlineEstMin] = useState('');
+  const [inlinePadMin, setInlinePadMin] = useState('');
+  const [inlineOb, setInlineOb] = useState('');
+  const [inlineSeq, setInlineSeq] = useState('');
+
+  // Grid 3: Inclusão de Novos Itens
+    const [materiais3, setMateriais3] = useState<MatRow[]>([]);
+  const [loading3, setLoading3] = useState(false);
+  const [fCod3, setFCod3] = useState('');
+  const [fDesc3, setFDesc3] = useState('');
+  const [selecionados3, setSelecionados3] = useState<Set<number>>(new Set());
+  const [quantidades3, setQuantidades3] = useState<Record<number, number>>({});
+  const [saving3, setSaving3] = useState(false);
+
+  const fmt = (v:any) => v != null ? String(v) : '-';
+  const fmtMin=(v:number|null)=>v==null?'-':v;
+
+  const abrirPdf = async (caminho: string) => {
+    if (!caminho || caminho.trim() === '') { alert('Endereço do arquivo não encontrado para este item.'); return; }
+    try {
+      const url = new URL(`${window.location.origin}/api/controle-expedicao/abrir-arquivo`);
+      url.searchParams.append('caminho', caminho);
+      url.searchParams.append('tipo', 'pdf');
+      const res = await fetch(url.toString(), { headers: authHdr() });
+      const data = await res.json();
+      if (!data.success) alert(data.message || 'Erro ao abrir PDF.');
+    } catch { alert('Erro de comunicação ao abrir PDF.'); }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+    fetch('/api/recursos', { headers: authHdr() })
+      .then(r => r.json())
+      .then(j => {
+        if (j.success) {
+          const mapped = j.data.map((d: any) => ({ ...d, ProcessoFabricacao: d.processofabricacao }));
+          setTipos(mapped);
+        }
+      });
+  }, [token]);
+
+  const fetchMateriais1 = useCallback(async (cod: string, desc: string) => {
+    if (!token) return;
+    setLoading1(true);
+    try {
+      let url = `${API}/materiais-criar?`;
+      if (cod) url += `cod=${encodeURIComponent(cod)}&`;
+      if (desc) url += `desc=${encodeURIComponent(desc)}&`;
+      
+      const r = await fetch(url, { headers: authHdr() });
+      const j = await r.json();
+      if (j.success) setMateriais1(j.data);
+    } finally {
+      setLoading1(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const t = setTimeout(() => fetchMateriais1(fCod1, fDesc1), 400);
+    return () => clearTimeout(t);
+  }, [fCod1, fDesc1, fetchMateriais1]);
+
+  const clearTotal1 = () => {
+    setFCod1('');
+    setFDesc1('');
+    setSelMat1(null);
+    setComp2([]);
+    setStaging([]);
+
+  };
+
+  const fetchComp2 = useCallback(async (idMat: number) => {
+    setLoading2(true);
+    try {
+      const r = await fetch(`${API}/composicao/${idMat}`, { headers: authHdr() });
+      const j = await r.json();
+      if (j.success) {
+        setComp2(j.data);
+      }
+    } finally {
+      setLoading2(false);
+    }
+  }, []);
+
+  const fetchProcs = useCallback(async (cod: string) => {
+    setLoadingP(true);
+    try { 
+      const r = await fetch(`${API}/processos-existentes/${encodeURIComponent(cod)}`, { headers: authHdr() }); 
+      const j = await r.json();
+      if (j.success) {
+        const mapped = j.data.map((p:any) => ({
+          seq: p.SequenciaExecucao, IdProcesso: p.IdProcesso, nome: p.NomeProcesso,
+          estMin: p.TempoEstimadoMin != null ? Number(p.TempoEstimadoMin) : null,
+          padMin: p.TempoPadraoMin != null ? Number(p.TempoPadraoMin) : null,
+          obs: p.Observacao || ''
+        }));
+        setStaging(mapped);
+        const maxSeq = mapped.length ? Math.max(...mapped.map((s:any) => s.seq)) : 0;
+        setLastAutoSeq(maxSeq);
+      }
+    } finally { 
+      setLoadingP(false); 
+    }
+  }, []);
+
+  const selectMat1 = async (m: MatRow) => {
+    setSelMat1(null);
+    try {
+      const r = await fetch(`/api/material/${m.IdMaterial}`, { headers: authHdr() });
+      const j = await r.json();
+      if (j.success) setSelMat1(j.data);
+      else setSelMat1(m);
+    } catch { 
+      setSelMat1(m); 
+    }
+    
+    setExpandedItems(new Set());
+    setSubComps({});
+    setSelecionados3(new Set());
+    setQuantidades3({});
+    setEditSq(null);
+
+    clearForm();
+
+    setCompFiltroCod('');
+    setCompFiltroDesc('');
+    setShowDetails(true);
+
+    fetchComp2(m.IdMaterial);
+    fetchProcs(m.CodMatFabricante);
+  };
+
+  const fetchSubComp = async (idMontaPeca: number, idMaterial: number) => {
+    if (expandedItems.has(idMontaPeca)) {
+      setExpandedItems(prev => { const n = new Set(prev); n.delete(idMontaPeca); return n; });
+      return;
+    }
+    setExpandedItems(prev => { const n = new Set(prev); n.add(idMontaPeca); return n; });
+    
+    if (subComps[idMontaPeca]) return; 
+
+    setLoadingSub(prev => ({ ...prev, [idMontaPeca]: true }));
+    try {
+      const r = await fetch(`${API}/composicao/${idMaterial}`, { headers: authHdr() });
+      const j = await r.json();
+      if (j.success) {
+        setSubComps(prev => ({ ...prev, [idMontaPeca]: j.data }));
+      }
+    } finally {
+      setLoadingSub(prev => ({ ...prev, [idMontaPeca]: false }));
+    }
+  };
+
+  const removeComp = async (idMontaPeca: number) => {
+    if (!confirm('Excluir item da composição?')) return;
+    try {
+      const r = await fetch(`${API}/composicao/${idMontaPeca}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...authHdr() },
+        body: JSON.stringify({ usuario: uCriacao, idMatriz })
+      });
+      const j = await r.json();
+      if (j.success) {
+        if (selMat1) fetchComp2(selMat1.IdMaterial);
+      } else {
+        alert(j.message || 'Erro ao remover item');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Erro de comunicação ao excluir item.');
+    }
+  };
+
+  const clearForm = () => { setSelId(''); setRecursoInput(''); setProcSearch(''); setSeq(''); setEstMinStr(''); setPadMinStr(''); setOb(''); };
+  const nextSeq = () => lastAutoSeq + 10;
+
+    const saveProcs = async (newStaging: Proc[]) => {
+    if(!selMat1) return;
+    setSavingProc(true);
+    try{
+      const body={ processos:newStaging.map(s=>({IdProcesso:s.IdProcesso,SequenciaExecucao:s.seq,TempoEstimadoMin:s.estMin,TempoPadraoMin:s.padMin,Observacao:s.obs})),
+        codmatFabricante:selMat1.CodMatFabricante, idMatriz, usuarioCriacao:uCriacao, replace:true };
+      const r=await fetch(`${API}/material-processo`,{method:'POST',headers:{...authHdr(), 'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const j=await r.json();
+      if(j.success) {
+        setStaging(newStaging);
+        fetchProcs(selMat1.CodMatFabricante);
+      }
+      else alert('Erro: '+j.message);
+    }finally{ setSavingProc(false); }
+  };
+
+  const handleAddProc = async () => {
+    if (!selId) return;
+    const tipo = tipos.find(t => t.IdProcessoFabricacao === selId);
+    const estMinV = estMinStr ? (parseInt(estMinStr) || null) : null;
+    const padMinV = padMinStr ? parseInt(padMinStr) : null;
+    if (padMinV == null) { alert('Tempo Padrão (min) obrigatório'); return; }
+    
+    const userTyped = seq.trim() !== '';
+    const seqN = userTyped ? (parseInt(seq) || nextSeq()) : nextSeq();
+
+    if (staging.some(s => s.IdProcesso === Number(selId))) { alert(`Recurso já cadastrado nesta peça`); return; }
+    if (staging.some(s => s.seq === seqN)) { alert(`Sequência ${seqN} já existe`); return; }
+    
+    if (!userTyped) setLastAutoSeq(seqN);
+    const updated = [...staging, { seq: seqN, IdProcesso: Number(selId), nome: tipo?.ProcessoFabricacao || '', estMin: estMinV, padMin: padMinV, obs: ob }].sort((a, b) => a.seq - b.seq);
+    await saveProcs(updated);
+    
+    clearForm();
+  };
+
+  const delProc = async (sq: number) => { 
+    if (!confirm(`Excluir processo da sequência ${sq}?`)) return; 
+    const updated = staging.filter(s => s.seq !== sq);
+    await saveProcs(updated); 
+  };
+
+  const startInlineEdit = (s: Proc) => {
+    setEditSq(s.seq);
+    setInlineEstMin(s.estMin != null ? String(s.estMin) : '');
+    setInlinePadMin(s.padMin != null ? String(s.padMin) : '');
+    setInlineOb(s.obs || '');
+    setInlineSeq(String(s.seq));
+  };
+
+  const saveInlineEdit = async () => {
+    if (editSq === null) return;
+    const estMinV = inlineEstMin ? (parseInt(inlineEstMin) || null) : null;
+    const padMinV = inlinePadMin ? parseInt(inlinePadMin) : null;
+    if (padMinV == null) { alert('Tempo Padrão (min) obrigatório'); return; }
+
+    const newSeq = parseInt(inlineSeq);
+    if (isNaN(newSeq) || newSeq <= 0) { alert('Sequência inválida'); return; }
+
+    let isValid = true;
+    if (newSeq !== editSq && staging.some(p => p.seq === newSeq)) {
+      isValid = false;
+    } else {
+      const updated = staging.map(s => s.seq === editSq ? { ...s, seq: newSeq, estMin: estMinV, padMin: padMinV, obs: inlineOb } : s).sort((a, b) => a.seq - b.seq);
+      await saveProcs(updated);
+    }
+
+    if (isValid) {
+      setEditSq(null);
+    } else {
+      alert('Já existe um processo com esta sequência. Por favor, escolha outra.');
+    }
+  };
+
+  const saveQtde = async (idMontaPeca: number, qtde: number) => {
+    try {
+      const r = await fetch(`${API}/composicao-qtde/${idMontaPeca}`, {
+        method: 'PATCH',
+        headers: { ...authHdr(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qtde })
+      });
+      const j = await r.json();
+      if (j.success && selMat1) {
+         fetchComp2(selMat1.IdMaterial);
+      } else {
+         alert('Erro ao atualizar quantidade: ' + (j.message || ''));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Erro de comunicação ao atualizar quantidade.');
+    }
+  };
+
+  // GRID 3 Logic
+  const fetchMateriais3 = useCallback(async (cod: string, desc: string) => {
+    setLoading3(true);
+    try {
+      let url = `${API}/materiais-criar?`;
+      if (cod) url += `cod=${encodeURIComponent(cod)}&`;
+      if (desc) url += `desc=${encodeURIComponent(desc)}&`;
+      
+      const r = await fetch(url, { headers: authHdr() });
+      const j = await r.json();
+      if (j.success) {
+         setMateriais3(j.data);
+      }
+    } finally {
+      setLoading3(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!selMat1) return;
+    const t = setTimeout(() => fetchMateriais3(fCod3, fDesc3), 400);
+    return () => clearTimeout(t);
+  }, [fCod3, fDesc3, selMat1, fetchMateriais3]);
+
+  // Filtrar do grid 3 os materiais que JÁ ESTÃO na composição (como filhos diretos ou como si mesmo)
+  const materiais3Filtrados = materiais3.filter(m => {
+    if (selMat1 && m.IdMaterial === selMat1.IdMaterial) return false;
+    if (comp2.some(c => c.IdMaterial === m.IdMaterial)) return false;
+    return true;
+  });
+
+  const toggleSel3 = (id: number) => {
+    setSelecionados3(prev => { 
+      const n = new Set(prev); 
+      if (n.has(id)) {
+        n.delete(id);
+      } else {
+        n.add(id);
+      }
+      return n; 
+    });
+  };
+
+  const handleSaveComp3 = async () => {
+    if (!selMat1 || selecionados3.size === 0) return;
+    setSaving3(true);
+    try {
+      const matsSel = materiais3Filtrados.filter(m => selecionados3.has(m.IdMaterial)).map(m => ({
+        ...m, 
+        PecaQtde: quantidades3[m.IdMaterial] !== undefined ? quantidades3[m.IdMaterial] : 1
+      }));
+      
+      const r = await fetch(`${API}/composicao-lote`, {
+        method: 'POST', 
+        headers: { ...authHdr(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          dezenho: { IdMaterial: selMat1.IdMaterial, CodMatFabricante: selMat1.CodMatFabricante }, 
+          materiais: matsSel, 
+          usuario: uCriacao, 
+          idMatriz 
+        })
+      });
+      
+      const j = await r.json();
+      if (j.success) {
+        alert(`Composição atualizada!`);
+        fetchComp2(selMat1.IdMaterial);
+        setSelecionados3(new Set());
+        setQuantidades3({});
+
+      } else { 
+        alert('Erro: ' + j.message); 
+      }
+    } finally { 
+      setSaving3(false); 
+    }
+  };
+
+  const renderRecursiveRows = (items: any[], level: number = 0) => {
+    return items.map(c => {
+      const isPeca = c.PecaManufat === 'S';
+      const isExpanded = expandedItems.has(c.IdMontaPeca);
+      const subs = subComps[c.IdMontaPeca] || [];
+      const isLoadingSub = loadingSub[c.IdMontaPeca];
+      
+      return (
+        <React.Fragment key={c.IdMontaPeca}>
+          <tr className={`hover:bg-blue-50/40 group transition-colors ${isExpanded ? 'bg-blue-50/80' : ''}`}>
+            <td className="p-1 px-1 text-center whitespace-nowrap">
+              <div className="flex items-center" style={{ marginLeft: `${level * 12}px` }}>
+                {isPeca ? (
+                  <button onClick={() => fetchSubComp(c.IdMontaPeca, c.IdMaterial)} className="p-0.5 text-blue-500 hover:text-blue-700 bg-white rounded shadow-sm border border-blue-200 mr-0.5" title={isExpanded ? "Recolher composição" : "Expandir composição"}>
+                    {isExpanded ? <ChevronDown size={11}/> : <ChevronRight size={11}/>}
+                  </button>
+                ) : <div className="w-[18px] mr-0.5 inline-block"></div>}
+                
+                {/* LIXEIRA APENAS PARA NÍVEL 1 (Level === 0 na recursão) */}
+                {level === 0 && (
+                  <button onClick={() => removeComp(c.IdMontaPeca)} className="p-0.5 text-red-400 hover:text-red-600 rounded bg-white border border-red-100 shadow-sm mr-0.5" title="Excluir item da estrutura">
+                    <Trash2 size={11}/>
+                  </button>
+                )}
+                {c.EnderecoArquivo && <button onClick={()=>abrirPdf(c.EnderecoArquivo)} className="p-0.5 text-red-400 hover:text-red-600 rounded" title="Abrir Desenho PDF"><FileText size={11}/></button>}
+              </div>
+            </td>
+            <td className="p-1 px-1.5 text-[10px] font-mono font-bold text-[#32423D] truncate max-w-[120px]" title={c.CodMatFabricante}>
+              <div className="flex items-center gap-1.5">
+                 <span className={`inline-flex px-1 py-0.5 rounded text-[8px] font-bold ${level === 0 ? 'bg-gray-100 text-gray-600' : level === 1 ? 'bg-blue-100 text-blue-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                   NV {level + 1}
+                 </span>
+                 {level > 0 && <span className="text-blue-400 font-bold">↳</span>}
+                 <span className={level > 0 ? 'text-blue-700' : ''}>{c.CodMatFabricante}</span>
+              </div>
+            </td>
+            <td className={`p-1 px-1.5 text-[9.5px] truncate max-w-[120px] ${level > 0 ? 'text-blue-600' : 'text-gray-600'}`} title={c.DescDetal}>
+              {c.DescDetal}
+              {isPeca && <span className="ml-1 text-[8px] text-emerald-600 font-bold uppercase bg-emerald-100 px-1 py-0.5 rounded">Peça</span>}
+            </td>
+            <td className="p-1 px-1.5 text-center">
+              {level === 0 ? (
+                 <input 
+                   type="number" 
+                   min="0" 
+                   step="0.01" 
+                   value={editingQtdeId === c.IdMontaPeca ? editingQtdeVal : (c.PecaQtde || 1)}
+                   onChange={(e) => {
+                      setEditingQtdeId(c.IdMontaPeca);
+                      setEditingQtdeVal(e.target.value);
+                   }}
+                   onBlur={() => {
+                      if (editingQtdeId === c.IdMontaPeca) {
+                         const val = Number(editingQtdeVal);
+                         if (!isNaN(val) && val !== c.PecaQtde) saveQtde(c.IdMontaPeca, val);
+                         setEditingQtdeId(null);
+                      }
+                   }}
+                   onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.currentTarget.blur();
+                   }}
+                   className="w-14 px-1 py-0.5 text-center text-[10px] font-bold font-mono border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm"
+                 />
+              ) : (
+                 <span className="text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</span>
+              )}
+            </td>
+          </tr>
+          
+          {isExpanded && isLoadingSub && (
+            <tr><td colSpan={4} className="text-center p-2 text-[9.5px] text-gray-400"><Loader2 size={12} className="animate-spin inline mr-1 text-blue-400"/> Carregando sub-nível...</td></tr>
+          )}
+          
+          {isExpanded && !isLoadingSub && subs.length > 0 && renderRecursiveRows(subs, level + 1)}
+          
+          {isExpanded && !isLoadingSub && subs.length === 0 && (
+            <tr><td colSpan={4} className="text-center p-2 text-[9px] text-orange-500 bg-orange-50/50">Esta peça não possui itens na sua composição.</td></tr>
+          )}
+        </React.Fragment>
+      );
+    });
+  };
+
+  const colsCls = "p-1.5 px-2 text-[9px] font-bold text-gray-500 uppercase tracking-wide";
+  const cellCls = "p-1.5 px-2 text-[10px] truncate";
+
+  return (
+    <div className="h-screen flex flex-col min-h-0 bg-gray-100 font-sans">
+      
+      {/* HEADER */}
+      <div className="bg-[#32423D] border-b border-[#25322e] px-4 py-2 shrink-0 flex items-center justify-between shadow-sm z-10 text-white">
+        <div>
+          <h1 className="text-sm font-bold flex items-center gap-2 tracking-wide uppercase">
+            <Package size={16} className="text-emerald-400" /> Peça Manufaturada
+          </h1>
+          <p className="text-[10px] text-gray-300 mt-0.5 uppercase tracking-widest">Gestão de Estrutura e Processos de Fabricação</p>
+        </div>
+      </div>
+
+      <div className="flex-1 flex min-h-0 divide-x divide-gray-200">
+        
+        {/* =========================================
+            GRID 1: PESQUISA, DETALHES E COMPOSIÇÃO 
+            ========================================= */}
+        <div className="flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[36%]">
+          
+          {/* TOPO: PESQUISA */}
+          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/30 border-b border-emerald-100 shrink-0">
+            <div className="px-3 py-2 border-b border-emerald-100/50 flex justify-between items-center">
+              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Search size={13} /> 1. Pesquisa de Material
+              </span>
+              <span className="text-[8.5px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">{materiais1.length} registros</span>
+            </div>
+            <div className="p-2 flex gap-1.5 relative items-center">
+              <div className="relative flex-1">
+                <input value={fCod1} onChange={e=>setFCod1(e.target.value)} placeholder="Código..." className="w-full px-2 pr-6 py-1 text-[10px] border border-gray-300 rounded focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"/>
+                {fCod1 && <button onClick={()=>setFCod1('')} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white rounded p-0.5 shadow-sm" title="Limpar Código"><X size={12}/></button>}
+              </div>
+              <div className="relative flex-1">
+                <input value={fDesc1} onChange={e=>setFDesc1(e.target.value)} placeholder="Descrição..." className="w-full px-2 pr-6 py-1 text-[10px] border border-gray-300 rounded focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"/>
+                {fDesc1 && <button onClick={()=>setFDesc1('')} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white rounded p-0.5 shadow-sm" title="Limpar Descrição"><X size={12}/></button>}
+              </div>
+              <button onClick={clearTotal1} className="shrink-0 px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 shadow-sm text-[10px] font-bold" title="Limpar Tudo (Filtro e Seleção)">Limpar</button>
+            </div>
+          </div>
+          <div className={`overflow-auto bg-gray-50/50 border-b border-gray-200 shadow-inner ${selMat1 ? 'h-40 shrink-0' : 'flex-1'}`}>
+            {loading1 ? (
+              <div className="flex justify-center p-4"><Loader2 className="animate-spin text-emerald-500" size={18}/></div>
+            ) : materiais1.length === 0 ? (
+              <div className="p-4 text-center text-[10px] text-gray-400">Digite um filtro para buscar materiais</div>
+            ) : (
+              <table className="w-full text-left">
+                <thead className="bg-white sticky top-0 z-10 shadow-sm">
+                  <tr>
+                    <th className={colsCls}>Código</th>
+                    <th className={colsCls}>Descrição</th>
+                    <th className={`${colsCls} text-center`}>Peça Manuf.</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {(selMat1 ? [selMat1] : materiais1).map(m => (
+                    <tr key={m.IdMaterial} onClick={() => selectMat1(m)}
+                      className={`cursor-pointer transition-all ${selMat1?.IdMaterial === m.IdMaterial ? 'bg-emerald-100/70 border-l-[3px] border-emerald-500 shadow-sm' : 'hover:bg-gray-100 border-l-[3px] border-transparent'}`}>
+                      <td className={`${cellCls} font-bold text-[#32423D] max-w-[80px] flex items-center gap-1`} title={m.CodMatFabricante}>
+                        {m.EnderecoArquivo && (
+                          <button onClick={(e) => { e.stopPropagation(); abrirPdf(m.EnderecoArquivo!); }} className="p-0.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded border border-red-100 shadow-sm transition-colors" title="Abrir PDF">
+                            <FileText size={10}/>
+                          </button>
+                        )}
+                        <span className="truncate">{m.CodMatFabricante}</span>
+                      </td>
+                      <td className={`${cellCls} text-gray-600 max-w-[130px]`} title={m.DescResumo || m.DescDetal}>{m.DescResumo || m.DescDetal || '-'}</td>
+                      <td className={`${cellCls} text-center font-bold text-gray-700`}>
+                        {m.PecaManufat === 'S' ? 'S' : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* CENTRO E BASE: SÓ EXIBE SE HOUVER ITEM SELECIONADO */}
+          {selMat1 && (
+            <>
+              {/* DETALHES DO ITEM SELECIONADO */}
+              <div className="bg-[#32423D]/[0.02] border-b border-gray-200 p-3 shrink-0 relative shadow-sm">
+                 <div className="text-[9.5px] font-bold text-[#32423D] uppercase tracking-wider mb-2 flex items-center justify-between border-b border-gray-200 pb-1">
+                   <span className="flex items-center gap-1.5"><Package size={12} className="text-emerald-600"/> {selMat1.CodMatFabricante}</span>
+                   <button onClick={() => setShowDetails(!showDetails)} className="p-0.5 text-gray-400 hover:text-gray-600 bg-white rounded shadow-sm border border-gray-200" title={showDetails ? 'Ocultar detalhes' : 'Mostrar detalhes'}>
+                     {showDetails ? <ChevronDown size={12}/> : <ChevronRight size={12}/>}
+                   </button>
+                 </div>
+                 {showDetails && (
+                   <div className="grid grid-cols-4 gap-x-2 gap-y-2.5">
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Espessura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Espessura)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Área Pint.</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.AreaPintura)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Peso</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Peso)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Unidade</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Unidade)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Altura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Altura)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Largura</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Largura)}</div></div>
+                     <div><div className="text-[8px] text-gray-400 uppercase font-bold tracking-wide">Qtde</div><div className="text-[10px] font-bold text-gray-800">{fmt(selMat1.Qtde)}</div></div>
+                   </div>
+                 )}
+              </div>
+
+              {/* BASE: COMPOSIÇÃO */}
+              <div className="flex-1 flex flex-col min-h-0 bg-white relative">
+                <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 shrink-0 flex justify-between items-center z-10 shadow-sm">
+                  <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Wrench size={12} /> Composição do Material
+                  </span>
+                  <div className="flex gap-1.5 items-center">
+                    <input value={compFiltroCod} onChange={e=>setCompFiltroCod(e.target.value)} placeholder="Filtro Cód..." className="w-24 px-2 py-0.5 text-[9px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm" />
+                    <input value={compFiltroDesc} onChange={e=>setCompFiltroDesc(e.target.value)} placeholder="Filtro Desc..." className="w-24 px-2 py-0.5 text-[9px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 shadow-sm" />
+                    <span className="text-[8.5px] font-bold text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded">{comp2.length} itens raízes</span>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-auto">
+                  {loading2 ? (
+                    <div className="flex justify-center p-6"><Loader2 className="animate-spin text-blue-500" size={18}/></div>
+                  ) : comp2.length === 0 ? (
+                    <div className="p-4 text-center text-[10px] text-orange-500 bg-orange-50/60 m-3 rounded-lg border border-orange-100/80">
+                      Material sem componentes cadastrados.
+                    </div>
+                  ) : (
+                    <table className="w-full text-left">
+                  <thead className="bg-white sticky top-0 z-10 shadow-sm border-b border-gray-200">
+                    <tr>
+                      <th className="p-1 px-1.5 w-12"></th>
+                      <th className={colsCls}>Código</th>
+                      <th className={colsCls}>Descrição</th>
+                      <th className={`${colsCls} text-center w-16`}>QTD</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {renderRecursiveRows(comp2.filter(c => (!compFiltroCod || c.CodMatFabricante.toLowerCase().includes(compFiltroCod.toLowerCase())) && (!compFiltroDesc || (c.DescDetal && c.DescDetal.toLowerCase().includes(compFiltroDesc.toLowerCase())))), 0)}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+          </>
+          )}
+        </div>
+
+        {/* =========================================
+            GRID 2: RECURSOS
+            ========================================= */}
+        <div className={`flex flex-col min-h-0 bg-white shadow-sm flex-1 max-w-[33%]`}>
+          {/* BASE: TABELA DE PROCESSOS */}
+          <div className="flex-1 overflow-auto bg-gray-50/30">
+            {loadingP ? (
+              <div className="flex justify-center p-6"><Loader2 className="animate-spin text-teal-500" size={18}/></div>
+            ) : !selMat1 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-300 p-4 text-center">
+                 <span className="text-[10px] font-medium">Aguardando seleção...</span>
+              </div>
+            ) : staging.length === 0 ? (
+              <div className="p-4 text-center text-[10px] text-gray-400">Nenhum processo cadastrado para este material</div>
+            ) : (
+              <table className="w-full text-left">
+                <thead className="bg-white sticky top-0 shadow-sm z-10 border-b border-gray-200">
+                  <tr>
+                    <th className="p-1.5 px-2 text-[9px] font-bold text-gray-500 uppercase tracking-wide w-8">Seq</th>
+                    <th className={colsCls}>Recurso</th>
+                    <th className={`${colsCls} text-center w-14`}>Setup (m)</th>
+                    <th className={`${colsCls} text-center w-14`}>Padrão (m)</th>
+                    <th className={colsCls}>Obs.</th>
+                    <th className="p-1.5 px-2 w-14"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {staging.filter(s => !procTableFiltro || s.nome.toLowerCase().includes(procTableFiltro.toLowerCase())).map(s => (
+                    <tr key={s.seq} className={`hover:bg-teal-50/40 transition-colors ${editSq === s.seq ? 'bg-amber-50' : ''}`}>
+                      <td className="p-1.5 px-2 text-center">
+                        {editSq === s.seq ? (
+                          <input type="number" min="1" value={inlineSeq} onChange={e=>setInlineSeq(e.target.value)} className="w-10 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+                        ) : (
+                          <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-teal-100 text-teal-800 text-[8.5px] font-bold border border-teal-200 shadow-sm">{s.seq}</span>
+                        )}
+                      </td>
+                      <td className={`${cellCls} font-semibold text-[#32423D]`}>{s.nome}</td>
+                      <td className="p-1.5 px-2 text-center">
+                        {editSq === s.seq ? (
+                          <input type="number" min="0" value={inlineEstMin} onChange={e=>setInlineEstMin(e.target.value)} className="w-12 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+                        ) : (
+                          <span className="text-[10px] text-gray-600 font-mono">{fmtMin(s.estMin)}</span>
+                        )}
+                      </td>
+                      <td className="p-1.5 px-2 text-center">
+                        {editSq === s.seq ? (
+                          <input type="number" min="0" value={inlinePadMin} onChange={e=>setInlinePadMin(e.target.value)} className="w-12 px-1 py-0.5 text-[10px] font-mono border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white text-center shadow-inner" />
+                        ) : (
+                          <span className="text-[10px] text-gray-600 font-mono font-bold">{fmtMin(s.padMin)}</span>
+                        )}
+                      </td>
+                      <td className="p-1.5 px-2">
+                        {editSq === s.seq ? (
+                          <input value={inlineOb} onChange={e=>setInlineOb(e.target.value)} className="w-full px-1.5 py-0.5 text-[10px] border border-amber-300 rounded focus:outline-none focus:border-amber-500 bg-white shadow-inner" />
+                        ) : (
+                          <span className="text-[10px] text-gray-500 truncate max-w-[100px] block" title={s.obs||''}>{s.obs||'-'}</span>
+                        )}
+                      </td>
+                      <td className="p-1.5 px-1 text-right whitespace-nowrap">
+                        {editSq === s.seq ? (
+                           <button onClick={saveInlineEdit} className="p-0.5 text-emerald-600 hover:text-emerald-700 bg-emerald-50 rounded border border-emerald-200 mr-1 shadow-sm" title="Confirmar alteração"><Check size={11}/></button>
+                        ) : (
+                           <button onClick={()=>startInlineEdit(s)} className="p-0.5 text-blue-500 hover:text-blue-700 bg-blue-50 rounded border border-blue-200 mr-1 shadow-sm" title="Editar diretamente na linha"><Edit2 size={11}/></button>
+                        )}
+                        <button onClick={()=>delProc(s.seq)} disabled={editSq === s.seq} className="p-0.5 text-red-400 hover:text-red-600 bg-red-50 rounded border border-red-200 shadow-sm disabled:opacity-30" title="Excluir"><Trash2 size={11}/></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          
+        </div>
+
+        {/* =========================================
+            GRID 3: INCLUSÃO DE NOVOS MATERIAIS
+            ========================================= */}
+        
+                    <tr>
+                      <th className="p-1 px-2 w-8 text-center">
+                        <div className="w-3 h-3 border border-gray-300 rounded-sm mx-auto bg-gray-50" title="Selecione individualmente"></div>
+                      </th>
+                      <th className={colsCls}>Código</th>
+                      <th className={colsCls}>Descrição</th>
+                      <th className={`${colsCls} text-center w-16`}>Qtde</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {materiais3Filtrados.map(m => (
+                      <tr key={m.IdMaterial} onClick={() => toggleSel3(m.IdMaterial)}
+                        className={`cursor-pointer transition-colors ${selecionados3.has(m.IdMaterial) ? 'bg-indigo-50/80 border-l-[3px] border-indigo-500' : 'hover:bg-gray-50 border-l-[3px] border-transparent'}`}>
+                        <td className="p-1.5 px-2 text-center" onClick={e=>e.stopPropagation()}>
+                          <input type="checkbox" checked={selecionados3.has(m.IdMaterial)} onChange={() => toggleSel3(m.IdMaterial)} className="accent-indigo-600 w-3.5 h-3.5 cursor-pointer"/>
+                        </td>
+                        <td className={`${cellCls} font-bold text-[#32423D] max-w-[80px]`} title={m.CodMatFabricante}>{m.CodMatFabricante}</td>
+                        <td className={`${cellCls} text-gray-600 max-w-[120px]`} title={m.DescResumo || m.DescDetal}>{m.DescResumo || m.DescDetal || '-'}</td>
+                        <td className="p-1.5 px-2 text-center" onClick={e=>e.stopPropagation()}>
+                          {selecionados3.has(m.IdMaterial) ? (
+                            <input type="number" min="0.01" step="0.01" 
+                              value={quantidades3[m.IdMaterial] !== undefined ? quantidades3[m.IdMaterial] : 1}
+                              onChange={(e) => {
+                                const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                setQuantidades3(q => ({...q, [m.IdMaterial]: val}));
+                              }}
+                              className="w-12 px-1 py-0.5 text-[10px] font-bold text-center border-2 border-indigo-200 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white shadow-inner"
+                            />
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+      </div>
+    </div>
+  );
+}
