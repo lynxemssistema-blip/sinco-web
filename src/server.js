@@ -5848,87 +5848,246 @@ app.put('/api/visao-geral/tag/:idTag/setor-data', async (req, res) => {
     }
 });
 
-// Propagar datas de planejamento da TAG → OS e OSItens respeitando txt{Recurso}='1'
+// Propag// Propagar datas de planejamento e usuário da TAG → OS e OSItens respeitando txt{Recurso}='1'
 app.post('/api/visao-geral/tag/:idTag/propagar-datas-os', async (req, res) => {
     try {
         const { idTag } = req.params;
-        const { setores } = req.body;
-        // setores = [{ sectorName, piField, pfField, piValue, pfValue }]
+        const { setores, usuario } = req.body;
+        const userName = usuario || 'SuperAdmin';
 
         if (!setores || !setores.length) {
             return res.status(400).json({ success: false, message: 'Nenhum setor informado.' });
         }
 
         const sectorFlagMap = {
-                  "Corte": "txtCorte",
-                  "Dobra": "txtDobra",
-                  "Solda": "txtSolda",
-                  "Pintura": "txtPintura",
-                  "Montagem": "TxtMontagem",
-                  "CorteaLaser": "txtCorteaLaser",
-                  "PULSIONADEIRA": "txtPULSIONADEIRA", "GALVANIZAR": "txtGALVANIZAR", "Pulsionadeira": "txtPULSIONADEIRA", "Galvanizar": "txtGALVANIZAR"
-        };
-
-        const toDbVal = (field, value) => {
-            if (!value || value.trim() === '') return null;
-            return value;
+            "Corte": "txtCORTE",
+            "Dobra": "txtDobra",
+            "Solda": "txtSolda",
+            "Pintura": "txtPintura",
+            "Montagem": "TxtMontagem",
+            "CorteaLaser": "txtCorteaLaser",
+            "PULSIONADEIRA": "txtPULSIONADEIRA",
+            "GALVANIZAR": "txtGALVANIZAR",
+            "Laser": "txtCorteaLaser",
+            "Pulsionadeira": "txtPULSIONADEIRA",
+            "Galvanizar": "txtGALVANIZAR"
         };
 
         const queryPool = req.tenantDbPool || pool;
+
+        // Fetch column lists for dynamic column checking
+        const [colsTag] = await queryPool.execute('SHOW COLUMNS FROM tags');
+        const tagColNames = colsTag.map(c => c.Field);
+
+        const [colsOS] = await queryPool.execute('SHOW COLUMNS FROM ordemservico');
+        const osColNames = colsOS.map(c => c.Field);
+
+        const [colsOSI] = await queryPool.execute('SHOW COLUMNS FROM ordemservicoitem');
+        const osiColNames = colsOSI.map(c => c.Field);
+
         let totalUpdated = 0;
 
         for (const s of setores) {
-            const { sectorName, piField, pfField, piValue, pfValue } = s;
+            const { sectorName, piValue, pfValue } = s;
             const txtFlag = sectorFlagMap[sectorName];
             if (!txtFlag) continue;
 
-            const piDb = toDbVal(piField, piValue);
-            const pfDb = toDbVal(pfField, pfValue);
+            const nameKey = (sectorName === 'Laser' ? 'CorteaLaser' : sectorName === 'Pulsionadeira' ? 'PULSIONADEIRA' : sectorName === 'Galvanizar' ? 'GALVANIZAR' : sectorName);
 
-            // Campos a atualizar nas OS e OSItens
-            const setClauses = [];
-            const params = [];
+            const piField = `PlanejadoInicio${nameKey}`;
+            const pfField = `PlanejadoFinal${nameKey}`;
+            const upiField = `UsuarioPlanejadoInicio${nameKey}`;
+            const upfField = `UsuarioPlanejadoFinal${nameKey}`;
 
-            if (piDb !== undefined && piField) {
-                setClauses.push(`${piField} = ?`);
-                params.push(piDb);
+            const piDb = (piValue && piValue.trim() !== '') ? piValue : null;
+            const pfDb = (pfValue && pfValue.trim() !== '') ? pfValue : null;
+
+            // 1. Update TAG (incluindo txtFlag = '1')
+            const tagSetClauses = [`${piField} = COALESCE(?, ${piField})`, `${pfField} = COALESCE(?, ${pfField})`];
+            const tagParams = [piDb, pfDb];
+
+            // Encontrar nome exato da coluna flag na tag (ex: txtCORTE vs txtCorte)
+            const exactTagTxtFlag = tagColNames.find(c => c.toLowerCase() === txtFlag.toLowerCase());
+            if (exactTagTxtFlag) {
+                tagSetClauses.push(`${exactTagTxtFlag} = '1'`);
             }
-            if (pfDb !== undefined && pfField) {
-                setClauses.push(`${pfField} = ?`);
-                params.push(pfDb);
+
+            if (tagColNames.includes(upiField)) {
+                tagSetClauses.push(`${upiField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upiField} END`);
+                tagParams.push(piDb, userName);
+            }
+            if (tagColNames.includes(upfField)) {
+                tagSetClauses.push(`${upfField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upfField} END`);
+                tagParams.push(pfDb, userName);
             }
 
-            if (!setClauses.length) continue;
-
-            // Atualizar ordemservico (OS nesta tag)
             await queryPool.execute(
-                `UPDATE ordemservico SET ${setClauses.join(', ')} WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
-                [...params, idTag]
+                `UPDATE tags SET ${tagSetClauses.join(', ')} WHERE IdTag = ? AND (Finalizado IS NULL OR Finalizado != 'C')`,
+                [...tagParams, idTag]
             );
 
-            // Atualizar ordemservicoitem somente onde txt{Recurso}='1'
+            // 2. Update ordemservico (incluindo txtFlag = '1')
+            const osSetClauses = [`${piField} = COALESCE(?, ${piField})`, `${pfField} = COALESCE(?, ${pfField})`];
+            const osParams = [piDb, pfDb];
+
+            const exactOsTxtFlag = osColNames.find(c => c.toLowerCase() === txtFlag.toLowerCase());
+            if (exactOsTxtFlag) {
+                osSetClauses.push(`${exactOsTxtFlag} = '1'`);
+            }
+
+            if (osColNames.includes(upiField)) {
+                osSetClauses.push(`${upiField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upiField} END`);
+                osParams.push(piDb, userName);
+            }
+            if (osColNames.includes(upfField)) {
+                osSetClauses.push(`${upfField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upfField} END`);
+                osParams.push(pfDb, userName);
+            }
+
+            await queryPool.execute(
+                `UPDATE ordemservico SET ${osSetClauses.join(', ')} WHERE IdTag = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
+                [...osParams, idTag]
+            );
+
+            // 3. Update ordemservicoitem
+            const osiSetClauses = [`osi.${piField} = COALESCE(?, osi.${piField})`, `osi.${pfField} = COALESCE(?, osi.${pfField})`];
+            const osiParams = [piDb, pfDb];
+            if (osiColNames.includes(upiField)) {
+                osiSetClauses.push(`osi.${upiField} = CASE WHEN ? IS NOT NULL THEN ? ELSE osi.${upiField} END`);
+                osiParams.push(piDb, userName);
+            }
+            if (osiColNames.includes(upfField)) {
+                osiSetClauses.push(`osi.${upfField} = CASE WHEN ? IS NOT NULL THEN ? ELSE osi.${upfField} END`);
+                osiParams.push(pfDb, userName);
+            }
+
+            const exactOsiTxtFlag = osiColNames.find(c => c.toLowerCase() === txtFlag.toLowerCase()) || txtFlag;
+
             const [result] = await queryPool.execute(
                 `UPDATE ordemservicoitem osi
-                  INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
-                  SET ${setClauses.map(c => 'osi.' + c).join(', ')}
-                  WHERE os.IdTag = ?
-                    AND osi.${txtFlag} = '1'
-                    AND (osi.OrdemServicoItemFinalizado IS NULL OR osi.OrdemServicoItemFinalizado != 'C')`,
-                [...params, idTag]
+                 INNER JOIN ordemservico os ON osi.IdOrdemServico = os.IdOrdemServico
+                 SET ${osiSetClauses.join(', ')}
+                 WHERE os.IdTag = ?
+                   AND osi.${exactOsiTxtFlag} = '1'
+                   AND (osi.OrdemServicoItemFinalizado IS NULL OR osi.OrdemServicoItemFinalizado != 'C')`,
+                [...osiParams, idTag]
             );
 
             totalUpdated += result.affectedRows || 0;
-            console.log(`[PropDatas] Setor ${sectorName}: ${result.affectedRows} itens atualizados`);
         }
 
-        res.json({ success: true, message: `Datas propagadas para OS: ${totalUpdated} itens atualizados.` });
+        res.json({ success: true, message: `Datas, flags e usuário (${userName}) gravados na Tag, OSs e ${totalUpdated} itens com sucesso!` });
     } catch (error) {
-        console.error('Error propagating dates to OS:', error);
-        res.status(500).json({ success: false, message: 'Erro ao propagar datas: ' + error.message });
+        console.error('Error in propagar-datas-os:', error);
+        res.status(500).json({ success: false, message: 'Erro ao gravar planejamento: ' + error.message });
     }
 });
 
-// POST: Finalizar Projeto em cascata (projetos Ã¢â€ â€™ tags Ã¢â€ â€™ OS Ã¢â€ â€™ OS itens)
+// Propagar datas de planejamento e usuário de uma OS específica para seus itens
+app.post('/api/visao-geral/os/:idOs/propagar-datas', async (req, res) => {
+    try {
+        const { idOs } = req.params;
+        const { setores, usuario } = req.body;
+        const userName = usuario || 'SuperAdmin';
+
+        if (!setores || !setores.length) {
+            return res.status(400).json({ success: false, message: 'Nenhum setor informado.' });
+        }
+
+        const sectorFlagMap = {
+            "Corte": "txtCORTE",
+            "Dobra": "txtDobra",
+            "Solda": "txtSolda",
+            "Pintura": "txtPintura",
+            "Montagem": "TxtMontagem",
+            "CorteaLaser": "txtCorteaLaser",
+            "PULSIONADEIRA": "txtPULSIONADEIRA",
+            "GALVANIZAR": "txtGALVANIZAR",
+            "Laser": "txtCorteaLaser",
+            "Pulsionadeira": "txtPULSIONADEIRA",
+            "Galvanizar": "txtGALVANIZAR"
+        };
+
+        const queryPool = req.tenantDbPool || pool;
+
+        const [colsOS] = await queryPool.execute('SHOW COLUMNS FROM ordemservico');
+        const osColNames = colsOS.map(c => c.Field);
+
+        const [colsOSI] = await queryPool.execute('SHOW COLUMNS FROM ordemservicoitem');
+        const osiColNames = colsOSI.map(c => c.Field);
+
+        let totalUpdated = 0;
+
+        for (const s of setores) {
+            const { sectorName, piValue, pfValue } = s;
+            const txtFlag = sectorFlagMap[sectorName];
+            if (!txtFlag) continue;
+
+            const nameKey = (sectorName === 'Laser' ? 'CorteaLaser' : sectorName === 'Pulsionadeira' ? 'PULSIONADEIRA' : sectorName === 'Galvanizar' ? 'GALVANIZAR' : sectorName);
+
+            const piField = `PlanejadoInicio${nameKey}`;
+            const pfField = `PlanejadoFinal${nameKey}`;
+            const upiField = `UsuarioPlanejadoInicio${nameKey}`;
+            const upfField = `UsuarioPlanejadoFinal${nameKey}`;
+
+            const piDb = (piValue && piValue.trim() !== '') ? piValue : null;
+            const pfDb = (pfValue && pfValue.trim() !== '') ? pfValue : null;
+
+            // 1. Update ordemservico (incluindo txtFlag = '1')
+            const osSetClauses = [`${piField} = COALESCE(?, ${piField})`, `${pfField} = COALESCE(?, ${pfField})`];
+            const osParams = [piDb, pfDb];
+
+            const exactOsTxtFlag = osColNames.find(c => c.toLowerCase() === txtFlag.toLowerCase());
+            if (exactOsTxtFlag) {
+                osSetClauses.push(`${exactOsTxtFlag} = '1'`);
+            }
+
+            if (osColNames.includes(upiField)) {
+                osSetClauses.push(`${upiField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upiField} END`);
+                osParams.push(piDb, userName);
+            }
+            if (osColNames.includes(upfField)) {
+                osSetClauses.push(`${upfField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upfField} END`);
+                osParams.push(pfDb, userName);
+            }
+
+            await queryPool.execute(
+                `UPDATE ordemservico SET ${osSetClauses.join(', ')} WHERE IdOrdemServico = ? AND (OrdemServicoFinalizado IS NULL OR OrdemServicoFinalizado != 'C')`,
+                [...osParams, idOs]
+            );
+
+            // 2. Update ordemservicoitem
+            const osiSetClauses = [`${piField} = COALESCE(?, ${piField})`, `${pfField} = COALESCE(?, ${pfField})`];
+            const osiParams = [piDb, pfDb];
+            if (osiColNames.includes(upiField)) {
+                osiSetClauses.push(`${upiField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upiField} END`);
+                osiParams.push(piDb, userName);
+            }
+            if (osiColNames.includes(upfField)) {
+                osiSetClauses.push(`${upfField} = CASE WHEN ? IS NOT NULL THEN ? ELSE ${upfField} END`);
+                osiParams.push(pfDb, userName);
+            }
+
+            const exactOsiTxtFlag = osiColNames.find(c => c.toLowerCase() === txtFlag.toLowerCase()) || txtFlag;
+
+            const [result] = await queryPool.execute(
+                `UPDATE ordemservicoitem SET ${osiSetClauses.join(', ')}
+                 WHERE IdOrdemServico = ?
+                   AND ${exactOsiTxtFlag} = '1'
+                   AND (OrdemServicoItemFinalizado IS NULL OR OrdemServicoItemFinalizado != 'C')`,
+                [...osiParams, idOs]
+            );
+
+            totalUpdated += result.affectedRows || 0;
+        }
+
+        res.json({ success: true, message: `Datas, flags e usuário (${userName}) gravados na OS e ${totalUpdated} itens com sucesso!` });
+    } catch (error) {
+        console.error('Error in OS propagar-datas:', error);
+        res.status(500).json({ success: false, message: 'Erro ao gravar planejamento da OS: ' + error.message });
+    }
+});
+
 app.post('/api/visao-geral/projeto/:id/finalizar', async (req, res) => {
     const { id } = req.params;
     const { usuario } = req.body;
@@ -6071,15 +6230,96 @@ app.post('/api/projeto/:id/open-folder', async (req, res) => {
     }
 });
 
+// PRE-CHECK STATUS LIBERACAO PROJETO
+app.get('/api/projeto/:id/status-liberacao', async (req, res) => {
+    try {
+        const projectId = req.params.id;
+
+        const [tagRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM tags WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`,
+            [projectId]
+        );
+        const tagCount = Number(tagRows[0]?.count || 0);
+
+        if (tagCount === 0) {
+            return res.json({
+                success: false,
+                liberavel: false,
+                message: 'Não é possível liberar este projeto. O projeto deve possuir pelo menos uma Tag e a Tag deve possuir pelo menos uma Ordem de Serviço (OS).'
+            });
+        }
+
+        const [osRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM ordemservico os
+             INNER JOIN tags t ON t.IdTag = os.IdTag
+             WHERE t.IdProjeto = ? 
+               AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E <> '*') 
+               AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E <> '*')`,
+            [projectId]
+        );
+        const osCount = Number(osRows[0]?.count || 0);
+
+        if (osCount === 0) {
+            return res.json({
+                success: false,
+                liberavel: false,
+                message: 'Não é possível liberar este projeto. O projeto deve possuir pelo menos uma Tag e a Tag deve possuir pelo menos uma Ordem de Serviço (OS).'
+            });
+        }
+
+        return res.json({
+            success: true,
+            liberavel: true,
+            message: 'Projeto elegível para liberação.'
+        });
+    } catch (error) {
+        console.error('Error pre-checking project release:', error);
+        return res.status(500).json({ success: false, liberavel: false, message: 'Erro ao verificar elegibilidade do projeto.' });
+    }
+});
+
 // LIBERAR PROJETO
 app.post('/api/projeto/:id/liberar', async (req, res) => {
     try {
         const { usuario } = req.body;
+        const projectId = req.params.id;
         const now = getCurrentDateTimeBR();
 
-        const [rows] = await pool.execute('SELECT liberado FROM projetos WHERE IdProjeto = ?', [req.params.id]);
+        const [rows] = await pool.execute('SELECT liberado FROM projetos WHERE IdProjeto = ?', [projectId]);
         if (rows.length > 0 && rows[0].liberado && rows[0].liberado.trim() !== '') {
             return res.status(400).json({ success: false, message: 'O projeto não pode ser liberado pois o status de liberação não está vazio.' });
+        }
+
+        // 1. Validação: O projeto deve possuir pelo menos uma Tag
+        const [tagRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM tags WHERE IdProjeto = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E <> '*')`,
+            [projectId]
+        );
+        const tagCount = Number(tagRows[0]?.count || 0);
+
+        if (tagCount === 0) {
+            return res.json({
+                success: false,
+                message: 'Não é possível liberar este projeto. O projeto deve possuir pelo menos uma Tag e a Tag deve possuir pelo menos uma Ordem de Serviço (OS).'
+            });
+        }
+
+        // 2. Validação: Pelo menos uma Tag do projeto deve possuir pelo menos uma Ordem de Serviço (OS)
+        const [osRows] = await pool.execute(
+            `SELECT COUNT(*) as count FROM ordemservico os
+             INNER JOIN tags t ON t.IdTag = os.IdTag
+             WHERE t.IdProjeto = ? 
+               AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E <> '*') 
+               AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E <> '*')`,
+            [projectId]
+        );
+        const osCount = Number(osRows[0]?.count || 0);
+
+        if (osCount === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Não é possível liberar este projeto. O projeto deve possuir pelo menos uma Tag e a Tag deve possuir pelo menos uma Ordem de Serviço (OS).'
+            });
         }
 
         // Lógica Não-Alfatec padrão (liberado = 'S', DataLiberacao)
@@ -6090,7 +6330,7 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
                 StatusProj = 'AT',
                 DescStatus = 'Ativo'
             WHERE IdProjeto = ?`,
-            [now, req.params.id]
+            [now, projectId]
         );
 
         res.json({ success: true, message: 'Projeto liberado com sucesso.' });
@@ -6100,9 +6340,6 @@ app.post('/api/projeto/:id/liberar', async (req, res) => {
     }
 });
 
-// ALTERAR STATUS DO PROJETO (Parar / Cancelar / Reativar)
-// PATCH /api/projeto/:id/status
-// Body: { status: 'PA'|'CA'|'AT', confirmar: true, usuario: 'Nome' }
 app.patch('/api/projeto/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -8071,13 +8308,14 @@ app.post('/api/ordemservico/liberar', async (req, res) => {
                 
                 worksheet.columns = [
                     { header: 'Cod Mat', key: 'cod', width: 20 },
-                    { header: 'DescriÃƒÂ§ÃƒÂ£o', key: 'desc', width: 50 },
+                    { header: 'Descrição', key: 'desc', width: 50 },
                     { header: 'Qtde', key: 'qtde', width: 10 },
                     { header: 'Peso', key: 'peso', width: 15 },
                     { header: 'Liberado', key: 'lib', width: 10 }
                 ];
 
-                const [itensData] = await connection.execute(`SELECT * FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')`, [IdOrdemServico]);
+                const [itensData] = await connection.execute(`SELECT 
+                CodMatFabricante, DescResumo, DescDetal, QtdeTotal, Peso, Liberado_Engenharia FROM ordemservicoitem WHERE IdOrdemServico = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*')`, [IdOrdemServico]);
                 itensData.forEach((it) => {
                     worksheet.addRow({
                         cod: it.CodMatFabricante,
@@ -8260,6 +8498,7 @@ app.get('/api/ordemservico/:id/itens', async (req, res) => {
                 Espessura, Altura, Largura,
                 CodMatFabricante, MaterialSW, EnderecoArquivo,
                 ProdutoPrincipal,
+                DataPrevisao, qtde, Data_Liberacao_Engenharia, OrdemServicoItemFinalizado, NumeroDobras, AreaPinturaUnitario, PesoUnitario,
                 OrdemServicoItemFinalizado as Finalizado,
                 txtCorte, sttxtCorte, CortePercentual,
                 txtDobra, sttxtDobra, DobraPercentual,

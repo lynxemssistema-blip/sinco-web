@@ -4,7 +4,43 @@ import { createPortal } from 'react-dom';
 import { Search, Filter, X, CalendarDays, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList, Maximize2, Minimize2 , Share2 } from 'lucide-react';
 import VisaoGeralTagsGlobais from './VisaoGeralTagsGlobais';
 
+
+const SECTOR_RESOURCE_FIELDS = [
+  { field: 'txtCorte', key: 'Corte', label: 'Corte', color: 'bg-emerald-100 text-emerald-800 border-emerald-300', order: 1 },
+  { field: 'txtCorteaLaser', key: 'Laser', label: 'Corte a Laser', color: 'bg-rose-100 text-rose-800 border-rose-300', order: 2 },
+  { field: 'txtPULSIONADEIRA', key: 'Pulsionadeira', label: 'Pulsionadeira', color: 'bg-pink-100 text-pink-800 border-pink-300', order: 3 },
+  { field: 'txtDobra', key: 'Dobra', label: 'Dobra', color: 'bg-blue-100 text-blue-800 border-blue-300', order: 4 },
+  { field: 'txtSolda', key: 'Solda', label: 'Solda', color: 'bg-amber-100 text-amber-800 border-amber-300', order: 5 },
+  { field: 'txtPintura', key: 'Pintura', label: 'Pintura', color: 'bg-purple-100 text-purple-800 border-purple-300', order: 6 },
+  { field: 'txtGALVANIZAR', key: 'Galvanizar', label: 'Galvanizar', color: 'bg-cyan-100 text-cyan-800 border-cyan-300', order: 7 },
+  { field: 'TxtMontagem', key: 'Montagem', label: 'Montagem', color: 'bg-indigo-100 text-indigo-800 border-indigo-300', order: 8 }
+];
+
 const API_BASE = '/api';
+
+const getSavedEntitySectorDates = (entity: any, sectorKey: string) => {
+  if (!entity) return { pi: '', pf: '' };
+  const keyMap: Record<string, string> = {
+    'Corte': 'Corte',
+    'Pulsionadeira': 'PULSIONADEIRA',
+    'Galvanizar': 'GALVANIZAR',
+    'Laser': 'CorteaLaser',
+    'Dobra': 'Dobra',
+    'Solda': 'Solda',
+    'Pintura': 'Pintura',
+    'Montagem': 'Montagem'
+  };
+
+  const dbKey = keyMap[sectorKey] || sectorKey;
+  let pi = entity[`PlanejadoInicio${dbKey}`] || entity[`PlanejadoInicio${sectorKey}`] || '';
+  let pf = entity[`PlanejadoFinal${dbKey}`] || entity[`PlanejadoFinal${sectorKey}`] || '';
+
+  if (pi && pi.includes('-')) pi = isoToBr(pi);
+  if (pf && pf.includes('-')) pf = isoToBr(pf);
+
+  return { pi, pf };
+};
+
 
 // ─── Interfaces ───
 interface Projeto { IdProjeto: number; Projeto: string; DescProjeto: string; DescEmpresa?: string; DataPrevisao: string; DataCriacao: string; Finalizado: string; liberado: string; QtdeTags: number; QtdeTagsExecutadas: number; PercentualTags: number; QtdePecasTags: number; QtdePecasExecutadas: number; PercentualPecas: number; qtdetotalpecas: number; TotalRnc: number; qtdernc: number; qtderncPendente: number; qtderncFinalizada: number; ExecCorte: number; TotalCorte: number; ExecDobra: number; TotalDobra: number; ExecSolda: number; TotalSolda: number; ExecPintura: number; TotalPintura: number; ExecMontagem: number; TotalMontagem: number; QtdeOS: number; }
@@ -160,6 +196,169 @@ export default function VisaoGeralProducaoPage() {
  const [bulkSectorDates, setBulkSectorDates] = useState<{ [key: string]: string }>({});
 
  const [osDetailsModal, setOsDetailsModal] = useState<{ type: 'tag' | 'projeto', id: number, osList: Record<string, unknown>[] } | null>(null);
+  const [expandedTagsOs, setExpandedTagsOs] = useState<{ [key: number]: Record<string, unknown>[] | null }>({});
+  const [expandedOsItems, setExpandedOsItems] = useState<{ [key: string]: Record<string, unknown>[] | null }>({});
+  
+  const [showPlanningDatesTag, setShowPlanningDatesTag] = useState<{ [key: number]: boolean }>({});
+  const [tagItemsSilentCache, setTagItemsSilentCache] = useState<{ [key: number]: Record<string, unknown>[] }>({});
+  const [tagResourceDays, setTagResourceDays] = useState<{ [key: string]: string }>({});
+  const [planningModes, setPlanningModes] = useState<{ [key: string]: 'progressivo' | 'regressivo' }>({});
+  const [planningTargetDates, setPlanningTargetDates] = useState<{ [key: string]: string }>({});
+  const [planningSectorOrders, setPlanningSectorOrders] = useState<{ [key: string]: string[] }>({});
+
+  
+  const handleSaveTagPlanning = async (idTag: number, calculatedList: any[]) => {
+    try {
+      const userObj = loggedUser || JSON.parse(localStorage.getItem('sinco_user') || '{}');
+      const userName = userObj.NomeCompleto || userObj.nomeCompleto || userObj.Nome || 'SuperAdmin';
+
+      const setores = calculatedList.map(item => {
+        let piValue = '';
+        let pfValue = '';
+
+        if (item.plannedDateStr && item.plannedDateStr.includes('→')) {
+          const parts = item.plannedDateStr.split('→').map((s: string) => s.trim());
+          piValue = parts[0]; // Manter formato brasileiro dd/mm/aaaa
+          pfValue = parts[1]; // Manter formato brasileiro dd/mm/aaaa
+        } else if (item.plannedDateStr) {
+          pfValue = item.plannedDateStr; // Manter formato brasileiro dd/mm/aaaa
+        }
+
+        return {
+          sectorName: item.sectorKey,
+          piValue,
+          pfValue
+        };
+      });
+
+      const res = await fetch(`${API_BASE}/visao-geral/tag/${idTag}/propagar-datas-os`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setores, usuario: userName })
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setMsg({ type: 'success', text: json.message });
+      } else {
+        setMsg({ type: 'error', text: json.message || 'Erro ao gravar datas.' });
+      }
+    } catch (e) {
+      console.error(e);
+      setMsg({ type: 'error', text: 'Erro de conexão ao gravar datas de planejamento.' });
+    }
+  };
+
+  const handleSaveOsPlanning = async (idOs: string | number, calculatedList: any[]) => {
+    try {
+      const userObj = loggedUser || JSON.parse(localStorage.getItem('sinco_user') || '{}');
+      const userName = userObj.NomeCompleto || userObj.nomeCompleto || userObj.Nome || 'SuperAdmin';
+
+      const setores = calculatedList.map(item => {
+        let piValue = '';
+        let pfValue = '';
+
+        if (item.plannedDateStr && item.plannedDateStr.includes('→')) {
+          const parts = item.plannedDateStr.split('→').map((s: string) => s.trim());
+          piValue = parts[0]; // Manter formato brasileiro dd/mm/aaaa
+          pfValue = parts[1]; // Manter formato brasileiro dd/mm/aaaa
+        } else if (item.plannedDateStr) {
+          pfValue = item.plannedDateStr; // Manter formato brasileiro dd/mm/aaaa
+        }
+
+        return {
+          sectorName: item.sectorKey,
+          piValue,
+          pfValue
+        };
+      });
+
+      const res = await fetch(`${API_BASE}/visao-geral/os/${idOs}/propagar-datas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setores, usuario: userName })
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setMsg({ type: 'success', text: json.message });
+      } else {
+        setMsg({ type: 'error', text: json.message || 'Erro ao gravar datas.' });
+      }
+    } catch (e) {
+      console.error(e);
+      setMsg({ type: 'error', text: 'Erro de conexão ao gravar datas de planejamento da OS.' });
+    }
+  };
+
+  const moveSectorInOrder = (key: string, fromIndex: number, toIndex: number, defaultSectors: any[]) => {
+    const currentOrder = planningSectorOrders[key] || defaultSectors.map(s => s.sectorKey);
+    if (fromIndex < 0 || fromIndex >= currentOrder.length || toIndex < 0 || toIndex >= currentOrder.length) return;
+    
+    const newOrder = [...currentOrder];
+    const [moved] = newOrder.splice(fromIndex, 1);
+    newOrder.splice(toIndex, 0, moved);
+
+    setPlanningSectorOrders(prev => ({ ...prev, [key]: newOrder }));
+  };
+
+  const togglePlanningDatesTag = async (idTag: number) => {
+    const nextState = !showPlanningDatesTag[idTag];
+    setShowPlanningDatesTag(prev => ({ ...prev, [idTag]: nextState }));
+
+    if (nextState && !tagItemsSilentCache[idTag]) {
+      try {
+        const resOs = await (await fetch(`${API_BASE}/visao-geral/tag/${idTag}/ordens-servico`)).json();
+        if (resOs.success && resOs.data && resOs.data.length > 0) {
+          const itemPromises = resOs.data.map(async (os: any) => {
+            try {
+              const resItens = await (await fetch(`${API_BASE}/ordemservico/${os.IdOrdemServico}/itens`)).json();
+              return resItens.success ? resItens.data : [];
+            } catch {
+              return [];
+            }
+          });
+
+          const itemsArrayOfArrays = await Promise.all(itemPromises);
+          const allItems = itemsArrayOfArrays.flat();
+          setTagItemsSilentCache(prev => ({ ...prev, [idTag]: allItems }));
+        } else {
+          setTagItemsSilentCache(prev => ({ ...prev, [idTag]: [] }));
+        }
+      } catch (e) {
+        console.error(e);
+        setTagItemsSilentCache(prev => ({ ...prev, [idTag]: [] }));
+      }
+    }
+  };
+
+  const [showPlanningDatesOs, setShowPlanningDatesOs] = useState<{ [key: string]: boolean }>({});
+  const [osResourceDays, setOsResourceDays] = useState<{ [key: string]: string }>({});
+  const [osItemsSilentCache, setOsItemsSilentCache] = useState<{ [key: string]: Record<string, unknown>[] }>({});
+
+    const getUniqueOsResources = (items: any[] | null) => {
+    if (!items || items.length === 0) return [];
+
+    const map = new Map<string, { sectorKey: string; sectorLabel: string; sectorColor: string; order: number }>();
+    items.forEach((item: any) => {
+      SECTOR_RESOURCE_FIELDS.forEach(sf => {
+        const val = item[sf.field];
+        if (val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '0') {
+          if (!map.has(sf.key)) {
+            map.set(sf.key, {
+              sectorKey: sf.key,
+              sectorLabel: sf.label,
+              sectorColor: sf.color,
+              order: sf.order
+            });
+          }
+        }
+      });
+    });
+
+    return Array.from(map.values()).sort((a, b) => a.order - b.order);
+  };
+
  const [loadOsDetails, setLoadOsDetails] = useState(false);
 
  // Configuração de Setores Visíveis
@@ -303,7 +502,47 @@ export default function VisaoGeralProducaoPage() {
  }
  };
 
- const fetchOsForProject = async (idProj: number) => {
+ 
+  
+  const toggleOsItemExpansion = async (idOs: string) => {
+    if (expandedOsItems[idOs] !== undefined) {
+      setExpandedOsItems(prev => {
+        const next = { ...prev };
+        if (next[idOs]) { delete next[idOs]; }
+        return next;
+      });
+      return;
+    }
+    try {
+      const r = await (await fetch(`${API_BASE}/ordemservico/${idOs}/itens`)).json();
+      if (r.success) {
+        setExpandedOsItems(prev => ({ ...prev, [idOs]: r.data }));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+    const toggleOsExpansion = async (idTag: number) => {
+    if (expandedTagsOs[idTag] !== undefined && expandedTagsOs[idTag] !== null) {
+      setExpandedTagsOs(prev => {
+        const next = { ...prev };
+        delete next[idTag];
+        return next;
+      });
+      return;
+    }
+    try {
+      const r = await (await fetch(`${API_BASE}/visao-geral/tag/${idTag}/ordens-servico`)).json();
+      if (r.success) {
+        setExpandedTagsOs(prev => ({ ...prev, [idTag]: r.data }));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchOsForProject = async (idProj: number) => {
  setLoadOsDetails(true);
  try {
  const r = await (await fetch(`${API_BASE}/visao-geral/projeto/${idProj}/ordens-servico?t=${Date.now()}`, { cache: 'no-store' })).json();
@@ -1337,19 +1576,13 @@ const salvarDatasBulkTags = async () => {
  {/* Columns Fixed visually by background */}
  <th className="px-2 py-0.5 border-r border-white/20 bg-[#f8fafc] sticky left-0 z-10 shadow-[1px_0_0_#e2e8f0]">Tag / Descrição</th>
  <th className="px-3 py-3 border-r border-white/20 text-center /50">Cronograma</th>
- <th className="px-3 py-3 border-r border-white/20 text-center /50">Detalhes</th>
- {viewModeTags === 'detailed' ? (
- filteredTagSectors.map(s => <th key={s.k} className="px-3 py-3 border-r border-white/20 text-center min-w-[280px]">Setor: {s.k}</th>)
- ) : (
- <th className="px-3 py-3 border-r border-white/20 text-center min-w-[180px]">Progresso de Setores</th>
- )}
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {filteredTags.map((t, idx) => {
  const tFin = t.Finalizado?.trim() !== '';
  return (
- <tr key={t.IdTag} className={`group hover:bg-[#E0E800]/10/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
+ <React.Fragment key={t.IdTag}><tr className={`group hover:bg-[#E0E800]/10/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafcfd]'}`}>
  {/* TAG INFO */}
  <td className="px-2 py-0.5 align-top min-w-[220px] max-w-[280px] border-r border-slate-100 bg-inherit sticky left-0 z-10 shadow-[1px_0_0_#f1f5f9] group-hover:shadow-[1px_0_0_#dbeafe]">
  <div className="flex items-center gap-1.5 mb-1"><div className={`w-2 h-2 rounded-full shadow-sm ${tFin ? 'bg-emerald-500' : 'bg-amber-400'}`} /> <span className="font-black text-slate-800 text-[13px] break-all whitespace-normal leading-tight">{t.Tag}</span></div>
@@ -1394,163 +1627,729 @@ const salvarDatasBulkTags = async () => {
  <CheckCircle size={10} /> Finalizar
  </button>
  )}
- </div>
- </td>
-
- {/* DATAS DA TAG */}
- <td className="px-3 py-3 align-top border-r border-slate-100 bg-slate-50/30">
- <div className="flex flex-col gap-2 w-32">
- <DateBadge editable={false} showStatus={false} date={t.DataEntrada} label="Entrada" />
- <DateBadge editable={true} onClick={() => { setSelTag(t); setDateInput(brToIso(t.DataPrevisao)); setMsg(null); setActionModal('dateTagGlobal'); }} date={t.DataPrevisao} label="Previsão" />
- </div>
- </td>
-
- {/* DETALHES TAG */}
- <td className="px-3 py-4 align-top border-r border-slate-100 bg-slate-50/30">
- <div className="grid grid-cols-2 gap-x-4 gap-y-3 w-48 text-[10px]">
- <div 
- className={`flex flex-col rounded p-1.5 -ml-1.5 transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'hover:bg-[#E0E800]/10 cursor-pointer group' : ''}`}
- onClick={() => { if (parseInt(t.QtdeOS || '0') > 0) fetchOsForTag(t.IdTag); }}
- title={parseInt(t.QtdeOS || '0') > 0 ? "Clique para exibir Ordens de Serviço" : ""}
- >
- <span className={`font-bold uppercase tracking-widest text-[8px] transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]' : 'text-slate-400'}`}>Qtd. OS</span>
- <span className={`font-black flex items-center gap-2 transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-700'}`}>
- {t.QtdeOS || '0'}
- {parseInt(t.QtdeOS || '0') > 0 && (
- <span className="text-[9px] bg-blue-100 text-[#32423D] px-1.5 py-0.5 rounded leading-none group-hover:bg-[#32423D] group-hover:text-white transition-colors uppercase">
- Exibir
- </span>
- )}
- </span>
- </div>
- <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Qtd. Peças</span><span className="font-black text-slate-700">{t.QtdeTotalPecas || '0'}</span></div>
- <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Liberada</span><span className="font-bold text-emerald-600">{t.QtdeLiberada || '0'}</span></div>
- <div className="flex flex-col"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Saldo</span><span className="font-bold text-orange-600">{t.SaldoTag || '0'}</span></div>
- <div className="flex flex-col col-span-2 mt-0.5 pt-1.5 border-t border-slate-100">
- <span className="font-bold text-slate-400 uppercase tracking-widest text-[8px]">Multiplicador Tag</span>
- <span className="font-bold text-[#32423D]">{t.QtdeTag || '1'} <span className="text-[8px] font-normal text-slate-400 lowercase">(x a produzir)</span></span>
- </div>
- {t.ValorTag && <div className="flex flex-col col-span-2 mt-1"><span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] flex items-center gap-0.5"><DollarSign size={8}/> Valor</span><span className="font-bold text-slate-700">R$ {parseFloat(t.ValorTag).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></div>}
- <div className="flex flex-col col-span-2 mt-1">
- <span className="font-bold text-slate-400 uppercase tracking-widest text-[8px] mb-0.5">Observação</span>
- <div className="flex items-start gap-1">
- <textarea
- id={`obs_tag_${t.IdTag}`}
- className="flex-1 bg-white/50 border border-slate-200 rounded p-1 text-[10px] text-slate-700 outline-none focus:border-[#32423D] focus:bg-white transition-colors resize-none overflow-hidden"
- defaultValue={t.Observacao || ''}
- placeholder="Inserir observação..."
- onMouseEnter={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
- onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
- onBlur={(e) => { if (e.target.value !== (t.Observacao || '')) salvarObservacaoTag(t.IdTag, e.target.value); }}
- rows={(t.Observacao || '').split('\n').length || 1}
- />
- <button
- onClick={(e) => {
- e.stopPropagation();
- const el = document.getElementById(`obs_tag_${t.IdTag}`) as HTMLTextAreaElement;
- if (el && el.value !== (t.Observacao || '')) salvarObservacaoTag(t.IdTag, el.value);
- }}
- className="p-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 rounded border border-emerald-200 transition-colors"
- title="Salvar Observação"
- >
- <CheckCircle size={12} />
- </button>
- </div>
- </div>
- </div>
- </td>
-
- {/* SETORES */}
- {viewModeTags === 'detailed' ? (
- filteredTagSectors.map(s => {
- if (t[`flag${s.k}` as keyof Tag] !== 1) return <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 bg-slate-50/50"><div className="flex flex-col items-center justify-center h-full text-slate-300 text-[10px] font-bold"><div className="w-1.5 h-1.5 rounded-full bg-slate-200 mb-1"></div>N/A</div></td>;
- const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
- const pIni = t[s.fields.pi as keyof Tag] as string, pFim = t[s.fields.pf as keyof Tag] as string;
- const rIni = t[s.fields.ri as keyof Tag] as string, rFim = t[s.fields.rf as keyof Tag] as string;
- return (
- <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 hover:bg-slate-50/80 transition-colors">
- <div className="flex flex-col w-full h-full justify-between">
- {/* Progresso Cima */}
- <div className="flex items-center justify-between w-full">
- <span className="text-[10px] font-black text-slate-700">{pct}%</span>
- </div>
- 
- {/* Datas Embaixo (Planejado em coluna, Realizado em coluna) */}
- <div className="grid grid-cols-2 gap-1.5 flex-1 items-end mt-auto pt-1.5 border-t border-slate-100/30 min-w-0">
- <div 
- className="flex flex-col gap-1 border border-slate-200/70 rounded p-1 bg-white relative hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all group/edit"
- title={`Criado em: ${selProj?.DataCriacao || '—'} (Clique para editar planejamento)`}
- onClick={() => { 
- setSelTag(t); 
- const newDates = TAG_SECTORS.reduce((acc, s) => {
-                                acc[s.fields.pi] = brToIso((t as any)[s.fields.pi] || '');
-                                acc[s.fields.pf] = brToIso((t as any)[s.fields.pf] || '');
-                                return acc;
-                            }, {} as Record<string, string>);
-                            setTagSectorDates(newDates);
-                            setInitialTagSectorDates(newDates);
- setMsg(null); setActionModal('dateTagSetores'); 
- }}
- >
- <div className="flex items-center justify-between gap-0.5">
- <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. In.</span>
- <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pIni ? 'text-slate-300 border-dashed border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>{pIni || 'Definir'}</span>
- </div>
- <div className="flex items-center justify-between gap-0.5">
- <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Plan. Fim</span>
- <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap group-hover/edit:text-[#32423D] transition-colors ${!pFim ? 'text-slate-300 border-dashed border-slate-200' : (businessDaysUntil(pFim) === -1 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-slate-50 text-slate-600 border-slate-200')}`}>{pFim || 'Definir'}</span>
- </div>
- </div>
- <div className="flex flex-col gap-1 border border-emerald-100/40 rounded p-1 bg-emerald-50/20 relative">
- <div className="flex items-center justify-between gap-0.5">
- <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Real. In.</span>
- <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap ${!rIni ? 'text-slate-300 border-transparent' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>{rIni || '—'}</span>
- </div>
- <div className="flex items-center justify-between gap-0.5">
- <span className="text-[7.5px] font-bold text-slate-400 uppercase leading-none w-10 shrink-0">Real. Fim</span>
- <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] border font-bold whitespace-nowrap ${!rFim ? 'text-slate-300 border-transparent' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>{rFim || '—'}</span>
- </div>
- </div>
- </div>
- </div>
- </td>
- )
- })
- ) : (
- <td className="px-2 py-0.5 align-top border-r border-slate-100">
- <div className="flex flex-col gap-2 h-full justify-start">
  <button 
- onClick={() => { 
- setSelTag(t); 
- const newDates = TAG_SECTORS.reduce((acc, s) => {
-                                acc[s.fields.pi] = brToIso((t as any)[s.fields.pi] || '');
-                                acc[s.fields.pf] = brToIso((t as any)[s.fields.pf] || '');
-                                return acc;
-                            }, {} as Record<string, string>);
-                            setTagSectorDates(newDates);
-                            setInitialTagSectorDates(newDates);
- setMsg(null); setActionModal('dateTagSetores'); 
- }}
- className="w-full text-[9px] bg-slate-100 hover:bg-[#32423D] hover:text-white border border-slate-200 text-slate-500 font-bold py-1.5 rounded flex items-center justify-center gap-1 transition-colors mb-1"
+ onClick={(e) => { e.stopPropagation(); togglePlanningDatesTag(t.IdTag); }}
+ className="bg-[#32423D] hover:bg-[#32423D]/80 text-white border border-[#32423D] px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition-colors shadow-sm"
+ title="Montar Datas de Planejamento dos Recursos desta Tag"
  >
- <CalendarDays size={10} /> Planejar Setores
+ <CalendarDays size={10} /> Montar Datas
  </button>
- {filteredTagSectors.filter(s => t[`flag${s.k}` as keyof Tag] === 1).map(s => {
- if (t[`flag${s.k}` as keyof Tag] !== 1) return <td key={s.k} className="px-2 py-0.5 align-top border-r border-slate-100 bg-slate-50/50"><div className="flex flex-col items-center justify-center h-full text-slate-300 text-[10px] font-bold"><div className="w-1.5 h-1.5 rounded-full bg-slate-200 mb-1"></div>N/A</div></td>;
- const e = toNum(t[s.ex as keyof Tag]), tot = toNum(t[s.t as keyof Tag]), raw = toNum(t[s.p as keyof Tag]), pct = raw || safePct(e, tot);
- return (
- <div key={s.k} className="flex flex-col gap-1 w-full bg-slate-50/50 p-1.5 rounded border border-slate-100 shadow-sm hover:border-slate-300 transition-colors">
- <div className="flex justify-between items-center w-full">
- <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><div className={`w-2 h-2 rounded-full ${s.c}`} />{s.k}</span>
- <span className={`text-[10px] font-black ${pct >= 100 && tot > 0 ? "text-emerald-600" : "text-slate-700"}`}>{pct}% <span className="text-[8px] text-slate-400 font-normal ml-0.5">({e}/{tot})</span></span>
- </div>
- </div>
- )
- })}
  </div>
  </td>
- )}
- </tr>
+
+ 
+  {/* DATAS DA TAG E QTD OS */}
+  <td className="px-3 py-3 align-top border-r border-slate-100 bg-slate-50/30">
+    <div className="flex flex-col gap-2 w-32">
+      <DateBadge editable={false} showStatus={false} date={t.DataEntrada} label="Entrada" />
+      <DateBadge editable={true} onClick={() => { setSelTag(t); setDateInput(brToIso(t.DataPrevisao)); setMsg(null); setActionModal('dateTagGlobal'); }} date={t.DataPrevisao} label="Previsão" />
+      
+      {/* QTD OS movido para ca */}
+      <div 
+        className={`flex flex-col rounded p-1.5 -ml-1.5 transition-colors mt-2 ${parseInt(t.QtdeOS || '0') > 0 ? 'hover:bg-[#E0E800]/10 cursor-pointer group' : ''}`}
+        onClick={() => { if (parseInt(t.QtdeOS || '0') > 0) toggleOsExpansion(t.IdTag); }}
+        title={parseInt(t.QtdeOS || '0') > 0 ? "Clique para exibir Ordens de Serviço inline" : ""}
+      >
+        <span className={`font-bold uppercase tracking-widest text-[8px] transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]' : 'text-slate-400'}`}>Qtd. OS</span>
+        <span className={`font-black flex items-center gap-2 transition-colors ${parseInt(t.QtdeOS || '0') > 0 ? 'text-[#32423D] group-hover:text-[#32423D]/70' : 'text-slate-700'}`}>
+          {t.QtdeOS || '0'}
+          {parseInt(t.QtdeOS || '0') > 0 && (
+            <span className="text-[9px] bg-blue-100 text-[#32423D] px-1.5 py-0.5 rounded leading-none group-hover:bg-[#32423D] group-hover:text-white transition-colors uppercase">
+              {expandedTagsOs[t.IdTag] ? 'Ocultar' : 'Exibir'}
+            </span>
+          )}
+        </span>
+      </div>
+    </div>
+  </td>
+</tr>
+
+  {/* ══ ROW INDEPENDENTE: TABELA DE 3 COLUNAS PARA PLANEJAMENTO DE DATAS DA TAG ══ */}
+  {showPlanningDatesTag[t.IdTag] && (
+    <tr>
+      <td colSpan={2} className="p-0 border-b border-slate-200">
+        <div className="p-4 bg-teal-50/30 border-y border-teal-100 shadow-inner animate-in fade-in duration-150">
+          <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
+            <h6 className="text-[11px] font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
+              <CalendarDays size={13} className="text-[#32423D]" />
+              Datas de Planejamento — Tag: {t.Tag} (Compilado de todas as OSs)
+            </h6>
+            <button 
+              onClick={() => togglePlanningDatesTag(t.IdTag)}
+              className="text-slate-400 hover:text-red-500 p-0.5 transition-colors"
+              title="Fechar"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {(() => {
+            const items = tagItemsSilentCache[t.IdTag];
+            if (!items) {
+              return (
+                <div className="py-4 text-center text-slate-500 font-bold text-xs flex items-center justify-center gap-2">
+                  <Loader className="animate-spin" size={16} /> Compilando recursos das OSs da Tag {t.Tag}...
+                </div>
+              );
+            }
+
+            const rawSectors = getUniqueOsResources(items);
+            if (rawSectors.length === 0) {
+              return (
+                <div className="py-4 text-center text-slate-400 font-medium text-xs">
+                  Nenhum recurso ativo localizado nos itens das OSs desta Tag.
+                </div>
+              );
+            }
+
+            const entityKey = `TAG-${t.IdTag}`;
+            const currentMode = planningModes[entityKey] || 'progressivo';
+            const customOrderKeys = planningSectorOrders[entityKey];
+
+            let orderedSectors = [...rawSectors];
+            if (customOrderKeys && customOrderKeys.length > 0) {
+              orderedSectors.sort((a, b) => {
+                const idxA = customOrderKeys.indexOf(a.sectorKey);
+                const idxB = customOrderKeys.indexOf(b.sectorKey);
+                if (idxA === -1) return 1;
+                if (idxB === -1) return -1;
+                return idxA - idxB;
+              });
+            }
+
+            const defaultTargetDateStr = t.DataPrevisao ? brToIso(t.DataPrevisao) : new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
+            const currentTargetDate = planningTargetDates[entityKey] || defaultTargetDateStr;
+
+            let calculatedList: any[] = [];
+
+            if (currentMode === 'progressivo') {
+              let currentBaseDate = new Date();
+              currentBaseDate.setHours(0, 0, 0, 0);
+
+              calculatedList = orderedSectors.map((res) => {
+                const stateKey = `${entityKey}-${res.sectorKey}`;
+                const saved = getSavedEntitySectorDates(t, res.sectorKey);
+                
+                let currentDaysStr = tagResourceDays[stateKey];
+                if (currentDaysStr === undefined) {
+                  if (saved.pi && saved.pf) {
+                    const m1 = saved.pi.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                    const m2 = saved.pf.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                    if (m1 && m2) {
+                      const d1 = new Date(+m1[3], +m1[2] - 1, +m1[1]);
+                      const d2 = new Date(+m2[3], +m2[2] - 1, +m2[1]);
+                      const diffDays = Math.round((d2.getTime() - d1.getTime()) / (86400000));
+                      if (diffDays >= 0) currentDaysStr = String(diffDays);
+                    }
+                  }
+                }
+                if (currentDaysStr === undefined) currentDaysStr = '0';
+
+                const numDays = parseInt(currentDaysStr, 10);
+                const validDays = (!isNaN(numDays) && numDays >= 0) ? numDays : 0;
+
+                const startDate = new Date(currentBaseDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + validDays);
+
+                const dS = String(startDate.getDate()).padStart(2, '0');
+                const mS = String(startDate.getMonth() + 1).padStart(2, '0');
+                const yS = startDate.getFullYear();
+                const startDateStr = `${dS}/${mS}/${yS}`;
+
+                const dE = String(endDate.getDate()).padStart(2, '0');
+                const mE = String(endDate.getMonth() + 1).padStart(2, '0');
+                const yE = endDate.getFullYear();
+                const endDateStr = `${dE}/${mE}/${yE}`;
+
+                const plannedDateStr = `${startDateStr} → ${endDateStr}`;
+
+                // Avança a data base para o próximo setor
+                currentBaseDate = new Date(endDate);
+
+                return {
+                  ...res,
+                  stateKey,
+                  currentDaysStr,
+                  plannedDateStr
+                };
+              });
+            } else {
+              // Modo Regressivo: Começa da Data Final Alvo no ÚLTIMO setor e calcula de trás para frente
+              let targetEndDate = new Date(currentTargetDate + 'T00:00:00');
+              if (isNaN(targetEndDate.getTime())) {
+                targetEndDate = new Date();
+                targetEndDate.setHours(0, 0, 0, 0);
+              }
+
+              let currentBaseEnd = new Date(targetEndDate);
+              const reversedSectors = [...orderedSectors].reverse();
+
+              const calcReversed = reversedSectors.map((res) => {
+                const stateKey = `${entityKey}-${res.sectorKey}`;
+                const currentDaysStr = tagResourceDays[stateKey] || '';
+                const numDays = parseInt(currentDaysStr, 10);
+                const validDays = (!isNaN(numDays) && numDays >= 0) ? numDays : 0;
+
+                const endDate = new Date(currentBaseEnd);
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - validDays);
+
+                const dE = String(endDate.getDate()).padStart(2, '0');
+                const mE = String(endDate.getMonth() + 1).padStart(2, '0');
+                const yE = endDate.getFullYear();
+                const endDateStr = `${dE}/${mE}/${yE}`;
+
+                const dS = String(startDate.getDate()).padStart(2, '0');
+                const mS = String(startDate.getMonth() + 1).padStart(2, '0');
+                const yS = startDate.getFullYear();
+                const startDateStr = `${dS}/${mS}/${yS}`;
+
+                currentBaseEnd = new Date(startDate);
+
+                return {
+                  ...res,
+                  stateKey,
+                  currentDaysStr,
+                  plannedDateStr: `${startDateStr} → ${endDateStr}`
+                };
+              });
+
+              calculatedList = calcReversed.reverse();
+            }
+
+            return (
+              <div>
+                {/* Header de seleção de Modo e Calendário da Data Alvo */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3 p-3 bg-[#32423D]/5 rounded-lg border border-[#32423D]/20 shadow-sm">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">Ordem de Cálculo:</span>
+                      <div className="flex bg-white rounded-md p-0.5 border border-slate-300 shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setPlanningModes(prev => ({ ...prev, [entityKey]: 'progressivo' }))}
+                          className={`px-3 py-1.5 text-[10px] font-bold rounded transition-all flex items-center gap-1.5 ${currentMode === 'progressivo' ? 'bg-[#32423D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                        >
+                          ➔ Progressivo (A partir de Hoje)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPlanningModes(prev => ({ ...prev, [entityKey]: 'regressivo' }))}
+                          className={`px-3 py-1.5 text-[10px] font-bold rounded transition-all flex items-center gap-1.5 ${currentMode === 'regressivo' ? 'bg-[#32423D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                        >
+                          ⬅ Regressivo (A partir do Prazo Final)
+                        </button>
+                      </div>
+                    </div>
+
+                    {currentMode === 'regressivo' && (
+                      <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 shadow-sm animate-in fade-in duration-200">
+                        <CalendarDays size={14} className="text-amber-700" />
+                        <span className="text-[10px] font-black uppercase text-amber-900">Data Final Alvo:</span>
+                        <input
+                          type="date"
+                          value={currentTargetDate}
+                          onChange={(e) => setPlanningTargetDates(prev => ({ ...prev, [entityKey]: e.target.value }))}
+                          className="px-2.5 py-1 text-xs font-bold text-slate-800 border border-amber-300 rounded outline-none focus:ring-2 focus:ring-amber-500 bg-white shadow-sm font-mono cursor-pointer"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSaveTagPlanning(t.IdTag, calculatedList)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-colors uppercase tracking-wider shrink-0"
+                    title="Gravar datas de início/término e usuário no banco de dados para a Tag, OSs e Itens"
+                  >
+                    <CheckCircle size={14} /> Gravar Datas de Planejamento
+                  </button>
+                </div>
+
+                {/* Tabela de 3 Colunas */}
+                <div className="overflow-x-auto rounded border border-slate-300 bg-white shadow-sm max-w-3xl">
+                  <table className="w-full text-[10px] text-left whitespace-nowrap border-collapse">
+                    <thead className="bg-[#32423D] text-white uppercase font-bold tracking-wider text-[9px]">
+                      <tr>
+                        <th className="px-3 py-2 border-r border-white/20">Setor / Recurso (Tag)</th>
+                        <th className="px-3 py-2 border-r border-white/20 text-center w-48">Dias para Produzir Item</th>
+                        <th className="px-3 py-2 text-center w-64">
+                          {currentMode === 'progressivo' ? 'Data Planejada Final da Produção' : 'Intervalo Planejado (Início → Término)'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {calculatedList.map((res, sIdx) => (
+                        <tr key={res.sectorKey} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-3 py-2 font-bold border-r border-slate-100">
+                            <div className="flex items-center justify-between">
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold inline-block ${res.sectorColor}`}>
+                                {res.sectorLabel}
+                              </span>
+                              <div className="flex items-center gap-0.5 ml-2">
+                                <button
+                                  type="button"
+                                  disabled={sIdx === 0}
+                                  onClick={() => moveSectorInOrder(entityKey, sIdx, sIdx - 1, rawSectors)}
+                                  className="p-0.5 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                                  title="Mover setor para cima na sequência"
+                                >
+                                  ▲
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={sIdx === calculatedList.length - 1}
+                                  onClick={() => moveSectorInOrder(entityKey, sIdx, sIdx + 1, rawSectors)}
+                                  className="p-0.5 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                                  title="Mover setor para baixo na sequência"
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-3 py-2 text-center border-r border-slate-100 bg-slate-50/50">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={res.currentDaysStr}
+                                onChange={(e) => setTagResourceDays(prev => ({ ...prev, [res.stateKey]: e.target.value }))}
+                                className="w-20 px-2 py-1 text-center font-bold font-mono text-slate-800 border border-slate-300 rounded focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D] outline-none bg-white shadow-inner text-xs"
+                              />
+                              <span className="text-[9px] text-slate-500 font-bold uppercase">dias</span>
+                            </div>
+                          </td>
+
+                          <td className="px-3 py-2 text-center font-mono font-bold text-slate-800 bg-indigo-50/40">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-indigo-200 rounded text-indigo-900 shadow-sm text-xs">
+                              <CalendarDays size={12} className="text-indigo-600" />
+                              {res.plannedDateStr}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </td>
+    </tr>
+  )}
+
+{expandedTagsOs[t.IdTag] && (<tr><td colSpan={2} className="p-0 border-b border-slate-200"><div className="p-4 bg-slate-50 shadow-inner"><h4 className="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2"><List size={14} className="text-[#32423D]" /> Ordens de Serviço para a Tag {t.Tag}</h4><div className="overflow-x-auto rounded border border-slate-200"><table className="w-full text-[10px] text-left whitespace-nowrap"><thead className="bg-slate-200 text-slate-700 uppercase font-bold tracking-wider"><tr><th className="px-3 py-2 border-b border-slate-300">OS / Descrição</th><th className="px-3 py-2 border-b border-slate-300 text-center">Liberação Eng.</th><th className="px-3 py-2 border-b border-slate-300 text-center">Previsão</th><th className="px-3 py-2 border-b border-slate-300 text-center">Qtd. Total</th><th className="px-3 py-2 border-b border-slate-300 text-center">Peso Total</th><th className="px-3 py-2 border-b border-slate-300 text-center">Fator</th><th className="px-3 py-2 border-b border-slate-300 text-center">Qtd. Itens</th><th className="px-3 py-2 border-b border-slate-300 text-center">Itens Executados</th><th className="px-3 py-2 border-b border-slate-300 text-center">Peças Executadas</th><th className="px-3 py-2 border-b border-slate-300 text-center">Total Peças</th><th className="px-3 py-2 border-b border-slate-300 text-center">Status</th></tr></thead>                <tbody className="divide-y divide-slate-100 bg-white">
+                  {expandedTagsOs[t.IdTag].map((os: any) => (
+                    <React.Fragment key={os.IdOrdemServico}>
+                      <tr 
+                        className={`hover:bg-slate-100 transition-colors cursor-pointer ${expandedOsItems[os.IdOrdemServico] ? 'bg-slate-50' : ''}`}
+                        onClick={() => toggleOsItemExpansion(os.IdOrdemServico)}
+                        title="Clique para ver os Itens da Ordem de Serviço"
+                      >
+                        <td className="px-3 py-2 border-r border-slate-100 flex items-center gap-2">
+                          <span className="text-slate-400 font-bold">{expandedOsItems[os.IdOrdemServico] ? '▼' : '▶'}</span>
+                          <div>
+                            <div className="font-bold text-slate-800">OS: {os.IdOrdemServico}</div>
+                            <div className="text-[9px] text-slate-500 max-w-[200px] truncate" title={os.Descricao}>{os.Descricao}</div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100">
+                          <div className={`font-bold ${os.Liberado_Engenharia === 'S' ? 'text-emerald-600' : 'text-slate-400'}`}>{os.Liberado_Engenharia === 'S' ? 'Sim' : 'Não'}</div>
+                          {os.Data_Liberacao_Engenharia && <div className="text-[9px] text-slate-500">{isoToBr(os.Data_Liberacao_Engenharia.split('T')[0])}</div>}
+                        </td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 font-bold text-slate-600">{os.DataPrevisao ? isoToBr(os.DataPrevisao.split('T')[0]) : '—'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-700">{os.qtadetotal || '0'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-700">{os.PesoTotal ? parseFloat(os.PesoTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' kg' : '—'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-700">{os.Fator || '—'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-700">{os.QtdeTotalItens || '0'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-emerald-600 font-bold">{os.QtdeItensExecutados || '0'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-emerald-600 font-bold">{os.QtdePecasExecutadas || '0'}</td>
+                        <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-700">{os.QtdeTotalPecas || '0'}</td>
+                        <td className="px-3 py-2 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${os.OrdemServicoFinalizado === 'C' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                              {os.OrdemServicoFinalizado === 'C' ? 'Finalizada' : 'Aberta'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); togglePlanningDatesOs(os.IdOrdemServico); }}
+                              className="bg-[#32423D] hover:bg-[#32423D]/80 text-white text-[9px] font-bold px-2 py-1 rounded shadow-sm transition-colors flex items-center gap-1 whitespace-nowrap"
+                              title="Montar Datas de Planejamento para esta OS"
+                            >
+                              <CalendarDays size={10} /> Montar Datas
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* ══ ROW INDEPENDENTE: TABELA DE 3 COLUNAS PARA PLANEJAMENTO DE DATAS DA OS ══ */}
+  {showPlanningDatesOs[os.IdOrdemServico] && (
+    <tr>
+      <td colSpan={11} className="p-0 border-b border-slate-200">
+        <div className="p-4 bg-indigo-50/30 border-y border-indigo-100 shadow-inner animate-in fade-in duration-150">
+          <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-200">
+            <h6 className="text-[11px] font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
+              <CalendarDays size={13} className="text-[#32423D]" />
+              Datas de Planejamento — OS #{os.IdOrdemServico}
+            </h6>
+            <button 
+              onClick={() => togglePlanningDatesOs(os.IdOrdemServico)}
+              className="text-slate-400 hover:text-red-500 p-0.5 transition-colors"
+              title="Fechar"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {(() => {
+            const items = expandedOsItems[os.IdOrdemServico] || osItemsSilentCache[os.IdOrdemServico];
+            if (!items) {
+              return (
+                <div className="py-4 text-center text-slate-500 font-bold text-xs flex items-center justify-center gap-2">
+                  <Loader className="animate-spin" size={16} /> Carregando recursos da OS #{os.IdOrdemServico}...
+                </div>
+              );
+            }
+
+            const rawSectors = getUniqueOsResources(items);
+            if (rawSectors.length === 0) {
+              return (
+                <div className="py-4 text-center text-slate-400 font-medium text-xs">
+                  Nenhum recurso ativo localizado nos itens desta OS.
+                </div>
+              );
+            }
+
+            const entityKey = `OS-${os.IdOrdemServico}`;
+            const currentMode = planningModes[entityKey] || 'progressivo';
+            const customOrderKeys = planningSectorOrders[entityKey];
+
+            let orderedSectors = [...rawSectors];
+            if (customOrderKeys && customOrderKeys.length > 0) {
+              orderedSectors.sort((a, b) => {
+                const idxA = customOrderKeys.indexOf(a.sectorKey);
+                const idxB = customOrderKeys.indexOf(b.sectorKey);
+                if (idxA === -1) return 1;
+                if (idxB === -1) return -1;
+                return idxA - idxB;
+              });
+            }
+
+            const defaultTargetDateStr = os.DataPrevisao ? brToIso(os.DataPrevisao) : new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
+            const currentTargetDate = planningTargetDates[entityKey] || defaultTargetDateStr;
+
+            let calculatedList: any[] = [];
+
+            if (currentMode === 'progressivo') {
+              let currentBaseDate = new Date();
+              currentBaseDate.setHours(0, 0, 0, 0);
+
+              calculatedList = orderedSectors.map((res) => {
+                const stateKey = `${entityKey}-${res.sectorKey}`;
+                const saved = getSavedEntitySectorDates(os, res.sectorKey);
+                
+                let currentDaysStr = osResourceDays[stateKey];
+                if (currentDaysStr === undefined) {
+                  if (saved.pi && saved.pf) {
+                    const m1 = saved.pi.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                    const m2 = saved.pf.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                    if (m1 && m2) {
+                      const d1 = new Date(+m1[3], +m1[2] - 1, +m1[1]);
+                      const d2 = new Date(+m2[3], +m2[2] - 1, +m2[1]);
+                      const diffDays = Math.round((d2.getTime() - d1.getTime()) / (86400000));
+                      if (diffDays >= 0) currentDaysStr = String(diffDays);
+                    }
+                  }
+                }
+                if (currentDaysStr === undefined) currentDaysStr = '0';
+
+                const numDays = parseInt(currentDaysStr, 10);
+                const validDays = (!isNaN(numDays) && numDays >= 0) ? numDays : 0;
+
+                const startDate = new Date(currentBaseDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + validDays);
+
+                const dS = String(startDate.getDate()).padStart(2, '0');
+                const mS = String(startDate.getMonth() + 1).padStart(2, '0');
+                const yS = startDate.getFullYear();
+                const startDateStr = `${dS}/${mS}/${yS}`;
+
+                const dE = String(endDate.getDate()).padStart(2, '0');
+                const mE = String(endDate.getMonth() + 1).padStart(2, '0');
+                const yE = endDate.getFullYear();
+                const endDateStr = `${dE}/${mE}/${yE}`;
+
+                const plannedDateStr = `${startDateStr} → ${endDateStr}`;
+
+                // Avança a data base para o próximo setor
+                currentBaseDate = new Date(endDate);
+
+                return {
+                  ...res,
+                  stateKey,
+                  currentDaysStr,
+                  plannedDateStr
+                };
+              });
+            } else {
+              let targetEndDate = new Date(currentTargetDate + 'T00:00:00');
+              if (isNaN(targetEndDate.getTime())) {
+                targetEndDate = new Date();
+                targetEndDate.setHours(0, 0, 0, 0);
+              }
+
+              let currentBaseEnd = new Date(targetEndDate);
+              const reversedSectors = [...orderedSectors].reverse();
+
+              const calcReversed = reversedSectors.map((res) => {
+                const stateKey = `${entityKey}-${res.sectorKey}`;
+                const currentDaysStr = osResourceDays[stateKey] || '';
+                const numDays = parseInt(currentDaysStr, 10);
+                const validDays = (!isNaN(numDays) && numDays >= 0) ? numDays : 0;
+
+                const endDate = new Date(currentBaseEnd);
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - validDays);
+
+                const dE = String(endDate.getDate()).padStart(2, '0');
+                const mE = String(endDate.getMonth() + 1).padStart(2, '0');
+                const yE = endDate.getFullYear();
+                const endDateStr = `${dE}/${mE}/${yE}`;
+
+                const dS = String(startDate.getDate()).padStart(2, '0');
+                const mS = String(startDate.getMonth() + 1).padStart(2, '0');
+                const yS = startDate.getFullYear();
+                const startDateStr = `${dS}/${mS}/${yS}`;
+
+                currentBaseEnd = new Date(startDate);
+
+                return {
+                  ...res,
+                  stateKey,
+                  currentDaysStr,
+                  plannedDateStr: `${startDateStr} → ${endDateStr}`
+                };
+              });
+
+              calculatedList = calcReversed.reverse();
+            }
+
+            return (
+              <div>
+                {/* Header de seleção de Modo e Calendário da Data Alvo */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3 p-3 bg-[#32423D]/5 rounded-lg border border-[#32423D]/20 shadow-sm">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">Ordem de Cálculo:</span>
+                      <div className="flex bg-white rounded-md p-0.5 border border-slate-300 shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setPlanningModes(prev => ({ ...prev, [entityKey]: 'progressivo' }))}
+                          className={`px-3 py-1.5 text-[10px] font-bold rounded transition-all flex items-center gap-1.5 ${currentMode === 'progressivo' ? 'bg-[#32423D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                        >
+                          ➔ Progressivo (A partir de Hoje)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPlanningModes(prev => ({ ...prev, [entityKey]: 'regressivo' }))}
+                          className={`px-3 py-1.5 text-[10px] font-bold rounded transition-all flex items-center gap-1.5 ${currentMode === 'regressivo' ? 'bg-[#32423D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                        >
+                          ⬅ Regressivo (A partir do Prazo Final)
+                        </button>
+                      </div>
+                    </div>
+
+                    {currentMode === 'regressivo' && (
+                      <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200 shadow-sm animate-in fade-in duration-200">
+                        <CalendarDays size={14} className="text-amber-700" />
+                        <span className="text-[10px] font-black uppercase text-amber-900">Data Final Alvo:</span>
+                        <input
+                          type="date"
+                          value={currentTargetDate}
+                          onChange={(e) => setPlanningTargetDates(prev => ({ ...prev, [entityKey]: e.target.value }))}
+                          className="px-2.5 py-1 text-xs font-bold text-slate-800 border border-amber-300 rounded outline-none focus:ring-2 focus:ring-amber-500 bg-white shadow-sm font-mono cursor-pointer"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSaveTagPlanning(t.IdTag, calculatedList)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-colors uppercase tracking-wider shrink-0"
+                    title="Gravar datas de início/término e usuário no banco de dados para a Tag, OSs e Itens"
+                  >
+                    <CheckCircle size={14} /> Gravar Datas de Planejamento
+                  </button>
+                </div>
+
+                {/* Tabela de 3 Colunas */}
+                <div className="overflow-x-auto rounded border border-slate-300 bg-white shadow-sm max-w-3xl">
+                  <table className="w-full text-[10px] text-left whitespace-nowrap border-collapse">
+                    <thead className="bg-[#32423D] text-white uppercase font-bold tracking-wider text-[9px]">
+                      <tr>
+                        <th className="px-3 py-2 border-r border-white/20">Setor / Recurso (OS)</th>
+                        <th className="px-3 py-2 border-r border-white/20 text-center w-48">Dias para Produzir Item</th>
+                        <th className="px-3 py-2 text-center w-64">
+                          {currentMode === 'progressivo' ? 'Data Planejada Final da Produção' : 'Intervalo Planejado (Início → Término)'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {calculatedList.map((res, sIdx) => (
+                        <tr key={res.sectorKey} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-3 py-2 font-bold border-r border-slate-100">
+                            <div className="flex items-center justify-between">
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold inline-block ${res.sectorColor}`}>
+                                {res.sectorLabel}
+                              </span>
+                              <div className="flex items-center gap-0.5 ml-2">
+                                <button
+                                  type="button"
+                                  disabled={sIdx === 0}
+                                  onClick={() => moveSectorInOrder(entityKey, sIdx, sIdx - 1, rawSectors)}
+                                  className="p-0.5 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                                  title="Mover setor para cima na sequência"
+                                >
+                                  ▲
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={sIdx === calculatedList.length - 1}
+                                  onClick={() => moveSectorInOrder(entityKey, sIdx, sIdx + 1, rawSectors)}
+                                  className="p-0.5 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                                  title="Mover setor para baixo na sequência"
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-3 py-2 text-center border-r border-slate-100 bg-slate-50/50">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={res.currentDaysStr}
+                                onChange={(e) => setOsResourceDays(prev => ({ ...prev, [res.stateKey]: e.target.value }))}
+                                className="w-20 px-2 py-1 text-center font-bold font-mono text-slate-800 border border-slate-300 rounded focus:border-[#32423D] focus:ring-1 focus:ring-[#32423D] outline-none bg-white shadow-inner text-xs"
+                              />
+                              <span className="text-[9px] text-slate-500 font-bold uppercase">dias</span>
+                            </div>
+                          </td>
+
+                          <td className="px-3 py-2 text-center font-mono font-bold text-slate-800 bg-indigo-50/40">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-indigo-200 rounded text-indigo-900 shadow-sm text-xs">
+                              <CalendarDays size={12} className="text-indigo-600" />
+                              {res.plannedDateStr}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </td>
+    </tr>
+  )}
+
+{expandedOsItems[os.IdOrdemServico] && (
+                        <tr>
+                          <td colSpan={11} className="p-0 border-b border-slate-200">
+                            <div className="p-4 bg-[#f0f4f8] shadow-inner border-y border-[#dbeafe]">
+                              <h5 className="text-[11px] font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <List size={12} className="text-[#3b82f6]" /> Itens da OS: {os.IdOrdemServico}
+                              </h5>
+                              <div className="overflow-x-auto rounded border border-slate-300">
+                                <table className="w-full text-[9px] text-left whitespace-nowrap">
+                                  <thead className="bg-[#e2e8f0] text-slate-700 uppercase font-bold tracking-wider">
+                                    <tr>
+                                      <th className="px-2 py-1.5 border-b border-slate-300">Resumo / Detalhado</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Cod Mat</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Prod Principal</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Medidas (EspxAltcxLarg)</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Dobras</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Peso Un. / Total</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Pint. Un. / Total</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Acabamento</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Fator</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Lib. Eng.</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Previsão</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Qtd. / Total</th>
+                                      <th className="px-2 py-1.5 border-b border-slate-300 text-center">Status</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-200 bg-white">
+                                    {expandedOsItems[os.IdOrdemServico].map((item: any) => (
+                                      <tr key={item.IdOrdemServicoItem} className="hover:bg-slate-50">
+                                        <td className="px-2 py-1.5 border-r border-slate-100">
+                                          <div className="font-bold text-slate-800" title={item.DescResumo}>{item.DescResumo || '—'}</div>
+                                          <div className="text-[8px] text-slate-500 line-clamp-1" title={item.DescDetal}>{item.DescDetal || '—'}</div>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 font-mono text-slate-600">{item.CodMatFabricante || '—'}</td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100">
+                                          <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${item.ProdutoPrincipal === 'S' || item.ProdutoPrincipal === 'Sim' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-400'}`}>{item.ProdutoPrincipal === 'S' || item.ProdutoPrincipal === 'Sim' ? 'Sim' : 'Não'}</span>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 text-slate-600">
+                                          {item.Espessura || '-'} x {item.Altura || '-'} x {item.Largura || '-'}
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 text-slate-600">{item.NumeroDobras || '0'}</td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100">
+                                          <div className="text-slate-800">{item.PesoUnitario ? parseFloat(item.PesoUnitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0'} kg</div>
+                                          <div className="text-[8px] text-slate-500">{item.Peso ? parseFloat(item.Peso).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0'} kg</div>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100">
+                                          <div className="text-slate-800">{item.AreaPinturaUnitario ? parseFloat(item.AreaPinturaUnitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0'} m²</div>
+                                          <div className="text-[8px] text-slate-500">{item.AreaPintura ? parseFloat(item.AreaPintura).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0'} m²</div>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 text-slate-600">{item.Acabamento || '—'}</td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 text-slate-600">{item.Fator || '—'}</td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100">
+                                          <div className={`font-bold ${item.Liberado_Engenharia === 'S' ? 'text-emerald-600' : 'text-slate-400'}`}>{item.Liberado_Engenharia === 'S' ? 'Sim' : 'Não'}</div>
+                                          {item.Data_Liberacao_Engenharia && <div className="text-[8px] text-slate-500">{isoToBr(item.Data_Liberacao_Engenharia.split('T')[0])}</div>}
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100 font-bold text-slate-600">{item.DataPrevisao ? isoToBr(item.DataPrevisao.split('T')[0]) : '—'}</td>
+                                        <td className="px-2 py-1.5 text-center border-r border-slate-100">
+                                          <div className="font-bold text-slate-800">{item.qtde || '0'}</div>
+                                          <div className="text-[8px] text-slate-500">{item.QtdeTotal || '0'}</div>
+                                        </td>
+                                        <td className="px-2 py-1.5 text-center">
+                                          <span className={`px-1 py-0.5 rounded text-[8px] font-bold uppercase ${item.OrdemServicoItemFinalizado === 'C' || item.OrdemServicoItemFinalizado === 'S' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                            {item.OrdemServicoItemFinalizado === 'C' || item.OrdemServicoItemFinalizado === 'S' ? 'Finalizado' : 'Aberto'}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                    {expandedOsItems[os.IdOrdemServico].length === 0 && (
+                                      <tr><td colSpan={13} className="px-2 py-3 text-center text-slate-400 font-medium">Nenhum Item localizado para esta OS.</td></tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  {expandedTagsOs[t.IdTag].length === 0 && (
+                    <tr>
+                      <td colSpan={11} className="px-3 py-4 text-center text-slate-400 font-medium">Nenhuma Ordem de Serviço encontrada para esta Tag.</td>
+                    </tr>
+                  )}
+                </tbody></table></div></div></td></tr>)}</React.Fragment>
  )
  })}
  </tbody>

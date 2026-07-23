@@ -494,26 +494,52 @@ export default function ProjetoPage() {
  };
 
  const handleLiberar = async (id: number) => {
- if (!confirm('Deseja realmente liberar este projeto?')) return;
- try {
- const res = await fetch(`${API_BASE}/projeto/${id}/liberar`, {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ usuario: 'Sistema' })
- });
- const json = await res.json();
- if (json.success) {
- showAlert('Projeto liberado com sucesso!', "success");
- fetchProjetos(); // Recarrega
- } else {
- showAlert(json.message || 'Erro ao liberar.', "error");
- }
- } catch {
- showAlert('Erro de conexão ao liberar.', "error");
- }
- };
+    try {
+      // 1. Consulta das Tags do projeto
+      const resTags = await fetch(`${API_BASE}/projeto/${id}/tags`);
+      const jsonTags = await resTags.json();
+      const tagsList = (jsonTags.success && Array.isArray(jsonTags.data)) ? jsonTags.data : [];
 
- const handleCancelarLiberacao = async (id: number) => {
+      // 2. Consulta das Ordens de Serviço (OS) do projeto
+      const resOs = await fetch(`${API_BASE}/visao-geral/projeto/${id}/ordens-servico`);
+      const jsonOs = await resOs.json();
+      const osList = (jsonOs.success && Array.isArray(jsonOs.data)) ? jsonOs.data : [];
+
+      const hasTags = tagsList.length > 0;
+      const hasOs = osList.length > 0;
+
+      // Se não possui Tag ou não possui OS, exibe a mensagem explicativa e CANCELA antes da confirmação
+      if (!hasTags || !hasOs) {
+        showAlert(
+          'Não é possível liberar este projeto. O projeto deve possuir pelo menos uma Tag e a Tag deve possuir pelo menos uma Ordem de Serviço (OS).',
+          'error'
+        );
+        return;
+      }
+
+      // 3. Pergunta de confirmação apenas para projetos válidos (que possuem Tag e OS)
+      if (!confirm('Deseja realmente liberar este projeto?')) return;
+
+      // 4. Liberação do projeto
+      const res = await fetch(`${API_BASE}/projeto/${id}/liberar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario: 'Sistema' })
+      });
+      const json = await res.json();
+      if (json.success) {
+        showAlert('Projeto liberado com sucesso!', 'success');
+        fetchProjetos();
+      } else {
+        showAlert(json.message || 'Erro ao liberar o projeto.', 'error');
+      }
+    } catch (e) {
+      console.error(e);
+      showAlert('Erro de conexão ao liberar o projeto.', 'error');
+    }
+  };
+
+  const handleCancelarLiberacao = async (id: number) => {
  if (!confirm('Deseja realmente CANCELAR a liberação deste projeto?')) return;
  try {
  const res = await fetch(`${API_BASE}/projeto/${id}/cancelar-liberacao`, {
