@@ -457,12 +457,42 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema', initialCo
         fetchComp2(selMat1.IdMaterial);
         setSelecionados3(new Set());
         setQuantidades3({});
-
       } else { 
         alert('Erro: ' + j.message); 
       }
-    } finally { 
-      setSaving3(false); 
+    } catch (e) {
+      alert('Erro ao salvar');
+    } finally {
+      setSaving3(false);
+    }
+  };
+
+  const handleUpdateQtdeComp = async (idMaterialPai: number, idFilho: number, newQtde: number) => {
+    try {
+      const r = await fetch(`${API}/composicao-qtde`, {
+        method: 'PUT',
+        headers: { ...authHdr(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idMaterialPai, idMaterialFilho: idFilho, qtde: newQtde })
+      });
+      const j = await r.json();
+      if (j.success) {
+        if (selMat1 && idMaterialPai === selMat1.IdMaterial) {
+           setComp2(prev => prev.map(m => m.IdMaterial === idFilho ? { ...m, PecaQtde: newQtde } : m));
+        } else {
+           setSubComps(prev => {
+              const updated = { ...prev };
+              for (const key in updated) {
+                 updated[key] = updated[key].map(m => (m.IdMaterial === idFilho && m.IdMaterialPeca === idMaterialPai) ? { ...m, PecaQtde: newQtde } : m);
+              }
+              return updated;
+           });
+        }
+      } else {
+        alert('Erro ao atualizar quantidade: ' + j.message);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Erro de conexão ao atualizar quantidade');
     }
   };
 
@@ -506,7 +536,27 @@ export default function MontaPecaManufaturadaPage({ usuario='Sistema', initialCo
             <td className={`p-1 px-1.5 text-[9.5px] truncate max-w-[100px] ${level > 0 ? 'text-blue-600' : 'text-gray-600'}`} title={c.DescDetal}>
               {c.DescDetal}
             </td>
-            <td className="p-1 px-1.5 text-[10px] font-bold text-center text-[#32423D]">{c.PecaQtde||1}</td>
+            <td className="p-1 px-1.5 text-center" onClick={e => e.stopPropagation()}>
+              <input 
+                type="number" 
+                min="0.01" 
+                step="0.01"
+                className="w-16 px-1 py-0.5 text-[10px] font-bold text-center border border-gray-200 rounded bg-white hover:border-indigo-400 focus:outline-none focus:border-indigo-500"
+                defaultValue={c.PecaQtde || 1}
+                onFocus={(e) => e.target.select()}
+                onBlur={(e) => {
+                  const val = Number(e.target.value);
+                  if (val > 0 && val !== (c.PecaQtde || 1)) {
+                    handleUpdateQtdeComp(c.IdMaterialPeca, c.IdMaterial, val);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                     e.currentTarget.blur();
+                  }
+                }}
+              />
+            </td>
           </tr>
           
           {isExpanded && isLoadingSub && (

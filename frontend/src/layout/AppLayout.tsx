@@ -92,7 +92,7 @@ export function AppLayout({ children, menuItems, activePageId, activeLabel, onNa
         const timer = setTimeout(() => {
             const el = sidebarScrollRef.current?.querySelector(`[data-menu-id="${targetId}"]`) as HTMLElement | null;
             if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                // el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
             }
             if (lastInteractedId) setLastInteractedId(null);
         }, 150); 

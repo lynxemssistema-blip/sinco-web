@@ -2946,7 +2946,7 @@ function OrdemServicoContent() {
                             }
                         }}
                         className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                        title="Gerar Relatório PDF"
+                        title="Abrir Arquivo PDF"
                     >
                         <FileText size={14} />
                     </button>

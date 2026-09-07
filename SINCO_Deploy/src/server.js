@@ -2236,7 +2236,13 @@ app.post('/api/login', loginLimiter, async (req, res) => {
         // 1. Try Central Auth First
         console.log(`[AUTH] Attempting central login for user: ${login}`);
         try {
-            const centralAuth = await authenticateCentralUser(login, pwd);
+            let centralAuth = await authenticateCentralUser(login, pwd);
+
+            if (!centralAuth.found) {
+                console.log(`[AUTH] User ${login} not found centrally. Attempting lazy sync...`);
+                await runGlobalUserSync(login);
+                centralAuth = await authenticateCentralUser(login, pwd);
+            }
 
             if (centralAuth.found) {
                 if (centralAuth.tenantConfig) {
@@ -2458,7 +2464,8 @@ app.post('/api/admin/login', async (req, res) => {
                     login: user.login,
                     role: 'admin',
                     dbName: 'lynxlocal', // Superadmin can access local db by default
-                    isSuperadmin: true
+                    isSuperadmin: true,
+                    tenantId: 1
                 }, JWT_SECRET, { expiresIn: '12h' });
 
                 return res.json({ success: true, token: token, userId: user.id });
@@ -2491,6 +2498,12 @@ app.post('/api/admin/impersonate', authenticateAdmin, async (req, res) => {
             return res.status(403).json({ success: false, message: 'Apenas superadmins podem usar esta rota' });
         }
 
+        const [rows] = await pool.executeOnDefault(
+            'SELECT id FROM conexoes_bancos WHERE db_name = ? LIMIT 1',
+            [dbName]
+        );
+        const tenantId = rows.length > 0 ? rows[0].id : 1;
+
         const token = jwt.sign({
             id: decoded.id,
             nome: decoded.nome || 'Superadmin',
@@ -2499,7 +2512,8 @@ app.post('/api/admin/impersonate', authenticateAdmin, async (req, res) => {
             superadmin: 'S',
             dbName: dbName,
             clientName: req.body.cliente || dbName,
-            isSuperadmin: true
+            isSuperadmin: true,
+            tenantId: tenantId
         }, JWT_SECRET, { expiresIn: '12h' });
 
         return res.json({ success: true, token });
@@ -2572,7 +2586,8 @@ app.post('/api/superadmin/switch-db', tenantMiddleware, async (req, res) => {
             dbName: dbName,
             clientName: banco.nome_cliente,
             isSuperadmin: true,
-            superadmin: 'S'
+            superadmin: 'S',
+            tenantId: banco.id
         }, JWT_SECRET, { expiresIn: '12h' });
 
         console.log(`[SuperAdmin] ${decoded.login} switched to DB: ${dbName} (${banco.nome_cliente})`);
@@ -2755,7 +2770,7 @@ app.post('/api/admin/sync-users/:dbId', authenticateAdmin, async (req, res) => {
     }
 });
 
-async function runGlobalUserSync() {
+async function runGlobalUserSync(targetLogin = null) {
     let centralConn;
     try {
         centralConn = await mysql.createConnection(CENTRAL_DB_CONFIG);
@@ -2776,7 +2791,9 @@ async function runGlobalUserSync() {
                     port: dbConfig.db_port || 3306
                 });
 
-                const [users] = await tenantConn.execute('SELECT * FROM usuario');
+                const queryStr = targetLogin ? 'SELECT * FROM usuario WHERE Login = ?' : 'SELECT * FROM usuario';
+                const queryParams = targetLogin ? [targetLogin] : [];
+                const [users] = await tenantConn.execute(queryStr, queryParams);
 
                 for (const user of users) {
                     let isAtivo = 1;
@@ -3081,7 +3098,7 @@ app.post('/api/usuario', tenantMiddleware, async (req, res) => {
         }
 
         const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
-        const currentDbName = req.tenantDb;
+        const currentDbName = req.user?.dbName || req.tenantUser?.dbName;
         const isGlobalUnique = await checkGlobalLoginUnique(Login.trim(), Senha, currentDbHost, currentDbName);
         if (!isGlobalUnique) {
             return res.status(400).json({ success: false, message: 'Este login e senha já estão sendo usados. Escolha outro usuário ou mude a senha.' });
@@ -3138,7 +3155,7 @@ app.put('/api/usuario/:id', tenantMiddleware, async (req, res) => {
 
     try {
         const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
-        const currentDbName = req.tenantDb;
+        const currentDbName = req.user?.dbName || req.tenantUser?.dbName;
 
         // Obter senha real caso a enviada seja placeholder ou vazia
         let senhaFinal = Senha;
@@ -3216,7 +3233,7 @@ app.delete('/api/usuario/:id', tenantMiddleware, async (req, res) => {
         );
         if (userRows.length > 0) {
             const currentDbHost = req.tenantDbPool?.pool?.config?.connectionConfig?.host || process.env.DB_HOST;
-            const currentDbName = req.tenantDb;
+            const currentDbName = req.user?.dbName || req.tenantUser?.dbName;
             syncUserToCentral({ ...userRows[0], forceInactive: true }, currentDbHost, currentDbName).catch(err => {
                 console.error('[SYNC] Failed to sync deleted user to central:', err);
             });
@@ -3554,7 +3571,7 @@ app.get('/api/pj', tenantMiddleware, async (req, res) => {
 app.get('/api/pj/options', tenantMiddleware, async (req, res) => {
     try {
         const [rows] = await req.tenantDbPool.execute(
-            "SELECT IdPessoa as id, RazaoSocial as label FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*' ORDER BY RazaoSocial"
+            "SELECT IdPessoa as id, RazaoSocial as label, Cnpj as cnpj FROM pessoajuridica WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E != '*' ORDER BY RazaoSocial"
         );
         res.json({ success: true, data: rows });
     } catch (error) {
@@ -4240,6 +4257,8 @@ app.post('/api/material', tenantMiddleware, async (req, res) => {
 
     try {
         const now = getCurrentDateTimeBR();
+        const loggedUser = req.user?.NomeCompleto || req.user?.nome || req.user?.login || req.tenantUser?.nome || 'Sistema';
+        const idMatriz = req.tenantUser?.tenantId || req.user?.idMatriz || null;
 
         const [result] = await req.tenantDbPool.execute(
             `INSERT INTO material (
@@ -4247,8 +4266,12 @@ app.post('/api/material', tenantMiddleware, async (req, res) => {
                 FamiliaMat, CodigoJuridicoMat, 
                 Peso, Unidade, Altura, Largura, Profundidade,
                 Valor, PercICMS, vICMS, PercIPI, vIPI, vLiquido,
-                acabamento, ImagemProduto, DtCad, UsuarioCriacao
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                acabamento, ImagemProduto, DtCad, UsuarioCriacao,
+                Autor, Palavrachave, Titulo, SubTitulo, Notas,
+                AreaPintura, NumeroDobras, UnidadeSW, ValorSW,
+                Imagem, StatusMat, IdValor, TotalValor, EnderecoArquivo,
+                MaterialSW, ConfiguracaoArquivo, txtItemEstoque, IdMatriz
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 data.CodMatFabricante?.trim(),
                 data.DescResumo?.trim().toUpperCase() || null,
@@ -4270,7 +4293,25 @@ app.post('/api/material', tenantMiddleware, async (req, res) => {
                 data.acabamento || null,
                 data.ImagemProduto || null,
                 now,
-                'Sistema'
+                loggedUser,
+                data.Autor || null,
+                data.Palavrachave || null,
+                data.Titulo || null,
+                data.SubTitulo || null,
+                data.Notas || null,
+                data.AreaPintura || null,
+                data.NumeroDobras || null,
+                data.UnidadeSW || null,
+                data.ValorSW || null,
+                data.Imagem || null,
+                data.StatusMat || null,
+                data.IdValor || null,
+                data.TotalValor || null,
+                data.EnderecoArquivo || null,
+                data.MaterialSW || null,
+                data.ConfiguracaoArquivo || null,
+                data.txtItemEstoque || null,
+                idMatriz
             ]
         );
         res.json({ success: true, message: 'Material cadastrado com sucesso', id: result.insertId });
@@ -4295,6 +4336,8 @@ app.put('/api/material/:id', tenantMiddleware, async (req, res) => {
 
     try {
         const now = getCurrentDateTimeBR();
+        const loggedUser = req.user?.NomeCompleto || req.user?.nome || req.user?.login || req.tenantUser?.nome || 'Sistema';
+        const idMatriz = req.tenantUser?.tenantId || req.user?.idMatriz || null;
 
         await req.tenantDbPool.execute(
             `UPDATE material SET
@@ -4302,7 +4345,11 @@ app.put('/api/material/:id', tenantMiddleware, async (req, res) => {
                 FamiliaMat = ?, CodigoJuridicoMat = ?,
                 Peso = ?, Unidade = ?, Altura = ?, Largura = ?, Profundidade = ?,
                 Valor = ?, PercICMS = ?, vICMS = ?, PercIPI = ?, vIPI = ?, vLiquido = ?,
-                acabamento = ?, ImagemProduto = ?, DtAlteracao = ?, UsuarioAlteracao = ?
+                acabamento = ?, ImagemProduto = ?, DtAlteracao = ?, UsuarioAlteracao = ?,
+                Autor = ?, Palavrachave = ?, Titulo = ?, SubTitulo = ?, Notas = ?,
+                AreaPintura = ?, NumeroDobras = ?, UnidadeSW = ?, ValorSW = ?,
+                Imagem = ?, StatusMat = ?, IdValor = ?, TotalValor = ?, EnderecoArquivo = ?,
+                MaterialSW = ?, ConfiguracaoArquivo = ?, txtItemEstoque = ?, IdMatriz = ?
             WHERE IdMaterial = ?`,
             [
                 data.CodMatFabricante?.trim(),
@@ -4325,7 +4372,25 @@ app.put('/api/material/:id', tenantMiddleware, async (req, res) => {
                 data.acabamento || null,
                 data.ImagemProduto || null,
                 now,
-                'Sistema',
+                loggedUser,
+                data.Autor || null,
+                data.Palavrachave || null,
+                data.Titulo || null,
+                data.SubTitulo || null,
+                data.Notas || null,
+                data.AreaPintura || null,
+                data.NumeroDobras || null,
+                data.UnidadeSW || null,
+                data.ValorSW || null,
+                data.Imagem || null,
+                data.StatusMat || null,
+                data.IdValor || null,
+                data.TotalValor || null,
+                data.EnderecoArquivo || null,
+                data.MaterialSW || null,
+                data.ConfiguracaoArquivo || null,
+                data.txtItemEstoque || null,
+                idMatriz,
                 id
             ]
         );
@@ -4777,27 +4842,36 @@ app.get('/api/acompanhamento/projetos', tenantMiddleware, async (req, res) => {
         }
 
         if (searchProjeto) {
-            const s = pool.escape('%' + searchProjeto + '%');
-            condicoes.push(`(p.Projeto LIKE ${s} OR p.DescEmpresa LIKE ${s})`);
+            const s = pool.escape('%' + searchProjeto.toLowerCase() + '%');
+            condicoes.push(`(LOWER(p.Projeto) LIKE ${s} OR LOWER(p.DescEmpresa) LIKE ${s})`);
         }
 
         if (searchDescricao) {
-            const s = pool.escape('%' + searchDescricao + '%');
-            condicoes.push(`(p.DescProjeto LIKE ${s})`);
+            const s = pool.escape('%' + searchDescricao.toLowerCase() + '%');
+            condicoes.push(`(LOWER(p.DescProjeto) LIKE ${s})`);
         }
 
         if (search) {
-            const s = pool.escape('%' + search + '%');
-            condicoes.push(`(p.Projeto LIKE ${s} OR p.DescProjeto LIKE ${s} OR p.DescEmpresa LIKE ${s})`);
+            const s = pool.escape('%' + search.toLowerCase() + '%');
+            condicoes.push(`(LOWER(p.Projeto) LIKE ${s} OR LOWER(p.DescProjeto) LIKE ${s} OR LOWER(p.DescEmpresa) LIKE ${s})`);
         }
 
         if (dataFinalDe) {
-            // Usually dataFinalDe is YYYY-MM-DD from HTML date input
             condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') >= '${dataFinalDe}'`);
         }
         if (dataFinalAte) {
             condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= '${dataFinalAte}'`);
         }
+
+        const previsaoInicio = req.query.previsaoInicio;
+        const previsaoFim = req.query.previsaoFim;
+        const criacaoInicio = req.query.criacaoInicio;
+        const criacaoFim = req.query.criacaoFim;
+
+        if (previsaoInicio) condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') >= STR_TO_DATE(${pool.escape(previsaoInicio)}, '%d/%m/%Y')`);
+        if (previsaoFim) condicoes.push(`STR_TO_DATE(p.DataPrevisao, '%d/%m/%Y') <= STR_TO_DATE(${pool.escape(previsaoFim)}, '%d/%m/%Y')`);
+        if (criacaoInicio) condicoes.push(`STR_TO_DATE(p.DataCriacao, '%d/%m/%Y') >= STR_TO_DATE(${pool.escape(criacaoInicio)}, '%d/%m/%Y')`);
+        if (criacaoFim) condicoes.push(`STR_TO_DATE(p.DataCriacao, '%d/%m/%Y') <= STR_TO_DATE(${pool.escape(criacaoFim)}, '%d/%m/%Y')`);
 
         const modo = req.query.modo || 'liberados';
 
@@ -4921,7 +4995,7 @@ const queryPool = req.tenantDbPool || pool;
                 MAX(CASE WHEN ${safeOsiFlag('txtGALVANIZAR')} = '1' OR ${safeOsiFlag('txtGALVANIZAR')} = 'S' THEN 1 ELSE 0 END) as flagGalvanizar
 
             FROM ordemservico os
-            LEFT JOIN ordemservicoitem osi ON os.IdOrdemServico = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
+            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR) = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
             INNER JOIN tags t ON os.IdTag = t.IdTag AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
             WHERE os.IdProjeto IN (${inClause}) 
               AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
@@ -4989,12 +5063,15 @@ const queryPool = req.tenantDbPool || pool;
                 DATE_FORMAT(MAX(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.PlanejadoFinal ELSE NULL END), '%d/%m/%Y') as mpPlanejadoFinalGalvanizar,
                 DATE_FORMAT(MIN(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.RealizadoInicio ELSE NULL END), '%d/%m/%Y') as mpRealizadoInicioGalvanizar,
                 DATE_FORMAT(MAX(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.RealizadoFinal ELSE NULL END), '%d/%m/%Y') as mpRealizadoFinalGalvanizar
-            FROM ordemservico os
-            LEFT JOIN material_processo mp ON mp.IdOrdemServico = os.IdOrdemServico
+            FROM (
+                SELECT IdOrdemServico, IdProjeto
+                FROM ordemservico
+                WHERE IdProjeto IN (${inClause})
+                  AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')
+                  AND IdTag IS NOT NULL
+            ) os
+            INNER JOIN material_processo mp ON mp.IdOrdemServico = os.IdOrdemServico
             LEFT JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
-            WHERE os.IdProjeto IN (${inClause})
-              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
-              AND os.IdTag IS NOT NULL
             GROUP BY os.IdProjeto
         `);
         
@@ -5249,7 +5326,7 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', tenantMiddleware, async (
                 COALESCE(SUM(CASE WHEN ${safeOsiFlag('txtGALVANIZAR')} = '1' THEN CAST(NULLIF(${safeOsiCol('QtdeTotal')},'') AS DECIMAL(10,2)) ELSE 0 END), 0) AS SumQtdeGalvanizar
 
             FROM ordemservico os
-            LEFT JOIN ordemservicoitem osi ON os.IdOrdemServico = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
+            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR) = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
             WHERE os.IdTag IN (${inClause})
               AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
             GROUP BY os.IdTag
@@ -5320,11 +5397,14 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', tenantMiddleware, async (
                 DATE_FORMAT(MAX(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.PlanejadoFinal ELSE NULL END), '%d/%m/%Y') as mpPlanejadoFinalGALVANIZAR,
                 DATE_FORMAT(MIN(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.RealizadoInicio ELSE NULL END), '%d/%m/%Y') as mpRealizadoInicioGALVANIZAR,
                 DATE_FORMAT(MAX(CASE WHEN pf.processofabricacao LIKE '%GALVANIZAR%' THEN mp.RealizadoFinal ELSE NULL END), '%d/%m/%Y') as mpRealizadoFinalGALVANIZAR
-            FROM ordemservico os
-            LEFT JOIN material_processo mp ON mp.IdOrdemServico = os.IdOrdemServico
+            FROM (
+                SELECT IdOrdemServico, IdTag
+                FROM ordemservico
+                WHERE IdTag IN (${inClause})
+                  AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')
+            ) os
+            INNER JOIN material_processo mp ON mp.IdOrdemServico = os.IdOrdemServico
             LEFT JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao
-            WHERE os.IdTag IN (${inClause})
-              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
             GROUP BY os.IdTag
         `);
 const mpStatsMap = {};
@@ -7537,9 +7617,17 @@ app.get('/api/ordemservico/tags', tenantMiddleware, async (req, res) => {
 // OPTIONS: Lista de Projetos para Clonagem
 app.get('/api/ordemservico/projetos-clonagem', tenantMiddleware, async (req, res) => {
     try {
-        const [rows] = await req.tenantDbPool.execute("SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (liberado IS NULL OR liberado <> 'S') AND (Finalizado IS NULL OR Finalizado <> 'C') ORDER BY Projeto");
+        // Exibe projetos ativos (não deletados e não finalizados)
+        // Projetos liberados pela engenharia (liberado='S') TAMBÉM aparecem — apenas finalizados são excluídos
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT IdProjeto as value, Projeto as label FROM projetos WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (Finalizado IS NULL OR Finalizado <> 'C') ORDER BY Projeto"
+        );
+        console.log(`[ProjetosClonagem] Tenant: ${req.tenantId || 'default'} | Projetos disponíveis: ${rows.length}`);
         res.json({ success: true, data: rows });
-    } catch (error) { res.status(500).json({ success: false }); }
+    } catch (error) {
+        console.error('[ProjetosClonagem] Erro:', error.message);
+        res.status(500).json({ success: false });
+    }
 });
 
 // OPTIONS: Lista de Tags para Clonagem
@@ -7721,8 +7809,8 @@ app.get('/api/ordemservico', tenantMiddleware, async (req, res) => {
             params.push(`%${tag}%`);
         }
         if (search) {
-            whereClause += " AND (CAST(IdOrdemServico AS CHAR) LIKE ? OR Tag LIKE ? OR DescTag LIKE ? OR Projeto LIKE ?)";
-            params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+            whereClause += " AND (CAST(IdOrdemServico AS CHAR) LIKE ? OR Tag LIKE ? OR DescTag LIKE ? OR Projeto LIKE ? OR Descricao LIKE ?)";
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         // Adicionar filtros de data independentes
@@ -8655,9 +8743,10 @@ app.post('/api/ordemservico/alterar-fator', tenantMiddleware, async (req, res) =
 
         // Verifica ITENS
         const [itemRows] = await connection.query('SELECT IdOrdemServicoItem, Qtde, AreaPintura, Peso FROM ordemservicoitem WHERE IdOrdemServico = ?', [IdOrdemServico]);
-        if (itemRows.length === 0) {
+        // Permite alterar fator mesmo sem itens
+        /* if (itemRows.length === 0) {
             return res.status(400).json({ success: false, message: 'Não há itens a serem alterados!' });
-        }
+        } */
 
         for (const item of itemRows) {
             let qtdeNum = parseFloat(item.Qtde) || 0;
@@ -8888,6 +8977,29 @@ app.post('/api/ordemservico/liberar', tenantMiddleware, async (req, res) => {
         if (produtoPrincipal.length === 0) {
             await connection.rollback();
             return res.status(400).json({ success: false, message: 'Verifique se há um produto principal para a Ordem de Serviço cadastrado.' });
+        }
+
+        // 1.5 Validar se todos os itens possuem pelo menos um recurso associado
+        const [itensSemRecurso] = await connection.execute(
+            `SELECT osi.CodMatFabricante
+             FROM ordemservicoitem osi
+             LEFT JOIN material_processo mp 
+               ON osi.IdOrdemServico = mp.IdOrdemServico 
+              AND osi.CodMatFabricante = mp.codmatFabricante
+              AND COALESCE(osi.IdTag, 0) = COALESCE(mp.IdTag, 0)
+              AND COALESCE(osi.IdProjeto, 0) = COALESCE(mp.IdProjeto, 0)
+             WHERE osi.IdOrdemServico = ?
+             GROUP BY osi.IdOrdemServicoItem
+             HAVING COUNT(mp.IdProcesso) = 0`,
+            [IdOrdemServico]
+        );
+        if (itensSemRecurso.length > 0) {
+            await connection.rollback();
+            const codigosSemRecurso = itensSemRecurso.map(i => i.CodMatFabricante).join(', ');
+            return res.status(400).json({ 
+                success: false, 
+                message: `Não é possível liberar a OS. O(s) item(ns) a seguir não possuem nenhum recurso (processo) associado: ${codigosSemRecurso}. Adicione pelo menos um recurso para cada item.` 
+            });
         }
 
         // 2. Limpar Diretà³rios e Copiar Arquivos
@@ -10935,6 +11047,22 @@ WHERE osi.IdOrdemServicoItem = ?
 
         const item = itemRows[0];
 
+        // Fetch actual totals from material_processo table instead of legacy OS item
+        try {
+            const [mpRows] = await req.tenantDbPool.execute(`SELECT mp.TotalExecutado, mp.TotalExecutar 
+                FROM material_processo mp 
+                JOIN processofabricacao pf ON mp.IdProcesso = pf.IdProcessoFabricacao 
+                WHERE mp.IdOrdemServico = ? AND mp.codmatFabricante = ? AND REPLACE(LOWER(pf.processofabricacao), ' ', '') = ?`, [item.IdOrdemServico, item.CodMatFabricante, processo.toLowerCase()]);
+            
+            if (mpRows.length > 0) {
+                item.TotalExecutado = mpRows[0].TotalExecutado || 0;
+                item.TotalExecutar = mpRows[0].TotalExecutar || item.QtdeTotal;
+                item.QtdeFaltanteCalculada = item.TotalExecutar - item.TotalExecutado;
+                item.PercentualSetor = (item.TotalExecutado / item.TotalExecutar) * 100;
+            }
+        } catch(err) {
+            console.error("[API] Error fetching material_processo:", err.message);
+        }
         // Buscar hist�rico de apontamentos
         const historicoQuery = `
             SELECT
@@ -13582,6 +13710,9 @@ app.get('/api/recursos', tenantMiddleware, async (req, res) => {
     try {
         const query = "SELECT IdProcessoFabricacao, processofabricacao, CodigoProcessoFabricacao, DataLiberada, Fabrica, Setup, TempoPadrao, DataCriacao, CriadoPor FROM processofabricacao WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') ORDER BY processofabricacao ASC";
         const [rows] = await ensureProcessoFieldsAndRetry(req.tenantDbPool, query, []);
+        // Log distinct Fabrica values to diagnose tenant-specific issues
+        const fabricaValues = [...new Set(rows.map(r => r.Fabrica))];
+        console.log(`[Recursos] Tenant: ${req.tenantId || 'default'} | Total: ${rows.length} | Fabrica values: ${JSON.stringify(fabricaValues)}`);
         res.json({ success: true, data: rows });
     } catch (error) {
         console.error('Error fetching recursos:', error);
@@ -18744,14 +18875,26 @@ app.post('/api/materiais/:id/arquivos', tenantMiddleware, uploadMemory.single('a
     if (!file) return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
 
     const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const dbName = req.tenantUser?.dbName || 'default';
     const now = new Date();
     const nowFormat = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
+
+        const dir = path.join(__dirname, '../public/uploads/materiais', dbName, String(id));
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        const filePath = path.join(dir, file.originalname);
+        await fs.promises.writeFile(filePath, file.buffer);
+
+        const marker = Buffer.from('[FILE_SYSTEM]');
+        
         await req.tenantDbPool.execute(
             "INSERT INTO material_arquivos (IdMaterial, NomeArquivo, TipoArquivo, Tamanho, Dados, DataCriacao, CriadoPor) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [id, file.originalname, file.mimetype, file.size, file.buffer, nowFormat, usuario]
+            [id, file.originalname, file.mimetype, file.size, marker, nowFormat, usuario]
         );
         res.json({ success: true, message: 'Arquivo salvo com sucesso' });
     } catch (error) {
@@ -18766,7 +18909,7 @@ app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
         const [rows] = await req.tenantDbPool.execute(
-            "SELECT NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
+            "SELECT IdMaterial, NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
             [idArquivo]
         );
         
@@ -18775,9 +18918,23 @@ app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (
         }
 
         const file = rows[0];
+        const dbName = req.tenantUser?.dbName || 'default';
+        const diskPath = path.join(__dirname, '../public/uploads/materiais', dbName, String(file.IdMaterial), file.NomeArquivo);
+
         res.setHeader('Content-Disposition', `inline; filename="${file.NomeArquivo}"`);
         res.setHeader('Content-Type', file.TipoArquivo);
-        res.send(file.Dados);
+
+        if (fs.existsSync(diskPath)) {
+            const fileStream = fs.createReadStream(diskPath);
+            fileStream.pipe(res);
+        } else {
+            if (file.Dados) {
+                 res.send(file.Dados);
+            } else {
+                 return res.status(404).json({ success: false, message: 'Arquivo não encontrado fisicamente ou no banco' });
+            }
+        }
+
     } catch (error) {
         console.error('Error downloading material arquivo:', error);
         res.status(500).json({ success: false, message: 'Erro ao baixar arquivo' });
@@ -18789,6 +18946,22 @@ app.delete('/api/materiais/arquivos/:idArquivo', tenantMiddleware, async (req, r
     const { idArquivo } = req.params;
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
+        
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT IdMaterial, NomeArquivo FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+
+        if (rows.length > 0) {
+            const file = rows[0];
+            const dbName = req.tenantUser?.dbName || 'default';
+            const diskPath = path.join(__dirname, '../public/uploads/materiais', dbName, String(file.IdMaterial), file.NomeArquivo);
+            
+            if (fs.existsSync(diskPath)) {
+                fs.unlinkSync(diskPath);
+            }
+        }
+
         await req.tenantDbPool.execute(
             "DELETE FROM material_arquivos WHERE idArquivo = ?",
             [idArquivo]

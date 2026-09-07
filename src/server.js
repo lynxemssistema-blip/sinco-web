@@ -8979,6 +8979,29 @@ app.post('/api/ordemservico/liberar', tenantMiddleware, async (req, res) => {
             return res.status(400).json({ success: false, message: 'Verifique se há um produto principal para a Ordem de Serviço cadastrado.' });
         }
 
+        // 1.5 Validar se todos os itens possuem pelo menos um recurso associado
+        const [itensSemRecurso] = await connection.execute(
+            `SELECT osi.CodMatFabricante
+             FROM ordemservicoitem osi
+             LEFT JOIN material_processo mp 
+               ON osi.IdOrdemServico = mp.IdOrdemServico 
+              AND osi.CodMatFabricante = mp.codmatFabricante
+              AND COALESCE(osi.IdTag, 0) = COALESCE(mp.IdTag, 0)
+              AND COALESCE(osi.IdProjeto, 0) = COALESCE(mp.IdProjeto, 0)
+             WHERE osi.IdOrdemServico = ?
+             GROUP BY osi.IdOrdemServicoItem
+             HAVING COUNT(mp.IdProcesso) = 0`,
+            [IdOrdemServico]
+        );
+        if (itensSemRecurso.length > 0) {
+            await connection.rollback();
+            const codigosSemRecurso = itensSemRecurso.map(i => i.CodMatFabricante).join(', ');
+            return res.status(400).json({ 
+                success: false, 
+                message: `Não é possível liberar a OS. O(s) item(ns) a seguir não possuem nenhum recurso (processo) associado: ${codigosSemRecurso}. Adicione pelo menos um recurso para cada item.` 
+            });
+        }
+
         // 2. Limpar Diretà³rios e Copiar Arquivos
         const [items] = await connection.execute(
             `SELECT EnderecoArquivo FROM ordemservicoitem WHERE IdOrdemServico = ? AND EnderecoArquivo IS NOT NULL AND EnderecoArquivo != ''`,
@@ -18852,14 +18875,26 @@ app.post('/api/materiais/:id/arquivos', tenantMiddleware, uploadMemory.single('a
     if (!file) return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado' });
 
     const usuario = req.tenantUser?.login || req.tenantUser?.nomeCompleto || 'Sistema';
+    const dbName = req.tenantUser?.dbName || 'default';
     const now = new Date();
     const nowFormat = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
+
+        const dir = path.join(__dirname, '../public/uploads/materiais', dbName, String(id));
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        const filePath = path.join(dir, file.originalname);
+        await fs.promises.writeFile(filePath, file.buffer);
+
+        const marker = Buffer.from('[FILE_SYSTEM]');
+        
         await req.tenantDbPool.execute(
             "INSERT INTO material_arquivos (IdMaterial, NomeArquivo, TipoArquivo, Tamanho, Dados, DataCriacao, CriadoPor) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [id, file.originalname, file.mimetype, file.size, file.buffer, nowFormat, usuario]
+            [id, file.originalname, file.mimetype, file.size, marker, nowFormat, usuario]
         );
         res.json({ success: true, message: 'Arquivo salvo com sucesso' });
     } catch (error) {
@@ -18874,7 +18909,7 @@ app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
         const [rows] = await req.tenantDbPool.execute(
-            "SELECT NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
+            "SELECT IdMaterial, NomeArquivo, TipoArquivo, Dados FROM material_arquivos WHERE idArquivo = ?",
             [idArquivo]
         );
         
@@ -18883,9 +18918,23 @@ app.get('/api/materiais/arquivos/:idArquivo/download', tenantMiddleware, async (
         }
 
         const file = rows[0];
+        const dbName = req.tenantUser?.dbName || 'default';
+        const diskPath = path.join(__dirname, '../public/uploads/materiais', dbName, String(file.IdMaterial), file.NomeArquivo);
+
         res.setHeader('Content-Disposition', `inline; filename="${file.NomeArquivo}"`);
         res.setHeader('Content-Type', file.TipoArquivo);
-        res.send(file.Dados);
+
+        if (fs.existsSync(diskPath)) {
+            const fileStream = fs.createReadStream(diskPath);
+            fileStream.pipe(res);
+        } else {
+            if (file.Dados) {
+                 res.send(file.Dados);
+            } else {
+                 return res.status(404).json({ success: false, message: 'Arquivo não encontrado fisicamente ou no banco' });
+            }
+        }
+
     } catch (error) {
         console.error('Error downloading material arquivo:', error);
         res.status(500).json({ success: false, message: 'Erro ao baixar arquivo' });
@@ -18897,6 +18946,22 @@ app.delete('/api/materiais/arquivos/:idArquivo', tenantMiddleware, async (req, r
     const { idArquivo } = req.params;
     try {
         await ensureMaterialArquivosTable(req.tenantDbPool);
+        
+        const [rows] = await req.tenantDbPool.execute(
+            "SELECT IdMaterial, NomeArquivo FROM material_arquivos WHERE idArquivo = ?",
+            [idArquivo]
+        );
+
+        if (rows.length > 0) {
+            const file = rows[0];
+            const dbName = req.tenantUser?.dbName || 'default';
+            const diskPath = path.join(__dirname, '../public/uploads/materiais', dbName, String(file.IdMaterial), file.NomeArquivo);
+            
+            if (fs.existsSync(diskPath)) {
+                fs.unlinkSync(diskPath);
+            }
+        }
+
         await req.tenantDbPool.execute(
             "DELETE FROM material_arquivos WHERE idArquivo = ?",
             [idArquivo]

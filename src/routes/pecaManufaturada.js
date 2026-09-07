@@ -279,6 +279,28 @@ router.post('/composicao-lote', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────────────────────────────────────
+// PUT /composicao-qtde — Atualiza a quantidade de um item na composição
+// ────────────────────────────────────────────────────────────────────────────────
+router.put('/composicao-qtde', async (req, res) => {
+    try {
+        const { idMaterialPai, idMaterialFilho, qtde } = req.body;
+        if (!idMaterialPai || !idMaterialFilho || !qtde) {
+            return res.status(400).json({ success: false, message: 'Parâmetros obrigatórios ausentes.' });
+        }
+        const tenantPool = db(req);
+        
+        await tenantPool.execute(
+            `UPDATE montapeca SET PecaQtde = ? WHERE IdMaterialPeca = ? AND IdMaterial = ? AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '')`,
+            [qtde, idMaterialPai, idMaterialFilho]
+        );
+        res.json({ success: true, message: 'Quantidade atualizada com sucesso.' });
+    } catch (error) {
+        console.error('[PecaManufaturada] PUT /composicao-qtde:', error.message);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar quantidade.' });
+    }
+});
+
+// ────────────────────────────────────────────────────────────────────────────────
 // GET /desenhos-criar — Desenhos disponíveis para criação (modo "Criar Peça Manufaturada")
 // Lista materiais com arquivo CAD cadastrado
 // ────────────────────────────────────────────────────────────────────────────────

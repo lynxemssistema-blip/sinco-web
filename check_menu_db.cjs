@@ -19,14 +19,7 @@ async function main() {
   const menu = JSON.parse(rows[0].MenuStructure);
   console.log('Total itens no menu salvo:', menu.length);
   
-  // Procurar item relacionado a "monta" ou "manufaturada" ou "Processo Fabricacao"
-  const montaItems = menu.filter(i => 
-    JSON.stringify(i).toLowerCase().includes('monta') || 
-    JSON.stringify(i).toLowerCase().includes('manufat') ||
-    JSON.stringify(i).toLowerCase().includes('processo')
-  );
-  console.log('\nItens relacionados a Montagem/Manufaturada:');
-  console.log(JSON.stringify(montaItems, null, 2));
+  console.log(JSON.stringify(menu, null, 2));
 
   await c.end();
 }

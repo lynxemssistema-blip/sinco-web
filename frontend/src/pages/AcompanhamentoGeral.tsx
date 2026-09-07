@@ -530,6 +530,8 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
   const [expandedTags, setExpandedTags] = useState<Set<number>>(new Set());
   const [osCache, setOsCache] = useState<Map<number, OsRecurso[]>>(new Map());
   const [osLoading, setOsLoading] = useState<Set<number>>(new Set());
+  const [fTag, setFTag] = useState('');
+  const [fOs, setFOs] = useState('');
 
   const toggleTag = async (tagId: number) => {
     const next = new Set(expandedTags);
@@ -610,7 +612,9 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
     const pi = parseDate(r.PlanejadoInicio); if (pi) g.planInis.push(pi);
     const pf = parseDate(r.PlanejadoFinal);  if (pf) g.planFins.push(pf);
     const ri = parseDate(r.RealizadoInicio); if (ri) g.realInis.push(ri);
-    const rf = parseDate(r.RealizadoFinal);  if (rf) g.realFins.push(rf);
+    let rf = parseDate(r.RealizadoFinal);
+    if (Number(r.TotalExecutar) > 0) rf = null;
+    if (rf) g.realFins.push(rf);
     if (ri && !rf) g.emAndamento = true;
   });
 
@@ -731,12 +735,33 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
 
       {/* ── Gantt Table ──────────────────────────────────────────────── */}
       {viewMode === 'gantt' && (
-      <div className="flex-1 overflow-auto custom-scrollbar">
+      <div className="flex-1 flex flex-col min-h-0 bg-white">
+        <div className="shrink-0 p-2 border-b border-slate-200 flex items-center gap-4 bg-slate-50">
+          <div className="relative">
+             <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+             <input value={fTag} onChange={e => setFTag(e.target.value)} type="text" placeholder="Filtrar Tag (ID, Descrição)..." className="pl-8 pr-8 py-1.5 text-[11px] font-semibold border border-slate-300 rounded-md w-60 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm" />
+             {fTag && <button onClick={() => setFTag('')} className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"><X size={12}/></button>}
+          </div>
+          {expandedTags.size > 0 && (
+            <div className="flex items-center gap-2">
+               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Filtro OS:</span>
+               <div className="relative">
+                 <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                 <input value={fOs} onChange={e => setFOs(e.target.value)} type="text" placeholder="Filtrar OS (ID, Descrição)..." className="pl-8 pr-8 py-1.5 text-[11px] font-semibold border border-slate-300 rounded-md w-60 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm" />
+                 {fOs && <button onClick={() => setFOs('')} className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"><X size={12}/></button>}
+               </div>
+            </div>
+          )}
+          {(fTag || fOs) && (
+            <button onClick={() => { setFTag(''); setFOs(''); }} className="text-[10px] font-bold uppercase text-red-600 hover:text-red-800 px-2 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors border border-red-200 flex items-center gap-1"><X size={10}/> Limpar Filtros</button>
+          )}
+        </div>
+        <div className="flex-1 overflow-auto custom-scrollbar">
         <div style={{ minWidth: 1100 }}>
 
           {/* Header: month ticks */}
           <div className="sticky top-0 z-30 bg-[#0B3A2D] text-white border-b border-[#155A47] flex" style={{ height: 36 }}>
-            <div className="w-56 shrink-0 flex items-center px-3">
+            <div className="w-72 shrink-0 flex items-center px-3">
               <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Recurso</span>
             </div>
             <div className="w-24 shrink-0 flex items-center justify-center">
@@ -767,7 +792,11 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
           </div>
 
           {/* Rows grouped by tag */}
-          {Array.from(byTag.values()).map(({ tag, rows }) => (
+          {Array.from(byTag.values()).filter(({ tag }) => {
+            if (!fTag) return true;
+            const q = fTag.toLowerCase();
+            return String(tag.IdTag).includes(q) || (tag.Tag || '').toLowerCase().includes(q);
+          }).map(({ tag, rows }) => (
             <div key={tag.IdTag}>
               {/* Tag header — clickable to expand OS */}
               <div
@@ -779,7 +808,7 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                 style={{ height: 28 }}
                 onClick={() => toggleTag(tag.IdTag)}
               >
-                <div className="w-56 shrink-0 flex items-center gap-1.5 px-3 overflow-hidden">
+                <div className="w-72 shrink-0 flex items-center gap-1.5 px-3 overflow-hidden" title={tag.Tag}>
                   <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${tag.Finalizado === 'C' ? 'bg-emerald-600' : 'bg-slate-700'}`}>
                     <Package size={8} className="text-white" />
                   </div>
@@ -798,7 +827,25 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                     }
                   </span>
                 </div>
-                <div className="w-24 shrink-0" />
+                {(() => {
+                  const tExec = rows.reduce((acc, r) => acc + (Number(r.TotalExecutado) || 0), 0);
+                  const tFalta = rows.reduce((acc, r) => acc + (Number(r.TotalExecutar) || 0), 0);
+                  const tTot = tExec + tFalta;
+                  const ep = tTot > 0 ? Math.min(Math.round((tExec / tTot) * 100), 100) : 0;
+                  return tTot > 0 ? (
+                    <div className="w-24 shrink-0 flex items-center justify-center border-l border-slate-200 px-1" title={`Executado: ${tExec} | Falta: ${tFalta} | Total: ${tTot}`}>
+                      <div className="flex flex-col items-center w-full">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[10px] font-black text-slate-700">{tExec}</span>
+                          <span className="text-[8px] text-slate-400">/ {tTot}</span>
+                        </div>
+                        <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden mt-0.5">
+                          <div className="h-full bg-slate-500 rounded-full" style={{ width: `${ep}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : <div className="w-24 shrink-0" />;
+                })()}
                 <div className="w-44 shrink-0 border-l border-slate-200" />
                 <div className="w-44 shrink-0 border-l border-slate-200" />
                 <div className="flex-1 relative border-l border-slate-200" style={{ height: 28 }}>
@@ -823,7 +870,11 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                   return (
                     <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
                       <div className="flex flex-wrap gap-2.5">
-                        {Array.from(byOS.entries()).map(([osId, os]) => {
+                        {Array.from(byOS.entries()).filter(([osId, os]) => {
+                          if (!fOs) return true;
+                          const q = fOs.toLowerCase();
+                          return String(osId).includes(q) || (os.desc || '').toLowerCase().includes(q);
+                        }).map(([osId, os]) => {
                           const CARD_COLORS = [
                             { bg: '#eff6ff', border: '#bfdbfe', accent: '#3b82f6', text: '#1d4ed8' },
                             { bg: '#f5f3ff', border: '#ddd6fe', accent: '#8b5cf6', text: '#6d28d9' },
@@ -836,9 +887,10 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                             const pi = parseDate(item.PlanejadoInicio);
                             const pf = parseDate(item.PlanejadoFinal);
                             const ri = parseDate(item.RealizadoInicio);
-                            const rf = parseDate(item.RealizadoFinal);
-                            const p2 = item.TotalExecutado > 0 && item.TotalExecutar === 0 ? 100
-                              : item.TotalExecutar > 0 ? Math.min(Math.round((item.TotalExecutado / item.TotalExecutar) * 100), 100) : 0;
+                            let rf = parseDate(item.RealizadoFinal);
+                            if (Number(item.TotalExecutar) > 0) rf = null;
+                            const totalQtd = Number(item.TotalExecutado) + Number(item.TotalExecutar);
+                            const p2 = rf ? 100 : (totalQtd > 0 ? Math.min(Math.round((Number(item.TotalExecutado) / totalQtd) * 100), 100) : 0);
                             const fmt = (d: Date | null) => d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
                             const emAnd = ri && !rf;
                             return (
@@ -862,9 +914,9 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                                   <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                                     <div className="h-full rounded-full" style={{ width: `${p2}%`, backgroundColor: c.accent }} />
                                   </div>
-                                  <div className="flex justify-between mt-0.5">
+                                  <div className="flex justify-between mt-0.5" title={`Falta: ${item.TotalExecutar}`}>
                                     <span className="text-[7px] text-slate-400">Exec: <b style={{ color: c.text }}>{item.TotalExecutado}</b></span>
-                                    <span className="text-[7px] text-slate-400">Total: <b>{item.TotalExecutar}</b></span>
+                                    <span className="text-[7px] text-slate-400">Total: <b>{totalQtd}</b></span>
                                   </div>
                                 </div>
                                 <div className="px-2.5 pt-1 pb-2 space-y-1">
@@ -891,18 +943,40 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                 // Gantt rows per OS
                 return (
                   <div>
-                    {Array.from(byOS.entries()).map(([osId, os]) => (
+                    {Array.from(byOS.entries()).filter(([osId, os]) => {
+                          if (!fOs) return true;
+                          const q = fOs.toLowerCase();
+                          return String(osId).includes(q) || (os.desc || '').toLowerCase().includes(q);
+                    }).map(([osId, os]) => (
                       <div key={osId}>
                         {/* OS sub-header */}
                         <div className="flex items-center border-b border-indigo-100 bg-indigo-50" style={{ height: 24 }}>
-                          <div className="w-56 shrink-0 flex items-center gap-1.5 pl-6 pr-2">
+                          <div className="w-72 shrink-0 flex items-center gap-1.5 pl-6 pr-2" title={`OS #${osId} - ${os.desc}`}>
                             <div className="w-3 h-3 rounded-sm bg-indigo-500 flex items-center justify-center shrink-0">
                               <Package size={6} className="text-white" />
                             </div>
-                            <span className="text-[9px] font-bold text-indigo-700 truncate">OS #{osId}</span>
+                            <span className="text-[9px] font-bold text-indigo-700 shrink-0">OS #{osId}</span>
                             <span className="text-[8px] text-indigo-400 truncate">{os.desc}</span>
                           </div>
-                          <div className="w-24 shrink-0" />
+                          {(() => {
+                            const tExec = os.items.reduce((acc, r) => acc + (Number(r.TotalExecutado) || 0), 0);
+                            const tFalta = os.items.reduce((acc, r) => acc + (Number(r.TotalExecutar) || 0), 0);
+                            const tTot = tExec + tFalta;
+                            const ep = tTot > 0 ? Math.min(Math.round((tExec / tTot) * 100), 100) : 0;
+                            return tTot > 0 ? (
+                              <div className="w-24 shrink-0 flex items-center justify-center border-l border-indigo-100 px-1" title={`Executado: ${tExec} | Falta: ${tFalta} | Total: ${tTot}`}>
+                                <div className="flex flex-col items-center w-full">
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="text-[10px] font-black text-indigo-700">{tExec}</span>
+                                    <span className="text-[8px] text-indigo-300">/ {tTot}</span>
+                                  </div>
+                                  <div className="w-full h-1 bg-indigo-100 rounded-full overflow-hidden mt-0.5">
+                                    <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${ep}%` }} />
+                                  </div>
+                                </div>
+                              </div>
+                            ) : <div className="w-24 shrink-0 border-l border-indigo-100" />;
+                          })()}
                           <div className="w-44 shrink-0 border-l border-indigo-100" />
                           <div className="w-44 shrink-0 border-l border-indigo-100" />
                           <div className="flex-1 border-l border-indigo-100" />
@@ -912,23 +986,24 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                           const pIni2 = parseDate(item.PlanejadoInicio);
                           const pFin2 = parseDate(item.PlanejadoFinal);
                           const rIni2 = parseDate(item.RealizadoInicio);
-                          const rFin2 = parseDate(item.RealizadoFinal);
-                          const ep = item.TotalExecutado > 0 && item.TotalExecutar === 0 ? 100
-                            : item.TotalExecutar > 0 ? Math.min(Math.round((item.TotalExecutado / item.TotalExecutar) * 100), 100) : 0;
+                          let rFin2 = parseDate(item.RealizadoFinal);
+                          if (Number(item.TotalExecutar) > 0) rFin2 = null;
+                          const totalQtd = Number(item.TotalExecutado) + Number(item.TotalExecutar);
+                          const ep = rFin2 ? 100 : (totalQtd > 0 ? Math.min(Math.round((Number(item.TotalExecutado) / totalQtd) * 100), 100) : 0);
                           return (
                             <div key={`${osId}-${item.IdProcessoFabricacao}`} className="flex items-center border-b border-indigo-50 bg-white hover:bg-indigo-50/30" style={{ height: 36 }}>
-                              <div className="w-56 shrink-0 flex items-center gap-2 pl-8 pr-3 border-r border-slate-100">
+                              <div className="w-72 shrink-0 flex items-center gap-2 pl-8 pr-3 border-r border-slate-100">
                                 <div className="w-1 h-1 rounded-full bg-indigo-400 shrink-0" />
                                 <span className="text-[9px] font-semibold text-indigo-600 truncate">{item.DescRecurso}</span>
                               </div>
                               <div className="w-24 shrink-0 flex items-center justify-center border-r border-slate-100 px-1">
-                                <div className="flex flex-col items-center w-full">
+                                <div className="flex flex-col items-center w-full" title={`Executado: ${item.TotalExecutado} | Falta: ${item.TotalExecutar} | Total: ${totalQtd}`}>
                                   <div className="flex items-baseline gap-1">
-                                    <span className="text-[10px] font-black text-indigo-700">{item.TotalExecutado}</span>
-                                    <span className="text-[8px] text-slate-400">/ {item.TotalExecutar}</span>
+                                    <span className={`text-[10px] font-black ${rFin2 ? 'text-emerald-600' : 'text-indigo-700'}`}>{item.TotalExecutado}</span>
+                                    <span className="text-[8px] text-slate-400">/ {totalQtd}</span>
                                   </div>
                                   <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-0.5">
-                                    <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${ep}%` }} />
+                                    <div className={`h-full rounded-full ${rFin2 ? 'bg-emerald-500' : 'bg-indigo-400'}`} style={{ width: `${ep}%` }} />
                                   </div>
                                 </div>
                               </div>
@@ -951,9 +1026,9 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <span className="text-[8px] font-bold text-emerald-500 w-7">Fim:</span>
-                                  <span className={`text-[9px] font-semibold ${rFin2 ? 'text-emerald-700' : (rIni2 ? 'text-amber-500' : 'text-slate-300')}`}>
-                                    {item.RealizadoFinal || (rIni2 ? 'Em and.' : '—')}
-                                  </span>
+                                    <span className={`text-[9px] font-semibold ${rFin2 ? 'text-emerald-700' : (rIni2 ? 'text-amber-500' : 'text-slate-300')}`}>
+                                      {rFin2 ? item.RealizadoFinal : (rIni2 ? 'Em and.' : '—')}
+                                    </span>
                                 </div>
                               </div>
                               {/* Mini Gantt bars */}
@@ -983,29 +1058,29 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                 const pIni = parseDate(r.PlanejadoInicio);
                 const pFin = parseDate(r.PlanejadoFinal);
                 const rIni = parseDate(r.RealizadoInicio);
-                const rFin = parseDate(r.RealizadoFinal);
+                let rFin = parseDate(r.RealizadoFinal);
+                if (Number(r.TotalExecutar) > 0) rFin = null;
                 const hasPlan = pIni && pFin;
                 const hasReal = rIni && rFin;
-                const execPct = r.TotalExecutado > 0 && r.TotalExecutar === 0 ? 100
-                  : r.TotalExecutar > 0 ? Math.min(Math.round((r.TotalExecutado / r.TotalExecutar) * 100), 100)
-                  : 0;
+                const totalQtd = Number(r.TotalExecutado) + Number(r.TotalExecutar);
+                const execPct = rFin ? 100 : (totalQtd > 0 ? Math.min(Math.round((Number(r.TotalExecutado) / totalQtd) * 100), 100) : 0);
 
                 return (
                   <div key={`${r.IdTag}-${r.IdProcessoFabricacao}`} className="flex items-center border-b border-slate-100 bg-white hover:bg-slate-50/30 transition-colors" style={{ height: 40 }}>
                     {/* Label */}
-                    <div className="w-56 shrink-0 flex items-center gap-2 px-3 border-r border-slate-100">
+                    <div className="w-72 shrink-0 flex items-center gap-2 px-3 border-r border-slate-100">
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
                       <span className="text-[10px] font-semibold text-slate-700 truncate" title={r.DescRecurso}>{r.DescRecurso}</span>
                     </div>
                     {/* Exec/Total */}
                     <div className="w-24 shrink-0 flex items-center justify-center gap-1 border-r border-slate-100 px-1">
-                      <div className="flex flex-col items-center w-full">
+                      <div className="flex flex-col items-center w-full" title={`Executado: ${r.TotalExecutado} | Falta: ${r.TotalExecutar} | Total: ${totalQtd}`}>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-[11px] font-black text-indigo-700">{r.TotalExecutado}</span>
-                          <span className="text-[9px] text-slate-400">/ {r.TotalExecutar}</span>
+                          <span className={`text-[11px] font-black ${rFin ? 'text-emerald-600' : 'text-indigo-700'}`}>{r.TotalExecutado}</span>
+                          <span className="text-[9px] text-slate-400">/ {totalQtd}</span>
                         </div>
                         <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-0.5">
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${Math.min(execPct, 100)}%` }} />
+                          <div className={`h-full rounded-full ${rFin ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${Math.min(execPct, 100)}%` }} />
                         </div>
                       </div>
                     </div>
@@ -1035,7 +1110,7 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                       <div className="flex items-center gap-1">
                         <span className="text-[8px] font-bold text-emerald-500 uppercase w-7 shrink-0">Fim:</span>
                         <span className={`text-[10px] font-semibold ${rFin ? 'text-emerald-700' : (rIni ? 'text-amber-500' : 'text-slate-300')}`}>
-                          {r.RealizadoFinal || (rIni ? 'Em andamento' : '—')}
+                          {rFin ? r.RealizadoFinal : (rIni ? 'Em andamento' : '—')}
                         </span>
                       </div>
                     </div>
@@ -1106,6 +1181,7 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
             </div>
           </div>
         </div>
+      </div>
       </div>
       )}
     </div>

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 
-import { Clock, Activity, Search, Filter, X, CalendarDays, Calendar, ArrowUp, ArrowDown, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList, Maximize2, Minimize2 , Share2 } from 'lucide-react';
+import { Clock, Activity, Search, Filter, X, CalendarDays, Calendar, ArrowUp, ArrowDown, CheckCircle, Loader, RotateCcw, ShieldAlert, Tag as TagIcon, LayoutGrid, ArrowRight, Edit3, DollarSign, FileDown, List, ClipboardList, Maximize2, Minimize2 , Share2, GanttChartSquare } from 'lucide-react';
 import VisaoGeralTagsGlobais from './VisaoGeralTagsGlobais';
 
 
@@ -1981,6 +1981,9 @@ const salvarDatasBulkTags = async () => {
  <button type="button" onClick={() => setViewMode('list')} className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <List size={14} /> Lista
  </button>
+ <button type="button" onClick={() => window.location.href = '/acompanhamento-geral'} className="px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-500 hover:text-slate-700" title="Abrir Acompanhamento Geral">
+ <GanttChartSquare size={14} /> Gantt
+ </button>
  <button type="button" onClick={() => setViewMode('tags')} className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'tags' ? 'bg-white text-[#32423D] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
  <TagIcon size={14} /> Tags Globais
  </button>
@@ -2848,7 +2851,7 @@ const salvarDatasBulkTags = async () => {
                                            <th className="px-1.5 py-1 border-b border-slate-300 text-center">Prev.</th>
                                            <th className="px-1.5 py-1 border-b border-slate-300 text-center">Qtd./Tot.</th>
                                            <th className="px-1.5 py-1 border-b border-slate-300 text-center w-24">Status</th>
-                                           <th className="px-1.5 py-1 border-b border-slate-300 text-center w-28">Opções</th>
+                                           <th className="px-1.5 py-1 border-b border-slate-300 text-center w-32">Opções</th>
                                          </tr>
                                        </thead>
                                       <tbody className="divide-y divide-slate-200 bg-white">
@@ -2882,18 +2885,48 @@ const salvarDatasBulkTags = async () => {
                                                     {item.OrdemServicoItemFinalizado === 'C' || item.OrdemServicoItemFinalizado === 'S' ? 'Finalizado' : 'Aberto'}
                                                   </span>
                                                 </td>
-                                                <td className="px-2 py-1.5 text-center w-28">
-                                                  <button
-                                                    type="button"
-                                                    onClick={(e) => { 
-                                                      e.stopPropagation(); 
-                                                      openItemSectorsModal(item, isProjFin || tFin || (os.OrdemServicoFinalizado?.trim() === 'C' || os.OrdemServicoFinalizado?.trim() === 'S'));
-                                                    }}
-                                                    className="text-[8.5px] font-bold px-2 py-0.5 rounded shadow-sm transition-colors inline-flex items-center gap-1 whitespace-nowrap bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800"
-                                                    title="Exibir Produção dos Setores / Recursos deste Item"
-                                                  >
-                                                    <Activity size={9} /> Prod. Recursos
-                                                  </button>
+                                                <td className="px-2 py-1.5 text-center w-32">
+                                                  <div className="flex justify-center gap-1 flex-wrap">
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => { 
+                                                        e.stopPropagation(); 
+                                                        openItemSectorsModal(item, isProjFin || tFin || (os.OrdemServicoFinalizado?.trim() === 'C' || os.OrdemServicoFinalizado?.trim() === 'S'));
+                                                      }}
+                                                      className="text-[8.5px] font-bold px-2 py-0.5 rounded shadow-sm transition-colors inline-flex items-center gap-1 whitespace-nowrap bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800"
+                                                      title="Exibir Produção dos Setores / Recursos deste Item"
+                                                    >
+                                                      <Activity size={9} /> Prod. Recursos
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        if (!item.IdMaterial) {
+                                                          alert('Não existe arquivo para o código selecionado');
+                                                          return;
+                                                        }
+                                                        try {
+                                                          const res = await authFetch(`${API_BASE}/materiais/${item.IdMaterial}/arquivos`);
+                                                          const json = await res.json();
+                                                          if (json.success && json.data && json.data.length > 0) {
+                                                            const file = json.data[0];
+                                                            let token = localStorage.getItem('sinco_token') || localStorage.getItem('superadmin_token');
+                                                            window.open(`${API_BASE}/materiais/arquivos/${file.idArquivo}/download?token=${token}`, '_blank');
+                                                          } else {
+                                                            alert('Não existe arquivo para o código selecionado');
+                                                          }
+                                                        } catch (error) {
+                                                          console.error('Error opening PDF:', error);
+                                                          alert('Erro ao buscar o arquivo.');
+                                                        }
+                                                      }}
+                                                      className="text-[8.5px] font-bold px-2 py-0.5 rounded shadow-sm transition-colors inline-flex items-center gap-1 whitespace-nowrap bg-red-50 hover:bg-red-100 border border-red-200 text-red-800"
+                                                      title="Abrir PDF do Material"
+                                                    >
+                                                      <FileDown size={9} /> PDF
+                                                    </button>
+                                                  </div>
                                                 </td>
                                             </tr>
                                             {/* ══ ROW INDEPENDENTE: PRODUÇÃO DOS SETORES DO ITEM DA OS ══ */}
