@@ -602,6 +602,57 @@ useEffect(() => {
  };
  }, [page, setorAtivo]);
 
+
+ const handleApontarTodos = async () => {
+    if (!confirm('Deseja realmente apontar o TOTAL PENDENTE de todos os itens exibidos para esta OS?')) return;
+    setLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const item of itens) {
+        if (!item.TotalExecutar || item.TotalExecutar <= 0) continue;
+        
+        const limitesSalvos = JSON.parse(localStorage.getItem('sinco_limitesTempoSetores') || '{}');
+        const limiteDiario = limitesSalvos[String(setorAtivo).toLowerCase()] ?? 500;
+        
+        const payload: any = {
+            IdOrdemServicoItem: item.IdOrdemServicoItem,
+            IdOrdemServico: item.IdOrdemServico,
+            Processo: setorAtivo,
+            RecursoOrigem: recursoOrigemRef.current || '',
+            QtdeProduzida: item.TotalExecutar,
+            TipoApontamento: 'Total',
+            LimiteDiario: limiteDiario,
+            CriadoPor: (user as any)?.NomeCompleto || (user as any)?.name || 'Sistema'
+        };
+        
+        if (item.IdMaterialProcesso || (item as any).idmaterialprocesso || (item as any).idMaterialProcesso) {
+            payload.IdMaterialProcesso = item.IdMaterialProcesso || (item as any).idmaterialprocesso || (item as any).idMaterialProcesso;
+        }
+        
+        try {
+            const res = await fetch(`${API_BASE}/material-processo/apontar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (json.success) successCount++;
+            else errorCount++;
+        } catch {
+            errorCount++;
+        }
+    }
+    
+    addToast({
+        type: errorCount === 0 ? 'success' : 'warning',
+        title: 'Apontamento em Lote',
+        message: `${successCount} apontados com sucesso. ${errorCount} erros.`
+    });
+    setLoading(false);
+    fetchItens();
+ };
+
  const handleSearch = () => {
  setHasSearched(true);
  setPage(1);
@@ -1220,7 +1271,7 @@ useEffect(() => {
   type="search"
   placeholder="Digite a OS..."
   value={osFilter}
-  onChange={(e) => setOsFilter(e.target.value)}
+  onChange={(e) => setOsFilter(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
   className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
   />
   {osFilter && (
@@ -1242,7 +1293,7 @@ useEffect(() => {
   type="search"
   placeholder="Digite o cliente..."
   value={clienteFilter}
-  onChange={(e) => setClienteFilter(e.target.value)}
+  onChange={(e) => setClienteFilter(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
   className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
   />
   {clienteFilter && (
@@ -1264,7 +1315,7 @@ useEffect(() => {
   type="search"
   placeholder="Digite o código..."
   value={codMatFabricanteFilter}
-  onChange={(e) => setCodMatFabricanteFilter(e.target.value)}
+  onChange={(e) => setCodMatFabricanteFilter(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
   className="w-full px-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
   />
   {codMatFabricanteFilter && (
@@ -1331,7 +1382,7 @@ useEffect(() => {
   type="search"
   placeholder="Digite a descrição..."
   value={planoCorteFilter}
-  onChange={(e) => setPlanoCorteFilter(e.target.value)}
+  onChange={(e) => setPlanoCorteFilter(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
   className="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#E0E800]/50 pr-6"
   />
   {planoCorteFilter && (
@@ -1435,8 +1486,17 @@ useEffect(() => {
 
   {/* Action Buttons (Right) */}
   <div className="flex items-center gap-2 ml-auto">
-  {/* Search Button */}
-  <button
+      {hasSearched && osFilter.trim() !== '' && itens.length > 0 && itens.every(i => i.IdOrdemServico.toString() === osFilter.trim()) && (
+        <button
+          onClick={handleApontarTodos}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold bg-indigo-100 border border-indigo-200 text-indigo-800 hover:bg-indigo-200 disabled:opacity-50 rounded shadow-sm transition-colors"
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+          Apontar Todos
+        </button>
+      )}
+      <button
   onClick={handleSearch}
   disabled={loading}
   className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold bg-emerald-100 border border-emerald-200 text-emerald-800 hover:bg-emerald-200 disabled:opacity-50 rounded shadow-sm transition-colors"

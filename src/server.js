@@ -4994,12 +4994,15 @@ const queryPool = req.tenantDbPool || pool;
                 MIN(${safeOsiCol('RealizadoInicioGALVANIZAR')}) as RealizadoInicioGalvanizar, MAX(${safeOsiCol('RealizadoFinalGALVANIZAR')}) as RealizadoFinalGalvanizar,
                 MAX(CASE WHEN ${safeOsiFlag('txtGALVANIZAR')} = '1' OR ${safeOsiFlag('txtGALVANIZAR')} = 'S' THEN 1 ELSE 0 END) as flagGalvanizar
 
-            FROM ordemservico os
-            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR) = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
+            FROM (
+                SELECT IdOrdemServico, IdProjeto, IdTag, QtdeTotalItens
+                FROM ordemservico
+                WHERE IdProjeto IN (${inClause})
+                  AND (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '' OR D_E_L_E_T_E = ' ')
+                  AND IdTag IS NOT NULL
+            ) os
+            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR CHARACTER SET utf8) COLLATE utf8_general_ci = osi.IdOrdemServico AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
             INNER JOIN tags t ON os.IdTag = t.IdTag AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
-            WHERE os.IdProjeto IN (${inClause}) 
-              AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
-              AND os.IdTag IS NOT NULL /* (Conta apenas OS vinculada a tag) */
             GROUP BY os.IdProjeto
         `);
 
@@ -5326,7 +5329,7 @@ app.get('/api/acompanhamento/projeto/:projetoId/tags', tenantMiddleware, async (
                 COALESCE(SUM(CASE WHEN ${safeOsiFlag('txtGALVANIZAR')} = '1' THEN CAST(NULLIF(${safeOsiCol('QtdeTotal')},'') AS DECIMAL(10,2)) ELSE 0 END), 0) AS SumQtdeGalvanizar
 
             FROM ordemservico os
-            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR) = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
+            LEFT JOIN ordemservicoitem osi ON CAST(os.IdOrdemServico AS CHAR CHARACTER SET utf8) COLLATE utf8_general_ci = ${safeOsiCol('IdOrdemServico')} AND (${safeOsiCol('D_E_L_E_T_E')} IS NULL OR ${safeOsiCol('D_E_L_E_T_E')} = '')
             WHERE os.IdTag IN (${inClause})
               AND (os.D_E_L_E_T_E IS NULL OR os.D_E_L_E_T_E = '' OR os.D_E_L_E_T_E = ' ')
             GROUP BY os.IdTag

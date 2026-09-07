@@ -171,7 +171,8 @@ const SetorCell = ({ total, exec, pct, color }: { total: number; exec: number; p
  <div className="flex flex-col">
  <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100 mb-0.5">
  <span className="text-[7.5px] font-bold text-slate-400 uppercase">Exec:</span>
- <span className="text-[9px] font-black" style={{ color }}>{exec}</span>
+ <div className="flex items-center gap-1"><span className="text-[8px] font-bold text-slate-500">({pct}%)</span>
+ <span className="text-[9px] font-black" style={{ color }}>{exec}</span></div>
  </div>
  <div className="flex justify-between items-center bg-slate-50 px-1 rounded-sm border border-slate-100">
  <span className="text-[7.5px] font-bold text-slate-400 uppercase">A Exec:</span>
@@ -557,12 +558,11 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
     d.forEach(s => { const dt = parseDate(s); if (dt) allDates.push(dt); });
   });
 
-  if (allDates.length <= 1) {
+    if (recursos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-slate-400">
         <GanttChartSquare size={48} className="mb-4 opacity-20" />
-        <p className="text-xs font-medium">Sem datas planejadas ou realizadas nos recursos deste projeto</p>
-        <p className="text-xs mt-1 opacity-70">Cadastre datas nos recursos (material_processo) para visualizar o cronograma</p>
+        <p className="text-xs font-medium">Sem apontamentos ou recursos neste projeto</p>
       </div>
     );
   }
@@ -836,9 +836,10 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                     <div className="w-24 shrink-0 flex items-center justify-center border-l border-slate-200 px-1" title={`Executado: ${tExec} | Falta: ${tFalta} | Total: ${tTot}`}>
                       <div className="flex flex-col items-center w-full">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-[10px] font-black text-slate-700">{tExec}</span>
-                          <span className="text-[8px] text-slate-400">/ {tTot}</span>
-                        </div>
+<span className="text-[10px] font-bold text-slate-500 mr-1">({ep}%)</span>
+<span className="text-[10px] font-black text-slate-700">{tExec}</span>
+<span className="text-[8px] text-slate-400">/ {tTot}</span>
+</div>
                         <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden mt-0.5">
                           <div className="h-full bg-slate-500 rounded-full" style={{ width: `${ep}%` }} />
                         </div>
@@ -967,9 +968,10 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                               <div className="w-24 shrink-0 flex items-center justify-center border-l border-indigo-100 px-1" title={`Executado: ${tExec} | Falta: ${tFalta} | Total: ${tTot}`}>
                                 <div className="flex flex-col items-center w-full">
                                   <div className="flex items-baseline gap-1">
-                                    <span className="text-[10px] font-black text-indigo-700">{tExec}</span>
-                                    <span className="text-[8px] text-indigo-300">/ {tTot}</span>
-                                  </div>
+<span className="text-[10px] font-bold text-indigo-400 mr-1">({ep}%)</span>
+<span className="text-[10px] font-black text-indigo-700">{tExec}</span>
+<span className="text-[8px] text-indigo-300">/ {tTot}</span>
+</div>
                                   <div className="w-full h-1 bg-indigo-100 rounded-full overflow-hidden mt-0.5">
                                     <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${ep}%` }} />
                                   </div>
@@ -999,9 +1001,10 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                               <div className="w-24 shrink-0 flex items-center justify-center border-r border-slate-100 px-1">
                                 <div className="flex flex-col items-center w-full" title={`Executado: ${item.TotalExecutado} | Falta: ${item.TotalExecutar} | Total: ${totalQtd}`}>
                                   <div className="flex items-baseline gap-1">
-                                    <span className={`text-[10px] font-black ${rFin2 ? 'text-emerald-600' : 'text-indigo-700'}`}>{item.TotalExecutado}</span>
-                                    <span className="text-[8px] text-slate-400">/ {totalQtd}</span>
-                                  </div>
+<span className="text-[9px] font-bold text-slate-500 mr-1">({ep}%)</span>
+<span className={`text-[10px] font-black ${rFin2 ? 'text-emerald-600' : 'text-indigo-700'}`}>{item.TotalExecutado}</span>
+<span className="text-[8px] text-slate-400">/ {totalQtd}</span>
+</div>
                                   <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-0.5">
                                     <div className={`h-full rounded-full ${rFin2 ? 'bg-emerald-500' : 'bg-indigo-400'}`} style={{ width: `${ep}%` }} />
                                   </div>
@@ -1076,9 +1079,10 @@ function GanttRecursos({ recursos, viewMode }: { recursos: RecursoDetalhe[]; vie
                     <div className="w-24 shrink-0 flex items-center justify-center gap-1 border-r border-slate-100 px-1">
                       <div className="flex flex-col items-center w-full" title={`Executado: ${r.TotalExecutado} | Falta: ${r.TotalExecutar} | Total: ${totalQtd}`}>
                         <div className="flex items-baseline gap-1">
-                          <span className={`text-[11px] font-black ${rFin ? 'text-emerald-600' : 'text-indigo-700'}`}>{r.TotalExecutado}</span>
-                          <span className="text-[9px] text-slate-400">/ {totalQtd}</span>
-                        </div>
+<span className="text-[10px] font-bold text-slate-500 mr-1">({execPct}%)</span>
+<span className={`text-[11px] font-black ${rFin ? 'text-emerald-600' : 'text-indigo-700'}`}>{r.TotalExecutado}</span>
+<span className="text-[9px] text-slate-400">/ {totalQtd}</span>
+</div>
                         <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-0.5">
                           <div className={`h-full rounded-full ${rFin ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${Math.min(execPct, 100)}%` }} />
                         </div>
@@ -1457,7 +1461,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <input id="acomp-search-projeto" type="text" placeholder="Projeto / cliente..."
  value={fSearchInput}
  onChange={e => setFSearchInput(e.target.value)}
- onKeyDown={e => e.key === 'Enter' && handleSearch()}
+ onKeyDown={e => { if(e.key === 'Enter') handleRefresh(); }}
  className="w-full pl-8 pr-6 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] outline-none" />
  {fSearchInput && (
  <button onClick={() => { setFSearchInput(''); setFSearchProjeto(''); }}
@@ -1473,7 +1477,7 @@ const saveObservacao = useCallback(async (idProjeto: number, value: string) => {
  <input id="acomp-search-descricao" type="text" placeholder="Buscar descrição..."
  value={fDescricaoInput}
  onChange={e => setFDescricaoInput(e.target.value)}
- onKeyDown={e => e.key === 'Enter' && handleSearch()}
+ onKeyDown={e => { if(e.key === 'Enter') handleRefresh(); }}
  className="w-full pl-8 pr-6 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#32423D]/20 focus:border-[#32423D] outline-none" />
  {fDescricaoInput && (
  <button onClick={() => { setFDescricaoInput(''); setFSearchDescricao(''); }}

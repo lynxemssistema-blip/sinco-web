@@ -2670,7 +2670,7 @@ const salvarDatasBulkTags = async () => {
                                   <span className="w-1.5 h-1.5 rounded-full bg-[#32423D] shrink-0" />
                                   <span>{s.label}</span>
                                 </td>
-                                <td className="px-3 py-1.5 text-center font-bold text-emerald-700 border-r border-slate-100 bg-emerald-50/20">{s.exec}</td>
+                                <td className="px-3 py-1.5 text-center font-bold text-emerald-700 border-r border-slate-100 bg-emerald-50/20">({s.pct}%) {s.exec}</td>
                                 <td className="px-3 py-1.5 text-center font-bold text-amber-700 border-r border-slate-100 bg-amber-50/20">{s.aExec}</td>
                                 <td className="px-3 py-1.5 text-center">
                                   <div className="flex items-center gap-2 px-1">
@@ -2811,7 +2811,7 @@ const salvarDatasBulkTags = async () => {
                                               return (
                                                 <tr key={s.key} className="hover:bg-slate-50 transition-colors">
                                                   <td className="px-3 py-1.5 font-bold text-slate-800 border-r border-slate-100 uppercase flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[#32423D] shrink-0" /><span>{s.label}</span></td>
-                                                  <td className="px-3 py-1.5 text-center font-bold text-emerald-700 border-r border-slate-100 bg-emerald-50/20">{s.exec}</td>
+                                                  <td className="px-3 py-1.5 text-center font-bold text-emerald-700 border-r border-slate-100 bg-emerald-50/20">({s.pct}%) {s.exec}</td>
                                                   <td className="px-3 py-1.5 text-center font-bold text-amber-700 border-r border-slate-100 bg-amber-50/20">{s.aExec}</td>
                                                   <td className="px-3 py-1.5 text-center">
                                                     <div className="flex items-center gap-2 px-1">
