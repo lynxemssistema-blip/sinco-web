@@ -15329,6 +15329,19 @@ app.put('/api/ordemservicoitem/:id/tempos', tenantMiddleware, async (req, res) =
         const itemIdMaterial = itemRows.length > 0 ? itemRows[0].IdMaterial : null;
         const itemCodMatFabricante = itemRows.length > 0 ? itemRows[0].CodMatFabricante : null;
         
+        // Buscar IdTag e IdProjeto da OS
+        let itemIdTag = osContext?.IdTag || null;
+        let itemIdProjeto = osContext?.IdProjeto || null;
+        if (itemOsId && (!itemIdTag || !itemIdProjeto)) {
+            const [osRows] = await dbPool.execute(
+                `SELECT IdTag, IdProjeto FROM ordemservico WHERE IdOrdemServico = ? LIMIT 1`, [itemOsId]
+            );
+            if (osRows.length > 0) {
+                if (!itemIdTag)     itemIdTag     = osRows[0].IdTag;
+                if (!itemIdProjeto) itemIdProjeto = osRows[0].IdProjeto;
+            }
+        }
+
         // Atualizar SequenciaExecucao na tabela material_processo (Engenharia) se o recurso foi modificado
         if (itemIdMaterial || itemCodMatFabricante) {
             for (const [secKey, vals] of Object.entries(recursoTempos || {})) {
@@ -15340,14 +15353,14 @@ app.put('/api/ordemservicoitem/:id/tempos', tenantMiddleware, async (req, res) =
                     
                     try {
                         const [resUpd] = await dbPool.execute(
-                            `UPDATE material_processo SET SequenciaExecucao = ?, TempoEstimadoMin = ?, TempoPadraoMin = ? WHERE (IdMaterial = ? OR codmatFabricante = ?) AND IdProcesso = ?`,
-                            [seqNum, tSetup, tPadrao, itemIdMaterial || 0, itemCodMatFabricante || '', vals.IdProcesso]
+                            `UPDATE material_processo SET SequenciaExecucao = ?, TempoEstimadoMin = ?, TempoPadraoMin = ?, IdOrdemServico = ?, IdTag = ?, IdProjeto = ? WHERE (IdMaterial = ? OR codmatFabricante = ?) AND IdProcesso = ?`,
+                            [seqNum, tSetup, tPadrao, itemOsId, itemIdTag, itemIdProjeto, itemIdMaterial || 0, itemCodMatFabricante || '', vals.IdProcesso]
                         );
                         if (resUpd.affectedRows === 0) {
                             await dbPool.execute(
-                                `INSERT INTO material_processo (IdMaterial, codmatFabricante, IdProcesso, SequenciaExecucao, TempoEstimadoMin, TempoPadraoMin, Ativo, UsuarioCriacao, DataCriacao, IdMatriz)
-                                 VALUES (?, ?, ?, ?, ?, ?, 'A', ?, NOW(), ?)`,
-                                [itemIdMaterial || 0, itemCodMatFabricante || '', vals.IdProcesso, seqNum, tSetup, tPadrao, req.user?.NomeCompleto || req.user?.nome || 'Sistema', req.tenantUser?.tenantId || null]
+                                `INSERT INTO material_processo (IdMaterial, codmatFabricante, IdProcesso, SequenciaExecucao, TempoEstimadoMin, TempoPadraoMin, Ativo, UsuarioCriacao, DataCriacao, IdMatriz, IdOrdemServico, IdTag, IdProjeto, TotalExecutar)
+                                 VALUES (?, ?, ?, ?, ?, ?, 'A', ?, NOW(), ?, ?, ?, ?, ?)`,
+                                [itemIdMaterial || 0, itemCodMatFabricante || '', vals.IdProcesso, seqNum, tSetup, tPadrao, req.user?.NomeCompleto || req.user?.nome || 'Sistema', req.tenantUser?.tenantId || null, itemOsId, itemIdTag, itemIdProjeto, qtde]
                             );
                         }
                     } catch(e) {
@@ -15375,6 +15388,9 @@ app.put('/api/ordemservicoitem/:id/tempos', tenantMiddleware, async (req, res) =
                     for (const p of processes) {
                         totalToExecute += parseFloat(p.TotalExecutar || 0);
                     }
+                    if (totalToExecute === 0 && qtde > 0) {
+                        totalToExecute = qtde;
+                    }
 
                     console.log(`[Sequencia Refino] Item (IdMat: ${itemIdMaterial}, Cod: ${itemCodMatFabricante}) -> Sequencias reordenadas. Total a executar consolidado: ${totalToExecute}`);
 
@@ -15396,18 +15412,7 @@ app.put('/api/ordemservicoitem/:id/tempos', tenantMiddleware, async (req, res) =
             }
         }
 
-        // Buscar IdTag e IdProjeto da OS
-        let itemIdTag = osContext?.IdTag || null;
-        let itemIdProjeto = osContext?.IdProjeto || null;
-        if (itemOsId && (!itemIdTag || !itemIdProjeto)) {
-            const [osRows] = await dbPool.execute(
-                `SELECT IdTag, IdProjeto FROM ordemservico WHERE IdOrdemServico = ? LIMIT 1`, [itemOsId]
-            );
-            if (osRows.length > 0) {
-                if (!itemIdTag)     itemIdTag     = osRows[0].IdTag;
-                if (!itemIdProjeto) itemIdProjeto = osRows[0].IdProjeto;
-            }
-        }
+
 
         // Ativar flags para recursos adicionados
         if (Array.isArray(addRecursos) && addRecursos.length > 0) {
