@@ -1297,24 +1297,21 @@ function OrdemServicoContent() {
     
     const proceedWithLiberacao = async (os: OrdemServico, fator: number | string) => {
         const result = await Swal.fire({
-            title: 'Tipo de Liberação',
-            text: `Como deseja liberar a Ordem de Serviço ${os.IdOrdemServico}?`,
-            icon: 'question',
+            html: `Você está prestes a enviar a <b>Ordem de Serviço ${os.IdOrdemServico}</b> para a linha de produção.`,
+            icon: 'success',
             showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Total',
-            denyButtonText: 'Parcial',
-            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sim, liberar agora! 🚀',
+            cancelButtonText: 'Ainda não',
             confirmButtonColor: '#10B981',
-            denyButtonColor: '#F59E0B',
+            cancelButtonColor: '#9CA3AF',
             reverseButtons: true
         });
 
-        if (result.isDismissed) {
+        if (!result.isConfirmed) {
             return;
         }
 
-        const tipoLiberacao = result.isConfirmed ? 'Total' : 'Parcial';
+        const tipoLiberacao = 'Total';
 
         setLiberandoOS(os.IdOrdemServico);
         try {

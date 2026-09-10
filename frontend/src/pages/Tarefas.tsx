@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, ListTodo, CheckCircle, Edit3, Loader, Plus, Save, FileSpreadsheet, ChevronUp, ChevronDown, X } from 'lucide-react';
+import { Loader2, ListTodo, CheckCircle, Edit3, Loader, Plus, Save, FileSpreadsheet, ChevronUp, ChevronDown, X, ArrowLeft } from 'lucide-react';
 import * as XLSX from 'xlsx-js-style';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -63,13 +63,20 @@ export default function TarefasPage() {
  const [msg, setMsg] = useState<{ ok: boolean, t: string } | null>(null);
  const [isSaving, setIsSaving] = useState(false);
  const [fromGlobal, setFromGlobal] = useState(false);
+ const [fromProducao, setFromProducao] = useState(false);
+ const [dbName, setDbName] = useState('');
+ const [userName, setUserName] = useState('');
  const [openId, setOpenId] = useState<string | null>(null);
  const [visibleSetores, setVisibleSetores] = useState<string[]>(['corte', 'dobra', 'solda', 'pintura', 'montagem']);
  const [formAberto, setFormAberto] = useState(true);
 
  useEffect(() => {
  const params = new URLSearchParams(window.location.search);
- if (params.get('from') === 'visao-geral-pendencias') setFromGlobal(true);
+ if (params.get('from') === 'visao-geral-pendencias') {
+ setFromGlobal(true);
+ } else if (params.get('from') === 'producao') {
+ setFromProducao(true);
+ }
  const openIdParam = params.get('id');
  if (openIdParam) setOpenId(openIdParam);
  }, []);
@@ -369,7 +376,20 @@ export default function TarefasPage() {
  onClick={() => window.location.href = '/visao-geral-pendencias'}
  className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm font-bold text-xs"
  >
+ <ArrowLeft size={16} />
  Voltar para Visão Geral de Pendências
+ </button>
+ </div>
+ )}
+
+ {fromProducao && (
+ <div className="mb-4">
+ <button
+ onClick={() => window.location.href = '/visao-geral-producao'}
+ className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm font-bold text-xs"
+ >
+ <ArrowLeft size={16} />
+ Voltar para Visão Produção
  </button>
  </div>
  )}

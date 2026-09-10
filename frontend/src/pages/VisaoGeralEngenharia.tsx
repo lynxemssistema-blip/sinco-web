@@ -403,6 +403,8 @@ export default function VisaoGeralEngenharia() {
             Isometrico: buildSect('Isometrico'),
             Engenharia: buildSect('Engenharia'),
             Aprovacao: buildSect('Aprovacao'),
+            Acabamento: buildSect('Acabamento'),
+            Expedicao: buildSect('Expedicao'),
         }
     }, [filteredTags]);
 
@@ -416,6 +418,11 @@ export default function VisaoGeralEngenharia() {
                 <div className="flex items-center justify-between px-2 py-1 bg-white">
                     <div className="font-bold text-gray-800 text-xs flex items-center gap-2">
                         Visão Engenharia
+                        {window.location.search.includes('from=producao') && (
+                            <button onClick={() => window.location.href = '/visao-geral-producao'} className="ml-4 px-2 py-0.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded text-[10px] uppercase font-bold flex items-center gap-1 transition-colors">
+                                ← Voltar para Produção
+                            </button>
+                        )}
                     </div>
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setShowFilters(!showFilters)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-[#03624C] transition-colors border px-2 py-1 rounded bg-gray-50 uppercase font-bold">
@@ -713,7 +720,7 @@ export default function VisaoGeralEngenharia() {
                         </tr>
                         {activeSectors.size > 0 && (
                             <tr className=" text-white text-[10px]">
-                                <th className="border-r border-b border-gray-300" colSpan={10}></th>
+                                <th className="border-r border-b border-gray-300" colSpan={11}></th>
                                 {Array.from(activeSectors).map(s => {
                                     const colors = getSectorColors(s);
                                     return (
@@ -774,13 +781,13 @@ export default function VisaoGeralEngenharia() {
                                         <td className="px-2 py-1 border-r border-gray-200 font-bold">{t.Tag}</td>
                                         <td className="px-2 py-1 border-r border-gray-200 overflow-hidden text-ellipsis max-w-[250px]" title={t.DescTag}>{t.DescTag}</td>
                                         <td className="px-2 py-1 border-r border-gray-200 overflow-hidden text-ellipsis max-w-[100px]" title={t.TipoProduto}>{t.TipoProduto}</td>
-                                        <td className="px-2 py-1 border-r border-gray-200">{t.DataPrevisao}</td>
+                                        <td className="px-2 py-1 border-r border-gray-200">{isoToBr((t.DataPrevisao as string) || '')}</td>
 
                                         {/* PREV. PROJETO — nova coluna */}
                                         <td className="px-2 py-1 border-r border-gray-200 text-center">
                                             {t.DataTermino ? (
                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 border border-orange-400 text-orange-800 font-bold text-[11px] whitespace-nowrap">
-                                                    🗓 {t.DataTermino}
+                                                    🗓 {isoToBr((t.DataTermino as string) || '')}
                                                 </span>
                                             ) : (
                                                 <span className="text-gray-300 text-[11px]">—</span>
@@ -791,7 +798,7 @@ export default function VisaoGeralEngenharia() {
                                             {t.DataTermino ? (
                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-400 text-amber-800 font-bold text-[11px] whitespace-nowrap">
                                                     <Flag size={9} className="shrink-0" />
-                                                    {t.DataTermino}
+                                                    {isoToBr((t.DataTermino as string) || '')}
                                                 </span>
                                             ) : (
                                                 <span className="text-gray-300 text-[11px] pl-1">—</span>

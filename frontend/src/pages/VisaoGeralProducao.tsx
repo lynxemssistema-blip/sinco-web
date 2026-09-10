@@ -1338,7 +1338,35 @@ const getSectorPlanningDates = (obj: any, sectorKey: string) => {
  };
 
  // Busca inicial ao montar a página (usa o statusFilter salvo no localStorage)
- useEffect(() => { fetchProj(statusFilter); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const confirmarFinalizarTag = async () => {
+    if (!selTag) return;
+    setIsSaving(true);
+    try {
+      const res = await authFetch(`${API_BASE}/acompanhamento/tags/finalizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            idProjeto: selTag.IdProjeto, 
+            idTag: selTag.IdTag, 
+            finalizarTodas: false,
+            usuario: getUser()
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      
+      setMsg({ ok: true, t: 'Tag finalizada com sucesso!' });
+      setActionModal(null);
+      fetchVisaoGeralData();
+    } catch (err: any) {
+      setMsg({ ok: false, t: err.message || 'Erro ao finalizar tag.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  useEffect(() => { fetchProj(statusFilter); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
  useEffect(() => {
@@ -1758,7 +1786,8 @@ const salvarDatasBulkTags = async () => {
  idRnc: rncForm.idRnc, idProjeto: selProj.IdProjeto, projeto: selProj.Projeto,
  idTag: rncForm.idTag, tag: rncForm.tag,
  descricao: rncForm.descricao, setor: rncForm.setor, usuario: rncForm.usuario,
- tipoTarefa: rncForm.tipoTarefa, dataExec: dataBr
+ tipoTarefa: rncForm.tipoTarefa, dataExec: dataBr,
+ origemPendencia: 'VisaoGeral'
  };
  const r = await (await fetch(`${API_BASE}/visao-geral/pendencias`, {
  method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -2549,16 +2578,16 @@ const salvarDatasBulkTags = async () => {
                     <ShieldAlert size={11} /> Pendência
                   </button>
                   <button type="button" 
-                    onClick={(e) => { e.stopPropagation(); if (selProj) fetchRncs(selProj.IdProjeto, 'ACAOPCP'); setRncForm({ idTag: t.IdTag, tag: t.Tag, descricao: '', setor: 'Corte', usuario: '', tipoTarefa: '', dataExec: '', usuarioFin: '', dataFin: '', setorFin: 'Corte', descFin: '', wantsToFinalize: false }); setActionModal('addTask'); }}
-                    className="bg-[#E0E800]/20 hover:bg-[#E0E800]/30 border border-amber-300 text-[#32423D] px-2 py-0.5 rounded text-[9.5px] font-bold flex items-center gap-1 transition-colors"
-                    title="Agendar Tarefa"
+                    onClick={(e) => { e.stopPropagation(); window.location.href = '/tarefas?from=producao'; }}
+                    className="bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold flex items-center gap-1 transition-colors"
+                    title="Adicionar Tarefa"
                   >
                     <CalendarDays size={11} /> Tarefa
                   </button>
                   <button type="button" 
-                    onClick={(e) => { e.stopPropagation(); if (isProjFin || tFin) return; setSelTag(t); setPlanejarProjetistaForm({ projetistaPlanejado: t.ProjetistaPlanejado || '', planejadoInicioEngenharia: brToIso(t.PlanejadoInicioEngenharia || ''), planejadoFinalEngenharia: brToIso(t.PlanejadoFinalEngenharia || '') }); setMsg(null); setActionModal('planejarProjetista'); }}
+                    onClick={(e) => { e.stopPropagation(); window.location.href = '/visao-geral-engenharia?from=producao'; }}
                     className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded text-[9.5px] font-bold flex items-center gap-1 transition-colors"
-                    title="Planejar Projetista e Engenharia"
+                    title="Acessar Visão Geral da Engenharia"
                   >
                     <Edit3 size={11} /> Plan. Eng/Proj.
                   </button>
@@ -2571,13 +2600,7 @@ const salvarDatasBulkTags = async () => {
                     <Activity size={11} /> Prod. Recursos
                   </button>
 
-                  <button type="button" 
-                    onClick={(e) => { e.stopPropagation(); if (isProjFin || tFin) return; setSelTag(t); setQtdeLiberadaForm({ qtdeLiberada: t.QtdeLiberada || '0' }); setMsg(null); setActionModal('alterarQtdeLiberada'); }}
-                    className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-2 py-0.5 rounded text-[9.5px] font-bold flex items-center gap-1 transition-colors"
-                    title="Alterar Qtde Liberada"
-                  >
-                    <Edit3 size={11} /> Qtde Lib.
-                  </button>
+
                   <button type="button" 
                     onClick={(e) => { e.stopPropagation(); setSelTag(t); setMsg(null); setActionModal('temposProducao'); }}
                     className="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold flex items-center gap-1 transition-colors"
@@ -3207,6 +3230,37 @@ const salvarDatasBulkTags = async () => {
     </div>
   )}
 
+  {actionModal === 'finTag' && selTag && (
+    <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-slate-200">
+        <div className="bg-green-600 text-white px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CheckCircle size={20} />
+            <h2 className="text-sm font-bold">Finalizar Tag {selTag.Tag}</h2>
+          </div>
+          <button type="button" onClick={() => setActionModal(null)} className="text-white/80 hover:text-white p-1 rounded-full transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+        
+        <div className="p-5 flex-1 overflow-y-auto space-y-4">
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded text-sm">
+            <strong>Atenção:</strong> Ao finalizar esta tag todos os seus níveis abaixo serão automaticamente finalizados.
+          </div>
+        </div>
+        
+        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <button type="button" onClick={() => setActionModal(null)} className="px-4 py-1.5 border border-slate-300 text-slate-700 rounded text-xs font-bold hover:bg-slate-100 transition-colors">
+            Cancelar
+          </button>
+          <button type="button" onClick={confirmarFinalizarTag} disabled={isSaving} className="px-4 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
   {actionModal === 'temposProducao' && selTag && (
     <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-slate-200">
@@ -3279,6 +3333,60 @@ const salvarDatasBulkTags = async () => {
   )}
 
 {showProdSetoresModal && (<ProdSetoresModal onClose={() => { setShowProdSetoresModal(false); setSelProjForSectors(null); setSelOsForSectors(null); }} projeto={selProjForSectors} selectedTagsIds={selectedTagsForSectors} osAlvo={selOsForSectors} />)}
+
+  {actionModal === 'addRnc' && (
+    <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-slate-200">
+        <div className="bg-red-600 text-white px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <ShieldAlert size={20} />
+            <h2 className="text-sm font-bold">Gerar Pendência para Tag {rncForm.tag}</h2>
+          </div>
+          <button type="button" onClick={() => setActionModal(null)} className="text-white/80 hover:text-white p-1 rounded-full transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+        
+        <div className="p-5 flex-1 overflow-y-auto space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Descrição da Pendência</label>
+            <textarea
+              value={rncForm.descricao}
+              onChange={e => setRncForm(prev => ({ ...prev, descricao: e.target.value }))}
+              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              rows={3}
+              placeholder="Descreva a pendência..."
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+             <div>
+               <label className="block text-xs font-bold text-slate-600 mb-1">Usuário Responsável</label>
+               <select value={rncForm.usuario} onChange={e => setRncForm(prev => ({ ...prev, usuario: e.target.value }))} className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500 bg-white">
+                 <option value="">Selecione...</option>
+                 {usuarios.map((u: any, idx) => (
+                   <option key={idx} value={u.NomeCompleto || u.Nome || u.Login}>{u.NomeCompleto || u.Nome || u.Login}</option>
+                 ))}
+               </select>
+             </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Data Execução</label>
+            <input type="date" value={rncForm.dataExec} onChange={e => setRncForm(prev => ({ ...prev, dataExec: e.target.value }))} className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-red-500" />
+          </div>
+        </div>
+        
+        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <button type="button" onClick={() => setActionModal(null)} className="px-4 py-1.5 border border-slate-300 text-slate-700 rounded text-xs font-bold hover:bg-slate-100 transition-colors">
+            Cancelar
+          </button>
+          <button type="button" onClick={salvarNovaRnc} disabled={isSaving} className="px-4 py-1.5 bg-red-600 text-white rounded text-xs font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            Salvar Pendência
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
   </div>
   );
 }

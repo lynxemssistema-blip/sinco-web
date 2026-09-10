@@ -235,6 +235,8 @@ function AppContent() {
       const path = window.location.pathname;
       if (path.startsWith('/blockset')) {
         setActivePageId('blockset');
+      } else if (path.startsWith('/visao-geral-engenharia')) {
+        setActivePageId('visao-geral-engenharia');
       } else {
         const foundItem = findItemByHref(defaultMenuItems, path);
         if (foundItem) {
@@ -269,6 +271,9 @@ function AppContent() {
     const item = findItemById(menuItems, activePageId);
     if (activePageId === 'peca-manufaturada' || activePageId === 'peça-manufaturada' || activePageId === 'monta-peca-manufaturada') {
       return 'Montagem Processo Fabricação';
+    }
+    if (activePageId === 'visao-geral-engenharia') {
+      return 'Visão Geral Engenharia';
     }
     return item ? item.label : 'Dashboard';
   };
