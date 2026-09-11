@@ -4906,7 +4906,23 @@ const queryPool = req.tenantDbPool || pool;
                 CASE WHEN TRIM(COALESCE(p.DescEmpresa, '')) IN ('', 'Sem cliente', 'Sem Cliente', 'SEM CLIENTE') THEN p.ClienteProjeto ELSE p.DescEmpresa END as DescEmpresa,
                 TRIM(p.Finalizado) as Finalizado, 
                 COUNT(t.IdTag) AS QtdeTags,
-                COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas
+                COALESCE(SUM(CAST(NULLIF(t.qtdetotal,'') AS DECIMAL(10,2))), 0) AS qtdetotalpecas,
+                COALESCE(SUM(CAST(NULLIF(t.CorteaLaserTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagCorteaLaserTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.CorteaLaserTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagCorteaLaserTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagCorteTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.CorteTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagCorteTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagDobraTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.DobraTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagDobraTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagSoldaTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.SoldaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagSoldaTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagPinturaTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.PinturaTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagPinturaTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagMontagemTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.MontagemTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagMontagemTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.PUNSIONADEIRATotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagPunsionadeiraTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.PUNSIONADEIRATotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagPunsionadeiraTotalExecutado,
+                COALESCE(SUM(CAST(NULLIF(t.GALVANIZARTotalExecutar,'') AS DECIMAL(10,2))), 0) AS tagGalvanizarTotalExecutar,
+                COALESCE(SUM(CAST(NULLIF(t.GALVANIZARTotalExecutado,'') AS DECIMAL(10,2))), 0) AS tagGalvanizarTotalExecutado
             FROM projetos p
             LEFT JOIN tags t ON t.IdProjeto = p.IdProjeto AND (t.D_E_L_E_T_E IS NULL OR t.D_E_L_E_T_E = '')
             WHERE ${where}
@@ -5131,42 +5147,42 @@ const queryPool = req.tenantDbPool || pool;
                 qtderncPendente: rncS.qtderncPendente || 0,
                 qtderncFinalizada: rncS.qtderncFinalizada || 0,
 
-                TotalCorte: p.CorteTotalExecutar ?? mpS.mpTotalCorte ?? osS.TotalCorte ?? 0, ExecCorte: p.CorteTotalExecutado ?? mpS.mpExecCorte ?? osS.ExecCorte ?? 0,
+                TotalCorte: Number(p.tagCorteTotalExecutar) || Number(p.CorteTotalExecutar) || Number(mpS.mpTotalCorte) || Number(osS.TotalCorte) || 0, ExecCorte: Number(p.tagCorteTotalExecutado) || Number(p.CorteTotalExecutado) || Number(mpS.mpExecCorte) || Number(osS.ExecCorte) || 0,
                 PlanejadoInicioCorte: p.PlanejadoInicioCorte || mpS.mpPlanejadoInicioCorte || osS.PlanejadoInicioCorte || null, PlanejadoFinalCorte: p.PlanejadoFinalCorte || mpS.mpPlanejadoFinalCorte || osS.PlanejadoFinalCorte || null,
                 RealizadoInicioCorte: p.RealizadoInicioCorte || mpS.mpRealizadoInicioCorte || osS.RealizadoInicioCorte || null, RealizadoFinalCorte: p.RealizadoFinalCorte || mpS.mpRealizadoFinalCorte || osS.RealizadoFinalCorte || null,
                 flagCorte: osS.flagCorte || 0,
 
-                TotalDobra: p.DobraTotalExecutar ?? mpS.mpTotalDobra ?? osS.TotalDobra ?? 0, ExecDobra: p.DobraTotalExecutado ?? mpS.mpExecDobra ?? osS.ExecDobra ?? 0,
+                TotalDobra: Number(p.tagDobraTotalExecutar) || Number(p.DobraTotalExecutar) || Number(mpS.mpTotalDobra) || Number(osS.TotalDobra) || 0, ExecDobra: Number(p.tagDobraTotalExecutado) || Number(p.DobraTotalExecutado) || Number(mpS.mpExecDobra) || Number(osS.ExecDobra) || 0,
                 PlanejadoInicioDobra: p.PlanejadoInicioDobra || mpS.mpPlanejadoInicioDobra || osS.PlanejadoInicioDobra || null, PlanejadoFinalDobra: p.PlanejadoFinalDobra || mpS.mpPlanejadoFinalDobra || osS.PlanejadoFinalDobra || null,
                 RealizadoInicioDobra: p.RealizadoInicioDobra || mpS.mpRealizadoInicioDobra || osS.RealizadoInicioDobra || null, RealizadoFinalDobra: p.RealizadoFinalDobra || mpS.mpRealizadoFinalDobra || osS.RealizadoFinalDobra || null,
                 flagDobra: osS.flagDobra || 0,
 
-                TotalSolda: p.SoldaTotalExecutar ?? mpS.mpTotalSolda ?? osS.TotalSolda ?? 0, ExecSolda: p.SoldaTotalExecutado ?? mpS.mpExecSolda ?? osS.ExecSolda ?? 0,
+                TotalSolda: Number(p.tagSoldaTotalExecutar) || Number(p.SoldaTotalExecutar) || Number(mpS.mpTotalSolda) || Number(osS.TotalSolda) || 0, ExecSolda: Number(p.tagSoldaTotalExecutado) || Number(p.SoldaTotalExecutado) || Number(mpS.mpExecSolda) || Number(osS.ExecSolda) || 0,
                 PlanejadoInicioSolda: p.PlanejadoInicioSolda || mpS.mpPlanejadoInicioSolda || osS.PlanejadoInicioSolda || null, PlanejadoFinalSolda: p.PlanejadoFinalSolda || mpS.mpPlanejadoFinalSolda || osS.PlanejadoFinalSolda || null,
                 RealizadoInicioSolda: p.RealizadoInicioSolda || mpS.mpRealizadoInicioSolda || osS.RealizadoInicioSolda || null, RealizadoFinalSolda: p.RealizadoFinalSolda || mpS.mpRealizadoFinalSolda || osS.RealizadoFinalSolda || null,
                 flagSolda: osS.flagSolda || 0,
 
-                TotalPintura: p.PinturaTotalExecutar ?? mpS.mpTotalPintura ?? osS.TotalPintura ?? 0, ExecPintura: p.PinturaTotalExecutado ?? mpS.mpExecPintura ?? osS.ExecPintura ?? 0,
+                TotalPintura: Number(p.tagPinturaTotalExecutar) || Number(p.PinturaTotalExecutar) || Number(mpS.mpTotalPintura) || Number(osS.TotalPintura) || 0, ExecPintura: Number(p.tagPinturaTotalExecutado) || Number(p.PinturaTotalExecutado) || Number(mpS.mpExecPintura) || Number(osS.ExecPintura) || 0,
                 PlanejadoInicioPintura: p.PlanejadoInicioPintura || mpS.mpPlanejadoInicioPintura || osS.PlanejadoInicioPintura || null, PlanejadoFinalPintura: p.PlanejadoFinalPintura || mpS.mpPlanejadoFinalPintura || osS.PlanejadoFinalPintura || null,
                 RealizadoInicioPintura: p.RealizadoInicioPintura || mpS.mpRealizadoInicioPintura || osS.RealizadoInicioPintura || null, RealizadoFinalPintura: p.RealizadoFinalPintura || mpS.mpRealizadoFinalPintura || osS.RealizadoFinalPintura || null,
                 flagPintura: osS.flagPintura || 0,
 
-                TotalMontagem: p.MontagemTotalExecutar ?? mpS.mpTotalMontagem ?? osS.TotalMontagem ?? 0, ExecMontagem: p.MontagemTotalExecutado ?? mpS.mpExecMontagem ?? osS.ExecMontagem ?? 0,
+                TotalMontagem: Number(p.tagMontagemTotalExecutar) || Number(p.MontagemTotalExecutar) || Number(mpS.mpTotalMontagem) || Number(osS.TotalMontagem) || 0, ExecMontagem: Number(p.tagMontagemTotalExecutado) || Number(p.MontagemTotalExecutado) || Number(mpS.mpExecMontagem) || Number(osS.ExecMontagem) || 0,
                 PlanejadoInicioMontagem: p.PlanejadoInicioMontagem || mpS.mpPlanejadoInicioMontagem || osS.PlanejadoInicioMontagem || null, PlanejadoFinalMontagem: p.PlanejadoFinalMontagem || mpS.mpPlanejadoFinalMontagem || osS.PlanejadoFinalMontagem || null,
                 RealizadoInicioMontagem: p.RealizadoInicioMontagem || mpS.mpRealizadoInicioMontagem || osS.RealizadoInicioMontagem || null, RealizadoFinalMontagem: p.RealizadoFinalMontagem || mpS.mpRealizadoFinalMontagem || osS.RealizadoFinalMontagem || null,
                 flagMontagem: osS.flagMontagem || 0,
 
-                TotalCorteaLaser: p.CorteaLaserTotalExecutar ?? mpS.mpTotalCorteaLaser ?? osS.TotalCorteaLaser ?? 0, ExecCorteaLaser: p.CorteaLaserTotalExecutado ?? mpS.mpExecCorteaLaser ?? osS.ExecCorteaLaser ?? 0,
+                TotalCorteaLaser: Number(p.tagCorteaLaserTotalExecutar) || Number(mpS.mpTotalCorteaLaser) || Number(osS.TotalCorteaLaser) || 0, ExecCorteaLaser: Number(p.tagCorteaLaserTotalExecutado) || Number(mpS.mpExecCorteaLaser) || Number(osS.ExecCorteaLaser) || 0,
                 PlanejadoInicioCorteaLaser: p.PlanejadoInicioCorteaLaser || mpS.mpPlanejadoInicioCorteaLaser || osS.PlanejadoInicioCorteaLaser || null, PlanejadoFinalCorteaLaser: p.PlanejadoFinalCorteaLaser || mpS.mpPlanejadoFinalCorteaLaser || osS.PlanejadoFinalCorteaLaser || null,
                 RealizadoInicioCorteaLaser: p.RealizadoInicioCorteaLaser || mpS.mpRealizadoInicioCorteaLaser || osS.RealizadoInicioCorteaLaser || null, RealizadoFinalCorteaLaser: p.RealizadoFinalCorteaLaser || mpS.mpRealizadoFinalCorteaLaser || osS.RealizadoFinalCorteaLaser || null,
                 flagCorteaLaser: osS.flagCorteaLaser || 0,
 
-                TotalPunsionadeira: p.PunsionadeiraTotalExecutar ?? mpS.mpTotalPunsionadeira ?? osS.TotalPunsionadeira ?? 0, ExecPunsionadeira: p.PunsionadeiraTotalExecutado ?? mpS.mpExecPunsionadeira ?? osS.ExecPunsionadeira ?? 0,
+                TotalPunsionadeira: Number(p.tagPunsionadeiraTotalExecutar) || Number(mpS.mpTotalPunsionadeira) || Number(osS.TotalPunsionadeira) || 0, ExecPunsionadeira: Number(p.tagPunsionadeiraTotalExecutado) || Number(mpS.mpExecPunsionadeira) || Number(osS.ExecPunsionadeira) || 0,
                 PlanejadoInicioPunsionadeira: p.PlanejadoInicioPunsionadeira || mpS.mpPlanejadoInicioPunsionadeira || osS.PlanejadoInicioPunsionadeira || null, PlanejadoFinalPunsionadeira: p.PlanejadoFinalPunsionadeira || mpS.mpPlanejadoFinalPunsionadeira || osS.PlanejadoFinalPunsionadeira || null,
                 RealizadoInicioPunsionadeira: p.RealizadoInicioPunsionadeira || mpS.mpRealizadoInicioPunsionadeira || osS.RealizadoInicioPunsionadeira || null, RealizadoFinalPunsionadeira: p.RealizadoFinalPunsionadeira || mpS.mpRealizadoFinalPunsionadeira || osS.RealizadoFinalPunsionadeira || null,
                 flagPunsionadeira: osS.flagPunsionadeira || 0,
 
-                TotalGalvanizar: p.GalvanizarTotalExecutar ?? mpS.mpTotalGalvanizar ?? osS.TotalGalvanizar ?? 0, ExecGalvanizar: p.GalvanizarTotalExecutado ?? mpS.mpExecGalvanizar ?? osS.ExecGalvanizar ?? 0,
+                TotalGalvanizar: Number(p.tagGalvanizarTotalExecutar) || Number(mpS.mpTotalGalvanizar) || Number(osS.TotalGalvanizar) || 0, ExecGalvanizar: Number(p.tagGalvanizarTotalExecutado) || Number(mpS.mpExecGalvanizar) || Number(osS.ExecGalvanizar) || 0,
                 PlanejadoInicioGalvanizar: p.PlanejadoInicioGalvanizar || mpS.mpPlanejadoInicioGalvanizar || osS.PlanejadoInicioGalvanizar || null, PlanejadoFinalGalvanizar: p.PlanejadoFinalGalvanizar || mpS.mpPlanejadoFinalGalvanizar || osS.PlanejadoFinalGalvanizar || null,
                 RealizadoInicioGalvanizar: p.RealizadoInicioGalvanizar || mpS.mpRealizadoInicioGalvanizar || osS.RealizadoInicioGalvanizar || null, RealizadoFinalGalvanizar: p.RealizadoFinalGalvanizar || mpS.mpRealizadoFinalGalvanizar || osS.RealizadoFinalGalvanizar || null,
                 flagGalvanizar: osS.flagGalvanizar || 0,
@@ -7638,7 +7654,7 @@ app.get('/api/ordemservico/tags-clonagem', tenantMiddleware, async (req, res) =>
     try {
         const projetoId = req.query.projetoId;
         if (!projetoId) return res.json({ success: true, data: [] });
-        const [rows] = await req.tenantDbPool.execute("SELECT IdTag as value, Tag as label FROM tags WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND IdProjeto = ? ORDER BY Tag", [projetoId]);
+        const [rows] = await req.tenantDbPool.execute("SELECT IdTag as value, Tag as label FROM tags WHERE (D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = '') AND (Finalizado IS NULL OR Finalizado <> 'C') AND (SaldoTag IS NULL OR SaldoTag = '' OR CAST(SaldoTag AS DECIMAL(10,2)) > 0) AND IdProjeto = ? ORDER BY Tag", [projetoId]);
         res.json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false }); }
 });

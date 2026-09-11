@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PessoaJuridicaPage from './PessoaJuridica';
+import NovaTagModal from '../components/projetos/NovaTagModal';
 import TipoProdutoPage from './TipoProduto';
 import UnidadeMedidaPage from './UnidadeMedida';
 import {
@@ -1978,162 +1979,22 @@ export default function ProjetoPage() {
  }
  </AnimatePresence >
 
- {/* Tag Form Modal */}
- <AnimatePresence>
- {
- showTagForm && (
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center p-4 overflow-y-auto"
- onClick={(e) => e.target === e.currentTarget && resetTagForm()}
- >
- <motion.div
- initial={{ opacity: 0, y: -20, scale: 0.95 }}
- animate={{ opacity: 1, y: 0, scale: 1 }}
- exit={{ opacity: 0, y: -20, scale: 0.95 }}
- className="bg-white rounded-md shadow-xl w-full max-w-2xl my-8"
- >
- <div className="flex items-center justify-between p-5 border-b border-gray-100">
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-lg bg-[#32423D] text-white flex items-center justify-center">
- <TagIcon size={20} />
- </div>
- <div>
- <h2 className="text-lg font-semibold text-[#32423D]">
- {isEditingTag ? 'Editar Tag' : 'Nova Tag'}
- </h2>
- <p className="text-xs text-gray-500">Projeto: {selectedProjetoForTag?.Projeto}</p>
- </div>
- </div>
- <button onClick={resetTagForm} className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
- <X size={20} />
- </button>
- </div>
-
- <form onSubmit={handleTagSubmit} className="p-5 space-y-4">
- 
- <div className="grid grid-cols-2 gap-4">
- <div>
- <label className="block text-xs font-medium text-gray-600 mb-1">Descrição Tag <span className="text-red-500">*</span></label>
- <input type="text" name="Tag" value={tagFormData.Tag || ''} onChange={handleTagInputChange} className={inputRequired} required />
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1">Data Prev. Entrega</label>
- <input
- type="date"
- name="DataPrevisao"
- value={(() => {
- const v = tagFormData.DataPrevisao || '';
- const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
- return m ? `${m[3]}-${m[2]}-${m[1]}` : v;
- })()}
- onChange={e => {
- const [y, m, d] = (e.target.value || '').split('-');
- const br = y && m && d ? `${d}/${m}/${y}` : '';
- setTagFormData(prev => ({ ...prev, DataPrevisao: br }));
- }}
- className={inputOptional}
- />
- {(() => {
- const v = tagFormData.DataPrevisao || '';
- const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
- if (!match) return null;
- const target = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
- const today = new Date(); today.setHours(0, 0, 0, 0);
- let count = 0;
- const cur = new Date(today);
- if (target <= today) {
- return (
- <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">
- ⚠ Prazo vencido
- </span>
- );
- }
- while (cur < target) {
- cur.setDate(cur.getDate() + 1);
- const dow = cur.getDay();
- if (dow !== 0 && dow !== 6) count++;
- }
- const color = count >= 5
- ? 'bg-green-100 text-green-700'
- : count >= 1
- ? 'bg-yellow-100 text-yellow-700'
- : 'bg-red-100 text-red-700';
- return (
- <span className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold ${color}`}>
- 📅 {count} dia{count !== 1 ? 's' : ''} útil{count !== 1 ? 'eis' : ''} restante{count !== 1 ? 's' : ''}
- </span>
- );
- })()}
- </div>
-
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-2">
-  <button
-    type="button"
-    onClick={() => setShowTipoProdutoModal(true)}
-    className="inline-flex items-center justify-center w-4 h-4 rounded bg-gray-100 text-gray-500 hover:bg-[#32423D] hover:text-white transition-colors border border-gray-200"
-    title="Novo Tipo Produto"
-  >
-    <Plus size={10} strokeWidth={3} />
-  </button>
-  Tipo Produto
- </label>
- <select name="TipoProduto" value={tagFormData.TipoProduto || ''} onChange={handleTagInputChange} className={selectClass}>
- <option value="">Selecione...</option>
- {tipoProdutoOptions.map(opt => <option key={opt.id} value={opt.label}>{opt.label}</option>)}
- </select>
- </div>
- <div className="grid grid-cols-4 gap-3">
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1">Quantidade</label>
- <input type="text" name="QtdeTag" value={tagFormData.QtdeTag || ''} onChange={handleTagInputChange} className={inputOptional} />
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1">Qt. Liberada</label>
- <input type="text" name="QtdeLiberada" value={tagFormData.QtdeLiberada || ''} readOnly className={`${inputOptional} bg-gray-100 cursor-not-allowed`} />
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1">Saldo</label>
- <input type="text" name="SaldoTag" value={tagFormData.SaldoTag || ''} readOnly className={`${inputOptional} bg-gray-100 cursor-not-allowed`} />
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-2">
-  <button
-    type="button"
-    onClick={() => setShowUnidadeModal(true)}
-    className="inline-flex items-center justify-center w-4 h-4 rounded bg-gray-100 text-gray-500 hover:bg-[#32423D] hover:text-white transition-colors border border-gray-200"
-    title="Nova Medida"
-  >
-    <Plus size={10} strokeWidth={3} />
-  </button>
-  Medida
-</label>
- <select name="UnidadeProduto" value={tagFormData.UnidadeProduto || ''} onChange={handleTagInputChange} className={selectClass}>
- <option value="">-</option>
- {medidaOptions.map(opt => <option key={opt.id} value={opt.id}>{opt.id}</option>)}
- </select>
- </div>
- </div>
- <div>
- <label className="block text-xs font-medium text-gray-500 mb-1">Descrição</label>
- <textarea name="DescTag" value={tagFormData.DescTag || ''} onChange={handleTagInputChange} rows={3} className={inputOptional} />
- </div>
- <div className="pt-2 flex justify-end w-full">
-<motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#32423D] text-white font-medium disabled:opacity-50" disabled={saving}>
- {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
- {isEditingTag ? 'Atualizar' : 'Salvar'}
- </motion.button>
-</div>
- </form>
- </motion.div>
- </motion.div>
- )
- }
- </AnimatePresence>
+  {/* Tag Form Modal */}
+  <NovaTagModal
+    isOpen={showTagForm}
+    onClose={resetTagForm}
+    onSuccess={() => {
+      if (selectedProjetoForTag?.IdProjeto) {
+        fetchTags(selectedProjetoForTag.IdProjeto);
+      }
+      resetTagForm();
+      showAlert('Tag salva com sucesso!', 'success');
+    }}
+    projetoId={selectedProjetoForTag?.IdProjeto || ''}
+    projetoNome={selectedProjetoForTag?.Projeto || ''}
+    tagToEdit={isEditingTag ? tagFormData : null}
+    API_BASE={API_BASE}
+  />
 
  {showPessoaJuridicaModal && (
  <div className="fixed inset-0 z-[60] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -2155,15 +2016,7 @@ export default function ProjetoPage() {
  </div>
  )}
 
-  {showTipoProdutoModal && (
-    <TipoProdutoPage
-      isModal
-      onCloseModal={() => {
-        setShowTipoProdutoModal(false);
-        fetchOptions();
-      }}
-    />
-  )}
+  
 
   {showUnidadeModal && (
     <div className="fixed inset-0 z-[120] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">

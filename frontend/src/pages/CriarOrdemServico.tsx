@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Save, Plus, Loader2, PackagePlus, Info, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ModalIncluirMaterialOS from '../components/ModalIncluirMaterialOS';
+import NovaTagModal from '../components/projetos/NovaTagModal';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -48,6 +49,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
 
   const [message, setMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
   const [saveAction, setSaveAction] = useState<'com_itens' | 'sem_itens'>('com_itens');
+  const [showNovaTagModal, setShowNovaTagModal] = useState(false);
 
   useEffect(() => {
     if (!token) return; // aguarda autenticação antes de buscar
@@ -56,7 +58,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
 
   const fetchProjetos = async () => {
     try {
-      const res = await fetch(`${API_BASE}/ordemservico/projetos-clonagem`, {
+      const res = await fetch(`${API_BASE}/ordemservico/projetos-clonagem?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -68,7 +70,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
 
   const fetchTags = async (projetoId: string) => {
     try {
-      const res = await fetch(`${API_BASE}/ordemservico/tags-clonagem?projetoId=${projetoId}`, {
+      const res = await fetch(`${API_BASE}/ordemservico/tags-clonagem?projetoId=${projetoId}&t=${Date.now()}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       const json = await res.json();
@@ -77,7 +79,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
         if (json.data.length === 1) {
           const singleTag = json.data[0];
           setFormData(prev => ({ ...prev, IdTag: (singleTag.value || singleTag.id).toString(), Tag: singleTag.label }));
-          fetchTagDetails((singleTag.value || singleTag.id).toString());
+          fetchTagDetails((singleTag.value || singleTag.id).toString(), true);
         }
       }
     } catch (err) {
@@ -85,13 +87,22 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
     }
   };
 
-  const fetchTagDetails = async (idTag: string) => {
+  const fetchTagDetails = async (idTag: string, isAutoSelected = false) => {
     try {
       const res = await fetch(`${API_BASE}/tag/${idTag}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       const json = await res.json();
       if (json.success && json.data) {
+        const saldo = parseFloat(json.data.SaldoTag || '0');
+        if (saldo <= 0) {
+          setMessage({ type: 'error', text: `A Tag selecionada possui saldo zero e não pode ser usada. ${isAutoSelected ? 'Por favor, escolha outro projeto ou crie outra tag para este projeto.' : ''}` });
+          setFormData(prev => ({ ...prev, IdTag: '', Tag: '', DescTag: '', DataPrevisao: '' }));
+          return;
+        } else {
+          setMessage(null);
+        }
+
         setFormData(prev => ({
           ...prev,
           DescTag: json.data.DescTag || '',
@@ -137,7 +148,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
     const idTag = e.target.value;
     const tag = tags.find(t => (t.value || t.id)?.toString() === idTag)?.label || '';
     setFormData(prev => ({ ...prev, IdTag: idTag, Tag: tag }));
-    if (idTag) fetchTagDetails(idTag);
+    if (idTag) fetchTagDetails(idTag, false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -218,7 +229,7 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
         } else {
           setMessage({ type: 'success', text: `Ordem de Serviço ${json.id} criada com sucesso!` });
           setFormData({
-                    IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
+            IdProjeto: '', Projeto: '', IdTag: '', Tag: '', DescTag: '', Descricao: '',
             IdEmpresa: '', DescEmpresa: '', DataPrevisao: '',
             ProdutoPadrao: '', CodDesenhoProduto: '', DescricaoProduto: '', ProdutoCriadoPor: '',
             DataCriacaoProduto: '', Fator: '1', TipoLiberacaoOrdemServico: 'Total'
@@ -315,7 +326,19 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Tag <span className="text-red-500">*</span></label>
+              <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center justify-between">
+                <span>Tag <span className="text-red-500">*</span></span>
+                {formData.IdProjeto && (
+                  <button
+                    type="button"
+                    onClick={() => setShowNovaTagModal(true)}
+                    className="inline-flex items-center justify-center w-5 h-5 rounded bg-gray-100 text-gray-500 hover:bg-[#32423D] hover:text-white transition-colors border border-gray-200"
+                    title="Criar nova Tag para este projeto"
+                  >
+                    <Plus size={12} strokeWidth={3} />
+                  </button>
+                )}
+              </label>
               <select name="IdTag" value={formData.IdTag} onChange={handleTagChange} className={inputClass} required disabled={!formData.IdProjeto}>
                 <option value="">Selecione uma tag...</option>
                 {tags.map(t => <option key={t.value || t.id} value={t.value || t.id}>{t.label}</option>)}
@@ -422,6 +445,18 @@ export default function CriarOrdemServicoPage({ onClose, onSuccess }: CriarOrdem
         osContext={newOsContext}
         onSuccess={handleModalSuccess}
         token={token}
+      />
+      <NovaTagModal
+        isOpen={showNovaTagModal}
+        onClose={() => setShowNovaTagModal(false)}
+        onSuccess={() => {
+          if (formData.IdProjeto) {
+            fetchTags(formData.IdProjeto);
+          }
+        }}
+        projetoId={formData.IdProjeto}
+        projetoNome={formData.Projeto}
+        API_BASE={API_BASE}
       />
     </div>
   );
