@@ -5,6 +5,7 @@ const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const app = express();
+app.set('trust proxy', true);
 const db = require('./config/db');
 const pool = db;
 const tenantMiddleware = require('./middleware/tenant');
@@ -2098,10 +2099,52 @@ async function isUserSuperadmin(login) {
     }
 }
 
+// Helper: Obter o IP real e seguro do cliente ativo (mesmo atrás de Proxy Reverso/Nginx/Traefik/Cloudflare/Easypanel)
+function getClientIp(req) {
+    if (!req) return '';
+    try {
+        // 1. Cloudflare header se houver
+        const cfIp = req.headers && req.headers['cf-connecting-ip'];
+        if (cfIp) return String(cfIp).trim();
+
+        // 2. X-Forwarded-For: o IP original do cliente é sempre o primeiro da lista
+        const forwarded = req.headers && req.headers['x-forwarded-for'];
+        if (forwarded) {
+            let client = String(forwarded).split(',')[0].trim();
+            client = client.replace(/^::ffff:/, '');
+            if (client.includes(':') && !client.includes('::') && client.split(':').length === 2) {
+                client = client.split(':')[0];
+            }
+            if (client) return client;
+        }
+
+        // 3. X-Real-IP padrão de proxies reversos (Nginx/Traefik)
+        const realIp = req.headers && req.headers['x-real-ip'];
+        if (realIp) {
+            let client = String(realIp).trim().replace(/^::ffff:/, '');
+            if (client.includes(':') && !client.includes('::') && client.split(':').length === 2) {
+                client = client.split(':')[0];
+            }
+            if (client) return client;
+        }
+
+        // 4. req.ip (já resolvido pelo Express com trust proxy=true) ou socket nativo
+        let ip = req.ip || (req.socket && req.socket.remoteAddress) || '';
+        ip = String(ip).replace(/^::ffff:/, '').trim();
+        return ip;
+    } catch (e) {
+        return req.ip || '';
+    }
+}
+
 // Helper: Registrar acesso de usuário no banco central (auditoria)
-async function recordLoginAudit(login, dbName, clientName, ip) {
+async function recordLoginAudit(login, dbName, clientName, ipOrReq) {
     let conn;
     try {
+        const finalIp = (typeof ipOrReq === 'object' && ipOrReq !== null)
+            ? getClientIp(ipOrReq)
+            : (ipOrReq ? String(ipOrReq).replace(/^::ffff:/, '').trim() : null);
+
         conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
         // Garante que a tabela existe
         await conn.execute(`
@@ -2117,7 +2160,7 @@ async function recordLoginAudit(login, dbName, clientName, ip) {
         `);
         await conn.execute(
             'INSERT INTO login_audit (login, db_name, client_name, ip_address, data_acesso) VALUES (?, ?, ?, ?, NOW())',
-            [login, dbName || null, clientName || null, ip || null]
+            [login, dbName || null, clientName || null, finalIp || null]
         );
     } catch (err) {
         console.warn('[AUDIT] Erro ao registrar login:', err.message);
@@ -2175,7 +2218,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     const pwd = senha || password;
 
     if (login && String(login).trim().toLowerCase() === 'admin') {
-        console.warn(`[AUTH_BLOCKED] Tentativa de login bloqueada para o usuário 'admin' a partir do IP: ${req.ip}`);
+        console.warn(`[AUTH_BLOCKED] Tentativa de login bloqueada para o usuário 'admin' a partir do IP: ${getClientIp(req)}`);
         return res.status(403).json({ success: false, message: "Acesso não permitido para o usuário 'admin'. Utilize suas credenciais corporativas pessoais." });
     }
 
@@ -2211,7 +2254,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     tenantId: centralAuth?.tenantConfig?.id
                 }, JWT_SECRET, { expiresIn: '12h' });
 
-                recordLoginAudit(login, banco, banco, req.ip).catch(() => {});
+                recordLoginAudit(login, banco, banco, getClientIp(req)).catch(() => {});
                 return res.json({
                     success: true,
                     token,
@@ -2272,7 +2315,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
-                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, req.ip).catch(() => {});
+                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, getClientIp(req)).catch(() => {});
                         return res.json({
                             success: true,
                             token,
@@ -2300,7 +2343,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                             tenantId: centralAuth.tenantConfig.id
                         }, JWT_SECRET, { expiresIn: '12h' });
 
-                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, req.ip).catch(() => {});
+                        recordLoginAudit(login, centralAuth.tenantConfig.database, centralAuth.clientName, getClientIp(req)).catch(() => {});
                         return res.json({
                             success: true,
                             token,
@@ -2330,7 +2373,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                         tenantId: 1
                     }, JWT_SECRET, { expiresIn: '12h' });
 
-                    recordLoginAudit(login, 'N/A', 'Global System', req.ip).catch(() => {});
+                    recordLoginAudit(login, 'N/A', 'Global System', getClientIp(req)).catch(() => {});
                     return res.json({
                         success: true,
                         token,
@@ -2375,7 +2418,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 tenantId: 1
             }, JWT_SECRET, { expiresIn: '12h' });
 
-            recordLoginAudit(login, 'lynxlocal', 'LYNX (LYNXLOCAL)', req.ip).catch(() => {});
+            recordLoginAudit(login, 'lynxlocal', 'LYNX (LYNXLOCAL)', getClientIp(req)).catch(() => {});
             return res.json({
                 success: true,
                 token,
@@ -2468,6 +2511,7 @@ app.post('/api/admin/login', async (req, res) => {
                     tenantId: 1
                 }, JWT_SECRET, { expiresIn: '12h' });
 
+                recordLoginAudit(user.login, 'lynxlocal', 'LYNX (Superadmin)', getClientIp(req)).catch(() => {});
                 return res.json({ success: true, token: token, userId: user.id });
             }
         }
