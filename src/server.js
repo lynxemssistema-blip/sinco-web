@@ -2146,6 +2146,7 @@ async function recordLoginAudit(login, dbName, clientName, ipOrReq) {
             : (ipOrReq ? String(ipOrReq).replace(/^::ffff:/, '').trim() : null);
 
         conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+        await conn.query("SET time_zone = '-03:00'");
         // Garante que a tabela existe
         await conn.execute(`
             CREATE TABLE IF NOT EXISTS login_audit (
@@ -2254,7 +2255,18 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     tenantId: centralAuth?.tenantConfig?.id
                 }, JWT_SECRET, { expiresIn: '12h' });
 
-                recordLoginAudit(login, banco, banco, getClientIp(req)).catch(() => {});
+                let clientName = banco;
+                try {
+                    const [cRows] = await pool.executeOnDefault(
+                        'SELECT nome_cliente FROM conexoes_bancos WHERE db_name = ? LIMIT 1',
+                        [banco]
+                    );
+                    if (cRows && cRows.length > 0 && cRows[0].nome_cliente) {
+                        clientName = cRows[0].nome_cliente;
+                    }
+                } catch (_) {}
+
+                recordLoginAudit(login, banco, clientName, getClientIp(req)).catch(() => {});
                 return res.json({
                     success: true,
                     token,
@@ -2636,6 +2648,8 @@ app.post('/api/superadmin/switch-db', tenantMiddleware, async (req, res) => {
 
         console.log(`[SuperAdmin] ${decoded.login} switched to DB: ${dbName} (${banco.nome_cliente})`);
 
+        recordLoginAudit(decoded.login, dbName, banco.nome_cliente, getClientIp(req)).catch(() => {});
+
         res.json({
             success: true,
             token: newToken,
@@ -2666,17 +2680,253 @@ app.get('/api/admin/databases', authenticateAdmin, async (req, res) => {
     }
 });
 
-// Add/Update Tenant Database
-app.post('/api/admin/databases', authenticateAdmin, async (req, res) => {
-    const { nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados } = req.body;
+// Test Database Connection
+app.post('/api/admin/databases/test-connection', authenticateAdmin, async (req, res) => {
+    const { db_host, db_user, db_pass, db_name, db_port } = req.body;
+    if (!db_host || !db_user || !db_name) {
+        return res.status(400).json({ success: false, message: 'Host, Usuário e Banco são obrigatórios.' });
+    }
+    let conn;
     try {
-        await pool.executeOnDefault(
-            'INSERT INTO conexoes_bancos (nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [nome_cliente, db_host, db_user, db_pass, db_name, db_port || 3306, copia_banco_dados || null]
+        conn = await mysql.createConnection({
+            host: db_host,
+            user: db_user,
+            password: db_pass,
+            database: db_name,
+            port: db_port || 3306,
+            connectTimeout: 10000
+        });
+        await conn.execute('SELECT 1');
+        const [tables] = await conn.execute(
+            'SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?',
+            [db_name]
         );
-        res.json({ success: true, message: 'Banco cadastrado com sucesso' });
+        const count = tables[0]?.count || 0;
+        res.json({
+            success: true,
+            message: `Conexão bem-sucedida! O banco possui atualmente ${count} tabela(s).`,
+            tableCount: count
+        });
+    } catch (err) {
+        console.error('[DB Test] Erro ao testar conexão:', err.message);
+        let msg = `Falha na conexão: ${err.message}`;
+        if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+            msg = 'Acesso negado: Usuário ou senha incorretos para o banco na UOL Host.';
+        } else if (err.code === 'ER_BAD_DB_ERROR') {
+            msg = `Banco de dados '${db_name}' não foi encontrado. Verifique se o banco já foi criado no painel da UOL Host.`;
+        } else if (err.code === 'ENOTFOUND' || err.code === 'ETIMEDOUT') {
+            msg = `Host '${db_host}' não encontrado ou inalcançável. Verifique o endereço.`;
+        }
+        res.status(400).json({ success: false, message: msg });
+    } finally {
+        if (conn) await conn.end();
+    }
+});
+
+// Add/Update Tenant Database (with connection validation and automatic schema cloning)
+app.post('/api/admin/databases', authenticateAdmin, async (req, res) => {
+    const { nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados, auto_clonar } = req.body;
+    
+    if (!nome_cliente || !db_host || !db_user || !db_name) {
+        return res.status(400).json({ success: false, message: 'Preencha os campos obrigatórios: Nome do Cliente, Host, Banco e Usuário.' });
+    }
+
+    const port = db_port || 3306;
+    let targetConn;
+
+    // 1. Validar e testar conexão com o banco de dados na UOL Host
+    try {
+        targetConn = await mysql.createConnection({
+            host: db_host,
+            user: db_user,
+            password: db_pass,
+            database: db_name,
+            port: port,
+            connectTimeout: 15000
+        });
+        await targetConn.execute('SELECT 1');
+    } catch (connErr) {
+        console.error('[Tenant Init] Falha na conexão com o banco:', connErr.message);
+        let errorMsg = `Não foi possível conectar ao banco de dados: ${connErr.message}`;
+        if (connErr.code === 'ER_ACCESS_DENIED_ERROR') {
+            errorMsg = 'Acesso negado: Usuário ou senha incorretos para o banco na UOL Host.';
+        } else if (connErr.code === 'ER_BAD_DB_ERROR') {
+            errorMsg = `O banco de dados '${db_name}' não foi encontrado na UOL Host. Crie-o primeiro no painel da UOL.`;
+        } else if (connErr.code === 'ENOTFOUND' || connErr.code === 'ETIMEDOUT') {
+            errorMsg = `Não foi possível conectar ao Host '${db_host}'. Verifique o endereço digitado.`;
+        }
+        return res.status(400).json({ success: false, message: errorMsg });
+    }
+
+    try {
+        // 2. Salvar na tabela central de conexões
+        const [insertResult] = await pool.executeOnDefault(
+            'INSERT INTO conexoes_bancos (nome_cliente, db_host, db_user, db_pass, db_name, db_port, copia_banco_dados) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [nome_cliente, db_host, db_user, db_pass, db_name, port, copia_banco_dados || null]
+        );
+        const newDbId = insertResult.insertId;
+
+        // Registrar no pool em tempo de execução
+        db.initPool({
+            host: db_host,
+            user: db_user,
+            password: db_pass,
+            database: db_name,
+            port: port
+        });
+
+        let cloneSummary = '';
+
+        // 3. Se solicitado auto_clonar (padrão true), clonar toda a estrutura do banco modelo
+        if (auto_clonar !== false) {
+            let sourceConn;
+            try {
+                sourceConn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+
+                // Desabilitar restrições de FK para criação limpa
+                await targetConn.execute('SET FOREIGN_KEY_CHECKS = 0');
+
+                // Obter tabelas e views do banco modelo (lynxlocal)
+                const [sourceTables] = await sourceConn.execute(
+                    `SELECT TABLE_NAME, TABLE_TYPE 
+                     FROM INFORMATION_SCHEMA.TABLES 
+                     WHERE TABLE_SCHEMA = ?`,
+                    [CENTRAL_DB_CONFIG.database]
+                );
+
+                // Obter tabelas já existentes no destino
+                const [destTables] = await targetConn.execute(
+                    `SELECT TABLE_NAME, TABLE_TYPE 
+                     FROM INFORMATION_SCHEMA.TABLES 
+                     WHERE TABLE_SCHEMA = ?`,
+                    [db_name]
+                );
+                const existingDestMap = new Set(destTables.map(t => t.TABLE_NAME.toLowerCase()));
+
+                let createdTablesCount = 0;
+                let createdViewsCount = 0;
+
+                // 3.1 Criar tabelas base que não existem
+                const baseTables = sourceTables.filter(t => t.TABLE_TYPE === 'BASE TABLE');
+                for (const t of baseTables) {
+                    if (!existingDestMap.has(t.TABLE_NAME.toLowerCase())) {
+                        try {
+                            const [createRows] = await sourceConn.execute(`SHOW CREATE TABLE \`${t.TABLE_NAME}\``);
+                            if (createRows.length > 0) {
+                                let createSql = createRows[0]['Create Table'];
+                                createSql = createSql.replace(/AUTO_INCREMENT=\d+/i, 'AUTO_INCREMENT=1');
+                                createSql = createSql.replace(/^CREATE TABLE /i, 'CREATE TABLE IF NOT EXISTS ');
+                                await targetConn.execute(createSql);
+                                createdTablesCount++;
+                            }
+                        } catch (tblErr) {
+                            console.warn(`[Auto-Clone] Aviso tabela ${t.TABLE_NAME}:`, tblErr.message);
+                        }
+                    }
+                }
+
+                // 3.2 Criar views que não existem
+                const views = sourceTables.filter(t => t.TABLE_TYPE === 'VIEW');
+                for (const v of views) {
+                    if (!existingDestMap.has(v.TABLE_NAME.toLowerCase())) {
+                        try {
+                            const [viewRows] = await sourceConn.execute(`SHOW CREATE TABLE \`${v.TABLE_NAME}\``);
+                            if (viewRows.length > 0) {
+                                let createViewSql = viewRows[0]['Create View'] || viewRows[0]['Create Table'];
+                                createViewSql = createViewSql.replace(/DEFINER=`[^`]+`@`[^`]+`/gi, 'DEFINER=CURRENT_USER');
+                                createViewSql = createViewSql.replace(/^CREATE\s+(ALGORITHM=[^\s]+\s+)?/i, 'CREATE OR REPLACE $1');
+                                await targetConn.execute(createViewSql);
+                                createdViewsCount++;
+                            }
+                        } catch (viewErr) {
+                            console.warn(`[Auto-Clone] Aviso view ${v.TABLE_NAME}:`, viewErr.message);
+                        }
+                    }
+                }
+
+                // 3.3 Inicializar dados base (Configuração, Setores e Usuário Admin)
+                try {
+                    // Configuração do Sistema e MenuStructure
+                    const [destConfig] = await targetConn.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
+                    if (destConfig[0].cnt === 0) {
+                        const [allConfigs] = await sourceConn.execute('SELECT * FROM configuracaosistema');
+                        for (const row of allConfigs) {
+                            const cols = Object.keys(row);
+                            const vals = Object.values(row).map((v, i) => {
+                                if (cols[i] === 'IdMatriz') return newDbId;
+                                return v;
+                            });
+                            const placeholders = cols.map(() => '?').join(', ');
+                            const colList = cols.map(c => `\`${c}\``).join(', ');
+                            await targetConn.execute(
+                                `INSERT INTO configuracaosistema (${colList}) VALUES (${placeholders})`,
+                                vals
+                            );
+                        }
+                    }
+
+                    // Setores
+                    const [destSetores] = await targetConn.execute('SELECT COUNT(*) as cnt FROM setor');
+                    if (destSetores[0].cnt === 0) {
+                        const [srcSetores] = await sourceConn.execute("SELECT Setor, DataLiberada, Fabrica FROM setor WHERE D_E_L_E_T_E IS NULL OR D_E_L_E_T_E = ''");
+                        for (const s of srcSetores) {
+                            await targetConn.execute(
+                                'INSERT INTO setor (Setor, DataLiberada, Fabrica, IdMatriz, DataCriacao, CriadoPor) VALUES (?, ?, ?, ?, NOW(), ?)',
+                                [s.Setor, s.DataLiberada || 'SIM', s.Fabrica || 'SIM', newDbId, 'Admin']
+                            );
+                        }
+                    }
+
+                    // Usuário Admin / SuperAdmin
+                    const [destUsers] = await targetConn.execute('SELECT COUNT(*) as cnt FROM usuario');
+                    if (destUsers[0].cnt === 0) {
+                        const [srcUsers] = await sourceConn.execute(
+                            "SELECT * FROM usuario WHERE Login IN ('SUPERADMIN', 'Admin')"
+                        );
+                        for (const u of srcUsers) {
+                            const cols = Object.keys(u);
+                            const colList = cols.map(c => `\`${c}\``).join(', ');
+                            const placeholders = cols.map(() => '?').join(', ');
+                            const vals = Object.values(u).map((v, i) => {
+                                if (cols[i] === 'IdMatriz') return newDbId;
+                                return v;
+                            });
+                            await targetConn.execute(
+                                `INSERT INTO usuario (${colList}) VALUES (${placeholders})`,
+                                vals
+                            );
+                        }
+                    }
+                } catch (seedErr) {
+                    console.warn('[Auto-Clone] Aviso ao popular dados iniciais:', seedErr.message);
+                }
+
+                await targetConn.execute('SET FOREIGN_KEY_CHECKS = 1');
+
+                cloneSummary = ` Estrutura clonada: ${createdTablesCount} tabelas e ${createdViewsCount} views criadas com sucesso. Setores e administrador inicializados.`;
+
+                // Sincronizar usuários no banco central em background
+                runGlobalUserSync().catch(e => console.warn('[Auto-Clone] Erro sync usuários:', e.message));
+
+            } catch (cloneErr) {
+                console.error('[Auto-Clone] Erro na clonagem:', cloneErr);
+                cloneSummary = ` Aviso: Banco cadastrado, mas houve falha na clonagem automática: ${cloneErr.message}. Use a aba Comparação de Estrutura para sincronizar.`;
+            } finally {
+                if (sourceConn) await sourceConn.end();
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `Banco cadastrado com sucesso!${cloneSummary}`,
+            id: newDbId
+        });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error saving database: ' + error.message });
+        console.error('Error saving database:', error);
+        res.status(500).json({ success: false, message: 'Erro ao cadastrar banco: ' + error.message });
+    } finally {
+        if (targetConn) await targetConn.end();
     }
 });
 
@@ -2702,12 +2952,29 @@ app.put('/api/admin/databases/:id/toggle', authenticateAdmin, async (req, res) =
     }
 });
 
+// Delete Tenant Database
+app.delete('/api/admin/databases/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const dbId = req.params.id;
+        const [rows] = await pool.executeOnDefault('SELECT nome_cliente, db_name FROM conexoes_bancos WHERE id = ?', [dbId]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Banco de dados não encontrado' });
+        }
+        await pool.executeOnDefault('DELETE FROM conexoes_bancos WHERE id = ?', [dbId]);
+        res.json({ success: true, message: `Conexão do banco '${rows[0].nome_cliente || rows[0].db_name || dbId}' excluída com sucesso` });
+    } catch (error) {
+        console.error('Error deleting database:', error);
+        res.status(500).json({ success: false, message: 'Erro ao excluir banco: ' + error.message });
+    }
+});
+
 // ── LOGIN AUDIT ────────────────────────────────────────────────────────────────
 // GET /api/admin/login-audit — Lista acessos das últimas 24h (padrão) ou período customizado
 app.get('/api/admin/login-audit', authenticateAdmin, async (req, res) => {
     let conn;
     try {
         conn = await mysql.createConnection(CENTRAL_DB_CONFIG);
+        await conn.query("SET time_zone = '-03:00'");
         await conn.execute(`
             CREATE TABLE IF NOT EXISTS login_audit (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -2721,7 +2988,12 @@ app.get('/api/admin/login-audit', authenticateAdmin, async (req, res) => {
         `);
         const horas = parseInt(req.query.horas) || 24;
         const [rows] = await conn.execute(
-            'SELECT * FROM login_audit WHERE data_acesso >= DATE_SUB(NOW(), INTERVAL ? HOUR) ORDER BY data_acesso DESC LIMIT 500',
+            `SELECT id, login, db_name, client_name, ip_address,
+                    DATE_FORMAT(data_acesso, '%d/%m/%Y, %H:%i:%s') AS data_formatada,
+                    DATE_FORMAT(data_acesso, '%Y-%m-%dT%H:%i:%s-03:00') AS data_acesso
+             FROM login_audit 
+             WHERE data_acesso >= DATE_SUB(NOW(), INTERVAL ? HOUR) 
+             ORDER BY data_acesso DESC LIMIT 500`,
             [horas]
         );
         res.json({ success: true, data: rows });
@@ -13397,7 +13669,7 @@ async function ensureConfigColumns(poolRef) {
 // O vínculo ? quebrado na primeira escrita (PUT /api/config ou POST /api/config/menu).
 app.get('/api/config', tenantMiddleware, async (req, res) => {
     try {
-        await ensureConfigColumns(pool);
+        await ensureConfigColumns(req.tenantDbPool);
 
         // Verifica se o tenant JÁ tem configuração própria (ao menos 1 linha com algum dado salvo)
         const [countRows] = await req.tenantDbPool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
@@ -14053,6 +14325,8 @@ app.delete('/api/config/limites-recursos/:id', tenantMiddleware, async (req, res
 // Qualquer escrita (POST /api/config/menu) salva localmente e quebra o vínculo com lynxlocal.
 app.get('/api/config/menu', tenantMiddleware, async (req, res) => {
     try {
+        await ensureConfigColumns(req.tenantDbPool);
+
         // Verifica se o banco ativo já tem configuração própria (ao menos 1 linha)
         const [countRows] = await req.tenantDbPool.execute('SELECT COUNT(*) as cnt FROM configuracaosistema');
         const tenantHasOwnConfig = countRows[0].cnt > 0;

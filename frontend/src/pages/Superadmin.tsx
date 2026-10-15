@@ -25,8 +25,11 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  // Tenant Management State
  const [tenants, setTenants] = useState<Record<string, unknown>[]>([]);
  const [newTenant, setNewTenant] = useState({
- nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: ''
+ nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: '',
+ auto_clonar: true
  });
+ const [testingConn, setTestingConn] = useState(false);
+ const [creatingStatus, setCreatingStatus] = useState('');
 
  // Schema Compare State
  const [sourceDbId, setSourceDbId] = useState<number | ''>('');
@@ -226,10 +229,45 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  };
 
  // --- TENANT MANAGEMENT HANDLERS ---
+ const handleTestTenantConnection = async () => {
+ const token = localStorage.getItem('superadmin_token');
+ if (!token) return;
+ if (!newTenant.db_host || !newTenant.db_user || !newTenant.db_name) {
+ addToast({ type: 'error', message: 'Preencha Host, Banco e Usuário para testar a conexão.' });
+ return;
+ }
+ setTestingConn(true);
+ try {
+ const res = await fetch('/api/admin/databases/test-connection', {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Authorization': `Bearer ${token}`
+ },
+ body: JSON.stringify(newTenant)
+ });
+ const data = await res.json();
+ if (data.success) {
+ addToast({ type: 'success', message: data.message });
+ } else {
+ addToast({ type: 'error', message: data.message });
+ }
+ } catch {
+ addToast({ type: 'error', message: 'Erro ao testar conexão.' });
+ } finally {
+ setTestingConn(false);
+ }
+ };
+
  const handleAddTenant = async () => {
  const token = localStorage.getItem('superadmin_token');
  if (!token) return;
+ if (!newTenant.nome_cliente || !newTenant.db_host || !newTenant.db_user || !newTenant.db_name) {
+ addToast({ type: 'error', message: 'Preencha Nome do Cliente, Host, Banco e Usuário.' });
+ return;
+ }
  setLoading(true);
+ setCreatingStatus(newTenant.auto_clonar ? 'Conectando ao banco UOL e clonando toda a estrutura... Aguarde alguns instantes.' : 'Cadastrando banco de dados...');
  try {
  const res = await fetch('/api/admin/databases', {
  method: 'POST',
@@ -241,8 +279,11 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  });
  const data = await res.json();
  if (data.success) {
- addToast({ type: 'success', message: 'Banco cadastrado com sucesso' });
- setNewTenant({ nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: '' });
+ addToast({ type: 'success', message: data.message || 'Banco cadastrado com sucesso' });
+ setNewTenant({
+ nome_cliente: '', db_host: '', db_user: '', db_pass: '', db_name: '', db_port: 3306, copia_banco_dados: '',
+ auto_clonar: true
+ });
  fetchTenants(token);
  } else {
  addToast({ type: 'error', message: data.message });
@@ -251,6 +292,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  addToast({ type: 'error', message: 'Erro ao criar banco' });
  } finally {
  setLoading(false);
+ setCreatingStatus('');
  }
  };
 
@@ -297,6 +339,30 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  }
  } catch {
  addToast({ type: 'error', message: 'Erro ao sincronizar todos os usuários' });
+ } finally {
+ setLoading(false);
+ }
+ };
+
+ const handleDeleteTenant = async (tenant: any) => {
+ if (!confirm(`Tem certeza que deseja excluir o cadastro do banco '${tenant.nome_cliente || tenant.db_name}'?`)) return;
+ const token = localStorage.getItem('superadmin_token');
+ if (!token) return;
+ setLoading(true);
+ try {
+ const res = await fetch(`/api/admin/databases/${tenant.id}`, {
+ method: 'DELETE',
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+ const data = await res.json();
+ if (data.success) {
+ addToast({ type: 'success', message: data.message });
+ fetchTenants(token);
+ } else {
+ addToast({ type: 'error', message: data.message });
+ }
+ } catch {
+ addToast({ type: 'error', message: 'Erro ao excluir banco de dados' });
  } finally {
  setLoading(false);
  }
@@ -602,13 +668,53 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
  <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-800"><Plus size={15} className="text-[#32423D]" /> Cadastrar Novo Banco de Cliente</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <input placeholder="Nome do Cliente" className="border p-2 rounded" value={newTenant.nome_cliente} onChange={e => setNewTenant({ ...newTenant, nome_cliente: e.target.value })} />
- <input placeholder="Host" className="border p-2 rounded" value={newTenant.db_host} onChange={e => setNewTenant({ ...newTenant, db_host: e.target.value })} />
- <input placeholder="Banco" className="border p-2 rounded" value={newTenant.db_name} onChange={e => setNewTenant({ ...newTenant, db_name: e.target.value })} />
- <input placeholder="Usuário" className="border p-2 rounded" value={newTenant.db_user} onChange={e => setNewTenant({ ...newTenant, db_user: e.target.value })} />
- <input placeholder="Senha" type="password" className="border p-2 rounded" value={newTenant.db_pass} onChange={e => setNewTenant({ ...newTenant, db_pass: e.target.value })} />
- <input placeholder="Cópia Banco Dados (Backup)" className="border p-2 rounded" value={newTenant.copia_banco_dados} onChange={e => setNewTenant({ ...newTenant, copia_banco_dados: e.target.value })} />
- <button onClick={handleAddTenant} disabled={loading} className="bg-[#32423D] text-white p-2 rounded hover:bg-[#32423D]/80 flex items-center justify-center gap-2 md:col-span-3 lg:col-span-1"><Save size={14} /> Cadastrar</button>
+ <input placeholder="Nome do Cliente *" className="border p-2 rounded text-xs" value={newTenant.nome_cliente} onChange={e => setNewTenant({ ...newTenant, nome_cliente: e.target.value })} />
+ <input placeholder="Host (ex: cliente.mysql.uhserver.com) *" className="border p-2 rounded text-xs" value={newTenant.db_host} onChange={e => setNewTenant({ ...newTenant, db_host: e.target.value })} />
+ <input placeholder="Banco *" className="border p-2 rounded text-xs" value={newTenant.db_name} onChange={e => setNewTenant({ ...newTenant, db_name: e.target.value })} />
+ <input placeholder="Usuário *" className="border p-2 rounded text-xs" value={newTenant.db_user} onChange={e => setNewTenant({ ...newTenant, db_user: e.target.value })} />
+ <input placeholder="Senha *" type="password" className="border p-2 rounded text-xs" value={newTenant.db_pass} onChange={e => setNewTenant({ ...newTenant, db_pass: e.target.value })} />
+ <input placeholder="Cópia Banco Dados (Backup opcional)" className="border p-2 rounded text-xs" value={newTenant.copia_banco_dados} onChange={e => setNewTenant({ ...newTenant, copia_banco_dados: e.target.value })} />
+ 
+ <div className="md:col-span-3 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
+ <label className="flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer select-none">
+ <input
+ type="checkbox"
+ checked={newTenant.auto_clonar}
+ onChange={e => setNewTenant({ ...newTenant, auto_clonar: e.target.checked })}
+ className="w-4 h-4 text-[#32423D] rounded border-gray-300 focus:ring-[#32423D]"
+ />
+ <span>Inicializar estrutura automaticamente (Clonar tabelas, views, setores e administradores do banco modelo <strong className="text-purple-700">lynxlocal</strong>)</span>
+ </label>
+
+ <div className="flex items-center gap-2 ml-auto">
+ <button
+ type="button"
+ onClick={handleTestTenantConnection}
+ disabled={testingConn || loading}
+ className="px-3.5 py-2 text-xs font-semibold rounded border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+ >
+ {testingConn ? <RefreshCcw className="animate-spin" size={13} /> : <Server size={13} />}
+ {testingConn ? 'Testando Conexão...' : 'Testar Conexão UOL'}
+ </button>
+
+ <button
+ type="button"
+ onClick={handleAddTenant}
+ disabled={loading || testingConn}
+ className="bg-[#32423D] text-white px-5 py-2 rounded font-semibold hover:bg-[#32423D]/90 flex items-center justify-center gap-2 text-xs transition-colors shadow-sm disabled:opacity-50"
+ >
+ {loading ? <RefreshCcw className="animate-spin" size={14} /> : <Save size={14} />}
+ {loading ? 'Processando...' : 'Cadastrar e Inicializar'}
+ </button>
+ </div>
+ </div>
+
+ {creatingStatus && (
+ <div className="md:col-span-3 p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 flex items-center gap-2.5 animate-pulse">
+ <RefreshCcw className="animate-spin text-purple-600" size={14} />
+ <span className="font-medium">{creatingStatus}</span>
+ </div>
+ )}
  </div>
  </div>
  
@@ -674,6 +780,9 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  <button onClick={() => handleAccessTenant(tenant)} className="w-full py-1.5 text-xs bg-[#32423D] hover:bg-[#32423D]/80 text-white rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium shadow-sm"><ArrowRight size={14} /> Acessar</button>
  <button onClick={() => handleToggleTenantStatus(tenant)} disabled={loading} className={`w-full py-1.5 text-xs ${tenant.ativo ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-100' : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-100'} rounded-md flex items-center justify-center gap-1.5 transition-colors font-medium`}><ShieldCheck size={14} /> {tenant.ativo ? 'Desativar' : 'Ativar'}</button>
  <button onClick={() => handleSyncUsers(tenant.id)} disabled={loading} className="w-full py-1.5 text-xs bg-white hover:bg-gray-50 text-gray-700 rounded-md border border-gray-200 flex items-center justify-center gap-1.5 transition-colors"><Users size={14} /> {loading ? 'Sincronizando...' : 'Usuários'}</button>
+ {tenant.id !== 1 && (
+ <button onClick={() => handleDeleteTenant(tenant)} disabled={loading} className="w-full py-1.5 text-xs text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md border border-dashed border-gray-200 hover:border-red-200 flex items-center justify-center gap-1.5 transition-colors"><Trash2 size={13} /> Excluir</button>
+ )}
  </div>
  </motion.div>
  ))}
@@ -1031,7 +1140,7 @@ export default function SuperadminPage({ defaultTab = 'users' }: SuperadminPageP
  >
  <td className="px-2 py-0.5">
  <span className="text-[11px] text-gray-700 font-mono whitespace-nowrap">
- {new Date(log.data_acesso).toLocaleString('pt-BR')}
+ {String(log.data_formatada || (log.data_acesso ? new Date(log.data_acesso as string).toLocaleString('pt-BR') : '—'))}
  </span>
  </td>
  <td className="px-2 py-0.5">
